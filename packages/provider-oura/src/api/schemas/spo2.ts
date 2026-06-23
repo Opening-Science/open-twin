@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseParams } from "./client";
 
 export const spo2Schema = z.object({
   id: z.string().nonempty(),
@@ -7,9 +8,8 @@ export const spo2Schema = z.object({
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
 });
 
-const spo2ListSchema = z.object({
+const spo2ListSchema = ResponseParams.extend({
   data: z.array(spo2Schema),
-  next_token: z.string().nullable(),
 });
 
 export type OuraSpo2 = z.infer<typeof spo2Schema>;

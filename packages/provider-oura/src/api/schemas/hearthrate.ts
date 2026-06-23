@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseParams } from "./client";
 
 export const HeartRateSchema = z.object({
   timestamp: z.iso.datetime({ offset: true }),
@@ -7,9 +8,8 @@ export const HeartRateSchema = z.object({
   source: z.literal(["awake", "workout", "rest", "sleep", "live", "session"]),
 });
 
-const HeartRateListSchema = z.object({
+const HeartRateListSchema = ResponseParams.extend({
   data: z.array(HeartRateSchema),
-  next_token: z.string().nullable(),
 });
 
 export type OuraHeartRate = z.infer<typeof HeartRateSchema>;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseParams } from "./client";
 
 const ActivityMetSchema = z.object({
   interval: z.number().nonnegative().optional(),
@@ -44,9 +45,8 @@ const DailyActivityItemSchema = z.object({
   total_calories: z.number().int().nonnegative().optional(),
 });
 
-export const OuraMultipleDailyActivityResponseSchema = z.object({
+export const OuraMultipleDailyActivityResponseSchema = ResponseParams.extend({
   data: z.array(DailyActivityItemSchema),
-  next_token: z.string().nullable().optional(),
 });
 
 export type OuraMultipleDailyActivityResponse = z.infer<
