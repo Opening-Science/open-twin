@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const WorkoutSchema = z.object({
-  id: z.string(),
+  id: z.string().nonempty(),
   activity: z.string(),
   source: z.literal([
     "manual",
@@ -13,14 +13,14 @@ export const WorkoutSchema = z.object({
   start_datetime: z.iso.datetime({ offset: true }),
   end_datetime: z.iso.datetime({ offset: true }),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  calories: z.number().optional(),
-  distance: z.number().optional(),
-  label: z.string().optional(),
+  calories: z.number().nullable(),
+  distance: z.number().nullable(),
+  label: z.string().nullable(),
 });
 
 const WorkoutListSchema = z.object({
   data: z.array(WorkoutSchema),
-  next_token: z.string().optional(),
+  next_token: z.string().nullable(),
 });
 
 export type OuraWorkout = z.infer<typeof WorkoutSchema>;
