@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseParams } from "./client";
 
 export const WorkoutSchema = z.object({
   id: z.string().nonempty(),
@@ -18,9 +19,8 @@ export const WorkoutSchema = z.object({
   label: z.string().nullable(),
 });
 
-const WorkoutListSchema = z.object({
+const WorkoutListSchema = ResponseParams.extend({
   data: z.array(WorkoutSchema),
-  next_token: z.string().nullable(),
 });
 
 export type OuraWorkout = z.infer<typeof WorkoutSchema>;

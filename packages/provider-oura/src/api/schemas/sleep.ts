@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ResponseParams } from "./client";
 
 const SleepContributorsSchema = z.object({
   deep_sleep: z.number().int().nonnegative().optional(),
@@ -38,9 +39,8 @@ const SleepSchema = z.object({
   temperature_trend_deviation: z.number().optional(),
 });
 
-export const SleepListSchema = z.object({
+export const SleepListSchema = ResponseParams.extend({
   data: z.array(SleepSchema),
-  next_token: z.string().nullable().optional(),
 });
 
 export type OuraSleepList = z.infer<typeof SleepListSchema>;
