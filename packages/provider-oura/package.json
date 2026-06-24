@@ -24,10 +24,10 @@
   "keywords": [
     "oura",
     "fhir",
-    "api"
+    "connector"
   ],
-  "author": "Berk",
-  "license": "ISC",
+  "author": "Vuse XR",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.18.1",
     "zod": "^4.4.3"

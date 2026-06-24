@@ -1,2 +1,5 @@
+packages:
+  - 'packages/*'
+
 minimumReleaseAgeExclude:
   - axios@1.18.1
