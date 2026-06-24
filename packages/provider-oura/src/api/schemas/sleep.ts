@@ -17,11 +17,13 @@ const SleepContributorsSchema = z.object({
 
 const SleepSchema = z.object({
   id: z.string().nonempty(),
+  bedtime_start: z.string(),
+  bedtime_end: z.string(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
   timestamp: z.string(), // ISO 8601 datetime string
   score: z.number().int().min(0).max(100).optional(),
-  contributors: SleepContributorsSchema,
 
+  contributors: SleepContributorsSchema,
   readiness_score_delta: z.number().optional(),
   rem_sleep_duration: z.number().int().nonnegative().optional(),
   restless_periods: z.number().int().nonnegative().optional(),
