@@ -5,10 +5,10 @@ export const HeartRateSchema = z.object({
   timestamp: z.iso.datetime({ offset: true }),
   timestamp_unix: z.number(), // Format: UNIX timestamp
   bpm: z.number(),
-  source: z.literal(["awake", "workout", "rest", "sleep", "live", "session"]),
+  source: z.enum(["awake", "workout", "rest", "sleep", "live", "session"]),
 });
 
-const HeartRateListSchema = ResponseParams.extend({
+export const HeartRateListSchema = ResponseParams.extend({
   data: z.array(HeartRateSchema),
 });
 

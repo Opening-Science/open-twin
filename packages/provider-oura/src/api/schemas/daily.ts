@@ -45,11 +45,11 @@ const DailyActivityItemSchema = z.object({
   total_calories: z.number().int().nonnegative().optional(),
 });
 
-export const OuraMultipleDailyActivityResponseSchema = ResponseParams.extend({
+export const OuraDailyActivityResponseListSchema = ResponseParams.extend({
   data: z.array(DailyActivityItemSchema),
 });
 
-export type OuraMultipleDailyActivityResponse = z.infer<
-  typeof OuraMultipleDailyActivityResponseSchema
+export type OuraDailyActivityResponseList = z.infer<
+  typeof OuraDailyActivityResponseListSchema
 >;
 export type OuraDailyActivityItem = z.infer<typeof DailyActivityItemSchema>;
