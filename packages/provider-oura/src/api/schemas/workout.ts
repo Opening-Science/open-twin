@@ -19,7 +19,7 @@ export const WorkoutSchema = z.object({
   label: z.string().nullable(),
 });
 
-const WorkoutListSchema = ResponseParams.extend({
+export const WorkoutListSchema = ResponseParams.extend({
   data: z.array(WorkoutSchema),
 });
 
