@@ -1,0 +1,40 @@
+{
+  "name": "provider-oura",
+  "version": "1.0.0",
+  "description": "Oura V2 API to FHIR mapper",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "oura",
+    "fhir",
+    "api"
+  ],
+  "author": "Berk",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.4.0"
+  }
+}
