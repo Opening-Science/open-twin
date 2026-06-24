@@ -1,5 +1,8 @@
 packages:
   - 'packages/*'
 
+allowBuilds:
+  esbuild: set this to true or false
+
 minimumReleaseAgeExclude:
   - axios@1.18.1
