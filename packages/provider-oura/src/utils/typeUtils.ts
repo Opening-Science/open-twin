@@ -11,7 +11,7 @@ import { WorkoutListSchema } from "../api/schemas/workout";
 import { Spo2ListSchema } from "../api/schemas/spo2";
 
 export type SupportedSchemas = {
-  daily: typeof OuraDailyActivityResponseListSchema;
+  daily_activity: typeof OuraDailyActivityResponseListSchema;
   heart_rate: typeof HeartRateListSchema;
   sleep: typeof SleepListSchema;
   workout: typeof WorkoutListSchema;
@@ -33,7 +33,10 @@ export type GetSchemaType<T extends SupportedSchemaName> =
 
 export function getListOfSupportedSchemas(): SupportedSchemaEntry[] {
   return [
-    { schemaName: "daily", schema: OuraDailyActivityResponseListSchema },
+    {
+      schemaName: "daily_activity",
+      schema: OuraDailyActivityResponseListSchema,
+    },
     { schemaName: "heart_rate", schema: HeartRateListSchema },
     { schemaName: "sleep", schema: SleepListSchema },
     { schemaName: "workout", schema: WorkoutListSchema },

@@ -2,15 +2,22 @@ import { z } from "zod";
 
 export const RequestParamsSchema = z.object({
   type: z.enum([
-    "daily",
+    "daily_activity",
     "activity",
     "sleep",
     "readiness",
-    "heart_rate",
-    "spo2",
+    "heartrate",
+    "daily_spo2",
+    "personal_info",
   ]),
-  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
+  start_date: z
+    .string()
+    .regex(/^\d{2}.\d{2}.\d{4}$/)
+    .optional(), // Format: DD.MM.YYYY
+  end_date: z
+    .string()
+    .regex(/^\d{2}.\d{2}.\d{4}$/)
+    .optional(), // Format: DD.MM.YYYY
   next_token: z.string().nullable().optional(),
   fields: z.array(z.string()).optional(),
   latest: z.boolean().nullable().optional(),
