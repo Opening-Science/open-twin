@@ -33,6 +33,7 @@ t.b.d.
 | height | Observation.valueQuantity | 8302-2 |
 | gender | Patient.gender | 99501-9 |
 | age | Now() - Patient.birthDate | |
+| | |
 
 # Disclaimer
 
