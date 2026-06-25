@@ -42,10 +42,10 @@ export async function refreshAccessToken(
   return TokenResponseSchema.parse(response);
 }
 
-export async function getUserCollection(requestParams: RequestParams) {
-  const response = await requestOuraData(
-    requestParams,
-    "YOUR_BEARER_TOKEN_HERE",
-  );
+export async function getUserCollection(
+  requestParams: RequestParams,
+  bearerToken: string,
+) {
+  const response = await requestOuraData(requestParams, bearerToken);
   return response;
 }
