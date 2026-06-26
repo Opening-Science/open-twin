@@ -33,7 +33,6 @@
   "dependencies": {
     "@types/fhir": "^0.0.44",
     "axios": "^1.18.1",
-    "biome": "^0.3.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
