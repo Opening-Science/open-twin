@@ -1,13 +1,9 @@
-import type { OuraResponseParams } from "../api/schemas/client";
-import { type OuraPersonal, PersonalSchema } from "../api/schemas/personal";
-import {
-  getListOfSupportedSchemas,
-  type SupportedSchemaName,
-  type SupportedSchemaTypes,
-} from "./typeUtils";
+import type { OuraResponseParams } from '../api/schemas/client';
+import { type OuraPersonal, PersonalSchema } from '../api/schemas/personal';
+import { getListOfSupportedSchemas, type SupportedSchemaName, type SupportedSchemaTypes } from './typeUtils';
 
 export function inferOuraResponse(
-  params: OuraResponseParams,
+  params: OuraResponseParams
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
   if (!params.data) {
     const parseResult = PersonalSchema.safeParse(params);
@@ -15,13 +11,13 @@ export function inferOuraResponse(
       return parseResult.data;
     }
 
-    throw new Error("Response data does not match Personal schema.", {
-      cause: { PersonalSchema, params },
+    throw new Error('Response data does not match Personal schema.', {
+      cause: { PersonalSchema, params }
     });
   }
 
   if (!Array.isArray(params.data)) {
-    throw new Error("Response data is not an array.");
+    throw new Error('Response data is not an array.');
   }
 
   const listOfSupportedSchemas = getListOfSupportedSchemas();
@@ -32,7 +28,7 @@ export function inferOuraResponse(
     }
   }
 
-  throw new Error("Response data does not match any supported schema.", {
-    cause: { listOfSupportedSchemas, params },
+  throw new Error('Response data does not match any supported schema.', {
+    cause: { listOfSupportedSchemas, params }
   });
 }
