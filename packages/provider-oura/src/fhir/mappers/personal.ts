@@ -1,5 +1,6 @@
 import { OuraPersonal } from "../../api/schemas/personal";
 import { FhirObservation } from "./shared";
+import { Bundle, Observation, Patient } from "fhir/r4";
 
 interface FhirPatient {
   resourceType: "Patient";
@@ -12,7 +13,7 @@ interface FhirPatient {
 export interface FhirBundle {
   resourceType: "Bundle";
   type: "collection";
-  entry: { resource: FhirPatient | FhirObservation }[];
+  entry: { resource: Patient | Observation }[];
 }
 
 const SYSTEMS = {
@@ -22,12 +23,12 @@ const SYSTEMS = {
     "http://terminology.hl7.org/CodeSystem/observation-category",
 };
 
-export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
+export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   if (!person) {
     throw new Error("No personal data available to map to FHIR.");
   }
 
-  const bundle: FhirBundle = {
+  const bundle: Bundle = {
     resourceType: "Bundle",
     type: "collection",
     entry: [],
@@ -51,7 +52,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
     patient.birthDate = (currentYear - person.age - 1).toString();
   }
 
-  bundle.entry.push({ resource: patient });
+  bundle.entry!.push({ resource: patient });
 
   const observationIdentifiers: any[] = [
     { system: "https://ouraring.com/user/id", value: person.id },
@@ -61,7 +62,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
   }
 
   if (person.weight !== null && person.weight !== undefined) {
-    bundle.entry.push({
+    bundle.entry!.push({
       resource: {
         resourceType: "Observation",
         status: "final",
@@ -90,7 +91,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
   }
 
   if (person.height !== null && person.height !== undefined) {
-    bundle.entry.push({
+    bundle.entry!.push({
       resource: {
         resourceType: "Observation",
         status: "final",
@@ -119,7 +120,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
   }
 
   if (person.biological_sex) {
-    bundle.entry.push({
+    bundle.entry!.push({
       resource: {
         resourceType: "Observation",
         status: "final",

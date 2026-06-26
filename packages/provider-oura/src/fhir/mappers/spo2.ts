@@ -1,5 +1,6 @@
 import { OuraSpo2List } from "../../api/schemas/spo2"; // Adjust path as needed
 import { FhirObservation } from "./shared";
+import { Observation } from "fhir/r4";
 
 const SYSTEMS = {
   LOINC: "http://loinc.org",
@@ -9,15 +10,15 @@ const SYSTEMS = {
     "http://terminology.hl7.org/CodeSystem/observation-category",
 };
 
-export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): FhirObservation[] {
+export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
   if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
     throw new Error("No SpO2 data available to map to FHIR.");
   }
 
-  const fhirObservations: FhirObservation[] = [];
+  const fhirObservations: Observation[] = [];
 
   for (const spo2 of ouraData.data) {
-    const components: any[] = [];
+    const components: Observation["component"] = [];
 
     if (spo2.spo2_percentage && spo2.spo2_percentage.average !== null) {
       components.push({
@@ -52,11 +53,14 @@ export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): FhirObservation[] {
         },
         valueQuantity: {
           value: spo2.breathing_disturbance_index,
+          unit: "events/hour",
+          system: SYSTEMS.UCUM,
+          code: "/h",
         },
       });
     }
 
-    const observation: FhirObservation = {
+    const observation: Observation = {
       resourceType: "Observation",
       status: "final",
       category: [

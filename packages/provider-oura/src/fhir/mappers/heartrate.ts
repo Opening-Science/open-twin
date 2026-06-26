@@ -1,5 +1,5 @@
+import { Observation } from "fhir/r4";
 import { OuraHeartRateList } from "../../api/schemas/heartrate"; // Adjust path as needed
-import { FhirObservation } from "./shared";
 
 const SYSTEMS = {
   LOINC: "http://loinc.org",
@@ -11,15 +11,15 @@ const SYSTEMS = {
 
 export function mapOuraHeartRateToFHIR(
   ouraData: OuraHeartRateList,
-): FhirObservation[] {
+): Observation[] {
   if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
     throw new Error("No heart rate data available to map to FHIR.");
   }
 
-  const fhirObservations: FhirObservation[] = [];
+  const fhirObservations: Observation[] = [];
 
   for (const hr of ouraData.data) {
-    const observation: FhirObservation = {
+    const observation: Observation = {
       resourceType: "Observation",
       status: "final",
       category: [

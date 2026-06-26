@@ -1,3 +1,4 @@
+import { Observation } from "fhir/r4";
 import { OuraSleep, OuraSleepList } from "../../api/schemas/sleep";
 import { FhirObservation } from "./shared";
 
@@ -8,15 +9,15 @@ const SYSTEMS = {
   OURA_CUSTOM: "https://cloud.ouraring.com/v2/docs",
 };
 
-export function mapOuraSleepToFHIR(ouraData: OuraSleepList): FhirObservation[] {
+export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
   if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
     throw new Error("No sleep data available to map to FHIR.");
   }
-  const fhirObservations: FhirObservation[] = [];
+  const fhirObservations: Observation[] = [];
 
   for (const sleep of ouraData.data) {
     console.log("Mapping Oura sleep data to FHIR Observation:", sleep);
-    const components: any[] = [];
+    const components: Observation["component"] = [];
     const extensions: any[] = [];
 
     const addComponent = (
@@ -44,7 +45,6 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): FhirObservation[] {
       }
     };
 
-    // 1. Map Top-Level Components
     addComponent(
       sleep.readiness_score_delta,
       "readiness_score_delta",

@@ -45,7 +45,6 @@ export const FhirSchema = z.object({
     )
     .optional(),
 
-  // Observation status requires specific values
   status: z.enum([
     "registered",
     "preliminary",
@@ -87,7 +86,6 @@ export const FhirSchema = z.object({
     )
     .optional(),
 
-  // Fields mapped from Oura
   extension: z.array(extensionSchema).optional(),
   device: z.object({ reference: z.string() }).optional(),
   method: codeableConceptSchema.optional(),
