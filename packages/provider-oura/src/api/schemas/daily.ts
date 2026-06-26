@@ -1,10 +1,10 @@
-import { z } from "zod";
-import { ResponseParams } from "./client";
+import { z } from 'zod';
+import { ResponseParams } from './client';
 
 const ActivityMetSchema = z.object({
   interval: z.number().nonnegative().optional(),
   items: z.array(z.number().nonnegative()),
-  timestamp: z.string(), // ISO 8601 datetime string indicating starting time
+  timestamp: z.string() // ISO 8601 datetime string indicating starting time
 });
 
 const ActivityContributorsSchema = z.object({
@@ -13,7 +13,7 @@ const ActivityContributorsSchema = z.object({
   recovery_time: z.number().int().min(0).max(100).optional(),
   stay_active: z.number().int().min(0).max(100).optional(),
   training_frequency: z.number().int().min(0).max(100).optional(),
-  training_volume: z.number().int().min(0).max(100).optional(),
+  training_volume: z.number().int().min(0).max(100).optional()
 });
 
 const DailyActivityItemSchema = z.object({
@@ -42,14 +42,12 @@ const DailyActivityItemSchema = z.object({
   steps: z.number().int().nonnegative().optional(),
   target_calories: z.number().int().nonnegative().optional(),
   target_meters: z.number().int().nonnegative().optional(),
-  total_calories: z.number().int().nonnegative().optional(),
+  total_calories: z.number().int().nonnegative().optional()
 });
 
 export const OuraDailyActivityResponseListSchema = ResponseParams.extend({
-  data: z.array(DailyActivityItemSchema),
+  data: z.array(DailyActivityItemSchema)
 });
 
-export type OuraDailyActivityResponseList = z.infer<
-  typeof OuraDailyActivityResponseListSchema
->;
+export type OuraDailyActivityResponseList = z.infer<typeof OuraDailyActivityResponseListSchema>;
 export type OuraDailyActivityItem = z.infer<typeof DailyActivityItemSchema>;

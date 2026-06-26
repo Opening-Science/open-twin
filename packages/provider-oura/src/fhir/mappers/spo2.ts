@@ -1,6 +1,5 @@
-import { OuraSpo2List } from "../../api/schemas/spo2"; // Adjust path as needed
-import { FhirObservation } from "./shared";
-import { Observation } from "fhir/r4";
+import type { Observation } from "fhir/r4";
+import type { OuraSpo2List } from "../../api/schemas/spo2"; // Adjust path as needed
 
 const SYSTEMS = {
   LOINC: "http://loinc.org",
@@ -11,7 +10,7 @@ const SYSTEMS = {
 };
 
 export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
-  if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
+  if (!ouraData?.data || ouraData.data.length === 0) {
     throw new Error("No SpO2 data available to map to FHIR.");
   }
 

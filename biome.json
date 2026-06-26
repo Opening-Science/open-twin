@@ -1,0 +1,137 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**", "!**/*.gen.ts"]
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "formatWithErrors": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120,
+    "attributePosition": "auto",
+    "bracketSpacing": true,
+    "includes": ["**"]
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "none",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "quoteStyle": "single",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {},
+      "complexity": {
+        "noExtraBooleanCast": "error",
+        "noStaticOnlyClass": "error",
+        "noUselessCatch": "error",
+        "noUselessConstructor": "error",
+        "noUselessFragments": "error",
+        "noUselessTernary": "error",
+        "noUselessSwitchCase": "error",
+        "noUselessTypeConstraint": "error",
+        "noAdjacentSpacesInRegex": "error",
+        "noArguments": "error",
+        "useLiteralKeys": "error",
+        "useOptionalChain": "error"
+      },
+      "correctness": {
+        "noUndeclaredVariables": "error",
+        "noUnusedLabels": "error",
+        "noUnusedFunctionParameters": "error",
+        "noUnusedPrivateClassMembers": "error",
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "error",
+        "useJsxKeyInIterable": "error",
+        "noUnusedImports": {
+          "options": {},
+          "level": "error",
+          "fix": "safe"
+        }
+      },
+      "performance": {
+        "noAccumulatingSpread": "error",
+        "noDelete": "error",
+        "noBarrelFile": "error"
+      },
+      "style": {
+        "noDefaultExport": "error",
+        "noDoneCallback": "error",
+        "noNonNullAssertion": "error",
+        "noParameterAssign": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useAsConstAssertion": "error",
+        "useConst": "error",
+        "useLiteralEnumMembers": "error",
+        "useTemplate": "error",
+        "useArrayLiterals": "off",
+        "useComponentExportOnlyModules": "error",
+        "useDefaultParameterLast": "error",
+        "useNodejsImportProtocol": {
+          "options": {},
+          "level": "error",
+          "fix": "safe"
+        }
+      },
+      "suspicious": {
+        "noCatchAssign": "error",
+        "noConfusingVoidType": "error",
+        "noConsole": "error",
+        "noDuplicateTestHooks": "error",
+        "noEmptyBlockStatements": "error",
+        "noExplicitAny": "error",
+        "noExportsInTest": "error",
+        "noExtraNonNullAssertion": "error",
+        "noFocusedTests": "error",
+        "noPrototypeBuiltins": "error",
+        "noSkippedTests": "error",
+        "noSuspiciousSemicolonInJsx": "error",
+        "noUnknownAtRules": "off",
+        "useAwait": "error",
+        "useIterableCallbackReturn": "off",
+        "noVar": "error"
+      }
+    },
+    "includes": ["**", "!**/node_modules/", "!**/dist", "!**/*.js"]
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.d.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
+          }
+        }
+      }
+    }
+  ]
+}

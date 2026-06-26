@@ -62,37 +62,37 @@ t.b.d.
 ## Personal
 
 | OURA Data Feature | FHIR Correspondence | LOINC Code |
-| ----------------- | ------------------- | -----------------|
-| id | Observation.identifier |  |
-| weight | Observation.valueQuantity | 29463-7 |
-| height | Observation.valueQuantity | 8302-2 |
-| gender | Patient.gender | 99501-9 |
-| age | Now() - Patient.birthDate | |
-| email | Observation.identifier | |
+| :--- | :--- | :---
+| `id` | `Observation.identifier` |  |
+| `weight` | `Observation.valueQuantity` | 29463-7 |
+| `height` | `Observation.valueQuantity` | 8302-2 |
+| `gender` | `Patient.gender` | 99501-9 |
+| `age` | `Now() - Patient.birthDate` | |
+| `email` | `Observation.identifier` | |
 
 ## SpO2
 
 | OURA Data Feature | FHIR Correspondence | LOINC Code |
-| ----------------- | ------------------- | ----------------- |
-| id | Observation.identifier |  |
-| breathing_disturbance_index | Observation.valueQuantity | 90566-1 |
-| spo2_percentage.average | Observation.valueQuantity | 59408-5 |
-| day | Observation.effectiveDateTime |  |
+| :--- | :--- | :--- |
+| `id` | O`bservation.identifier` |  |
+| `breathing_disturbance_index` | `Observation.valueQuantity` | 90566-1 |
+| `spo2_percentage.average` | `Observation.valueQuantity` | 59408-5 |
+| `day` | `Observation.effectiveDateTime` |  |
 
 ## Workout
 
 | OURA Data Feature | FHIR Correspondence | LOINC Code | Notes |
-| ----------------- | ------------------- | ----------------- | ------------- |
-| id | Observation.identifier |  | |
-| activity | Observation.valueCodeableConcept | 73985-4 | |
-| source | Observation.method |  | |
-| intensity | Observation.component.valueCodeableConcept | 74008-4 | |
-| start_datetime | Observation.effectivePeriod.start |  | |
-| end_datetime | Observation.effectivePeriod.end |  | |
-| day | Observation.effectiveDateTime |  | |
-| calories | Observation.component.valueQuantity | 41981-2 | |
-| distance | Observation.component.valueQuantity | 112427-0 | Walking and running distance in 24h |
-| label | Observation.note |  |  |
+| :--- | :--- | :--- | :--- |
+| `id` | `Observation.identifier` |  | |
+| `activity` | `Observation.valueCodeableConcept` | 73985-4 | |
+| `source` | `Observation.method` |  | |
+| `intensity` | `Observation.component.valueCodeableConcept` | 74008-4 | |
+| `start_datetime` | `Observation.effectivePeriod.start` |  | |
+| `end_datetime` | `Observation.effectivePeriod.end` |  | |
+| `day` | `Observation.effectiveDateTime` |  | |
+| `calories` | `Observation.component.valueQuantity` | 41981-2 | |
+| `distance` | `Observation.component.valueQuantity` | 112427-0 | Walking and running distance in 24h |
+| `label` | `Observation.note` |  |  |
 
 # Disclaimer
 

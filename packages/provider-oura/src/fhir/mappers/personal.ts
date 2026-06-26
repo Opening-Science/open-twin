@@ -1,11 +1,11 @@
-import { OuraPersonal } from "../../api/schemas/personal";
-import { FhirObservation } from "./shared";
-import { Bundle, Observation, Patient } from "fhir/r4";
+import type { Bundle, Observation, Patient } from "fhir/r4";
+import type { OuraPersonal } from "../../api/schemas/personal";
+import type { FhirObservation } from "./shared";
 
 interface FhirPatient {
   resourceType: "Patient";
   id?: string;
-  identifier?: any[];
+  identifier?: FhirObservation["identifier"];
   gender?: string;
   birthDate?: string;
 }
@@ -52,9 +52,9 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
     patient.birthDate = (currentYear - person.age - 1).toString();
   }
 
-  bundle.entry!.push({ resource: patient });
+  bundle.entry?.push({ resource: patient });
 
-  const observationIdentifiers: any[] = [
+  const observationIdentifiers: FhirObservation["identifier"] = [
     { system: "https://ouraring.com/user/id", value: person.id },
   ];
   if (person.email) {
@@ -62,7 +62,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   }
 
   if (person.weight !== null && person.weight !== undefined) {
-    bundle.entry!.push({
+    bundle.entry?.push({
       resource: {
         resourceType: "Observation",
         status: "final",
@@ -91,7 +91,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   }
 
   if (person.height !== null && person.height !== undefined) {
-    bundle.entry!.push({
+    bundle.entry?.push({
       resource: {
         resourceType: "Observation",
         status: "final",
@@ -120,7 +120,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   }
 
   if (person.biological_sex) {
-    bundle.entry!.push({
+    bundle.entry?.push({
       resource: {
         resourceType: "Observation",
         status: "final",

@@ -1,15 +1,25 @@
-import { OuraResponseParams, RequestParams } from "./api/schemas/client";
-import { OuraPersonal } from "./api/schemas/personal";
+import type { Bundle, Observation } from "fhir/r4";
+import type { RequestParams } from "./api/schemas/client";
+import type { OuraPersonal } from "./api/schemas/personal";
 import { mapOuraDailyActivityToFHIR } from "./fhir/mappers/daily";
 import { mapOuraHeartRateToFHIR } from "./fhir/mappers/heartrate";
-import { FhirBundle, mapOuraPersonalToFHIR } from "./fhir/mappers/personal";
-import { FhirObservation, FhirSchema } from "./fhir/mappers/shared";
+import { mapOuraPersonalToFHIR } from "./fhir/mappers/personal";
 import { mapOuraSleepToFHIR } from "./fhir/mappers/sleep";
 import { mapOuraSpo2ToFHIR } from "./fhir/mappers/spo2";
 import { requestOuraData } from "./utils/clientUtils";
 import { inferOuraResponse } from "./utils/objectUtils";
-import { SupportedSchemaName, SupportedSchemaTypes } from "./utils/typeUtils";
-import { Bundle, Observation } from "fhir/r4";
+import type {
+  SupportedSchemaName,
+  SupportedSchemaTypes,
+} from "./utils/typeUtils";
+
+export async function getSandboxOuraData(
+  request: RequestParams,
+  bearerToken: string,
+): Promise<SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal> {
+  const data = await requestOuraData(request, bearerToken, true);
+  return inferOuraResponse(data);
+}
 
 export async function getOuraData(
   request: RequestParams,
@@ -41,7 +51,6 @@ export async function getFhirSleepFromOuraData(
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "sleep") {
-    console.log("Mapping inferredData to FHIR sleep observations:");
     return mapOuraSleepToFHIR(inferredData as SupportedSchemaTypes["sleep"]);
   }
   return [];

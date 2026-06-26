@@ -1,14 +1,12 @@
-import { z } from "zod";
+import type { z } from 'zod';
 
-import { OuraDailyActivityResponseListSchema } from "../api/schemas/daily";
+import { OuraDailyActivityResponseListSchema } from '../api/schemas/daily';
 
-import { HeartRateListSchema } from "../api/schemas/heartrate";
+import { HeartRateListSchema } from '../api/schemas/heartrate';
 
-import { SleepListSchema } from "../api/schemas/sleep";
-
-import { WorkoutListSchema } from "../api/schemas/workout";
-
-import { Spo2ListSchema } from "../api/schemas/spo2";
+import { SleepListSchema } from '../api/schemas/sleep';
+import { Spo2ListSchema } from '../api/schemas/spo2';
+import { WorkoutListSchema } from '../api/schemas/workout';
 
 export type SupportedSchemas = {
   daily_activity: typeof OuraDailyActivityResponseListSchema;
@@ -28,18 +26,17 @@ export type SupportedSchemaEntry = {
   [K in SupportedSchemaName]: { schemaName: K; schema: SupportedSchemas[K] };
 }[SupportedSchemaName];
 
-export type GetSchemaType<T extends SupportedSchemaName> =
-  SupportedSchemaTypes[T];
+export type GetSchemaType<T extends SupportedSchemaName> = SupportedSchemaTypes[T];
 
 export function getListOfSupportedSchemas(): SupportedSchemaEntry[] {
   return [
     {
-      schemaName: "daily_activity",
-      schema: OuraDailyActivityResponseListSchema,
+      schemaName: 'daily_activity',
+      schema: OuraDailyActivityResponseListSchema
     },
-    { schemaName: "heartrate", schema: HeartRateListSchema },
-    { schemaName: "sleep", schema: SleepListSchema },
-    { schemaName: "workout", schema: WorkoutListSchema },
-    { schemaName: "spo2", schema: Spo2ListSchema },
+    { schemaName: 'heartrate', schema: HeartRateListSchema },
+    { schemaName: 'sleep', schema: SleepListSchema },
+    { schemaName: 'workout', schema: WorkoutListSchema },
+    { schemaName: 'spo2', schema: Spo2ListSchema }
   ];
 }

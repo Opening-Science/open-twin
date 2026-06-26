@@ -1,5 +1,5 @@
-import { Observation } from "fhir/r4";
-import { OuraHeartRateList } from "../../api/schemas/heartrate"; // Adjust path as needed
+import type { Observation } from "fhir/r4";
+import type { OuraHeartRateList } from "../../api/schemas/heartrate"; // Adjust path as needed
 
 const SYSTEMS = {
   LOINC: "http://loinc.org",
@@ -12,7 +12,7 @@ const SYSTEMS = {
 export function mapOuraHeartRateToFHIR(
   ouraData: OuraHeartRateList,
 ): Observation[] {
-  if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
+  if (!ouraData?.data || ouraData.data.length === 0) {
     throw new Error("No heart rate data available to map to FHIR.");
   }
 
