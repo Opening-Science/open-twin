@@ -1,6 +1,5 @@
+import { Observation } from "fhir/r4";
 import { OuraDailyActivityResponseList } from "../../api/schemas/daily";
-
-import { FhirObservation } from "./shared";
 
 const SYSTEMS = {
   LOINC: "http://loinc.org",
@@ -12,9 +11,9 @@ const SYSTEMS = {
 export function mapOuraDailyActivityToFHIR(
   dailyActivity: OuraDailyActivityResponseList,
   patientId: string = "unknown",
-): FhirObservation[] {
+): Observation[] {
   return dailyActivity.data.map((activity) => {
-    const components: FhirObservation["component"] = [];
+    const components: Observation["component"] = [];
 
     const addComponent = (
       value: number | undefined,
@@ -296,7 +295,7 @@ export function mapOuraDailyActivityToFHIR(
       "steps",
     );
 
-    const observation: FhirObservation = {
+    const observation: Observation = {
       resourceType: "Observation",
       identifier: [
         {

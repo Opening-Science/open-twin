@@ -29,6 +29,7 @@
   "author": "Vuse XR",
   "license": "MIT",
   "dependencies": {
+    "@types/fhir": "^0.0.44",
     "axios": "^1.18.1",
     "zod": "^4.4.3"
   },

@@ -1,14 +1,15 @@
 import { OuraResponseParams, RequestParams } from "./api/schemas/client";
 import { OuraPersonal } from "./api/schemas/personal";
-import { mapOuraDailyActivityToFHIR } from "./fhir/schemas/daily";
-import { mapOuraHeartRateToFHIR } from "./fhir/schemas/heartrate";
-import { FhirBundle, mapOuraPersonalToFHIR } from "./fhir/schemas/personal";
-import { FhirObservation, FhirSchema } from "./fhir/schemas/shared";
-import { mapOuraSleepToFHIR } from "./fhir/schemas/sleep";
-import { mapOuraSpo2ToFHIR } from "./fhir/schemas/spo2";
+import { mapOuraDailyActivityToFHIR } from "./fhir/mappers/daily";
+import { mapOuraHeartRateToFHIR } from "./fhir/mappers/heartrate";
+import { FhirBundle, mapOuraPersonalToFHIR } from "./fhir/mappers/personal";
+import { FhirObservation, FhirSchema } from "./fhir/mappers/shared";
+import { mapOuraSleepToFHIR } from "./fhir/mappers/sleep";
+import { mapOuraSpo2ToFHIR } from "./fhir/mappers/spo2";
 import { requestOuraData } from "./utils/clientUtils";
 import { inferOuraResponse } from "./utils/objectUtils";
 import { SupportedSchemaName, SupportedSchemaTypes } from "./utils/typeUtils";
+import { Bundle, Observation } from "fhir/r4";
 
 export async function getOuraData(
   request: RequestParams,
@@ -21,7 +22,7 @@ export async function getOuraData(
 export async function getFhirDailyActivityFromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<FhirObservation[]> {
+): Promise<Observation[]> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "daily_activity") {
@@ -36,7 +37,7 @@ export async function getFhirDailyActivityFromOuraData(
 export async function getFhirSleepFromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<FhirObservation[]> {
+): Promise<Observation[]> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "sleep") {
@@ -49,7 +50,7 @@ export async function getFhirSleepFromOuraData(
 export async function getFhirHeartRateFromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<FhirObservation[]> {
+): Promise<Observation[]> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "heartrate") {
@@ -63,7 +64,7 @@ export async function getFhirHeartRateFromOuraData(
 export async function getFhirSpo2FromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<FhirObservation[]> {
+): Promise<Observation[]> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "daily_spo2") {
@@ -75,7 +76,7 @@ export async function getFhirSpo2FromOuraData(
 export async function getFhirPersonalFromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<FhirBundle> {
+): Promise<Bundle> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "personal_info") {
