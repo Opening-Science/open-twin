@@ -10,17 +10,14 @@ export function inferOuraResponse(
   params: OuraResponseParams,
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
   if (!params.data) {
-    console.log("Response data is missing:", params);
     const parseResult = PersonalSchema.safeParse(params);
     if (parseResult.success) {
       return parseResult.data;
     }
-    console.log("Response data does not match Personal schema:", params);
     throw new Error("Response data does not match Personal schema.");
   }
 
   if (!Array.isArray(params.data)) {
-    console.log("Response data is not an array:", params.data);
     throw new Error("Response data is not an array.");
   }
 
@@ -31,6 +28,6 @@ export function inferOuraResponse(
       return parseResult.data;
     }
   }
-  console.log("Response data does not match any supported schema:", params);
+
   throw new Error("Response data does not match any supported schema.");
 }
