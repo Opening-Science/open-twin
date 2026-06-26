@@ -5,8 +5,7 @@ import { FhirObservation } from "./shared";
 const SYSTEMS = {
   LOINC: "http://loinc.org",
   SNOMED: "http://snomed.info/sct",
-  OURA_CUSTOM: "https://ouraring.com/custom-system",
-  OURA_EXT: "https://ouraring.com/fhir/StructureDefinition",
+  OURA_CUSTOM: "https://cloud.ouraring.com/v2/docs",
 };
 
 export function mapOuraSleepToFHIR(ouraData: OuraSleepList): FhirObservation[] {
@@ -39,7 +38,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): FhirObservation[] {
     const addExtension = (urlFragment: string, value: string | undefined) => {
       if (value !== undefined) {
         extensions.push({
-          url: `${SYSTEMS.OURA_EXT}/${urlFragment}`,
+          url: `${SYSTEMS.OURA_CUSTOM}/${urlFragment}`,
           valueString: value,
         });
       }
