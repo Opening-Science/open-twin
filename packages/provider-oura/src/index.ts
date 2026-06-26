@@ -2,7 +2,7 @@ import { OuraResponseParams, RequestParams } from "./api/schemas/client";
 import { OuraPersonal } from "./api/schemas/personal";
 import { mapOuraDailyActivityToFHIR } from "./fhir/schemas/daily";
 import { mapOuraHeartRateToFHIR } from "./fhir/schemas/heartrate";
-import { FhirPatient, mapOuraPersonalToFHIR } from "./fhir/schemas/personal";
+import { FhirBundle, mapOuraPersonalToFHIR } from "./fhir/schemas/personal";
 import { FhirObservation, FhirSchema } from "./fhir/schemas/shared";
 import { mapOuraSleepToFHIR } from "./fhir/schemas/sleep";
 import { mapOuraSpo2ToFHIR } from "./fhir/schemas/spo2";
@@ -75,11 +75,11 @@ export async function getFhirSpo2FromOuraData(
 export async function getFhirPersonalFromOuraData(
   request: RequestParams,
   bearerToken: string,
-): Promise<(FhirPatient | FhirObservation)[]> {
+): Promise<FhirBundle> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = inferOuraResponse(data);
   if (request.type === "personal_info") {
     return mapOuraPersonalToFHIR(inferredData as OuraPersonal);
   }
-  return [];
+  throw new Error("Unsupported request type for personal data.");
 }

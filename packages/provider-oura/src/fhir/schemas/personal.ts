@@ -1,12 +1,18 @@
-import { OuraPersonal } from "../../api/schemas/personal"; // Adjust path as needed
+import { OuraPersonal } from "../../api/schemas/personal";
 import { FhirObservation } from "./shared";
 
-export interface FhirPatient {
+interface FhirPatient {
   resourceType: "Patient";
   id?: string;
   identifier?: any[];
   gender?: string;
   birthDate?: string;
+}
+
+export interface FhirBundle {
+  resourceType: "Bundle";
+  type: "collection";
+  entry: { resource: FhirPatient | FhirObservation }[];
 }
 
 const SYSTEMS = {
@@ -16,24 +22,22 @@ const SYSTEMS = {
     "http://terminology.hl7.org/CodeSystem/observation-category",
 };
 
-export function mapOuraPersonalToFHIR(
-  person: OuraPersonal,
-): (FhirPatient | FhirObservation)[] {
+export function mapOuraPersonalToFHIR(person: OuraPersonal): FhirBundle {
   if (!person) {
     throw new Error("No personal data available to map to FHIR.");
   }
 
-  const resources: (FhirPatient | FhirObservation)[] = [];
+  const bundle: FhirBundle = {
+    resourceType: "Bundle",
+    type: "collection",
+    entry: [],
+  };
+
   const currentYear = new Date().getFullYear();
 
   const patient: FhirPatient = {
     resourceType: "Patient",
-    identifier: [
-      {
-        system: "https://ouraring.com/user/id",
-        value: person.id,
-      },
-    ],
+    identifier: [{ system: "https://ouraring.com/user/id", value: person.id }],
   };
 
   if (person.biological_sex) {
@@ -47,105 +51,104 @@ export function mapOuraPersonalToFHIR(
     patient.birthDate = (currentYear - person.age - 1).toString();
   }
 
-  resources.push(patient);
+  bundle.entry.push({ resource: patient });
 
   const observationIdentifiers: any[] = [
-    {
-      system: "https://ouraring.com/user/id",
-      value: person.id,
-    },
+    { system: "https://ouraring.com/user/id", value: person.id },
   ];
-
   if (person.email) {
-    observationIdentifiers.push({
-      system: "email",
-      value: person.email,
-    });
+    observationIdentifiers.push({ system: "email", value: person.email });
   }
 
   if (person.weight !== null && person.weight !== undefined) {
-    resources.push({
-      resourceType: "Observation",
-      status: "final",
-      identifier: observationIdentifiers,
-      category: [
-        {
+    bundle.entry.push({
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        identifier: observationIdentifiers,
+        category: [
+          {
+            coding: [
+              { system: SYSTEMS.OBSERVATION_CATEGORY, code: "vital-signs" },
+            ],
+          },
+        ],
+        code: {
           coding: [
-            { system: SYSTEMS.OBSERVATION_CATEGORY, code: "vital-signs" },
+            { system: SYSTEMS.LOINC, code: "29463-7", display: "Body weight" },
           ],
         },
-      ],
-      code: {
-        coding: [
-          { system: SYSTEMS.LOINC, code: "29463-7", display: "Body weight" },
-        ],
-      },
-      subject: { reference: `Patient/${person.id}` },
-      valueQuantity: {
-        value: person.weight,
-        unit: "kg",
-        system: SYSTEMS.UCUM,
-        code: "kg",
-      },
-    } as FhirObservation);
+        subject: { reference: `Patient/${person.id}` },
+        valueQuantity: {
+          value: person.weight,
+          unit: "kg",
+          system: SYSTEMS.UCUM,
+          code: "kg",
+        },
+      } as FhirObservation,
+    });
   }
 
   if (person.height !== null && person.height !== undefined) {
-    resources.push({
-      resourceType: "Observation",
-      status: "final",
-      identifier: observationIdentifiers,
-      category: [
-        {
+    bundle.entry.push({
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        identifier: observationIdentifiers,
+        category: [
+          {
+            coding: [
+              { system: SYSTEMS.OBSERVATION_CATEGORY, code: "vital-signs" },
+            ],
+          },
+        ],
+        code: {
           coding: [
-            { system: SYSTEMS.OBSERVATION_CATEGORY, code: "vital-signs" },
+            { system: SYSTEMS.LOINC, code: "8302-2", display: "Body height" },
           ],
         },
-      ],
-      code: {
-        coding: [
-          { system: SYSTEMS.LOINC, code: "8302-2", display: "Body height" },
-        ],
-      },
-      subject: { reference: `Patient/${person.id}` },
-      valueQuantity: {
-        value: person.height,
-        unit: "m",
-        system: SYSTEMS.UCUM,
-        code: "m",
-      },
-    } as FhirObservation);
+        subject: { reference: `Patient/${person.id}` },
+        valueQuantity: {
+          value: person.height,
+          unit: "m",
+          system: SYSTEMS.UCUM,
+          code: "m",
+        },
+      } as FhirObservation,
+    });
   }
 
   if (person.biological_sex) {
-    resources.push({
-      resourceType: "Observation",
-      status: "final",
-      identifier: observationIdentifiers,
-      category: [
-        {
+    bundle.entry.push({
+      resource: {
+        resourceType: "Observation",
+        status: "final",
+        identifier: observationIdentifiers,
+        category: [
+          {
+            coding: [
+              {
+                system: SYSTEMS.OBSERVATION_CATEGORY,
+                code: "social-history",
+                display: "Social History",
+              },
+            ],
+          },
+        ],
+        code: {
           coding: [
             {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: "social-history",
-              display: "Social History",
+              system: SYSTEMS.LOINC,
+              code: "99501-9",
+              display: "Sex assigned at birth",
             },
           ],
         },
-      ],
-      code: {
-        coding: [
-          {
-            system: SYSTEMS.LOINC,
-            code: "99501-9",
-            display: "Sex assigned at birth",
-          },
-        ],
-      },
-      subject: { reference: `Patient/${person.id}` },
-      valueString: person.biological_sex,
-    } as FhirObservation);
+        subject: { reference: `Patient/${person.id}` },
+        valueString: person.biological_sex,
+      } as FhirObservation,
+    });
   }
 
-  return resources;
+  return bundle;
 }
