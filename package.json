@@ -1,4 +1,8 @@
 {
+  "name": "open-twin",
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  },
   "scripts": {
     "format": "biome check --write",
     "lint": "biome ci"

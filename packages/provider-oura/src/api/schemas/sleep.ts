@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { ResponseParams } from "./client";
+import { z } from 'zod';
+import { ResponseParams } from './client';
 
 // const SleepContributorsSchema = z.object({
 //   deep_sleep: z.number().int().nonnegative().optional(),
@@ -49,15 +49,15 @@ const SleepSchema = z.object({
   sleep_score_delta: z.number().optional(),
   time_in_bed: z.number().int().nonnegative().optional(),
   total_sleep_duration: z.number().int().nonnegative().optional(),
-  type: z.enum(["long_sleep", "nap", "deleted"]).optional(),
+  type: z.enum(['long_sleep', 'nap', 'deleted']).optional(),
   ring_id: z.string().nullable().optional(),
   app_sleep_phase_5_min: z.string().optional(),
   temperature_deviation: z.number().optional(),
-  temperature_trend_deviation: z.number().optional(),
+  temperature_trend_deviation: z.number().optional()
 });
 
 export const SleepListSchema = ResponseParams.extend({
-  data: z.array(SleepSchema),
+  data: z.array(SleepSchema)
 });
 
 export type OuraSleepList = z.infer<typeof SleepListSchema>;

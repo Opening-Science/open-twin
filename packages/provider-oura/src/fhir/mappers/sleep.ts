@@ -1,36 +1,31 @@
-import type { Observation } from "fhir/r4";
-import type { OuraSleepList } from "../../api/schemas/sleep";
-import type { FhirObservation } from "./shared";
+import type { Observation } from 'fhir/r4';
+import type { OuraSleepList } from '../../api/schemas/sleep';
+import type { FhirObservation } from './shared';
 
 // Standard FHIR Systems
 const SYSTEMS = {
-  LOINC: "http://loinc.org",
-  SNOMED: "http://snomed.info/sct",
-  OURA_CUSTOM: "https://cloud.ouraring.com/v2/docs",
+  LOINC: 'http://loinc.org',
+  SNOMED: 'http://snomed.info/sct',
+  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs'
 };
 
 export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {
-    throw new Error("No sleep data available to map to FHIR.");
+    throw new Error('No sleep data available to map to FHIR.');
   }
   const fhirObservations: Observation[] = [];
 
   for (const sleep of ouraData.data) {
-    const components: Observation["component"] = [];
-    const extensions: Observation["extension"] = [];
+    const components: Observation['component'] = [];
+    const extensions: Observation['extension'] = [];
 
-    const addComponent = (
-      value: number | undefined,
-      code: string,
-      system: string,
-      display?: string,
-    ) => {
+    const addComponent = (value: number | undefined, code: string, system: string, display?: string) => {
       if (value !== undefined) {
         components.push({
           code: {
-            coding: [{ system, code, ...(display && { display }) }],
+            coding: [{ system, code, ...(display && { display }) }]
           },
-          valueQuantity: { value },
+          valueQuantity: { value }
         });
       }
     };
@@ -39,116 +34,63 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       if (value !== undefined) {
         extensions.push({
           url: `${SYSTEMS.OURA_CUSTOM}/${urlFragment}`,
-          valueString: value,
+          valueString: value
         });
       }
     };
 
-    addComponent(
-      sleep.readiness_score_delta,
-      "readiness_score_delta",
-      SYSTEMS.OURA_CUSTOM,
-    );
-    addComponent(
-      sleep.rem_sleep_duration,
-      "93829-0",
-      SYSTEMS.LOINC,
-      "REM sleep duration",
-    );
-    addComponent(
-      sleep.restless_periods,
-      "restless_periods",
-      SYSTEMS.OURA_CUSTOM,
-    );
-    addComponent(
-      sleep.sleep_score_delta,
-      "sleep_score_delta",
-      SYSTEMS.OURA_CUSTOM,
-    );
-    addComponent(sleep.time_in_bed, "103214-3", SYSTEMS.LOINC, "Time in bed");
-    addComponent(
-      sleep.total_sleep_duration,
-      "93832-4",
-      SYSTEMS.LOINC,
-      "Total sleep duration",
-    );
-    addComponent(
-      sleep.temperature_deviation,
-      "temperature_deviation",
-      SYSTEMS.OURA_CUSTOM,
-    );
-    addComponent(
-      sleep.temperature_trend_deviation,
-      "temperature_trend_deviation",
-      SYSTEMS.OURA_CUSTOM,
-    );
+    addComponent(sleep.readiness_score_delta, 'readiness_score_delta', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.rem_sleep_duration, '93829-0', SYSTEMS.LOINC, 'REM sleep duration');
+    addComponent(sleep.restless_periods, 'restless_periods', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.sleep_score_delta, 'sleep_score_delta', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.time_in_bed, '103214-3', SYSTEMS.LOINC, 'Time in bed');
+    addComponent(sleep.total_sleep_duration, '93832-4', SYSTEMS.LOINC, 'Total sleep duration');
+    addComponent(sleep.temperature_deviation, 'temperature_deviation', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.temperature_trend_deviation, 'temperature_trend_deviation', SYSTEMS.OURA_CUSTOM);
 
     // 2. Map Flattened Metrics to Components (Replaces legacy 'contributors')
-    addComponent(
-      sleep.deep_sleep_duration,
-      "93831-6",
-      SYSTEMS.LOINC,
-      "Deep sleep duration",
-    );
-    addComponent(
-      sleep.efficiency,
-      "248263006",
-      SYSTEMS.SNOMED,
-      "Sleep efficiency",
-    );
-    addComponent(sleep.latency, "103212-7", SYSTEMS.LOINC, "Sleep latency");
-    addComponent(
-      sleep.lowest_heart_rate,
-      "40443-4",
-      SYSTEMS.LOINC,
-      "Resting heart rate",
-    );
-    addComponent(
-      sleep.average_heart_rate,
-      "average_heart_rate",
-      SYSTEMS.OURA_CUSTOM,
-    );
-    addComponent(sleep.average_breath, "average_breath", SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.average_hrv, "average_hrv", SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.awake_time, "awake_time", SYSTEMS.OURA_CUSTOM);
-    addComponent(
-      sleep.light_sleep_duration,
-      "light_sleep_duration",
-      SYSTEMS.OURA_CUSTOM,
-    );
+    addComponent(sleep.deep_sleep_duration, '93831-6', SYSTEMS.LOINC, 'Deep sleep duration');
+    addComponent(sleep.efficiency, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency');
+    addComponent(sleep.latency, '103212-7', SYSTEMS.LOINC, 'Sleep latency');
+    addComponent(sleep.lowest_heart_rate, '40443-4', SYSTEMS.LOINC, 'Resting heart rate');
+    addComponent(sleep.average_heart_rate, 'average_heart_rate', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.average_breath, 'average_breath', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.average_hrv, 'average_hrv', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.awake_time, 'awake_time', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.light_sleep_duration, 'light_sleep_duration', SYSTEMS.OURA_CUSTOM);
 
     // 3. Map Extensions
-    addExtension("day", sleep.day);
-    addExtension("sleep_phase_30_sec", sleep.sleep_phase_30_sec);
-    addExtension("sleep_phase_5_min", sleep.sleep_phase_5_min);
-    addExtension("app_sleep_phase_5_min", sleep.app_sleep_phase_5_min);
+    addExtension('day', sleep.day);
+    addExtension('sleep_phase_30_sec', sleep.sleep_phase_30_sec);
+    addExtension('sleep_phase_5_min', sleep.sleep_phase_5_min);
+    addExtension('app_sleep_phase_5_min', sleep.app_sleep_phase_5_min);
 
     // 4. Construct the base Observation resource
     const observation: FhirObservation = {
-      resourceType: "Observation",
-      status: "final",
+      resourceType: 'Observation',
+      status: 'final',
       code: {
         coding: [
           {
             system: SYSTEMS.OURA_CUSTOM,
-            code: "sleep",
-            display: "Oura Sleep Observation",
-          },
-        ],
+            code: 'sleep',
+            display: 'Oura Sleep Observation'
+          }
+        ]
       },
       subject: {
-        reference: "Patient/example",
+        reference: 'Patient/example'
       },
       identifier: [
         {
-          system: "https://ouraring.com/sleep/id",
-          value: sleep.id,
-        },
+          system: 'https://ouraring.com/sleep/id',
+          value: sleep.id
+        }
       ],
       effectivePeriod: {
         start: sleep.bedtime_start,
-        end: sleep.bedtime_end,
-      },
+        end: sleep.bedtime_end
+      }
     };
 
     // 5. Map remaining properties
@@ -156,15 +98,15 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       observation.valueQuantity = {
         value: sleep.score,
         system: SYSTEMS.OURA_CUSTOM,
-        code: "sleep_score",
+        code: 'sleep_score'
       };
     }
 
     if (sleep.type) {
       observation.category = [
         {
-          coding: [{ system: SYSTEMS.OURA_CUSTOM, code: sleep.type }],
-        },
+          coding: [{ system: SYSTEMS.OURA_CUSTOM, code: sleep.type }]
+        }
       ];
     }
 
