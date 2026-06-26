@@ -28,6 +28,20 @@ export type SupportedSchemaEntry = {
 
 export type GetSchemaType<T extends SupportedSchemaName> = SupportedSchemaTypes[T];
 
+export type GetSchemaName<T extends SupportedSchemaTypes[SupportedSchemaName]> = {
+  [K in SupportedSchemaName]: T extends SupportedSchemaTypes[K] ? K : never;
+}[SupportedSchemaName];
+
+export function getSchemaNameRuntime(data: SupportedSchemaTypes[SupportedSchemaName]): SupportedSchemaName | 'unknown' {
+  // Replace these with actual runtime checks based on your unique schema properties
+  if (Array.isArray(data) && data[0]?.bpm !== undefined) return 'heartrate';
+  if (Array.isArray(data) && data[0]?.steps !== undefined) return 'daily_activity';
+  if (Array.isArray(data) && data[0]?.sleep_score !== undefined) return 'sleep';
+  if (Array.isArray(data) && data[0]?.spo2 !== undefined) return 'spo2';
+  if (Array.isArray(data) && data[0]?.workout_type !== undefined) return 'workout';
+  return 'unknown';
+}
+
 export function getListOfSupportedSchemas(): SupportedSchemaEntry[] {
   return [
     {
