@@ -15,6 +15,7 @@ export function inferOuraResponse(
     if (parseResult.success) {
       return parseResult.data;
     }
+    console.log("Response data does not match Personal schema:", params);
     throw new Error("Response data does not match Personal schema.");
   }
 
@@ -30,5 +31,6 @@ export function inferOuraResponse(
       return parseResult.data;
     }
   }
+  console.log("Response data does not match any supported schema:", params);
   throw new Error("Response data does not match any supported schema.");
 }
