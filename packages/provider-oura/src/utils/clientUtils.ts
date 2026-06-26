@@ -1,8 +1,5 @@
-import {
-  OuraRequestParams,
-  OuraResponseParams,
-  RequestParams,
-} from "../api/schemas/client";
+import { getOuraApiSandboxUserCollectionBaseUrl, getOuraApiUserCollectionBaseUrl } from '../api/endpoints';
+import type { OuraResponseParams, RequestParams } from '../api/schemas/client';
 
 function buildQueryString(requestParams: RequestParams): string {
   const queryParams = new URLSearchParams();
@@ -13,7 +10,7 @@ function buildQueryString(requestParams: RequestParams): string {
     }
 
     if (Array.isArray(value)) {
-      queryParams.append(key, value.join(","));
+      queryParams.append(key, value.join(','));
     } else {
       queryParams.append(key, String(value));
     }
@@ -25,14 +22,16 @@ function buildQueryString(requestParams: RequestParams): string {
 export function requestOuraData(
   request: RequestParams,
   bearerToken: string,
+  sandbox: boolean = false
 ): Promise<OuraResponseParams> {
-  const url = `https://api.ouraring.com/v2/usercollection/${request.type}?${buildQueryString(request)}`;
+  const baseUrl = sandbox ? getOuraApiSandboxUserCollectionBaseUrl() : getOuraApiUserCollectionBaseUrl();
+  const url = `${baseUrl}/${request.type}?${buildQueryString(request)}`;
 
   return fetch(url, {
-    method: "GET",
+    method: 'GET',
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${bearerToken}`,
-    },
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${bearerToken}`
+    }
   }).then((res) => res.json() as Promise<OuraResponseParams>);
 }

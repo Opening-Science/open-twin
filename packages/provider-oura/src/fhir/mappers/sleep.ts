@@ -1,6 +1,6 @@
-import { Observation } from "fhir/r4";
-import { OuraSleep, OuraSleepList } from "../../api/schemas/sleep";
-import { FhirObservation } from "./shared";
+import type { Observation } from "fhir/r4";
+import type { OuraSleepList } from "../../api/schemas/sleep";
+import type { FhirObservation } from "./shared";
 
 // Standard FHIR Systems
 const SYSTEMS = {
@@ -10,15 +10,14 @@ const SYSTEMS = {
 };
 
 export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
-  if (!ouraData || !ouraData.data || ouraData.data.length === 0) {
+  if (!ouraData?.data || ouraData.data.length === 0) {
     throw new Error("No sleep data available to map to FHIR.");
   }
   const fhirObservations: Observation[] = [];
 
   for (const sleep of ouraData.data) {
-    console.log("Mapping Oura sleep data to FHIR Observation:", sleep);
     const components: Observation["component"] = [];
-    const extensions: any[] = [];
+    const extensions: Observation["extension"] = [];
 
     const addComponent = (
       value: number | undefined,

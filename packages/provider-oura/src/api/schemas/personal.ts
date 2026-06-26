@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const PersonalSchema = z.object({
   id: z.string().nonempty(),
@@ -6,7 +6,7 @@ export const PersonalSchema = z.object({
   weight: z.number().min(0).nullable(),
   height: z.number().min(0).nullable(),
   biological_sex: z.string().nullable(),
-  email: z.email().nullable(),
+  email: z.email().nullable()
 });
 
 export type OuraPersonal = z.infer<typeof PersonalSchema>;

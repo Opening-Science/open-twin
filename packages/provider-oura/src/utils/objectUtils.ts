@@ -1,9 +1,9 @@
-import { OuraResponseParams } from "../api/schemas/client";
-import { OuraPersonal, PersonalSchema } from "../api/schemas/personal";
+import type { OuraResponseParams } from "../api/schemas/client";
+import { type OuraPersonal, PersonalSchema } from "../api/schemas/personal";
 import {
   getListOfSupportedSchemas,
-  SupportedSchemaName,
-  SupportedSchemaTypes,
+  type SupportedSchemaName,
+  type SupportedSchemaTypes,
 } from "./typeUtils";
 
 export function inferOuraResponse(
@@ -14,7 +14,10 @@ export function inferOuraResponse(
     if (parseResult.success) {
       return parseResult.data;
     }
-    throw new Error("Response data does not match Personal schema.");
+
+    throw new Error("Response data does not match Personal schema.", {
+      cause: { PersonalSchema, params },
+    });
   }
 
   if (!Array.isArray(params.data)) {
@@ -29,5 +32,7 @@ export function inferOuraResponse(
     }
   }
 
-  throw new Error("Response data does not match any supported schema.");
+  throw new Error("Response data does not match any supported schema.", {
+    cause: { listOfSupportedSchemas, params },
+  });
 }

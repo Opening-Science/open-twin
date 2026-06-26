@@ -1,6 +1,13 @@
 {
+  "scripts": {
+    "format": "biome check --write",
+    "lint": "biome ci"
+  },
   "dependencies": {
     "axios": "^1.18.1",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.15"
   }
 }

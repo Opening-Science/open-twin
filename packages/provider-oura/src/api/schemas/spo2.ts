@@ -1,15 +1,15 @@
-import { z } from "zod";
-import { ResponseParams } from "./client";
+import { z } from 'zod';
+import { ResponseParams } from './client';
 
 export const Spo2Schema = z.object({
   id: z.string().nonempty(),
   breathing_disturbance_index: z.number().min(0).max(100).nullable(),
   spo2_percentage: z.object({ average: z.number().min(0).max(100) }).nullable(),
-  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) // Format: YYYY-MM-DD
 });
 
 export const Spo2ListSchema = ResponseParams.extend({
-  data: z.array(Spo2Schema),
+  data: z.array(Spo2Schema)
 });
 
 export type OuraSpo2 = z.infer<typeof Spo2Schema>;
