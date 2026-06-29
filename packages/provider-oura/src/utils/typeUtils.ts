@@ -4,8 +4,8 @@ import { OuraDailyActivityResponseListSchema } from '../api/schemas/daily';
 import { HeartRateListSchema } from '../api/schemas/heartrate';
 import { SleepListSchema } from '../api/schemas/sleep';
 import { Spo2ListSchema } from '../api/schemas/spo2';
-import { WorkoutListSchema } from '../api/schemas/workout';
 import { VO2MaxListSchema } from '../api/schemas/vo2max';
+import { WorkoutListSchema } from '../api/schemas/workout';
 
 export type SupportedSchemas = {
   daily_activity: typeof OuraDailyActivityResponseListSchema;
