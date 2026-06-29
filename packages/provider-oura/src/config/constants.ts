@@ -7,7 +7,8 @@ const SUPPORTED_SCOPES = [
   'daily_spo2',
   'personal_info',
   'workout',
-  'daily_cardiovascular_age'
+  'daily_cardiovascular_age',
+  'vO2_max'
 ];
 
 export { CLIENT_ID, REDIRECT_URI, SUPPORTED_SCOPES };
