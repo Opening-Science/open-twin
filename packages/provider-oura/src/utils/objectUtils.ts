@@ -5,13 +5,8 @@ import { getListOfSupportedSchemas, type SupportedSchemaName, type SupportedSche
 export function inferOuraResponse(
   params: OuraResponseParams
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
-  let newParams: OuraResponseParams = params;
-  if (Array.isArray(params)) {
-    newParams = { ...params[0] };
-  }
-
-  if (!newParams.data) {
-    const parseResult = PersonalSchema.safeParse(newParams);
+  if (!params.data) {
+    const parseResult = PersonalSchema.safeParse(params);
     if (parseResult.success) {
       return parseResult.data;
     }
@@ -21,13 +16,13 @@ export function inferOuraResponse(
     });
   }
 
-  if (!Array.isArray(newParams.data)) {
+  if (!Array.isArray(params.data)) {
     throw new Error('Response data is not an array.');
   }
 
   const listOfSupportedSchemas = getListOfSupportedSchemas();
   for (const { schema } of listOfSupportedSchemas) {
-    const parseResult = schema.safeParse(newParams);
+    const parseResult = schema.safeParse(params);
     if (parseResult.success) {
       return parseResult.data;
     }

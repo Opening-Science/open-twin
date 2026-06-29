@@ -1,7 +1,8 @@
 import { getOuraApiSandboxUserCollectionBaseUrl, getOuraApiUserCollectionBaseUrl } from '../api/endpoints';
 import type { OuraResponseParams, RequestParams } from '../api/schemas/client';
+import { SUPPORTED_SCOPES } from '../config/constants';
 
-function buildQueryString(requestParams: RequestParams): string {
+function buildQueryString(requestParams: Omit<RequestParams, 'types'>): string {
   const queryParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(requestParams)) {
@@ -27,7 +28,7 @@ export function requestOuraData(
   const responses: Promise<OuraResponseParams>[] = [];
   const baseUrl = sandbox ? getOuraApiSandboxUserCollectionBaseUrl() : getOuraApiUserCollectionBaseUrl();
   for (const type of request.types) {
-    if (!['daily_activity', 'heartrate', 'sleep', 'daily_spo2', 'personal_info', 'workout'].includes(type)) {
+    if (!SUPPORTED_SCOPES.includes(type)) {
       throw new Error(`Unsupported request type: ${type}`);
     }
     const url = `${baseUrl}/${type}?${buildQueryString(request)}`;
@@ -39,7 +40,13 @@ export function requestOuraData(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${bearerToken}`
         }
-      }).then((res) => res.json() as Promise<OuraResponseParams>)
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          throw new Error(`Oura request failed (${res.status}) for type \"${type}\": ${body}`);
+        }
+        return (await res.json()) as OuraResponseParams;
+      })
     );
   }
   return Promise.all(responses);

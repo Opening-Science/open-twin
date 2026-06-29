@@ -12,10 +12,11 @@ import { mapOuraSpo2ToFHIR } from './mappers/spo2';
 
 export async function buildBundleFromResponse(request: RequestParams, bearerToken: string): Promise<Bundle> {
   const entries: (Observation | Bundle)[] = [];
+  const responses = await requestOuraData(request, bearerToken);
 
-  for (const type of request.types) {
-    const ouraResponse = await requestOuraData({ ...request, types: [type] }, bearerToken);
-    const inferredData = inferOuraResponse(ouraResponse[0]);
+  for (let i = 0; i < request.types.length; i++) {
+    const type = request.types[i];
+    const inferredData = inferOuraResponse(responses[i]);
 
     if ('data' in inferredData) {
       switch (type) {
