@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["Codeable", "fhir", "LOINC", "Oura", "SNOMED"]
+  "cSpell.words": [
+    "Codeable",
+    "fhir",
+    "heartrate",
+    "LOINC",
+    "Oura",
+    "SNOMED"
+  ]
 }
