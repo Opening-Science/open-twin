@@ -24,6 +24,10 @@ export async function getOuraData(
   return inferredData;
 }
 
-export async function getFhirBundleFromOuraData(request: RequestParams, bearerToken: string): Promise<Bundle> {
-  return await buildBundleFromResponse(request, bearerToken);
+export async function getFhirBundleFromOuraData(
+  request: RequestParams,
+  bearerToken: string,
+  sandbox: boolean = false
+): Promise<Bundle> {
+  return await buildBundleFromResponse(request, bearerToken, sandbox);
 }
