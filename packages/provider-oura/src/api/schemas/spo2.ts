@@ -14,5 +14,3 @@ export const Spo2ListSchema = ResponseParams.extend({
 
 export type OuraSpo2 = z.infer<typeof Spo2Schema>;
 export type OuraSpo2List = z.infer<typeof Spo2ListSchema>;
-
-// npx tsx -e 'import { getFhirSpo2FromOuraData } from "./src/index.ts"; (async () => { try { const data = await getFhirSpo2FromOuraData({ type: "daily_spo2" }, "***REMOVED_TOKEN***"); console.log(JSON.stringify(data, null, 2)); } catch(err) { console.error(err); } })();'

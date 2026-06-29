@@ -23,15 +23,24 @@ export function requestOuraData(
   request: RequestParams,
   bearerToken: string,
   sandbox: boolean = false
-): Promise<OuraResponseParams> {
+): Promise<OuraResponseParams[]> {
+  const responses: Promise<OuraResponseParams>[] = [];
   const baseUrl = sandbox ? getOuraApiSandboxUserCollectionBaseUrl() : getOuraApiUserCollectionBaseUrl();
-  const url = `${baseUrl}/${request.type}?${buildQueryString(request)}`;
-
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${bearerToken}`
+  for (const type of request.types) {
+    if (!['daily_activity', 'heartrate', 'sleep', 'daily_spo2', 'personal_info', 'workout'].includes(type)) {
+      throw new Error(`Unsupported request type: ${type}`);
     }
-  }).then((res) => res.json() as Promise<OuraResponseParams>);
+    const url = `${baseUrl}/${type}?${buildQueryString(request)}`;
+
+    responses.push(
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${bearerToken}`
+        }
+      }).then((res) => res.json() as Promise<OuraResponseParams>)
+    );
+  }
+  return Promise.all(responses);
 }

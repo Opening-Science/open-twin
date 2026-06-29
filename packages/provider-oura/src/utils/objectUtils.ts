@@ -5,8 +5,13 @@ import { getListOfSupportedSchemas, type SupportedSchemaName, type SupportedSche
 export function inferOuraResponse(
   params: OuraResponseParams
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
-  if (!params.data) {
-    const parseResult = PersonalSchema.safeParse(params);
+  let newParams: OuraResponseParams = params;
+  if (Array.isArray(params)) {
+    newParams = { ...params[0] };
+  }
+
+  if (!newParams.data) {
+    const parseResult = PersonalSchema.safeParse(newParams);
     if (parseResult.success) {
       return parseResult.data;
     }
@@ -16,13 +21,13 @@ export function inferOuraResponse(
     });
   }
 
-  if (!Array.isArray(params.data)) {
+  if (!Array.isArray(newParams.data)) {
     throw new Error('Response data is not an array.');
   }
 
   const listOfSupportedSchemas = getListOfSupportedSchemas();
   for (const { schema } of listOfSupportedSchemas) {
-    const parseResult = schema.safeParse(params);
+    const parseResult = schema.safeParse(newParams);
     if (parseResult.success) {
       return parseResult.data;
     }

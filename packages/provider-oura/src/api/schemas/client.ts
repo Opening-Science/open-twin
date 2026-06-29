@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const RequestParamsSchema = z.object({
-  type: z.enum(['daily_activity', 'activity', 'sleep', 'readiness', 'heartrate', 'daily_spo2', 'personal_info']),
+  types: z
+    .array(z.enum(['daily_activity', 'activity', 'sleep', 'readiness', 'heartrate', 'daily_spo2', 'personal_info']))
+    .min(1),
   start_date: z
     .string()
     .regex(/^\d{2}.\d{2}.\d{4}$/)
