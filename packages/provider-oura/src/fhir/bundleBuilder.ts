@@ -9,6 +9,7 @@ import { mapOuraHeartRateToFHIR } from './mappers/heartrate';
 import { mapOuraPersonalToFHIR } from './mappers/personal';
 import { mapOuraSleepToFHIR } from './mappers/sleep';
 import { mapOuraSpo2ToFHIR } from './mappers/spo2';
+import { mapOuraWorkoutToFHIR } from './mappers/workout';
 
 export async function buildBundleFromResponse(request: RequestParams, bearerToken: string): Promise<Bundle> {
   const entries: (Observation | Bundle)[] = [];
@@ -33,6 +34,9 @@ export async function buildBundleFromResponse(request: RequestParams, bearerToke
           break;
         case 'daily_spo2':
           entries.push(...mapOuraSpo2ToFHIR(inferredData as SupportedSchemaTypes['spo2']));
+          break;
+        case 'workout':
+          entries.push(...mapOuraWorkoutToFHIR(inferredData as SupportedSchemaTypes['workout']));
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);
