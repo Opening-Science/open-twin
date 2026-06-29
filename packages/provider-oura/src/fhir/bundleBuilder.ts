@@ -4,6 +4,7 @@ import type { OuraPersonal } from '../api/schemas/personal';
 import { requestOuraData } from '../utils/clientUtils';
 import { inferOuraResponse } from '../utils/objectUtils';
 import type { SupportedSchemaTypes } from '../utils/typeUtils';
+import { mapOuraCardiovascularAgeToFHIR } from './mappers/cardiovascular';
 import { mapOuraDailyActivityToFHIR } from './mappers/daily';
 import { mapOuraHeartRateToFHIR } from './mappers/heartrate';
 import { mapOuraPersonalToFHIR } from './mappers/personal';
@@ -37,6 +38,11 @@ export async function buildBundleFromResponse(request: RequestParams, bearerToke
           break;
         case 'workout':
           entries.push(...mapOuraWorkoutToFHIR(inferredData as SupportedSchemaTypes['workout']));
+          break;
+        case 'daily_cardiovascular_age':
+          entries.push(
+            ...mapOuraCardiovascularAgeToFHIR(inferredData as SupportedSchemaTypes['daily_cardiovascular_age'])
+          );
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);
