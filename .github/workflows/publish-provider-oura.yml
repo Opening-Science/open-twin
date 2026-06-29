@@ -3,7 +3,7 @@ name: Publish provider-oura
 on:
   push:
     branches:
-      - main
+      - '**'
     paths:
       - 'packages/provider-oura/**'
   workflow_dispatch:
