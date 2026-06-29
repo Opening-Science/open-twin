@@ -3,7 +3,7 @@ name: Publish provider-oura
 on:
   push:
     branches:
-      - main
+      - '**'
     paths:
       - 'packages/provider-oura/**'
   workflow_dispatch:
@@ -34,6 +34,10 @@ jobs:
       - name: Lint provider-oura
         working-directory: packages/provider-oura
         run: pnpm run lint
+
+      - name: Test provider-oura
+        working-directory: packages/provider-oura
+        run: pnpm run test
 
       - name: Build provider-oura
         working-directory: packages/provider-oura

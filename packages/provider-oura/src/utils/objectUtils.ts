@@ -3,21 +3,15 @@ import { type OuraPersonal, PersonalSchema } from '../api/schemas/personal';
 import { getListOfSupportedSchemas, type SupportedSchemaName, type SupportedSchemaTypes } from './typeUtils';
 
 export function inferOuraResponse(
-  params: OuraResponseParams
+  params: OuraResponseParams | OuraPersonal
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
-  if (!params.data) {
-    const parseResult = PersonalSchema.safeParse(params);
-    if (parseResult.success) {
-      return parseResult.data;
-    }
-
-    throw new Error('Response data does not match Personal schema.', {
-      cause: { PersonalSchema, params }
-    });
+  const parseResult = PersonalSchema.safeParse(params);
+  if (parseResult.success) {
+    return parseResult.data;
   }
 
-  if (!Array.isArray(params.data)) {
-    throw new Error('Response data is not an array.');
+  if (!('data' in params)) {
+    throw parseResult.error;
   }
 
   const listOfSupportedSchemas = getListOfSupportedSchemas();
