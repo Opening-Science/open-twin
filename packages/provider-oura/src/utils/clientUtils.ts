@@ -43,7 +43,7 @@ export function requestOuraData(
       }).then(async (res) => {
         if (!res.ok) {
           const body = await res.text().catch(() => '');
-          throw new Error(`Oura request failed (${res.status}) for type \"${type}\": ${body}`);
+          throw new Error(`Oura request failed (${res.status}) for type "${type}": ${body}`);
         }
         return (await res.json()) as OuraResponseParams;
       })

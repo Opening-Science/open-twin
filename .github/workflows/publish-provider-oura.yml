@@ -35,6 +35,10 @@ jobs:
         working-directory: packages/provider-oura
         run: pnpm run lint
 
+      - name: Test provider-oura
+        working-directory: packages/provider-oura
+        run: pnpm run test
+
       - name: Build provider-oura
         working-directory: packages/provider-oura
         run: pnpm run build
