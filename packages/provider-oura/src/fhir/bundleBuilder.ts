@@ -11,11 +11,15 @@ import { mapOuraPersonalToFHIR } from './mappers/personal';
 import { mapOuraSleepToFHIR } from './mappers/sleep';
 import { mapOuraSpo2ToFHIR } from './mappers/spo2';
 import { mapOuraWorkoutToFHIR } from './mappers/workout';
+import { mapOuraVO2MaxToFHIR } from './mappers/vo2max';
 
-export async function buildBundleFromResponse(request: RequestParams, bearerToken: string): Promise<Bundle> {
+export async function buildBundleFromResponse(
+  request: RequestParams,
+  bearerToken: string,
+  sandbox: boolean = false
+): Promise<Bundle> {
   const entries: (Observation | Bundle)[] = [];
-  const responses = await requestOuraData(request, bearerToken);
-
+  const responses = await requestOuraData(request, bearerToken, sandbox);
   for (let i = 0; i < request.types.length; i++) {
     const type = request.types[i];
     const inferredData = inferOuraResponse(responses[i]);
@@ -43,6 +47,9 @@ export async function buildBundleFromResponse(request: RequestParams, bearerToke
           entries.push(
             ...mapOuraCardiovascularAgeToFHIR(inferredData as SupportedSchemaTypes['daily_cardiovascular_age'])
           );
+          break;
+        case 'vO2_max':
+          entries.push(...mapOuraVO2MaxToFHIR(inferredData as SupportedSchemaTypes['vO2_max']));
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);
