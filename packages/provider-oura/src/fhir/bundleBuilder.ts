@@ -10,8 +10,8 @@ import { mapOuraHeartRateToFHIR } from './mappers/heartrate';
 import { mapOuraPersonalToFHIR } from './mappers/personal';
 import { mapOuraSleepToFHIR } from './mappers/sleep';
 import { mapOuraSpo2ToFHIR } from './mappers/spo2';
-import { mapOuraWorkoutToFHIR } from './mappers/workout';
 import { mapOuraVO2MaxToFHIR } from './mappers/vo2max';
+import { mapOuraWorkoutToFHIR } from './mappers/workout';
 
 export async function buildBundleFromResponse(
   request: RequestParams,
