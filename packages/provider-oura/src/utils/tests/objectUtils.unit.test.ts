@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z, ZodError, type ZodIssue } from 'zod/v4';
+import { ZodError, type z } from 'zod/v4';
 import type { OuraResponseParams } from '../../api/schemas/client';
 import type { OuraDailyActivityResponseList, OuraDailyActivityResponseListSchema } from '../../api/schemas/daily';
 import { type OuraPersonal, PersonalSchema } from '../../api/schemas/personal';
