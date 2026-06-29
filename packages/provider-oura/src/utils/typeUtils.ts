@@ -5,6 +5,7 @@ import { HeartRateListSchema } from '../api/schemas/heartrate';
 import { SleepListSchema } from '../api/schemas/sleep';
 import { Spo2ListSchema } from '../api/schemas/spo2';
 import { WorkoutListSchema } from '../api/schemas/workout';
+import { VO2MaxListSchema } from '../api/schemas/vo2max';
 
 export type SupportedSchemas = {
   daily_activity: typeof OuraDailyActivityResponseListSchema;
@@ -13,6 +14,7 @@ export type SupportedSchemas = {
   workout: typeof WorkoutListSchema;
   spo2: typeof Spo2ListSchema;
   daily_cardiovascular_age: typeof CardiovascularAgeListSchema;
+  vO2_max: typeof VO2MaxListSchema;
 };
 
 export type SupportedSchemaName = keyof SupportedSchemas;
@@ -39,6 +41,7 @@ export function getSchemaNameRuntime(data: SupportedSchemaTypes[SupportedSchemaN
   if (Array.isArray(data) && data[0]?.spo2 !== undefined) return 'spo2';
   if (Array.isArray(data) && data[0]?.workout_type !== undefined) return 'workout';
   if (Array.isArray(data) && data[0]?.vascular_age !== undefined) return 'daily_cardiovascular_age';
+  if (Array.isArray(data) && data[0]?.vo2max !== undefined) return 'vO2_max';
   return 'unknown';
 }
 
@@ -52,6 +55,7 @@ export function getListOfSupportedSchemas(): SupportedSchemaEntry[] {
     { schemaName: 'sleep', schema: SleepListSchema },
     { schemaName: 'workout', schema: WorkoutListSchema },
     { schemaName: 'spo2', schema: Spo2ListSchema },
-    { schemaName: 'daily_cardiovascular_age', schema: CardiovascularAgeListSchema }
+    { schemaName: 'daily_cardiovascular_age', schema: CardiovascularAgeListSchema },
+    { schemaName: 'vO2_max', schema: VO2MaxListSchema }
   ];
 }
