@@ -18,8 +18,8 @@ export function inferOuraResponse(
   if (!('data' in params)) {
     throw parseResult.error;
   }
-  const runtimeSchemaName = getSchemaNameRuntime(params.data);
 
+  const runtimeSchemaName = getSchemaNameRuntime(params.data);
   const listOfSupportedSchemas = getListOfSupportedSchemas();
   for (const { schemaName, schema } of listOfSupportedSchemas) {
     if (runtimeSchemaName === schemaName) {
@@ -27,6 +27,7 @@ export function inferOuraResponse(
       if (parseResult.success) {
         return parseResult.data;
       }
+      throw parseResult.error;
     }
   }
 
