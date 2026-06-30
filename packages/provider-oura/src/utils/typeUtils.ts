@@ -4,14 +4,14 @@ import { OuraDailyActivityResponseListSchema } from '../api/schemas/daily';
 import { HeartRateListSchema } from '../api/schemas/heartrate';
 import { OuraReadinessResponseListSchema } from '../api/schemas/readiness';
 import { OuraResilienceResponseListSchema } from '../api/schemas/resilience';
-import { SleepListSchema } from '../api/schemas/sleep';
-import { Spo2ListSchema } from '../api/schemas/spo2';
-import { VO2MaxListSchema } from '../api/schemas/vo2max';
-import { WorkoutListSchema } from '../api/schemas/workout';
-import { StressListSchema } from '../api/schemas/stress';
 import { RestModeListSchema } from '../api/schemas/restmode';
 import { RingConfigListSchema } from '../api/schemas/ringconfig';
 import { SessionListSchema } from '../api/schemas/session';
+import { SleepListSchema } from '../api/schemas/sleep';
+import { Spo2ListSchema } from '../api/schemas/spo2';
+import { StressListSchema } from '../api/schemas/stress';
+import { VO2MaxListSchema } from '../api/schemas/vo2max';
+import { WorkoutListSchema } from '../api/schemas/workout';
 
 export type SupportedSchemas = {
   daily_activity: typeof OuraDailyActivityResponseListSchema;

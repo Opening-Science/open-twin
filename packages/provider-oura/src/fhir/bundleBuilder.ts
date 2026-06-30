@@ -8,8 +8,14 @@ import { mapOuraCardiovascularAgeToFHIR } from './mappers/cardiovascular';
 import { mapOuraDailyActivityToFHIR } from './mappers/daily';
 import { mapOuraHeartRateToFHIR } from './mappers/heartrate';
 import { mapOuraPersonalToFHIR } from './mappers/personal';
+import { mapOuraReadinessToFHIR } from './mappers/readiness';
+import { mapOuraResilienceToFHIR } from './mappers/resilience';
+import { mapOuraRestModeToFHIR } from './mappers/restmode';
+import { mapOuraRingConfigToFHIR } from './mappers/ringconfig';
+import { mapOuraSessionToFHIR } from './mappers/session';
 import { mapOuraSleepToFHIR } from './mappers/sleep';
 import { mapOuraSpo2ToFHIR } from './mappers/spo2';
+import { mapOuraStressToFHIR } from './mappers/stress';
 import { mapOuraVO2MaxToFHIR } from './mappers/vo2max';
 import { mapOuraWorkoutToFHIR } from './mappers/workout';
 
@@ -50,6 +56,24 @@ export async function buildBundleFromResponse(
           break;
         case 'vO2_max':
           entries.push(...mapOuraVO2MaxToFHIR(inferredData as SupportedSchemaTypes['vO2_max']));
+          break;
+        case 'daily_readiness':
+          entries.push(...mapOuraReadinessToFHIR(inferredData as SupportedSchemaTypes['daily_readiness']));
+          break;
+        case 'daily_resilience':
+          entries.push(...mapOuraResilienceToFHIR(inferredData as SupportedSchemaTypes['daily_resilience']));
+          break;
+        case 'daily_stress':
+          entries.push(...mapOuraStressToFHIR(inferredData as SupportedSchemaTypes['daily_stress']));
+          break;
+        case 'rest_mode_period':
+          entries.push(...mapOuraRestModeToFHIR(inferredData as SupportedSchemaTypes['rest_mode_period']));
+          break;
+        case 'ring_configuration':
+          entries.push(...mapOuraRingConfigToFHIR(inferredData as SupportedSchemaTypes['ring_configuration']));
+          break;
+        case 'session':
+          entries.push(...mapOuraSessionToFHIR(inferredData as SupportedSchemaTypes['session']));
           break;
         default:
           throw new Error(`Unsupported type: ${type}`);
