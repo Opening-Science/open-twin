@@ -21,7 +21,7 @@
     "lint": "biome ci",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
-    "test": "vitest --output-file=test.junit.xml --reporter=junit --run"
+    "test": "vitest --output-file=test.junit.xml"
   },
   "keywords": [
     "oura",
