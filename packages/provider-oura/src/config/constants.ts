@@ -10,7 +10,11 @@ const SUPPORTED_SCOPES = [
   'daily_cardiovascular_age',
   'vO2_max',
   'daily_readiness',
-  'daily_resilience'
+  'daily_resilience',
+  'daily_stress',
+  'rest_mode_period',
+  'ring_configuration',
+  'session'
 ];
 
 export { CLIENT_ID, REDIRECT_URI, SUPPORTED_SCOPES };
