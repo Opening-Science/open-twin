@@ -116,7 +116,15 @@ describe('inferOuraResponse', () => {
   });
 
   it('should throw an error if data is an array but matches no supported schemas', () => {
-    const getListSpy = vi.spyOn(typeUtils, 'getListOfSupportedSchemas');
+    const mockSchema = {
+      safeParse: vi.fn().mockReturnValue({ success: false, error: new ZodError([]) })
+    } as unknown as typeof SleepListSchema;
+
+    const mockSupportedList = [
+      { schemaName: 'sleep', schema: mockSchema }
+    ] as unknown as typeUtils.SupportedSchemaEntry[];
+
+    const getListSpy = vi.spyOn(typeUtils, 'getListOfSupportedSchemas').mockReturnValue(mockSupportedList);
     const getNameSpy = vi.spyOn(typeUtils, 'getSchemaNameRuntime').mockReturnValue('unknown');
 
     const mockParams = { data: [{ unknown: 'structure' }] };
@@ -125,14 +133,6 @@ describe('inferOuraResponse', () => {
       success: false,
       error: new ZodError([zodError]) as ZodError<OuraPersonal>
     });
-
-    const mockSchema = {
-      safeParse: vi.fn().mockReturnValue({ success: false, error: new ZodError([]) })
-    } as unknown as typeof SleepListSchema;
-
-    const mockSupportedList = [
-      { schemaName: 'sleep', schema: mockSchema }
-    ] as unknown as typeUtils.SupportedSchemaEntry[];
 
     let thrownError: Error | null = null;
     try {
