@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="9" failures="2" errors="0" time="0.012186042">
+    <testsuite name="src/utils/tests/clientUtils.unit.test.ts" timestamp="2026-06-30T07:54:48.758Z" hostname="Mac.fritz.box" tests="5" failures="0" errors="0" skipped="0" time="0.004702625">
+        <testcase classname="src/utils/tests/clientUtils.unit.test.ts" name="requestOuraData &gt; should fetch data from production URLs for all requested types and parse query strings correctly" time="0.00204">
+        </testcase>
+        <testcase classname="src/utils/tests/clientUtils.unit.test.ts" name="requestOuraData &gt; should use sandbox URL when sandbox flag is true" time="0.000804875">
+        </testcase>
+        <testcase classname="src/utils/tests/clientUtils.unit.test.ts" name="requestOuraData &gt; should throw an error immediately if a requested type is not supported" time="0.000247083">
+        </testcase>
+        <testcase classname="src/utils/tests/clientUtils.unit.test.ts" name="requestOuraData &gt; should reject and include error body info when fetch response is not ok" time="0.000687708">
+        </testcase>
+        <testcase classname="src/utils/tests/clientUtils.unit.test.ts" name="requestOuraData &gt; should handle fetch errors where text() body parsing fails" time="0.00024425">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/utils/tests/objectUtils.unit.test.ts" timestamp="2026-06-30T07:54:48.759Z" hostname="Mac.fritz.box" tests="4" failures="2" errors="0" skipped="0" time="0.007483417">
+        <testcase classname="src/utils/tests/objectUtils.unit.test.ts" name="inferOuraResponse &gt; should successfully parse and return data matching PersonalSchema when data is absent" time="0.001521417">
+        </testcase>
+        <testcase classname="src/utils/tests/objectUtils.unit.test.ts" name="inferOuraResponse &gt; should throw an error if data is absent and PersonalSchema validation fails" time="0.000632875">
+        </testcase>
+        <testcase classname="src/utils/tests/objectUtils.unit.test.ts" name="inferOuraResponse &gt; should successfully match and return parsed data from the list of supported schemas" time="0.001903958">
+            <failure message="[vitest] No &quot;getSchemaNameRuntime&quot; export is defined on the &quot;../typeUtils&quot; mock. Did you forget to return it from &quot;vi.mock&quot;?
+If you need to partially mock a module, you can use &quot;importOriginal&quot; helper inside:
+" type="Error">
+Error: [vitest] No &quot;getSchemaNameRuntime&quot; export is defined on the &quot;../typeUtils&quot; mock. Did you forget to return it from &quot;vi.mock&quot;?
+If you need to partially mock a module, you can use &quot;importOriginal&quot; helper inside:
+
+vi.mock(import(&quot;../typeUtils&quot;), async (importOriginal) =&gt; {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.inferOuraResponse src/utils/objectUtils.ts:21:29
+ ❯ src/utils/tests/objectUtils.unit.test.ts:106:20
+            </failure>
+        </testcase>
+        <testcase classname="src/utils/tests/objectUtils.unit.test.ts" name="inferOuraResponse &gt; should throw an error if data is an array but matches no supported schemas" time="0.002780292">
+            <failure message="expected &apos;[vitest] No &quot;getSchemaNameRuntime&quot; ex…&apos; to be &apos;Response data does not match any supp…&apos; // Object.is equality" type="AssertionError">
+AssertionError: expected &apos;[vitest] No &quot;getSchemaNameRuntime&quot; ex…&apos; to be &apos;Response data does not match any supp…&apos; // Object.is equality
+
+- Expected
++ Received
+
+- Response data does not match any supported schema.
++ [vitest] No &quot;getSchemaNameRuntime&quot; export is defined on the &quot;../typeUtils&quot; mock. Did you forget to return it from &quot;vi.mock&quot;?
++ If you need to partially mock a module, you can use &quot;importOriginal&quot; helper inside:
++
+
+ ❯ src/utils/tests/objectUtils.unit.test.ts:138:34
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>

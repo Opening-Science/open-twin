@@ -38,6 +38,14 @@ jobs:
       - name: Test provider-oura
         working-directory: packages/provider-oura
         run: pnpm run test
+      
+      - name: Create test report
+        uses: dorny/test-reporter@v2
+        if: success() || failure()
+        with:
+          name: Unit Test Results
+          path: './packages/*/*.junit.xml'
+          reporter: java-junit
 
       - name: Build provider-oura
         working-directory: packages/provider-oura
