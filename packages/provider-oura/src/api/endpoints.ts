@@ -3,7 +3,7 @@ export function getOuraApiUserCollectionBaseUrl(): string {
 }
 
 export function getOuraApiSandboxUserCollectionBaseUrl(): string {
-  return 'https://api.ouraring.com/sandbox/v2/usercollection';
+  return 'https://api.ouraring.com/v2/sandbox/usercollection';
 }
 
 export function getOuraOauthTokenUrl(): string {
