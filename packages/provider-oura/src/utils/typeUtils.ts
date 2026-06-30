@@ -40,7 +40,7 @@ export type GetSchemaName<T extends SupportedSchemaTypes[SupportedSchemaName]> =
 export function getSchemaNameRuntime(data: SupportedSchemaTypes[SupportedSchemaName]): SupportedSchemaName | 'unknown' {
   if (Array.isArray(data) && data[0]?.bpm !== undefined) return 'heartrate';
   if (Array.isArray(data) && data[0]?.met !== undefined) return 'daily_activity';
-  if (Array.isArray(data) && data[0]?.sleep_score !== undefined) return 'sleep';
+  if (Array.isArray(data) && data[0]?.bedtime_start !== undefined) return 'sleep';
   if (Array.isArray(data) && data[0]?.spo2_percentage !== undefined) return 'spo2';
   if (Array.isArray(data) && data[0]?.workout_type !== undefined) return 'workout';
   if (Array.isArray(data) && data[0]?.vascular_age !== undefined) return 'daily_cardiovascular_age';

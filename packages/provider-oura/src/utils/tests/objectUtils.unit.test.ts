@@ -1,20 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ZodError, type z } from 'zod/v4';
 import type { OuraResponseParams } from '../../api/schemas/client';
-import type { OuraDailyActivityResponseList, OuraDailyActivityResponseListSchema } from '../../api/schemas/daily';
+import type { OuraDailyActivityResponseList } from '../../api/schemas/daily';
 import { type OuraPersonal, PersonalSchema } from '../../api/schemas/personal';
 import type { SleepListSchema } from '../../api/schemas/sleep';
 import { inferOuraResponse } from '../objectUtils';
-import { getListOfSupportedSchemas, type SupportedSchemaEntry } from '../typeUtils';
+import * as typeUtils from '../typeUtils';
 
 vi.mock('../../api/schemas/personal', () => ({
   PersonalSchema: {
     safeParse: vi.fn()
   }
-}));
-
-vi.mock('../typeUtils', () => ({
-  getListOfSupportedSchemas: vi.fn()
 }));
 
 describe('inferOuraResponse', () => {
@@ -79,39 +75,50 @@ describe('inferOuraResponse', () => {
   });
 
   it('should successfully match and return parsed data from the list of supported schemas', () => {
-    const mockParams = { data: [{ summary: 'sleep_data' }] };
-
-    const mockParsedData = {
-      data: [{ summary: 'sleep_data', fallback: false }]
-    } as unknown as OuraDailyActivityResponseList;
-
-    const mockSchema1 = {
-      safeParse: vi.fn().mockReturnValue({ success: false, error: new ZodError([]) })
-    } as unknown as typeof SleepListSchema;
-
-    const mockSchema2 = {
-      safeParse: vi.fn().mockReturnValue({ success: true, data: mockParsedData })
-    } as unknown as typeof OuraDailyActivityResponseListSchema;
+    const getListSpy = vi.spyOn(typeUtils, 'getListOfSupportedSchemas');
+    const getNameSpy = vi.spyOn(typeUtils, 'getSchemaNameRuntime').mockReturnValue('sleep');
+    const mockParams = {
+      data: [
+        {
+          id: '123',
+          bedtime_start: '2023-01-01T00:00:00Z',
+          bedtime_end: '2023-01-01T08:00:00Z',
+          score: 90,
+          day: '2023-01-01'
+        }
+      ]
+    } as unknown as OuraResponseParams;
 
     vi.mocked(PersonalSchema.safeParse).mockReturnValue({
       success: false,
       error: new ZodError([zodError]) as ZodError<OuraPersonal>
     });
 
-    vi.mocked(getListOfSupportedSchemas).mockReturnValue([
-      { schemaName: 'sleep', schema: mockSchema1 },
-      { schemaName: 'daily_activity', schema: mockSchema2 }
-    ]);
+    const mockParsedData = {
+      data: [
+        {
+          id: '123',
+          bedtime_start: '2023-01-01T00:00:00Z',
+          bedtime_end: '2023-01-01T08:00:00Z',
+          score: 90,
+          day: '2023-01-01'
+        }
+      ]
+    } as unknown as OuraDailyActivityResponseList;
 
     const result = inferOuraResponse(mockParams as unknown as OuraResponseParams);
 
-    expect(getListOfSupportedSchemas).toHaveBeenCalledTimes(1);
-    expect(mockSchema1.safeParse).toHaveBeenCalledWith(mockParams);
-    expect(mockSchema2.safeParse).toHaveBeenCalledWith(mockParams);
+    expect(getListSpy).toHaveBeenCalledTimes(1);
+    expect(getNameSpy).toHaveBeenCalledTimes(1);
+    expect(getNameSpy).toHaveBeenCalledWith(mockParams.data);
+    expect(getNameSpy).toHaveReturnedWith('sleep');
     expect(result).toEqual(mockParsedData);
   });
 
   it('should throw an error if data is an array but matches no supported schemas', () => {
+    const getListSpy = vi.spyOn(typeUtils, 'getListOfSupportedSchemas');
+    const getNameSpy = vi.spyOn(typeUtils, 'getSchemaNameRuntime').mockReturnValue('unknown');
+
     const mockParams = { data: [{ unknown: 'structure' }] };
 
     vi.mocked(PersonalSchema.safeParse).mockReturnValue({
@@ -123,9 +130,9 @@ describe('inferOuraResponse', () => {
       safeParse: vi.fn().mockReturnValue({ success: false, error: new ZodError([]) })
     } as unknown as typeof SleepListSchema;
 
-    const mockSupportedList = [{ schemaName: 'workout', schema: mockSchema }] as unknown as SupportedSchemaEntry[];
-
-    vi.mocked(getListOfSupportedSchemas).mockReturnValue(mockSupportedList);
+    const mockSupportedList = [
+      { schemaName: 'sleep', schema: mockSchema }
+    ] as unknown as typeUtils.SupportedSchemaEntry[];
 
     let thrownError: Error | null = null;
     try {
@@ -134,6 +141,9 @@ describe('inferOuraResponse', () => {
       thrownError = err as Error;
     }
 
+    expect(getListSpy).toHaveBeenCalledTimes(1);
+    expect(getNameSpy).toHaveBeenCalledTimes(1);
+    expect(getNameSpy).toHaveBeenCalledWith(mockParams.data);
     expect(thrownError).toBeInstanceOf(Error);
     expect(thrownError?.message).toBe('Response data does not match any supported schema.');
     expect(thrownError?.cause).toStrictEqual({ listOfSupportedSchemas: mockSupportedList, params: mockParams });
