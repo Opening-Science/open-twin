@@ -1,30 +1,33 @@
 import type { OuraResponseParams } from '../api/schemas/client';
 import { type OuraPersonal, PersonalSchema } from '../api/schemas/personal';
-import { getListOfSupportedSchemas, type SupportedSchemaName, type SupportedSchemaTypes } from './typeUtils';
+import {
+  getListOfSupportedSchemas,
+  getSchemaNameRuntime,
+  type SupportedSchemaName,
+  type SupportedSchemaTypes
+} from './typeUtils';
 
 export function inferOuraResponse(
-  params: OuraResponseParams
+  params: OuraResponseParams | OuraPersonal
 ): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
-  if (!params.data) {
-    const parseResult = PersonalSchema.safeParse(params);
-    if (parseResult.success) {
-      return parseResult.data;
-    }
-
-    throw new Error('Response data does not match Personal schema.', {
-      cause: { PersonalSchema, params }
-    });
+  const parseResult = PersonalSchema.safeParse(params);
+  if (parseResult.success) {
+    return parseResult.data;
   }
 
-  if (!Array.isArray(params.data)) {
-    throw new Error('Response data is not an array.');
+  if (!('data' in params)) {
+    throw parseResult.error;
   }
 
+  const runtimeSchemaName = getSchemaNameRuntime(params.data);
   const listOfSupportedSchemas = getListOfSupportedSchemas();
-  for (const { schema } of listOfSupportedSchemas) {
-    const parseResult = schema.safeParse(params);
-    if (parseResult.success) {
-      return parseResult.data;
+  for (const { schemaName, schema } of listOfSupportedSchemas) {
+    if (runtimeSchemaName === schemaName) {
+      const parseResult = schema.safeParse(params);
+      if (parseResult.success) {
+        return parseResult.data;
+      }
+      throw parseResult.error;
     }
   }
 

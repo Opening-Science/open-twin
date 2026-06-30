@@ -21,7 +21,7 @@
     "lint": "biome ci",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest --output-file=test.junit.xml --reporter=junit --run"
   },
   "keywords": [
     "oura",
@@ -31,8 +31,12 @@
   "author": "Vuse XR",
   "license": "MIT",
   "dependencies": {
+    "@rollup/plugin-swc": "^0.4.1",
     "@types/fhir": "^0.0.44",
     "axios": "^1.18.1",
+    "jest-extended": "^7.0.0",
+    "reflect-metadata": "^0.2.2",
+    "vitest": "^4.1.9",
     "zod": "^4.4.3"
   },
   "devDependencies": {
