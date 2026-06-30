@@ -45,7 +45,8 @@ export function requestOuraData(
           const body = await res.text().catch(() => '');
           throw new Error(`Oura request failed (${res.status}) for type "${type}": ${body}`);
         }
-        return (await res.json()) as OuraResponseParams;
+        const jsonResponse = await res.json();
+        return jsonResponse as OuraResponseParams;
       })
     );
   }
