@@ -1,5 +1,6 @@
-import type { Bundle, Observation, Patient } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4';
 import type { OuraPersonal } from '../../api/schemas/personal';
+import { SYSTEMS } from './shared';
 
 interface FhirPatient {
   resourceType: 'Patient';
@@ -8,19 +9,6 @@ interface FhirPatient {
   gender?: string;
   birthDate?: string;
 }
-
-export interface FhirBundle {
-  resourceType: 'Bundle';
-  type: 'collection';
-  entry: { resource: Patient | Observation }[];
-}
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs'
-};
 
 export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   if (!person) {
