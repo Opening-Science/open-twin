@@ -24,13 +24,13 @@ npm install @open-twin/provider-oura
 ### Setup & Prerequisites
 
 1. Head over to the [Oura Developer Portal](https://developer.ouraring.com/applications) and create a new application.
-2. Once registered, Oura will provide you with a `CLIENT_ID` and a `CLIENT_SECRET` (or `CLIENT_URI`).
+2. Once registered, Oura will provide you with a `CLIENT_ID` and a `CLIENT_SECRET` (and `CLIENT_URI`).
 3. Add these credentials to your project's root environment file:
 
 ```bash
-OURA_CLIENT_ID=your_client_id_here
-OURA_CLIENT_SECRET=your_client_secret_here
-OURA_REDIRECT_URI=your_redirect_uri_here
+OURA_CLIENT_ID=YOUR_CLIENT_ID
+OURA_CLIENT_SECRET=YOUR_CLIENT_SECRET
+OURA_REDIRECT_URI=YOUR_REDIRECT_URI
 ```
 
 ---
@@ -105,13 +105,26 @@ try {
 }
 ```
 
-### `getOuraData(request)`
+### `getOuraData(request, bearerToken)`
 
 Retrieves the Oura Data types specified in the request
 
 #### Parameters
 
-* **`refresh_token`** (`string`): The refresh token returned in the initial auth request
+* **`request`** (`RequestParams`): The parameters required to make a request
+
+```ts
+RequestParams: interface {
+    types: string[];
+    start_date?: string | undefined;
+    end_date?: string | undefined;
+    next_token?: string | null | undefined;
+    fields?: string[] | undefined;
+    latest?: boolean | null | undefined;
+}
+```
+
+* **`bearerToken`** (`string`): The access token returned in the auth process
 
 #### Return Value
 
