@@ -1,12 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraHeartRateList } from '../../api/schemas/heartrate'; // Adjust path as needed
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {

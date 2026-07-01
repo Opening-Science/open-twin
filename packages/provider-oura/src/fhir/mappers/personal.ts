@@ -1,11 +1,10 @@
 import type { Bundle, Observation, Patient } from 'fhir/r4';
 import type { OuraPersonal } from '../../api/schemas/personal';
-import type { FhirObservation } from './shared';
 
 interface FhirPatient {
   resourceType: 'Patient';
   id?: string;
-  identifier?: FhirObservation['identifier'];
+  identifier?: Observation['identifier'];
   gender?: string;
   birthDate?: string;
 }
@@ -52,7 +51,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
 
   bundle.entry?.push({ resource: patient });
 
-  const observationIdentifiers: FhirObservation['identifier'] = [
+  const observationIdentifiers: Observation['identifier'] = [
     { system: `${SYSTEMS.OURA_CUSTOM}#tag/Personal-Info-Routes`, value: person.id }
   ];
   if (person.email) {
@@ -80,7 +79,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
           system: SYSTEMS.UCUM,
           code: 'kg'
         }
-      } as FhirObservation
+      } as Observation
     });
   }
 
@@ -105,7 +104,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
           system: SYSTEMS.UCUM,
           code: 'm'
         }
-      } as FhirObservation
+      } as Observation
     });
   }
 
@@ -137,7 +136,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
         },
         subject: { reference: `Patient/${person.id}` },
         valueString: person.biological_sex
-      } as FhirObservation
+      } as Observation
     });
   }
 

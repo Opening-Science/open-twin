@@ -1,12 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { PublicSample, SessionList } from '../../api/schemas/session';
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 function averageSample(sample: PublicSample | null): number | undefined {
   if (!sample?.items || sample.items.length === 0) return undefined;

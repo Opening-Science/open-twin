@@ -1,12 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraVO2MaxResponseList } from '../../api/schemas/vo2max';
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraVO2MaxToFHIR(ouraData: OuraVO2MaxResponseList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {

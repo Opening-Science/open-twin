@@ -1,10 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraRestModeList } from '../../api/schemas/restmode';
-
-const SYSTEMS = {
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraRestModeToFHIR(ouraData: OuraRestModeList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {
