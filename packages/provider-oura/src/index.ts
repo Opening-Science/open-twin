@@ -6,6 +6,9 @@ import { requestOuraData } from './utils/clientUtils';
 import { inferOuraResponse } from './utils/objectUtils';
 import type { SupportedSchemaName, SupportedSchemaTypes } from './utils/typeUtils';
 
+// biome-ignore lint/performance/noBarrelFile: This file is the public entry point for the npm package.
+export { getAccessToken, refreshAccessToken } from './api/client';
+
 export async function getSandboxOuraData(
   request: RequestParams,
   bearerToken: string

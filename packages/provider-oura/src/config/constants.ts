@@ -1,5 +1,6 @@
-const CLIENT_ID = 'YOUR_CLIENT_ID';
-const REDIRECT_URI = 'YOUR_REDIRECT_URI';
+const CLIENT_ID = process.env.OURA_CLIENT_ID;
+const CLIENT_SECRET = process.env.OURA_CLIENT_SECRET;
+const REDIRECT_URI = process.env.OURA_REDIRECT_URI;
 const SUPPORTED_SCOPES = [
   'daily_activity',
   'heartrate',
@@ -17,4 +18,4 @@ const SUPPORTED_SCOPES = [
   'session'
 ];
 
-export { CLIENT_ID, REDIRECT_URI, SUPPORTED_SCOPES };
+export { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, SUPPORTED_SCOPES };
