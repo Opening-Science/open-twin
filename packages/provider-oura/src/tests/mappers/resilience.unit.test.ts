@@ -2,18 +2,17 @@ import { describe, expect, it } from 'vitest';
 import type { OuraResilienceItem, OuraResilienceResponseList } from '../../api/schemas/resilience';
 import { mapOuraResilienceToFHIR, SYSTEMS } from '../../fhir/mappers/resilience';
 
-const baseResilience: OuraResilienceItem = {
-  id: 'resilience-123',
-  day: '2023-08-15',
-  level: 'solid',
-  contributors: {
-    sleep_recovery: 10,
-    daytime_recovery: 20,
-    stress: 30
-  }
-};
-
 describe('mapOuraResilienceToFHIR', () => {
+  const baseResilience: OuraResilienceItem = {
+    id: 'resilience-123',
+    day: '2023-08-15',
+    level: 'solid',
+    contributors: {
+      sleep_recovery: 10,
+      daytime_recovery: 20,
+      stress: 30
+    }
+  };
   it('throws an error when no resilience data is provided', () => {
     expect(() => mapOuraResilienceToFHIR(null as unknown as OuraResilienceResponseList)).toThrow(
       'No resilience data available to map to FHIR.'

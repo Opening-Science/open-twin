@@ -7,26 +7,25 @@ const UCUM = 'http://unitsofmeasure.org';
 const OBSERVATION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/observation-category';
 const DATA_ABSENT = 'http://terminology.hl7.org/CodeSystem/data-absent-reason';
 
-const baseEntry: OuraReadinessItem = {
-  id: 'readiness-1',
-  day: '2026-06-20',
-  timestamp: '2026-06-20T08:00:00+00:00',
-  score: 82,
-  contributors: {
-    activity_balance: 90,
-    hrv_balance: 85,
-    previous_day_activity: 70,
-    previous_night: 95,
-    recovery_index: 88,
-    resting_heart_rate: 92,
-    sleep_balance: 80,
-    sleep_regularity: 75
-  },
-  temperature_deviation: 0.3,
-  temperature_trend_deviation: 0.1
-};
-
 describe('mapOuraReadinessToFHIR', () => {
+  const baseEntry: OuraReadinessItem = {
+    id: 'readiness-1',
+    day: '2026-06-20',
+    timestamp: '2026-06-20T08:00:00+00:00',
+    score: 82,
+    contributors: {
+      activity_balance: 90,
+      hrv_balance: 85,
+      previous_day_activity: 70,
+      previous_night: 95,
+      recovery_index: 88,
+      resting_heart_rate: 92,
+      sleep_balance: 80,
+      sleep_regularity: 75
+    },
+    temperature_deviation: 0.3,
+    temperature_trend_deviation: 0.1
+  };
   it('throws an error when no readiness data is provided', () => {
     expect(() => mapOuraReadinessToFHIR(null as unknown as OuraReadinessResponseList)).toThrow(
       'No readiness data available to map to FHIR.'

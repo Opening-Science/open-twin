@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { OuraHeartRateList } from '../../api/schemas/heartrate';
+import type { OuraHeartRate, OuraHeartRateList } from '../../api/schemas/heartrate';
 import { mapOuraHeartRateToFHIR } from '../../fhir/mappers/heartrate';
 
 describe('mapOuraHeartRateToFHIR', () => {
-  const baseEntry = {
+  const baseEntry: OuraHeartRate = {
     timestamp: '2026-06-20T04:00:00+00:00',
     producer_timestamp: 123412341234,
     bpm: 60,

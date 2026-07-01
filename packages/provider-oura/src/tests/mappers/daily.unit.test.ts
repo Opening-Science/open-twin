@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { OuraDailyActivityResponseList } from '../../api/schemas/daily';
+import type { OuraDailyActivityItem, OuraDailyActivityResponseList } from '../../api/schemas/daily';
 import { mapOuraDailyActivityToFHIR } from '../../fhir/mappers/daily';
 
 describe('mapOuraDailyActivityToFHIR', () => {
-  const baseActivity = {
+  const baseActivity: OuraDailyActivityItem = {
     id: 'activity-1',
     day: '2026-06-20',
     timestamp: '2026-06-20T04:00:00+00:00',

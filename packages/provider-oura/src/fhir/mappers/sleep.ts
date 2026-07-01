@@ -76,7 +76,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       },
       identifier: [
         {
-          system: 'https://ouraring.com/sleep/id',
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`,
           value: sleep.id
         }
       ],

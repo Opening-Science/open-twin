@@ -102,7 +102,7 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
       },
       identifier: [
         {
-          system: 'https://ouraring.com/workout/id',
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
           value: workout.id
         }
       ],
