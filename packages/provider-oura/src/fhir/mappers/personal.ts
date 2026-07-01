@@ -19,7 +19,8 @@ export interface FhirBundle {
 const SYSTEMS = {
   LOINC: 'http://loinc.org',
   UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
+  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
+  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs'
 };
 
 export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
@@ -37,7 +38,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
 
   const patient: FhirPatient = {
     resourceType: 'Patient',
-    identifier: [{ system: 'https://ouraring.com/user/id', value: person.id }]
+    identifier: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Personal-Info-Routes`, value: person.id }]
   };
 
   if (person.biological_sex) {
@@ -52,7 +53,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   bundle.entry?.push({ resource: patient });
 
   const observationIdentifiers: FhirObservation['identifier'] = [
-    { system: 'https://ouraring.com/user/id', value: person.id }
+    { system: `${SYSTEMS.OURA_CUSTOM}#tag/Personal-Info-Routes`, value: person.id }
   ];
   if (person.email) {
     observationIdentifiers.push({ system: 'email', value: person.email });
