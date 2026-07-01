@@ -1,5 +1,5 @@
+import type { Observation, Patient } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
-import type { Patient, Observation } from 'fhir/r4';
 import type { OuraPersonal } from '../../api/schemas/personal';
 import { mapOuraPersonalToFHIR } from '../../fhir/mappers/personal';
 
