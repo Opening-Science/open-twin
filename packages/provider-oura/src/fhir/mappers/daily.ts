@@ -1,12 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraDailyActivityResponseList } from '../../api/schemas/daily';
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  SNOMED: 'http://snomed.info/sct',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  UCUM: 'http://unitsofmeasure.org'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraDailyActivityToFHIR(
   dailyActivity: OuraDailyActivityResponseList,

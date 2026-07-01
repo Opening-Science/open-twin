@@ -1,13 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraSleepList } from '../../api/schemas/sleep';
-import type { FhirObservation } from './shared';
-
-// Standard FHIR Systems
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  SNOMED: 'http://snomed.info/sct',
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {
@@ -66,7 +59,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     addExtension('app_sleep_phase_5_min', sleep.app_sleep_phase_5_min);
 
     // 4. Construct the base Observation resource
-    const observation: FhirObservation = {
+    const observation: Observation = {
       resourceType: 'Observation',
       status: 'final',
       code: {
@@ -83,7 +76,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       },
       identifier: [
         {
-          system: 'https://ouraring.com/sleep/id',
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`,
           value: sleep.id
         }
       ],

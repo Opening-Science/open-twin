@@ -1,14 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraReadinessResponseList } from '../../api/schemas/readiness';
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  SNOMED: 'http://snomed.info/sct',
-  OURA_CUSTOM: 'https://api.ouraring.com/v2/fhir/CodeSystem',
-  UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
-  DATA_ABSENT: 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {

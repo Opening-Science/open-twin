@@ -1,12 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraHeartRateList } from '../../api/schemas/heartrate'; // Adjust path as needed
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OURA_EXT: 'https://ouraring.com/fhir/StructureDefinition',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {
@@ -51,7 +45,7 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation
       },
       extension: [
         {
-          url: `${SYSTEMS.OURA_EXT}/heart-rate-source`,
+          url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
           valueString: hr.source
         }
       ]
@@ -59,7 +53,7 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation
 
     if (hr.producer_timestamp !== undefined && observation.extension) {
       observation.extension.push({
-        url: `${SYSTEMS.OURA_EXT}/producer-timestamp`,
+        url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
         valueString: hr.producer_timestamp.toString()
       });
     }

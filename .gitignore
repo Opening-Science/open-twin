@@ -147,3 +147,7 @@ vite.config.ts.timestamp-*
 
 .vscode/settings.json
 runner.ts
+
+#pre-commit
+.pre-commit-config.yaml
+.pre-commit-hooks.yaml

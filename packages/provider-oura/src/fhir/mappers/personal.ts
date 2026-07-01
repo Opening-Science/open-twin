@@ -1,26 +1,14 @@
-import type { Bundle, Observation, Patient } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4';
 import type { OuraPersonal } from '../../api/schemas/personal';
-import type { FhirObservation } from './shared';
+import { SYSTEMS } from './shared';
 
 interface FhirPatient {
   resourceType: 'Patient';
   id?: string;
-  identifier?: FhirObservation['identifier'];
+  identifier?: Observation['identifier'];
   gender?: string;
   birthDate?: string;
 }
-
-export interface FhirBundle {
-  resourceType: 'Bundle';
-  type: 'collection';
-  entry: { resource: Patient | Observation }[];
-}
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
 
 export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
   if (!person) {
@@ -37,7 +25,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
 
   const patient: FhirPatient = {
     resourceType: 'Patient',
-    identifier: [{ system: 'https://ouraring.com/user/id', value: person.id }]
+    identifier: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Personal-Info-Routes`, value: person.id }]
   };
 
   if (person.biological_sex) {
@@ -51,8 +39,8 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
 
   bundle.entry?.push({ resource: patient });
 
-  const observationIdentifiers: FhirObservation['identifier'] = [
-    { system: 'https://ouraring.com/user/id', value: person.id }
+  const observationIdentifiers: Observation['identifier'] = [
+    { system: `${SYSTEMS.OURA_CUSTOM}#tag/Personal-Info-Routes`, value: person.id }
   ];
   if (person.email) {
     observationIdentifiers.push({ system: 'email', value: person.email });
@@ -79,7 +67,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
           system: SYSTEMS.UCUM,
           code: 'kg'
         }
-      } as FhirObservation
+      } as Observation
     });
   }
 
@@ -104,7 +92,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
           system: SYSTEMS.UCUM,
           code: 'm'
         }
-      } as FhirObservation
+      } as Observation
     });
   }
 
@@ -136,7 +124,7 @@ export function mapOuraPersonalToFHIR(person: OuraPersonal): Bundle {
         },
         subject: { reference: `Patient/${person.id}` },
         valueString: person.biological_sex
-      } as FhirObservation
+      } as Observation
     });
   }
 

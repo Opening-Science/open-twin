@@ -1,11 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraCardiovascularAgeList } from '../../api/schemas/cardiovascular';
-
-const SYSTEMS = {
-  LOINC: 'http://loinc.org',
-  HL7_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
-  UCUM: 'http://unitsofmeasure.org'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeList): Observation[] {
   return cardioAge.data.map((cardioAge) => {
@@ -16,7 +11,7 @@ export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeL
         {
           coding: [
             {
-              system: SYSTEMS.HL7_CATEGORY,
+              system: SYSTEMS.OBSERVATION_CATEGORY,
               code: 'exam',
               display: 'Exam'
             }

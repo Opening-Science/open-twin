@@ -1,11 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraResilienceResponseList } from '../../api/schemas/resilience';
-
-const SYSTEMS = {
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraResilienceToFHIR(ouraData: OuraResilienceResponseList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {

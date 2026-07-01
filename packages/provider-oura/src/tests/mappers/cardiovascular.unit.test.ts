@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { OuraCardiovascularAgeList } from '../../api/schemas/cardiovascular';
+import type { OuraCardiovascularAge, OuraCardiovascularAgeList } from '../../api/schemas/cardiovascular';
 import { mapOuraCardiovascularAgeToFHIR } from '../../fhir/mappers/cardiovascular';
 
 describe('mapOuraCardiovascularAgeToFHIR', () => {
-  const baseEntry = {
+  const baseEntry: OuraCardiovascularAge = {
     id: 'cardio-1',
     day: '2026-06-20',
     vascular_age: 32,

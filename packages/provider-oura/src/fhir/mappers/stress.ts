@@ -1,11 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import type { OuraStressList } from '../../api/schemas/stress';
-
-const SYSTEMS = {
-  OURA_CUSTOM: 'https://cloud.ouraring.com/v2/docs',
-  UCUM: 'http://unitsofmeasure.org',
-  OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category'
-};
+import { SYSTEMS } from './shared';
 
 export function mapOuraStressToFHIR(ouraData: OuraStressList): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) {
