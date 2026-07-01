@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { OuraResilienceItem, OuraResilienceResponseList } from '../../api/schemas/resilience';
-import { mapOuraResilienceToFHIR, SYSTEMS } from '../../fhir/mappers/resilience';
+import { mapOuraResilienceToFHIR } from '../../fhir/mappers/resilience';
+import { SYSTEMS } from '../../fhir/mappers/shared';
 
 describe('mapOuraResilienceToFHIR', () => {
   const baseResilience: OuraResilienceItem = {
