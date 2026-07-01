@@ -4,15 +4,140 @@ A provider for connecting Oura devices and APIs to the Open Twin ecosystem. This
 
 ## Features
 
-t.b.d.
+* **Token Exchange:** Fetches the `access_token` using an initial user authorization code.
+* **Token Refresh:** Automatically refreshes the `access_token` using a `refresh_token`.
+* **Data Retrieval:** Fetches granular Oura health and device data for a specific user.
+* **FHIR Standardization:** Converts raw Oura data formats into the HL7 FHIR standard for medical/health interoperability.
+
+> **Note:** This package does not handle the initial OAuth2 user authentication UI where permissions are explicitly granted. That must be managed by your client application.
+
+---
 
 ## Installation
 
-t.b.d. (npm install @open-twin/provider-oura)
+Install the package via npm:
+
+```bash
+npm install @open-twin/provider-oura
+```
+
+### Setup & Prerequisites
+
+1. Head over to the [Oura Developer Portal](https://developer.ouraring.com/applications) and create a new application.
+2. Once registered, Oura will provide you with a `CLIENT_ID` and a `CLIENT_SECRET` (or `CLIENT_URI`).
+3. Add these credentials to your project's root environment file:
+
+```bash
+OURA_CLIENT_ID=your_client_id_here
+OURA_CLIENT_SECRET=your_client_secret_here
+OURA_REDIRECT_URI=your_redirect_uri_here
+```
+
+---
 
 ## Usage
 
-t.b.d.
+### `getAccessToken(code)`
+
+Retrieves the initial access and refresh tokens using the authorization code provided by the user handshake.
+
+#### Parameters
+
+* **`code`** (`string`): The temporary authorization code generated after user login.
+
+#### Return Value
+
+Returns a `Promise<TokenResponse>` with the following structure:
+
+interface TokenResponse {
+  access_token: string;
+  token_type: "bearer";
+  expires_in: number;
+  refresh_token: string;
+}
+
+#### Example
+
+```ts
+import { getAccessToken } from '@open-twin/provider-oura';
+
+const authCode = "user_auth_code_from_callback";
+
+try {
+  const tokenData = await getAccessToken(authCode);
+  console.log("Access Token:", tokenData.access_token);
+} catch (error) {
+  console.error("Failed to fetch access token:", error);
+}
+```
+
+### `refreshAccessToken(refresh_token)`
+
+Refreshes the access token
+
+#### Parameters
+
+* **`refresh_token`** (`string`): The refresh token returned in the initial auth request
+
+#### Return Value
+
+Returns a `Promise<TokenResponse>` with the following structure:
+
+interface TokenResponse {
+  access_token: string;
+  token_type: "bearer";
+  expires_in: number;
+  refresh_token: string;
+}
+
+#### Example
+
+```ts
+import { refreshAccessToken } from '@open-twin/provider-oura';
+
+const refreshToken = "user_refresh_token_from_callback";
+
+try {
+  const tokenData = await refreshAccessToken(authCode);
+  console.log("Access Token:", tokenData.access_token);
+} catch (error) {
+  console.error("Failed to fetch access token:", error);
+}
+```
+
+### `getOuraData(request)`
+
+Retrieves the Oura Data types specified in the request
+
+#### Parameters
+
+* **`refresh_token`** (`string`): The refresh token returned in the initial auth request
+
+#### Return Value
+
+Returns a `Promise<TokenResponse>` with the following structure:
+
+interface TokenResponse {
+  access_token: string;
+  token_type: "bearer";
+  expires_in: number;
+  refresh_token: string;
+}
+
+#### Example
+
+```ts
+import { refreshAccessToken } from '@open-twin/provider-oura';
+
+const refreshToken = "user_refresh_token_from_callback";
+
+try {
+  const tokenData = await refreshAccessToken(authCode);
+  console.log("Access Token:", tokenData.access_token);
+} catch (error) {
+  console.error("Failed to fetch access token:", error);
+}
+```
 
 ## Oura to FHIR Mappings
 
