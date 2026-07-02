@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import type { OuraReadinessItem, OuraReadinessResponseList } from '../../api/schemas/readiness';
 import { mapOuraReadinessToFHIR } from '../../fhir/mappers/readiness';
 
-const OURA_CUSTOM = 'https://cloud.ouraring.com/v2/docs';
 const UCUM = 'http://unitsofmeasure.org';
 const OBSERVATION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/observation-category';
 const DATA_ABSENT = 'http://terminology.hl7.org/CodeSystem/data-absent-reason';
