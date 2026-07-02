@@ -34,7 +34,7 @@ const DailyActivityItemSchema = z.object({
   medium_activity_met_minutes: z.number().int().nonnegative().optional(),
   medium_activity_time: z.number().int().nonnegative().optional(),
   met: ActivityMetSchema.optional(),
-  meters_to_target: z.number().int().nonnegative().optional(),
+  meters_to_target: z.number().int().optional(),
   non_wear_time: z.number().int().nonnegative().optional(),
   resting_time: z.number().int().nonnegative().optional(),
   sedentary_met_minutes: z.number().int().nonnegative().optional(),

@@ -12,8 +12,8 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     const components: Observation['component'] = [];
     const extensions: Observation['extension'] = [];
 
-    const addComponent = (value: number | undefined, code: string, system: string, display?: string) => {
-      if (value !== undefined) {
+    const addComponent = (value: number | undefined | null, code: string, system: string, display?: string) => {
+      if (value !== undefined && value !== null) {
         components.push({
           code: {
             coding: [{ system, code, ...(display && { display }) }]
@@ -23,8 +23,8 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       }
     };
 
-    const addExtension = (urlFragment: string, value: string | undefined) => {
-      if (value !== undefined) {
+    const addExtension = (urlFragment: string, value: string | undefined | null) => {
+      if (value !== undefined && value !== null) {
         extensions.push({
           url: `${SYSTEMS.OURA_CUSTOM}/${urlFragment}`,
           valueString: value
@@ -82,7 +82,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     };
 
     // 5. Map remaining properties
-    if (sleep.score !== undefined) {
+    if (sleep.score !== undefined && sleep.score !== null) {
       observation.valueQuantity = {
         value: sleep.score,
         system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`,

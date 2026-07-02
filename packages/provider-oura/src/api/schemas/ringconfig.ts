@@ -4,7 +4,7 @@ import { ResponseParams } from './client';
 export const RingConfigSchema = z.object({
   id: z.string().nonempty(),
   set_up_at: z.string().optional().nullable(), // UTC datetime string
-  hardware_type: z.enum(['gen1', 'gen2', 'gen2m', 'gen3', 'gen4', 'gen5']).optional().nullable(),
+  hardware_type: z.enum(['gen1', 'gen2', 'gen2m', 'gen3', 'gen4', 'or5']).optional().nullable(),
   color: z
     .enum([
       'brushed_silver',

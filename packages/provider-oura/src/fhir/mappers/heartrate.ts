@@ -38,7 +38,7 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation
       },
       effectiveDateTime: hr.timestamp,
       valueQuantity: {
-        value: hr.bpm,
+        value: hr.bpm ?? 0,
         unit: 'beats/minute',
         system: SYSTEMS.UCUM,
         code: '/min'
@@ -51,10 +51,10 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation
       ]
     };
 
-    if (hr.producer_timestamp !== undefined && observation.extension) {
+    if (hr.timestamp_unix !== undefined && observation.extension) {
       observation.extension.push({
         url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
-        valueString: hr.producer_timestamp.toString()
+        valueString: hr.timestamp_unix.toString()
       });
     }
 
