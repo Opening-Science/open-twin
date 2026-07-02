@@ -12,8 +12,8 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     const components: Observation['component'] = [];
     const extensions: Observation['extension'] = [];
 
-    const addComponent = (value: number | undefined, code: string, system: string, display?: string) => {
-      if (value !== undefined) {
+    const addComponent = (value: number | undefined | null, code: string, system: string, display?: string) => {
+      if (value !== undefined && value !== null) {
         components.push({
           code: {
             coding: [{ system, code, ...(display && { display }) }]
@@ -23,8 +23,8 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       }
     };
 
-    const addExtension = (urlFragment: string, value: string | undefined) => {
-      if (value !== undefined) {
+    const addExtension = (urlFragment: string, value: string | undefined | null) => {
+      if (value !== undefined && value !== null) {
         extensions.push({
           url: `${SYSTEMS.OURA_CUSTOM}/${urlFragment}`,
           valueString: value
@@ -32,27 +32,27 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       }
     };
 
-    addComponent(sleep.readiness_score_delta ?? 0, 'readiness_score_delta', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.rem_sleep_duration ?? 0, '93829-0', SYSTEMS.LOINC, 'REM sleep duration');
-    addComponent(sleep.restless_periods ?? 0, 'restless_periods', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.sleep_score_delta ?? 0, 'sleep_score_delta', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.time_in_bed ?? 0, '103213-5', SYSTEMS.LOINC, 'Time in bed');
-    addComponent(sleep.total_sleep_duration ?? 0, '93832-4', SYSTEMS.LOINC, 'Total sleep duration');
-    addComponent(sleep.temperature_deviation ?? 0, 'temperature_deviation', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.temperature_trend_deviation ?? 0, 'temperature_trend_deviation', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.deep_sleep_duration ?? 0, '93831-6', SYSTEMS.LOINC, 'Deep sleep duration');
-    addComponent(sleep.efficiency ?? 0, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency');
-    addComponent(sleep.latency ?? 0, '103212-7', SYSTEMS.LOINC, 'Sleep latency');
-    addComponent(sleep.lowest_heart_rate ?? 0, '40443-4', SYSTEMS.LOINC, 'Resting heart rate');
-    addComponent(sleep.average_heart_rate ?? 0, 'average_heart_rate', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
-    addComponent(sleep.average_breath ?? 0, 'average_breath', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
-    addComponent(sleep.average_hrv ?? 0, 'average_hrv', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
-    addComponent(sleep.awake_time ?? 0, 'awake_time', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
-    addComponent(sleep.light_sleep_duration ?? 0, 'light_sleep_duration', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.readiness_score_delta, 'readiness_score_delta', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.rem_sleep_duration, '93829-0', SYSTEMS.LOINC, 'REM sleep duration');
+    addComponent(sleep.restless_periods, 'restless_periods', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.sleep_score_delta, 'sleep_score_delta', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.time_in_bed, '103213-5', SYSTEMS.LOINC, 'Time in bed');
+    addComponent(sleep.total_sleep_duration, '93832-4', SYSTEMS.LOINC, 'Total sleep duration');
+    addComponent(sleep.temperature_deviation, 'temperature_deviation', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.temperature_trend_deviation, 'temperature_trend_deviation', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.deep_sleep_duration, '93831-6', SYSTEMS.LOINC, 'Deep sleep duration');
+    addComponent(sleep.efficiency, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency');
+    addComponent(sleep.latency, '103212-7', SYSTEMS.LOINC, 'Sleep latency');
+    addComponent(sleep.lowest_heart_rate, '40443-4', SYSTEMS.LOINC, 'Resting heart rate');
+    addComponent(sleep.average_heart_rate, 'average_heart_rate', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.average_breath, 'average_breath', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.average_hrv, 'average_hrv', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.awake_time, 'awake_time', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.light_sleep_duration, 'light_sleep_duration', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
     addExtension('day', sleep.day);
-    addExtension('sleep_phase_30_sec', sleep.sleep_phase_30_sec ?? '');
-    addExtension('sleep_phase_5_min', sleep.sleep_phase_5_min ?? '');
-    addExtension('app_sleep_phase_5_min', sleep.app_sleep_phase_5_min ?? '');
+    addExtension('sleep_phase_30_sec', sleep.sleep_phase_30_sec);
+    addExtension('sleep_phase_5_min', sleep.sleep_phase_5_min);
+    addExtension('app_sleep_phase_5_min', sleep.app_sleep_phase_5_min);
 
     const observation: Observation = {
       resourceType: 'Observation',

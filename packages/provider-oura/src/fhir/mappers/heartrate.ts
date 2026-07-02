@@ -51,10 +51,10 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation
       ]
     };
 
-    if (hr.producer_timestamp !== null && observation.extension) {
+    if (hr.timestamp_unix !== undefined && observation.extension) {
       observation.extension.push({
         url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
-        valueString: hr.producer_timestamp.toString()
+        valueString: hr.timestamp_unix.toString()
       });
     }
 

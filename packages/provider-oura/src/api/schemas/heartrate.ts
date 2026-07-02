@@ -3,8 +3,8 @@ import { ResponseParams } from './client';
 
 export const HeartRateSchema = z.object({
   timestamp: z.iso.datetime({ offset: true }),
-  producer_timestamp: z.number().nullable(), // Format: UNIX timestamp
-  bpm: z.number().nullable(),
+  timestamp_unix: z.number().optional(), // Format: UNIX timestamp
+  bpm: z.number(),
   source: z.enum(['awake', 'workout', 'rest', 'sleep', 'live', 'session'])
 });
 
