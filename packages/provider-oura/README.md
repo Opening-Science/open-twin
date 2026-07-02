@@ -71,6 +71,8 @@ try {
 }
 ```
 
+---
+
 ### `refreshAccessToken(refresh_token)`
 
 Refreshes the access token
@@ -104,6 +106,8 @@ try {
   console.error("Failed to fetch access token:", error);
 }
 ```
+
+---
 
 ### `getOuraData(request, bearerToken)`
 
@@ -148,6 +152,8 @@ try {
   console.error("Failed to fetch access token:", error);
 }
 ```
+
+---
 
 ### `getFhirBundleFromOuraData(request, bearerToken, sandbox)`
 
