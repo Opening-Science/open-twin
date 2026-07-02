@@ -26,7 +26,9 @@ describe('mapOuraDailyActivityToFHIR', () => {
     expect(observation).toMatchObject({
       resourceType: 'Observation',
       status: 'final',
-      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs', value: 'oura-activity-activity-1' }],
+      identifier: [
+        { system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Activity-Routes', value: 'oura-activity-activity-1' }
+      ],
       category: [
         {
           coding: [
@@ -40,7 +42,11 @@ describe('mapOuraDailyActivityToFHIR', () => {
       ],
       code: {
         coding: [
-          { system: 'https://cloud.ouraring.com/v2/docs', code: 'activity-score', display: 'Oura Activity Score' }
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Activity-Routes',
+            code: 'activity-score',
+            display: 'Oura Activity Score'
+          }
         ]
       }
     });
@@ -108,7 +114,11 @@ describe('mapOuraDailyActivityToFHIR', () => {
     expect(observation.component).toContainEqual({
       code: {
         coding: [
-          { system: 'https://cloud.ouraring.com/v2/docs', code: 'meet-daily-targets', display: 'Meet Daily Targets' }
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Activity-Routes',
+            code: 'meet-daily-targets',
+            display: 'Meet Daily Targets'
+          }
         ]
       },
       valueQuantity: { value: 90, unit: 'score', system: 'http://unitsofmeasure.org', code: '{score}' }

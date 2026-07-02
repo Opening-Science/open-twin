@@ -43,10 +43,12 @@ describe('mapOuraWorkoutToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'workout', display: 'Oura Workout' }]
+        coding: [
+          { system: 'https://cloud.ouraring.com/v2/docs#tag/Workout-Routes', code: 'workout', display: 'Oura Workout' }
+        ]
       },
       subject: { reference: 'Patient/example' },
-      identifier: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`, value: 'workout-1' }],
+      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Workout-Routes', value: 'workout-1' }],
       effectivePeriod: {
         start: '2026-06-20T08:00:00+00:00',
         end: '2026-06-20T08:30:00+00:00'
@@ -65,7 +67,7 @@ describe('mapOuraWorkoutToFHIR', () => {
         coding: [
           {
             system: SYSTEMS.LOINC,
-            code: '41981-2',
+            code: '41979-6',
             display: 'Calories burned in 24 hours with moderate to vigorous activity'
           }
         ]
@@ -73,7 +75,15 @@ describe('mapOuraWorkoutToFHIR', () => {
       valueQuantity: { value: 500, unit: 'kcal', system: SYSTEMS.UCUM, code: 'kcal' }
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'workout-distance', display: 'Workout Distance' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Workout-Routes',
+            code: 'workout-distance',
+            display: 'Workout Distance'
+          }
+        ]
+      },
       valueQuantity: { value: 5, unit: 'm', system: SYSTEMS.UCUM, code: 'm' }
     });
   });
