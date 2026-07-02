@@ -1,13 +1,17 @@
-# open-twin-provider-fitbit
+# open-twin-provider-google-health
+
 A provider for connecting Fitbit devices and APIs to the Open Twin ecosystem. This package retrieves user and device data from Fitbit and transforms it into an open, standardized format for interoperable processing and further analysis.
 
 # Features
+
 t.b.d.
 
 # Installation
+
 t.b.d. (npm install @open-twin/provider-fitbit)
 
 # Usage
+
 t.b.d.
 
 # Disclaimer
@@ -25,4 +29,3 @@ Use of these names does not imply endorsement or affiliation.
 # License
 
 MIT
-

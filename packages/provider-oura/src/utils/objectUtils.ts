@@ -9,7 +9,7 @@ import {
 
 export function inferOuraResponse(
   params: OuraResponseParams | OuraPersonal
-): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal {
+): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal | undefined {
   const parseResult = PersonalSchema.safeParse(params);
   if (parseResult.success) {
     return parseResult.data;
@@ -29,6 +29,10 @@ export function inferOuraResponse(
       }
       throw parseResult.error;
     }
+  }
+
+  if (params.data.length === 0) {
+    return;
   }
 
   throw new Error('Response data does not match any supported schema.', {

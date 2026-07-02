@@ -8,3 +8,6 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - axios@1.18.1
+
+overrides:
+  provider-oura: link:packages/provider-oura

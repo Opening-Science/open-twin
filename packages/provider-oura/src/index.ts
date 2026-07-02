@@ -12,7 +12,7 @@ export { getAccessToken, refreshAccessToken } from './api/client';
 export async function getSandboxOuraData(
   request: RequestParams,
   bearerToken: string
-): Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal)[]> {
+): Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal | undefined)[]> {
   const data = await requestOuraData(request, bearerToken, true);
   const inferredData = data.map((item) => inferOuraResponse(item));
   return inferredData;
@@ -21,7 +21,7 @@ export async function getSandboxOuraData(
 export async function getOuraData(
   request: RequestParams,
   bearerToken: string
-): Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal)[]> {
+): Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal | undefined)[]> {
   const data = await requestOuraData(request, bearerToken);
   const inferredData = data.map((item) => inferOuraResponse(item));
   return inferredData;
@@ -31,6 +31,6 @@ export async function getFhirBundleFromOuraData(
   request: RequestParams,
   bearerToken: string,
   sandbox: boolean = false
-): Promise<Bundle> {
+): Promise<Bundle | undefined> {
   return await buildBundleFromResponse(request, bearerToken, sandbox);
 }
