@@ -51,7 +51,7 @@ describe('mapOuraRestModeToFHIR', () => {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Rest-Mode-Period-Routes',
             code: 'rest-mode',
             display: 'Oura Rest Mode'
           }

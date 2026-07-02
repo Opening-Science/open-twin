@@ -19,7 +19,7 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
           coding: [
             {
               system: SYSTEMS.LOINC,
-              code: '41981-2',
+              code: '41979-6',
               display: 'Calories burned in 24 hours with moderate to vigorous activity'
             }
           ]
@@ -38,7 +38,7 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
         code: {
           coding: [
             {
-              system: SYSTEMS.OURA_CUSTOM,
+              system: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
               code: 'workout-distance',
               display: 'Workout Distance'
             }
@@ -54,21 +54,21 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
     }
 
     extensions.push({
-      url: `${SYSTEMS.OURA_CUSTOM}/workout-source`,
+      url: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
       valueString: workout.source
     });
     extensions.push({
-      url: `${SYSTEMS.OURA_CUSTOM}/workout-intensity`,
+      url: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
       valueString: workout.intensity
     });
     extensions.push({
-      url: `${SYSTEMS.OURA_CUSTOM}/workout-day`,
+      url: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
       valueString: workout.day
     });
 
     if (workout.label !== null) {
       extensions.push({
-        url: `${SYSTEMS.OURA_CUSTOM}/workout-label`,
+        url: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
         valueString: workout.label
       });
     }
@@ -90,7 +90,7 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Workout-Routes`,
             code: 'workout',
             display: 'Oura Workout'
           }

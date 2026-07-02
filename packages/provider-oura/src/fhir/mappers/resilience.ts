@@ -19,17 +19,17 @@ export function mapOuraResilienceToFHIR(ouraData: OuraResilienceResponseList): O
     };
 
     addComponent(resilience.contributors.sleep_recovery, {
-      system: SYSTEMS.OURA_CUSTOM,
+      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
       code: 'sleep-recovery',
       display: 'Sleep Recovery'
     });
     addComponent(resilience.contributors.daytime_recovery, {
-      system: SYSTEMS.OURA_CUSTOM,
+      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
       code: 'daytime-recovery',
       display: 'Daytime Recovery'
     });
     addComponent(resilience.contributors.stress, {
-      system: SYSTEMS.OURA_CUSTOM,
+      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
       code: 'stress',
       display: 'Stress'
     });
@@ -38,7 +38,7 @@ export function mapOuraResilienceToFHIR(ouraData: OuraResilienceResponseList): O
       resourceType: 'Observation',
       identifier: [
         {
-          system: SYSTEMS.OURA_CUSTOM,
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
           value: `oura-resilience-${resilience.id}`
         }
       ],
@@ -57,7 +57,7 @@ export function mapOuraResilienceToFHIR(ouraData: OuraResilienceResponseList): O
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
             code: 'resilience-level',
             display: 'Oura Resilience Level'
           }

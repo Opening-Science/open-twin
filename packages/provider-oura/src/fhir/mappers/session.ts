@@ -42,7 +42,7 @@ export function mapOuraSessionToFHIR(ouraData: SessionList): Observation[] {
     addComponent(
       averageSample(session.heart_rate_variability),
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Session-Routes`,
         code: 'heart-rate-variability',
         display: 'Heart Rate Variability'
       },
@@ -52,7 +52,7 @@ export function mapOuraSessionToFHIR(ouraData: SessionList): Observation[] {
     addComponent(
       averageSample(session.motion_count),
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Session-Routes`,
         code: 'motion-count',
         display: 'Motion Count'
       },
@@ -93,7 +93,7 @@ export function mapOuraSessionToFHIR(ouraData: SessionList): Observation[] {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Session-Routes`,
             code: 'session',
             display: 'Oura Session'
           }

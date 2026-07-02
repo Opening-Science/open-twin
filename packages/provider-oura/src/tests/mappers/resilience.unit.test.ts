@@ -40,9 +40,20 @@ describe('mapOuraResilienceToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'resilience-level', display: 'Oura Resilience Level' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Resilience-Routes',
+            code: 'resilience-level',
+            display: 'Oura Resilience Level'
+          }
+        ]
       },
-      identifier: [{ system: SYSTEMS.OURA_CUSTOM, value: 'oura-resilience-resilience-123' }],
+      identifier: [
+        {
+          system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Resilience-Routes',
+          value: 'oura-resilience-resilience-123'
+        }
+      ],
       subject: { reference: 'Patient/example' },
       effectiveDateTime: '2023-08-15'
     });
@@ -63,15 +74,39 @@ describe('mapOuraResilienceToFHIR', () => {
 
     expect(observation.component).toHaveLength(3);
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'sleep-recovery', display: 'Sleep Recovery' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Resilience-Routes',
+            code: 'sleep-recovery',
+            display: 'Sleep Recovery'
+          }
+        ]
+      },
       valueQuantity: { value: 10, unit: 'score', system: SYSTEMS.UCUM, code: '{score}' }
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'daytime-recovery', display: 'Daytime Recovery' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Resilience-Routes',
+            code: 'daytime-recovery',
+            display: 'Daytime Recovery'
+          }
+        ]
+      },
       valueQuantity: { value: 20, unit: 'score', system: SYSTEMS.UCUM, code: '{score}' }
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'stress', display: 'Stress' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Resilience-Routes',
+            code: 'stress',
+            display: 'Stress'
+          }
+        ]
+      },
       valueQuantity: { value: 30, unit: 'score', system: SYSTEMS.UCUM, code: '{score}' }
     });
   });

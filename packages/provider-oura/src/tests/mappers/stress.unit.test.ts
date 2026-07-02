@@ -44,7 +44,7 @@ describe('mapOuraStressToFHIR', () => {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Stress-Routes',
             code: 'daily-stress',
             display: 'Oura Daily Stress'
           }

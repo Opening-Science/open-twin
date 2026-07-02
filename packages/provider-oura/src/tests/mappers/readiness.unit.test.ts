@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import type { OuraReadinessItem, OuraReadinessResponseList } from '../../api/schemas/readiness';
 import { mapOuraReadinessToFHIR } from '../../fhir/mappers/readiness';
 
-const OURA_CUSTOM = 'https://cloud.ouraring.com/v2/docs';
 const UCUM = 'http://unitsofmeasure.org';
 const OBSERVATION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/observation-category';
 const DATA_ABSENT = 'http://terminology.hl7.org/CodeSystem/data-absent-reason';
@@ -52,9 +51,17 @@ describe('mapOuraReadinessToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: OURA_CUSTOM, code: 'readiness-score', display: 'Oura Readiness Score' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Readiness-Routes',
+            code: 'readiness-score',
+            display: 'Oura Readiness Score'
+          }
+        ]
       },
-      identifier: [{ system: OURA_CUSTOM, value: 'oura-readiness-readiness-1' }],
+      identifier: [
+        { system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Readiness-Routes', value: 'oura-readiness-readiness-1' }
+      ],
       subject: { reference: 'Patient/example' },
       effectiveDateTime: '2026-06-20T08:00:00.000Z'
     });
@@ -81,16 +88,38 @@ describe('mapOuraReadinessToFHIR', () => {
 
     expect(observation.component).toHaveLength(10);
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: OURA_CUSTOM, code: 'activity-balance', display: 'Activity Balance' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Readiness-Routes',
+            code: 'activity-balance',
+            display: 'Activity Balance'
+          }
+        ]
+      },
       valueQuantity: { value: 90, unit: 'Score', system: UCUM, code: '{score}' }
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: OURA_CUSTOM, code: 'temperature-deviation', display: 'Temperature Deviation' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Readiness-Routes',
+            code: 'temperature-deviation',
+            display: 'Temperature Deviation'
+          }
+        ]
+      },
       valueQuantity: { value: 0.3, unit: '°C', system: UCUM, code: 'Cel' }
     });
     expect(observation.component).toContainEqual({
       code: {
-        coding: [{ system: OURA_CUSTOM, code: 'temperature-trend-deviation', display: 'Temperature Trend Deviation' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Readiness-Routes',
+            code: 'temperature-trend-deviation',
+            display: 'Temperature Trend Deviation'
+          }
+        ]
       },
       valueQuantity: { value: 0.1, unit: '°C', system: UCUM, code: 'Cel' }
     });

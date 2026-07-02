@@ -30,9 +30,11 @@ describe('mapOuraCardiovascularAgeToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: 'http://loinc.org', code: '88059-1', display: 'Vascular age' }]
+        coding: [{ system: 'http://loinc.org', code: '77195-6', display: 'Vascular age' }]
       },
-      identifier: [{ system: 'https://ouraring.com/cardiovascular-age/id', value: 'cardio-1' }],
+      identifier: [
+        { system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Cardiovascular-Age-Routes', value: 'cardio-1' }
+      ],
       effectiveDateTime: '2026-06-20'
     });
   });
@@ -58,7 +60,7 @@ describe('mapOuraCardiovascularAgeToFHIR', () => {
     expect(observation.component).toEqual([
       {
         code: {
-          coding: [{ system: 'http://loinc.org', code: '85343-2', display: 'Pulse wave velocity' }]
+          coding: [{ system: 'http://loinc.org', code: '77196-4', display: 'Pulse wave velocity' }]
         },
         valueQuantity: {
           value: 7.5,

@@ -28,7 +28,7 @@ export function mapOuraVO2MaxToFHIR(ouraData: OuraVO2MaxResponseList): Observati
         coding: [
           {
             system: SYSTEMS.LOINC,
-            code: '96803-2',
+            code: '60842-2',
             display: 'Oxygen consumption (VO2max)'
           }
         ]

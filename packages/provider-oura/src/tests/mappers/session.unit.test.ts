@@ -41,11 +41,13 @@ describe('mapOuraSessionToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'session', display: 'Oura Session' }],
+        coding: [
+          { system: 'https://cloud.ouraring.com/v2/docs#tag/Session-Routes', code: 'session', display: 'Oura Session' }
+        ],
         text: 'meditation'
       },
       subject: { reference: 'Patient/example' },
-      identifier: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Session-Routes`, value: 'session-1' }],
+      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Session-Routes', value: 'session-1' }],
       effectivePeriod: {
         start: '2026-06-20T08:00:00+00:00',
         end: '2026-06-20T08:15:00+00:00'
@@ -65,12 +67,26 @@ describe('mapOuraSessionToFHIR', () => {
     });
     expect(observation.component).toContainEqual({
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'heart-rate-variability', display: 'Heart Rate Variability' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Session-Routes',
+            code: 'heart-rate-variability',
+            display: 'Heart Rate Variability'
+          }
+        ]
       },
       valueQuantity: { value: 45, unit: 'ms', system: SYSTEMS.UCUM, code: 'ms' }
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'motion-count', display: 'Motion Count' }] },
+      code: {
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Session-Routes',
+            code: 'motion-count',
+            display: 'Motion Count'
+          }
+        ]
+      },
       valueQuantity: { value: 2, unit: 'count', system: SYSTEMS.UCUM, code: '{count}' }
     });
   });

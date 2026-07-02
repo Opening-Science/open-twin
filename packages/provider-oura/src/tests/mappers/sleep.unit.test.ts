@@ -46,10 +46,16 @@ describe('mapOuraSleepToFHIR', () => {
       resourceType: 'Observation',
       status: 'final',
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'sleep', display: 'Oura Sleep Observation' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes',
+            code: 'sleep',
+            display: 'Oura Sleep Observation'
+          }
+        ]
       },
       subject: { reference: 'Patient/example' },
-      identifier: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`, value: 'sleep-1' }],
+      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes', value: 'sleep-1' }],
       effectivePeriod: {
         start: '2026-06-20T23:00:00+00:00',
         end: '2026-06-21T07:00:00+00:00'
@@ -64,7 +70,7 @@ describe('mapOuraSleepToFHIR', () => {
 
     expect(observation.valueQuantity).toEqual({
       value: 88,
-      system: SYSTEMS.OURA_CUSTOM,
+      system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes',
       code: 'sleep_score'
     });
   });
@@ -74,7 +80,9 @@ describe('mapOuraSleepToFHIR', () => {
 
     const [observation] = mapOuraSleepToFHIR(input);
 
-    expect(observation.category).toEqual([{ coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'long_sleep' }] }]);
+    expect(observation.category).toEqual([
+      { coding: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes', code: 'long_sleep' }] }
+    ]);
     expect(observation.method).toEqual({ text: 'v2' });
     expect(observation.note).toEqual([{ text: 'normal' }]);
     expect(observation.device).toEqual({ reference: 'Device/ring-9' });

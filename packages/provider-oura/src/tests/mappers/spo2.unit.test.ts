@@ -34,10 +34,16 @@ describe('mapOuraSpo2ToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'spo2_daily_summary', display: 'Oura Daily SpO2 Summary' }]
+        coding: [
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Spo2-Routes',
+            code: 'spo2_daily_summary',
+            display: 'Oura Daily SpO2 Summary'
+          }
+        ]
       },
       subject: { reference: 'Patient/example' },
-      identifier: [{ system: 'https://ouraring.com/spo2/id', value: 'spo2-1' }],
+      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Spo2-Routes', value: 'spo2-1' }],
       effectiveDateTime: '2026-06-20'
     });
   });
@@ -55,7 +61,11 @@ describe('mapOuraSpo2ToFHIR', () => {
     expect(observation.component).toContainEqual({
       code: {
         coding: [
-          { system: SYSTEMS.OURA_CUSTOM, code: 'breathing_disturbance_index', display: 'Breathing Disturbance Index' }
+          {
+            system: 'https://cloud.ouraring.com/v2/docs#tag/Daily-Spo2-Routes',
+            code: 'breathing_disturbance_index',
+            display: 'Breathing Disturbance Index'
+          }
         ]
       },
       valueQuantity: { value: 4, unit: 'events/hour', system: SYSTEMS.UCUM, code: '/h' }

@@ -36,7 +36,7 @@ describe('mapOuraVO2MaxToFHIR', () => {
         }
       ],
       code: {
-        coding: [{ system: SYSTEMS.LOINC, code: '96803-2', display: 'Oxygen consumption (VO2max)' }]
+        coding: [{ system: SYSTEMS.LOINC, code: '60842-2', display: 'Oxygen consumption (VO2max)' }]
       },
       subject: { reference: 'Patient/example' },
       identifier: [{ system: 'https://ouraring.com/vo2max/id', value: 'vo2max-1' }],
