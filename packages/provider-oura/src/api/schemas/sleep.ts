@@ -1,20 +1,6 @@
 import { z } from 'zod';
 import { ResponseParams } from './client';
 
-// const SleepContributorsSchema = z.object({
-//   deep_sleep: z.number().int().nonnegative().optional(),
-//   efficiency: z.number().int().nonnegative().optional(),
-//   latency: z.number().int().nonnegative().optional(),
-//   rem_sleep: z.number().int().nonnegative().optional(),
-//   restfulness: z.number().int().nonnegative().optional(),
-//   timing: z.number().int().nonnegative().optional(),
-//   total_sleep: z.number().int().nonnegative().optional(),
-//   recovery_index: z.number().int().nonnegative().optional(),
-//   resting_heart_rate: z.number().int().nonnegative().optional(),
-//   sleep_balance: z.number().int().nonnegative().optional(),
-//   sleep_regularity: z.number().int().nonnegative().optional()
-// });
-
 const SleepSchema = z.object({
   id: z.string().nonempty(),
   bedtime_start: z.string(),
