@@ -19,7 +19,7 @@ export function mapOuraWorkoutToFHIR(ouraData: OuraWorkoutList): Observation[] {
           coding: [
             {
               system: SYSTEMS.LOINC,
-              code: '41981-2',
+              code: '41979-6',
               display: 'Calories burned in 24 hours with moderate to vigorous activity'
             }
           ]

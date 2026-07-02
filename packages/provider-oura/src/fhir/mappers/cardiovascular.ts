@@ -22,7 +22,7 @@ export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeL
         coding: [
           {
             system: SYSTEMS.LOINC,
-            code: '88059-1',
+            code: '77195-6',
             display: 'Vascular age'
           }
         ]
@@ -53,7 +53,7 @@ export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeL
             coding: [
               {
                 system: SYSTEMS.LOINC,
-                code: '85343-2',
+                code: '77196-4',
                 display: 'Pulse wave velocity'
               }
             ]

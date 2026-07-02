@@ -36,12 +36,10 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     addComponent(sleep.rem_sleep_duration, '93829-0', SYSTEMS.LOINC, 'REM sleep duration');
     addComponent(sleep.restless_periods, 'restless_periods', SYSTEMS.OURA_CUSTOM);
     addComponent(sleep.sleep_score_delta, 'sleep_score_delta', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.time_in_bed, '103214-3', SYSTEMS.LOINC, 'Time in bed');
+    addComponent(sleep.time_in_bed, '103213-5', SYSTEMS.LOINC, 'Time in bed');
     addComponent(sleep.total_sleep_duration, '93832-4', SYSTEMS.LOINC, 'Total sleep duration');
     addComponent(sleep.temperature_deviation, 'temperature_deviation', SYSTEMS.OURA_CUSTOM);
     addComponent(sleep.temperature_trend_deviation, 'temperature_trend_deviation', SYSTEMS.OURA_CUSTOM);
-
-    // 2. Map Flattened Metrics to Components (Replaces legacy 'contributors')
     addComponent(sleep.deep_sleep_duration, '93831-6', SYSTEMS.LOINC, 'Deep sleep duration');
     addComponent(sleep.efficiency, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency');
     addComponent(sleep.latency, '103212-7', SYSTEMS.LOINC, 'Sleep latency');
@@ -51,14 +49,11 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     addComponent(sleep.average_hrv, 'average_hrv', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
     addComponent(sleep.awake_time, 'awake_time', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
     addComponent(sleep.light_sleep_duration, 'light_sleep_duration', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
-
-    // 3. Map Extensions
     addExtension('day', sleep.day);
     addExtension('sleep_phase_30_sec', sleep.sleep_phase_30_sec);
     addExtension('sleep_phase_5_min', sleep.sleep_phase_5_min);
     addExtension('app_sleep_phase_5_min', sleep.app_sleep_phase_5_min);
 
-    // 4. Construct the base Observation resource
     const observation: Observation = {
       resourceType: 'Observation',
       status: 'final',
