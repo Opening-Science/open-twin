@@ -5,7 +5,7 @@ import { mapOuraHeartRateToFHIR } from '../../fhir/mappers/heartrate';
 describe('mapOuraHeartRateToFHIR', () => {
   const baseEntry: OuraHeartRate = {
     timestamp: '2026-06-20T04:00:00+00:00',
-    producer_timestamp: 123412341234,
+    timestamp_unix: 123412341234,
     bpm: 60,
     source: 'awake' as const
   };
