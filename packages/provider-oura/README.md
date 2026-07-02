@@ -128,25 +128,68 @@ RequestParams: interface {
 
 #### Return Value
 
-Returns a `Promise<TokenResponse>` with the following structure:
-
-interface TokenResponse {
-  access_token: string;
-  token_type: "bearer";
-  expires_in: number;
-  refresh_token: string;
-}
+Returns a `Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal)[]>` with the following structure:
 
 #### Example
 
 ```ts
 import { refreshAccessToken } from '@open-twin/provider-oura';
 
-const refreshToken = "user_refresh_token_from_callback";
+const request = {
+    types: ["heartrate", "sleep", "workout", "spo2", "personal"],
+    start_date: "2026-07-01",
+    end_date: "2026-07-02",
+};
 
 try {
-  const tokenData = await refreshAccessToken(authCode);
-  console.log("Access Token:", tokenData.access_token);
+  const response = await getOuraData(request, bearerToken);
+  console.log("Response:", JSON.stringify(data, null, 2));
+} catch (error) {
+  console.error("Failed to fetch access token:", error);
+}
+```
+
+### `getFhirBundleFromOuraData(request, bearerToken, sandbox)`
+
+Retrieves the Oura Data types specified in the request and converts it into FHIR standard to return as a Bundle of data
+
+#### Parameters
+
+* **`request`** (`RequestParams`): The parameters required to make a request
+
+```ts
+RequestParams: interface {
+    types: string[];
+    start_date?: string | undefined;
+    end_date?: string | undefined;
+    next_token?: string | null | undefined;
+    fields?: string[] | undefined;
+    latest?: boolean | null | undefined;
+}
+```
+
+* **`bearerToken`** (`string`): The access token returned in the auth process
+
+* **`sandbox`** (`boolean`): A flag to choose if the request should be true values or mocked ones. Default false
+
+#### Return Value
+
+Returns a `Promise<Bundle>`
+
+#### Example
+
+```ts
+import { getFhirBundleFromOuraData } from '@open-twin/provider-oura';
+
+const request = {
+    types: ["heartrate", "sleep", "workout", "spo2", "personal"],
+    start_date: "2026-07-01",
+    end_date: "2026-07-02",
+};
+
+try {
+  const response = await getFhirBundleFromOuraData(request, bearerToken);
+  console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
   console.error("Failed to fetch access token:", error);
 }
