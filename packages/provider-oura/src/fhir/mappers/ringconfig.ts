@@ -15,7 +15,7 @@ export function mapOuraRingConfigToFHIR(ouraData: OuraRingConfigResponseList): O
     const addExtension = (urlFragment: string, value: string | null | undefined) => {
       if (value === undefined || value === null) return;
       extensions.push({
-        url: `${SYSTEMS.OURA_CUSTOM}/${urlFragment}`,
+        url: `${SYSTEMS.OURA_CUSTOM}#tag/Ring-Configuration-Routes/${urlFragment}`,
         valueString: value
       });
     };
@@ -42,7 +42,7 @@ export function mapOuraRingConfigToFHIR(ouraData: OuraRingConfigResponseList): O
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Ring-Configuration-Routes`,
             code: 'ring-configuration',
             display: 'Oura Ring Configuration'
           }

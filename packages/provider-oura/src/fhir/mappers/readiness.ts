@@ -25,62 +25,94 @@ export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList): Obs
 
     addComponent(
       readiness.contributors.activity_balance,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'activity-balance', display: 'Activity Balance' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'activity-balance',
+        display: 'Activity Balance'
+      },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.hrv_balance,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'hrv-balance', display: 'HRV Balance' },
+      { system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`, code: 'hrv-balance', display: 'HRV Balance' },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.previous_day_activity,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'previous-day-activity', display: 'Previous Day Activity' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'previous-day-activity',
+        display: 'Previous Day Activity'
+      },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.previous_night,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'previous-night', display: 'Previous Night' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'previous-night',
+        display: 'Previous Night'
+      },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.recovery_index,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'recovery-index', display: 'Recovery Index' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'recovery-index',
+        display: 'Recovery Index'
+      },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.resting_heart_rate,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'resting-heart-rate', display: 'Resting Heart Rate' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'resting-heart-rate',
+        display: 'Resting Heart Rate'
+      },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.sleep_balance,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'sleep-balance', display: 'Sleep Balance' },
+      { system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`, code: 'sleep-balance', display: 'Sleep Balance' },
       'Score',
       '{score}'
     );
     addComponent(
       readiness.contributors.sleep_regularity,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'sleep-regularity', display: 'Sleep Regularity' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'sleep-regularity',
+        display: 'Sleep Regularity'
+      },
       'Score',
       '{score}'
     );
 
     addComponent(
       readiness.temperature_deviation,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'temperature-deviation', display: 'Temperature Deviation' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'temperature-deviation',
+        display: 'Temperature Deviation'
+      },
       '°C',
       'Cel'
     );
     addComponent(
       readiness.temperature_trend_deviation,
-      { system: SYSTEMS.OURA_CUSTOM, code: 'temperature-trend-deviation', display: 'Temperature Trend Deviation' },
+      {
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
+        code: 'temperature-trend-deviation',
+        display: 'Temperature Trend Deviation'
+      },
       '°C',
       'Cel'
     );
@@ -89,7 +121,7 @@ export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList): Obs
       resourceType: 'Observation',
       identifier: [
         {
-          system: SYSTEMS.OURA_CUSTOM,
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
           value: `oura-readiness-${readiness.id}`
         }
       ],
@@ -108,7 +140,7 @@ export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList): Obs
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
             code: 'readiness-score',
             display: 'Oura Readiness Score'
           }

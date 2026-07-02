@@ -29,15 +29,14 @@ export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeL
       },
       identifier: [
         {
-          system: 'https://ouraring.com/cardiovascular-age/id',
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Cardiovascular-Age-Routes`,
           value: cardioAge.id
         }
       ],
-      // FHIR allows YYYY-MM-DD for effectiveDateTime
+
       effectiveDateTime: cardioAge.day
     };
 
-    // 1. Map Vascular Age to valueQuantity
     if (cardioAge.vascular_age !== null && cardioAge.vascular_age !== undefined) {
       observation.valueQuantity = {
         value: cardioAge.vascular_age,
@@ -47,7 +46,6 @@ export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeL
       };
     }
 
-    // 2. Map Pulse Wave Velocity to a component
     if (cardioAge.pulse_wave_velocity !== null && cardioAge.pulse_wave_velocity !== undefined) {
       observation.component = [
         {

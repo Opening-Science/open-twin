@@ -46,11 +46,11 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     addComponent(sleep.efficiency, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency');
     addComponent(sleep.latency, '103212-7', SYSTEMS.LOINC, 'Sleep latency');
     addComponent(sleep.lowest_heart_rate, '40443-4', SYSTEMS.LOINC, 'Resting heart rate');
-    addComponent(sleep.average_heart_rate, 'average_heart_rate', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.average_breath, 'average_breath', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.average_hrv, 'average_hrv', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.awake_time, 'awake_time', SYSTEMS.OURA_CUSTOM);
-    addComponent(sleep.light_sleep_duration, 'light_sleep_duration', SYSTEMS.OURA_CUSTOM);
+    addComponent(sleep.average_heart_rate, 'average_heart_rate', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.average_breath, 'average_breath', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.average_hrv, 'average_hrv', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.awake_time, 'awake_time', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
+    addComponent(sleep.light_sleep_duration, 'light_sleep_duration', `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`);
 
     // 3. Map Extensions
     addExtension('day', sleep.day);
@@ -65,7 +65,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`,
             code: 'sleep',
             display: 'Oura Sleep Observation'
           }
@@ -90,7 +90,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     if (sleep.score !== undefined) {
       observation.valueQuantity = {
         value: sleep.score,
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`,
         code: 'sleep_score'
       };
     }
@@ -98,7 +98,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList): Observation[] {
     if (sleep.type) {
       observation.category = [
         {
-          coding: [{ system: SYSTEMS.OURA_CUSTOM, code: sleep.type }]
+          coding: [{ system: `${SYSTEMS.OURA_CUSTOM}#tag/Sleep-Routes`, code: sleep.type }]
         }
       ];
     }

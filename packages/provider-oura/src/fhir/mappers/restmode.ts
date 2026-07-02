@@ -50,7 +50,7 @@ export function mapOuraRestModeToFHIR(ouraData: OuraRestModeList): Observation[]
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Rest-Mode-Period-Routes`,
             code: 'rest-mode',
             display: 'Oura Rest Mode'
           }

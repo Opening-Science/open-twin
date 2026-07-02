@@ -37,7 +37,7 @@ export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
         code: {
           coding: [
             {
-              system: SYSTEMS.OURA_CUSTOM,
+              system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
               code: 'breathing_disturbance_index',
               display: 'Breathing Disturbance Index'
             }
@@ -69,7 +69,7 @@ export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
             code: 'spo2_daily_summary',
             display: 'Oura Daily SpO2 Summary'
           }
@@ -80,7 +80,7 @@ export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
       },
       identifier: [
         {
-          system: 'https://ouraring.com/spo2/id',
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
           value: spo2.id
         }
       ],

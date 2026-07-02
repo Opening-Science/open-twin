@@ -45,7 +45,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.target_calories,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'target-calories',
         display: 'Target Calories'
       },
@@ -56,7 +56,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.score,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'activity-score',
         display: 'Oura Activity Score'
       },
@@ -66,7 +66,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.meet_daily_targets,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'meet-daily-targets',
         display: 'Meet Daily Targets'
       },
@@ -76,7 +76,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.move_every_hour,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'move-every-hour',
         display: 'Move Every Hour'
       },
@@ -86,7 +86,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.recovery_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'recovery-time',
         display: 'Recovery Time'
       },
@@ -96,7 +96,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.stay_active,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'stay-active',
         display: 'Stay Active'
       },
@@ -106,7 +106,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.training_frequency,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'training-frequency',
         display: 'Training Frequency'
       },
@@ -116,7 +116,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.contributors.training_volume,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'training-volume',
         display: 'Training Volume'
       },
@@ -127,7 +127,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.average_met_minutes,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'average-met',
         display: 'Average MET'
       },
@@ -137,7 +137,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.high_activity_met_minutes,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'high-activity-met-minutes',
         display: 'High Activity MET Minutes'
       },
@@ -147,7 +147,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.medium_activity_met_minutes,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'medium-activity-met-minutes',
         display: 'Medium Activity MET Minutes'
       },
@@ -157,7 +157,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.low_activity_met_minutes,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'low-activity-met-minutes',
         display: 'Low Activity MET Minutes'
       },
@@ -167,7 +167,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.sedentary_met_minutes,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'sedentary-met-minutes',
         display: 'Sedentary MET Minutes'
       },
@@ -178,7 +178,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.high_activity_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'high-activity-time',
         display: 'High Activity Time'
       },
@@ -188,7 +188,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.medium_activity_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'medium-activity-time',
         display: 'Medium Activity Time'
       },
@@ -198,7 +198,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.low_activity_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'low-activity-time',
         display: 'Low Activity Time'
       },
@@ -208,7 +208,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.sedentary_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'sedentary-time',
         display: 'Sedentary Time'
       },
@@ -218,7 +218,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.resting_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'resting-time',
         display: 'Resting Time'
       },
@@ -228,7 +228,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.non_wear_time,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'non-wear-time',
         display: 'Non-wear Time'
       },
@@ -239,7 +239,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.equivalent_walking_distance,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'equivalent-walking-distance',
         display: 'Equivalent Walking Distance'
       },
@@ -249,7 +249,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.meters_to_target,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'meters-to-target',
         display: 'Meters to Target'
       },
@@ -259,7 +259,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.target_meters,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'target-meters',
         display: 'Target Meters'
       },
@@ -270,7 +270,7 @@ export function mapOuraDailyActivityToFHIR(
     addComponent(
       activity.inactivity_alerts,
       {
-        system: SYSTEMS.OURA_CUSTOM,
+        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
         code: 'inactivity-alerts',
         display: 'Inactivity Alerts'
       },
@@ -292,7 +292,7 @@ export function mapOuraDailyActivityToFHIR(
       resourceType: 'Observation',
       identifier: [
         {
-          system: SYSTEMS.OURA_CUSTOM,
+          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
           value: `oura-activity-${activity.id}`
         }
       ],
@@ -301,18 +301,18 @@ export function mapOuraDailyActivityToFHIR(
         {
           coding: [
             {
-              system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+              system: SYSTEMS.OBSERVATION_CATEGORY,
               code: 'activity',
               display: 'Activity'
             }
           ]
         }
       ],
-      // Root code set to Activity Score
+
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
             code: 'activity-score',
             display: 'Oura Activity Score'
           }

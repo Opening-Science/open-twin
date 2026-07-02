@@ -22,12 +22,12 @@ export function mapOuraStressToFHIR(ouraData: OuraStressList): Observation[] {
     };
 
     addComponent(stress.stress_high, {
-      system: SYSTEMS.OURA_CUSTOM,
+      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Stress-Routes`,
       code: 'stress-high',
       display: 'Stress High Duration'
     });
     addComponent(stress.recovery_high, {
-      system: SYSTEMS.OURA_CUSTOM,
+      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Stress-Routes`,
       code: 'recovery-high',
       display: 'Recovery High Duration'
     });
@@ -49,7 +49,7 @@ export function mapOuraStressToFHIR(ouraData: OuraStressList): Observation[] {
       code: {
         coding: [
           {
-            system: SYSTEMS.OURA_CUSTOM,
+            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Stress-Routes`,
             code: 'daily-stress',
             display: 'Oura Daily Stress'
           }
