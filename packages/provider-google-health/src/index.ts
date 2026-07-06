@@ -12,9 +12,16 @@ export async function initializeGoogleHealthClient(code: string): Promise<Auth.C
 }
 
 export function getHealthTypes(): health_v4.Resource$Users$Datatypes {
+  const access_token = process.env.ACCESS_TOKEN;
+  const refresh_token = process.env.REFRESH_TOKEN;
+  if (!access_token || !refresh_token) {
+    throw new Error(
+      'Access token and refresh token are required. Please set ACCESS_TOKEN and REFRESH_TOKEN environment variables.'
+    );
+  }
   const credentials: Auth.Credentials = {
-    access_token: process.env.ACCESS_TOKEN ?? '',
-    refresh_token: process.env.REFRESH_TOKEN ?? ''
+    access_token: access_token,
+    refresh_token: refresh_token
   };
   googleHealthClient.authenticate(credentials);
 
@@ -22,18 +29,32 @@ export function getHealthTypes(): health_v4.Resource$Users$Datatypes {
 }
 
 export async function getSleepData(): Promise<health_v4.Schema$Sleep[]> {
+  const access_token = process.env.ACCESS_TOKEN;
+  const refresh_token = process.env.REFRESH_TOKEN;
+  if (!access_token || !refresh_token) {
+    throw new Error(
+      'Access token and refresh token are required. Please set ACCESS_TOKEN and REFRESH_TOKEN environment variables.'
+    );
+  }
   const credentials: Auth.Credentials = {
-    access_token: process.env.ACCESS_TOKEN ?? '',
-    refresh_token: process.env.REFRESH_TOKEN ?? ''
+    access_token: access_token,
+    refresh_token: refresh_token
   };
   googleHealthClient.authenticate(credentials);
   return await googleHealthClient.getSleepData();
 }
 
 export async function getActivityData(): Promise<health_v4.Schema$Exercise[]> {
+  const access_token = process.env.ACCESS_TOKEN;
+  const refresh_token = process.env.REFRESH_TOKEN;
+  if (!access_token || !refresh_token) {
+    throw new Error(
+      'Access token and refresh token are required. Please set ACCESS_TOKEN and REFRESH_TOKEN environment variables.'
+    );
+  }
   const credentials: Auth.Credentials = {
-    access_token: process.env.ACCESS_TOKEN ?? '',
-    refresh_token: process.env.REFRESH_TOKEN ?? ''
+    access_token: access_token,
+    refresh_token: refresh_token
   };
   googleHealthClient.authenticate(credentials);
   return await googleHealthClient.getActivityData();
