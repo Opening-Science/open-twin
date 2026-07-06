@@ -1,13 +1,40 @@
-import type { health_v4 } from 'googleapis';
+import type { Auth, health_v4 } from 'googleapis';
 import { GoogleHealthClient } from './api/client';
 
-export async function initializeGoogleHealthClient(code: string): Promise<void> {
-  const googleHealthClient = new GoogleHealthClient();
+const googleHealthClient = new GoogleHealthClient();
+
+export function getGoogleHealthAuthUrl(): string {
+  return googleHealthClient.getAuthUrl();
+}
+
+export async function initializeGoogleHealthClient(code: string): Promise<Auth.Credentials> {
   return await googleHealthClient.initialize(code);
 }
 
-export async function getHealthTypes(): Promise<health_v4.Resource$Users$Datatypes> {
-  const googleHealthClient = new GoogleHealthClient();
-  await googleHealthClient.authenticate();
+export function getHealthTypes(): health_v4.Resource$Users$Datatypes {
+  const credentials: Auth.Credentials = {
+    access_token: process.env.ACCESS_TOKEN ?? '',
+    refresh_token: process.env.REFRESH_TOKEN ?? ''
+  };
+  googleHealthClient.authenticate(credentials);
+
   return googleHealthClient.getHealthDataSources();
+}
+
+export async function getSleepData(): Promise<health_v4.Schema$Sleep[]> {
+  const credentials: Auth.Credentials = {
+    access_token: process.env.ACCESS_TOKEN ?? '',
+    refresh_token: process.env.REFRESH_TOKEN ?? ''
+  };
+  googleHealthClient.authenticate(credentials);
+  return await googleHealthClient.getSleepData();
+}
+
+export async function getActivityData(): Promise<health_v4.Schema$Exercise[]> {
+  const credentials: Auth.Credentials = {
+    access_token: process.env.ACCESS_TOKEN ?? '',
+    refresh_token: process.env.REFRESH_TOKEN ?? ''
+  };
+  googleHealthClient.authenticate(credentials);
+  return await googleHealthClient.getActivityData();
 }
