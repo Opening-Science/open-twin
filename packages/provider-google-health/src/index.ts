@@ -1,5 +1,16 @@
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+import type { Bundle } from 'fhir/r4';
 import type { Auth, health_v4 } from 'googleapis';
 import { GoogleHealthClient } from './api/client';
+import type { AllTypes } from './api/record_types';
+import { buildBundleFromResponses } from './fhir/bundleBuilder';
+
+const envPath = fileURLToPath(new URL('../.env', import.meta.url));
+if (existsSync(envPath)) {
+  process.loadEnvFile(envPath);
+}
 
 const googleHealthClient = new GoogleHealthClient();
 
@@ -11,7 +22,15 @@ export async function initializeGoogleHealthClient(code: string): Promise<Auth.C
   return await googleHealthClient.initialize(code);
 }
 
-export async function getDataTypes(types: string[]): Promise<health_v4.Schema$ListDataPointsResponse[]> {
+export async function getDataTypes({
+  types,
+  start_date,
+  end_date
+}: {
+  types: AllTypes;
+  start_date?: string;
+  end_date?: string;
+}): Promise<health_v4.Schema$ListDataPointsResponse[]> {
   const access_token = process.env.ACCESS_TOKEN;
   const refresh_token = process.env.REFRESH_TOKEN;
   if (!access_token || !refresh_token) {
@@ -24,5 +43,18 @@ export async function getDataTypes(types: string[]): Promise<health_v4.Schema$Li
     refresh_token: refresh_token
   };
   googleHealthClient.authenticate(credentials);
-  return await googleHealthClient.getTypes(types);
+  return await googleHealthClient.getTypes({ types, start_date, end_date });
+}
+
+export async function getFhirBundleFromGoogleHealthData({
+  types,
+  start_date,
+  end_date
+}: {
+  types: AllTypes;
+  start_date?: string;
+  end_date?: string;
+}): Promise<Bundle> {
+  const responses = await getDataTypes({ types, start_date, end_date });
+  return buildBundleFromResponses(responses);
 }
