@@ -1,13 +1,6 @@
-import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
 import { health } from '@googleapis/health';
 import { type Auth, google, type health_v4 } from 'googleapis';
-
-const envPath = fileURLToPath(new URL('.env', import.meta.url));
-if (existsSync(envPath)) {
-  process.loadEnvFile(envPath);
-}
+import { type AllType, type AllTypes, buildTypeFilter } from './record_types';
 
 const SCOPES = [
   'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
@@ -64,11 +57,20 @@ export class GoogleHealthClient {
     return this.client;
   }
 
-  async getTypes(types: string[]): Promise<health_v4.Schema$ListDataPointsResponse[]> {
+  async getTypes({
+    types,
+    start_date,
+    end_date
+  }: {
+    types: AllTypes;
+    start_date?: string;
+    end_date?: string;
+  }): Promise<health_v4.Schema$ListDataPointsResponse[]> {
     const responses: health_v4.Schema$ListDataPointsResponse[] = [];
 
     for (const type of types) {
       const response = await this.client.users.dataTypes.dataPoints.list({
+        filter: buildTypeFilter(type as AllType, start_date, end_date),
         parent: `users/me/dataTypes/${type}`
       });
       responses.push(response.data);
