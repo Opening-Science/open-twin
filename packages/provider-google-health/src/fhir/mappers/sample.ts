@@ -186,7 +186,7 @@ export function mapRespiratoryRateSleepSummaryToFHIR(data: health_v4.Schema$Resp
 export function mapRunVo2MaxToFHIR(data: health_v4.Schema$RunVO2Max): Observation {
   return createObservation({
     category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'run-vo2-max', display: 'Running VO2 max' },
+    code: { system: SYSTEMS.LOINC, code: '94122-9', display: 'Running VO2 max' },
     effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
     valueQuantity:
       data.runVo2Max !== undefined && data.runVo2Max !== null
@@ -198,7 +198,7 @@ export function mapRunVo2MaxToFHIR(data: health_v4.Schema$RunVO2Max): Observatio
 export function mapVo2MaxToFHIR(data: health_v4.Schema$VO2Max): Observation {
   return createObservation({
     category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'vo2-max', display: 'VO2 max' },
+    code: { system: SYSTEMS.LOINC, code: '94122-9', display: 'VO2 max' },
     effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
     valueQuantity:
       data.vo2Max !== undefined && data.vo2Max !== null
