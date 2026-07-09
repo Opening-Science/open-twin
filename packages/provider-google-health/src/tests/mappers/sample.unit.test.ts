@@ -6,7 +6,12 @@ import {
   mapCoreBodyTemperatureToFHIR,
   mapHeartRateToFHIR,
   mapHeartRateVariabilityToFHIR,
-  mapHeightToFHIR
+  mapHeightToFHIR,
+  mapOxygenSaturationToFHIR,
+  mapRespiratoryRateSleepSummaryToFHIR,
+  mapRunVo2MaxToFHIR,
+  mapVo2MaxToFHIR,
+  mapWeightToFHIR
 } from '../../fhir/mappers/sample';
 
 const GOOGLE_HEALTH = 'https://developers.google.com/health/data-types';
@@ -297,6 +302,236 @@ describe('mapHeightToFHIR', () => {
 
   it('omits valueQuantity for missing heightMillimeters', () => {
     const observation = mapHeightToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
+
+    expect(observation.valueQuantity).toBeUndefined();
+  });
+});
+
+describe('mapOxygenSaturationToFHIR', () => {
+  const base: health_v4.Schema$OxygenSaturation = {
+    sampleTime: { physicalTime: '2026-06-20T12:00:00Z' },
+    percentage: 98
+  };
+
+  it('maps to a vital-signs Observation with the LOINC code for oxygen saturation', () => {
+    const observation = mapOxygenSaturationToFHIR(base);
+
+    expect(observation).toMatchObject({
+      resourceType: 'Observation',
+      status: 'final',
+      category: [
+        {
+          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
+        }
+      ],
+      code: {
+        coding: [{ system: LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' }]
+      },
+      effectiveDateTime: '2026-06-20T12:00:00Z',
+      valueQuantity: {
+        value: 98,
+        unit: '%',
+        system: UCUM,
+        code: '%'
+      }
+    });
+  });
+
+  it('omits valueQuantity for missing percentage', () => {
+    const observation = mapOxygenSaturationToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
+
+    expect(observation.valueQuantity).toBeUndefined();
+  });
+});
+
+describe('mapRespiratoryRateSleepSummaryToFHIR', () => {
+  const base: health_v4.Schema$RespiratoryRateSleepSummary = {
+    sampleTime: { physicalTime: '2026-06-20T12:00:00Z' },
+    deepSleepStats: {
+      breathsPerMinute: 15,
+      signalToNoise: 0.8,
+      standardDeviation: 1.2
+    },
+    fullSleepStats: {
+      breathsPerMinute: 16,
+      signalToNoise: 0.85,
+      standardDeviation: 1.1
+    },
+    lightSleepStats: {
+      breathsPerMinute: 17,
+      signalToNoise: 0.9,
+      standardDeviation: 1.3
+    },
+    remSleepStats: {
+      breathsPerMinute: 18,
+      signalToNoise: 0.95,
+      standardDeviation: 1.4
+    }
+  };
+
+  it('maps to a vital-signs Observation with the LOINC code for respiratory rate', () => {
+    const observation = mapRespiratoryRateSleepSummaryToFHIR(base);
+
+    expect(observation).toMatchObject({
+      resourceType: 'Observation',
+      status: 'final',
+      category: [
+        {
+          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
+        }
+      ],
+      code: {
+        coding: [{ system: LOINC, code: '9279-1', display: 'Respiratory rate' }]
+      },
+      effectiveDateTime: '2026-06-20T12:00:00Z',
+      valueQuantity: {
+        value: 16,
+        unit: 'breaths/minute',
+        system: UCUM,
+        code: '/min'
+      },
+      component: [
+        {
+          code: {
+            coding: [
+              { system: GOOGLE_HEALTH, code: 'deep-sleep-breaths-per-minute', display: 'Deep sleep respiratory rate' }
+            ]
+          },
+          valueQuantity: { value: 15, unit: 'breaths/minute', system: UCUM, code: '/min' }
+        },
+        {
+          code: {
+            coding: [
+              { system: GOOGLE_HEALTH, code: 'light-sleep-breaths-per-minute', display: 'Light sleep respiratory rate' }
+            ]
+          },
+          valueQuantity: { value: 17, unit: 'breaths/minute', system: UCUM, code: '/min' }
+        },
+        {
+          code: {
+            coding: [
+              { system: GOOGLE_HEALTH, code: 'rem-sleep-breaths-per-minute', display: 'REM sleep respiratory rate' }
+            ]
+          },
+          valueQuantity: { value: 18, unit: 'breaths/minute', system: UCUM, code: '/min' }
+        }
+      ]
+    });
+  });
+
+  it('omits components for missing sleep stats', () => {
+    const observation = mapRespiratoryRateSleepSummaryToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
+
+    expect(observation.component).toBeUndefined();
+  });
+});
+
+describe('mapRunVo2MaxToFHIR', () => {
+  const base: health_v4.Schema$RunVO2Max = {
+    sampleTime: { physicalTime: '2026-06-20T12:00:00Z' },
+    runVo2Max: 45
+  };
+
+  it('maps to a vital-signs Observation with the LOINC code for running VO2 max', () => {
+    const observation = mapRunVo2MaxToFHIR(base);
+
+    expect(observation).toMatchObject({
+      resourceType: 'Observation',
+      status: 'final',
+      category: [
+        {
+          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
+        }
+      ],
+      code: {
+        coding: [{ system: LOINC, code: '94122-9', display: 'Running VO2 max' }]
+      },
+      effectiveDateTime: '2026-06-20T12:00:00Z',
+      valueQuantity: {
+        value: 45,
+        unit: 'mL/kg/min',
+        system: UCUM,
+        code: 'mL/kg/min'
+      }
+    });
+  });
+
+  it('omits valueQuantity for missing runVo2Max', () => {
+    const observation = mapRunVo2MaxToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
+
+    expect(observation.valueQuantity).toBeUndefined();
+  });
+});
+
+describe('mapVo2MaxToFHIR', () => {
+  const base: health_v4.Schema$VO2Max = {
+    sampleTime: { physicalTime: '2026-06-20T12:00:00Z' },
+    vo2Max: 50
+  };
+
+  it('maps to a vital-signs Observation with the LOINC code for VO2 max', () => {
+    const observation = mapVo2MaxToFHIR(base);
+
+    expect(observation).toMatchObject({
+      resourceType: 'Observation',
+      status: 'final',
+      category: [
+        {
+          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
+        }
+      ],
+      code: {
+        coding: [{ system: LOINC, code: '94122-9', display: 'VO2 max' }]
+      },
+      effectiveDateTime: '2026-06-20T12:00:00Z',
+      valueQuantity: {
+        value: 50,
+        unit: 'mL/kg/min',
+        system: UCUM,
+        code: 'mL/kg/min'
+      }
+    });
+  });
+
+  it('omits valueQuantity for missing vo2Max', () => {
+    const observation = mapVo2MaxToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
+
+    expect(observation.valueQuantity).toBeUndefined();
+  });
+});
+
+describe('mapWeightToFHIR', () => {
+  const base: health_v4.Schema$Weight = {
+    sampleTime: { physicalTime: '2026-06-20T12:00:00Z' },
+    weightGrams: 70000
+  };
+
+  it('maps to a vital-signs Observation with the LOINC code for body weight', () => {
+    const observation = mapWeightToFHIR(base);
+
+    expect(observation).toMatchObject({
+      resourceType: 'Observation',
+      status: 'final',
+      category: [
+        {
+          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
+        }
+      ],
+      code: {
+        coding: [{ system: LOINC, code: '29463-7', display: 'Body weight' }]
+      },
+      effectiveDateTime: '2026-06-20T12:00:00Z',
+      valueQuantity: {
+        value: 70000,
+        unit: 'g',
+        system: UCUM,
+        code: 'g'
+      }
+    });
+  });
+
+  it('omits valueQuantity for missing weightGrams', () => {
+    const observation = mapWeightToFHIR({ sampleTime: { physicalTime: '2026-06-20T12:00:00Z' } });
 
     expect(observation.valueQuantity).toBeUndefined();
   });
