@@ -25,91 +25,57 @@ npm install @open-twin/provider-oura
 
 1. Head over to the [Oura Developer Portal](https://developer.ouraring.com/applications) and create a new application.
 2. Once registered, Oura will provide you with a `CLIENT_ID` and a `CLIENT_SECRET` (and `CLIENT_URI`).
-3. Add these credentials to your project's root environment file:
-
-```bash
-OURA_CLIENT_ID=YOUR_CLIENT_ID
-OURA_CLIENT_SECRET=YOUR_CLIENT_SECRET
-OURA_REDIRECT_URI=YOUR_REDIRECT_URI
-```
 
 ---
 
 ## Usage
 
-### `getAccessToken(code)`
+### `TokenHandler(config, authorizationToken)`
 
-Retrieves the initial access and refresh tokens using the authorization code provided by the user handshake.
+A helper class which handles the runtime storage and automatic refreshing of the tokens
 
 #### Parameters
 
-* **`code`** (`string`): The temporary authorization code generated after user login.
+* **`config`** (`OuraRingAppConfig`): The interface which holds the Oura application details
 
-#### Return Value
-
-Returns a `Promise<TokenResponse>` with the following structure:
-
-interface TokenResponse {
-  access_token: string;
-  token_type: "bearer";
-  expires_in: number;
-  refresh_token: string;
+```ts
+interface OuraRingAppConfig {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  scopes?: SupportedScope[];
 }
+```
+
+* **`authorizationToken`** (`string`): The code that has been returned after the user's initial authorization process
 
 #### Example
 
 ```ts
-import { getAccessToken } from '@open-twin/provider-oura';
+const ouraRingAppConfig: OuraRingAppConfig = {
+    clientId: 'YOUR_CLIENT_ID',
+    clientSecret: "YOUR_CLIENT_SECRET",
+    redirectUri: "YOUR_REDIRECT_URI"
+};
 
-const authCode = "user_auth_code_from_callback";
+const authorizationToken = 'USER_AUTH_TOKEN';
 
-try {
-  const tokenData = await getAccessToken(authCode);
-  console.log("Access Token:", tokenData.access_token);
-} catch (error) {
-  console.error("Failed to fetch access token:", error);
-}
+const tokenHandler = new TokenHandler(ouraRingAppConfig, options.auth_code);
+
+// Initial token exchange
+await tokenHandler.authenticate();
+
+// Or you can directly set the tokens
+// tokenHandler({access_token: string, token_type: "bearer", expires_in: number, refresh_token: string})
+
+// Returns the access token. If token is expired, refreshes and returns it.
+await tokenHandler.getAccessToken()
+
 ```
 
 ---
 
-### `refreshAccessToken(refresh_token)`
-
-Refreshes the access token
-
-#### Parameters
-
-* **`refresh_token`** (`string`): The refresh token returned in the initial auth request
-
-#### Return Value
-
-Returns a `Promise<TokenResponse>` with the following structure:
-
-interface TokenResponse {
-  access_token: string;
-  token_type: "bearer";
-  expires_in: number;
-  refresh_token: string;
-}
-
-#### Example
-
-```ts
-import { refreshAccessToken } from '@open-twin/provider-oura';
-
-const refreshToken = "user_refresh_token_from_callback";
-
-try {
-  const tokenData = await refreshAccessToken(authCode);
-  console.log("Access Token:", tokenData.access_token);
-} catch (error) {
-  console.error("Failed to fetch access token:", error);
-}
-```
-
----
-
-### `getOuraData(request, bearerToken)`
+### `getOuraData(request, tokenHandler)`
 
 Retrieves the Oura Data types specified in the request
 
@@ -118,7 +84,7 @@ Retrieves the Oura Data types specified in the request
 * **`request`** (`RequestParams`): The parameters required to make a request
 
 ```ts
-RequestParams: interface {
+interface RequestParams {
     types: string[];
     start_date?: string | undefined;
     end_date?: string | undefined;
@@ -128,7 +94,7 @@ RequestParams: interface {
 }
 ```
 
-* **`bearerToken`** (`string`): The access token returned in the auth process
+* **`tokenHandler`** (`TokenHandler`): The runtime token handler class for automatic token refresh
 
 #### Return Value
 
@@ -137,7 +103,8 @@ Returns a `Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal)[]>
 #### Example
 
 ```ts
-import { refreshAccessToken } from '@open-twin/provider-oura';
+
+import { getOuraData } from '@open-twin/provider-oura';
 
 const request = {
     types: ["heartrate", "sleep", "workout", "spo2", "personal"],
@@ -146,7 +113,7 @@ const request = {
 };
 
 try {
-  const response = await getOuraData(request, bearerToken);
+  const response = await getOuraData(request, tokenHandler);
   console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
   console.error("Failed to fetch access token:", error);
@@ -155,7 +122,7 @@ try {
 
 ---
 
-### `getFhirBundleFromOuraData(request, bearerToken, sandbox)`
+### `getFhirBundleFromOuraData(request, tokenHandler, sandbox)`
 
 Retrieves the Oura Data types specified in the request and converts it into FHIR standard to return as a Bundle of data
 
@@ -174,7 +141,7 @@ RequestParams: interface {
 }
 ```
 
-* **`bearerToken`** (`string`): The access token returned in the auth process
+* **`tokenHandler`** (`TokenHandler`): The runtime token handler class for automatic token refresh
 
 * **`sandbox`** (`boolean`): A flag to choose if the request should be true values or mocked ones. Default false
 

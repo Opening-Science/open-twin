@@ -1,9 +1,19 @@
 import type { Bundle, Observation, Patient } from 'fhir/r4';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { OuraRingAppConfig } from '../../config/config';
 import { getFhirBundleFromOuraData } from '../../index';
+import { TokenHandler } from '../../utils/tokenUtils';
 
 describe('getFhirBundleFromOuraData (integration)', () => {
-  const token = 'integration_token';
+  const appConfig: OuraRingAppConfig = {
+    clientId: 'test-client-id',
+    clientSecret: 'test-client-secret',
+    redirectUri: 'https://example.com/callback'
+  };
+
+  const authorizationCode = 'test-authorization-code';
+
+  let tokenHandler: TokenHandler;
 
   const heartRateResponse = {
     data: [
@@ -41,6 +51,19 @@ describe('getFhirBundleFromOuraData (integration)', () => {
   const mockFetchByType = (routes: Record<string, unknown>) => {
     vi.mocked(globalThis.fetch).mockImplementation((input) => {
       const url = String(input);
+
+      // Handle OAuth Token Endpoints securely
+      if (url.includes('/oauth/token')) {
+        return Promise.resolve(
+          okJson({
+            access_token: 'mock-access-token',
+            refresh_token: 'mock-refresh-token',
+            expires_in: 3600
+          })
+        );
+      }
+
+      // Handle User Collections
       const match = Object.keys(routes).find((type) => url.includes(`/usercollection/${type}?`));
       if (!match) {
         return Promise.reject(new Error(`Unexpected fetch URL: ${url}`));
@@ -51,14 +74,22 @@ describe('getFhirBundleFromOuraData (integration)', () => {
 
   beforeEach(() => {
     globalThis.fetch = vi.fn();
+
+    tokenHandler = new TokenHandler(appConfig, authorizationCode);
+
+    vi.spyOn(tokenHandler, 'getAccessToken').mockResolvedValue('mock-access-token');
   });
 
   it('builds a FHIR collection bundle from a list-based type (heartrate)', async () => {
     mockFetchByType({ heartrate: heartRateResponse });
 
     const bundle = await getFhirBundleFromOuraData(
-      { types: ['heartrate'], start_date: '2026-06-20', end_date: '2026-06-29' },
-      token
+      {
+        types: ['heartrate'],
+        start_date: '2026-06-20',
+        end_date: '2026-06-29'
+      },
+      tokenHandler
     );
 
     expect(bundle).toBeDefined();
@@ -68,7 +99,7 @@ describe('getFhirBundleFromOuraData (integration)', () => {
       expect.stringContaining('https://api.ouraring.com/v2/usercollection/heartrate?'),
       expect.objectContaining({
         method: 'GET',
-        headers: expect.objectContaining({ Authorization: `Bearer ${token}` })
+        headers: expect.objectContaining({ Authorization: 'Bearer mock-access-token' })
       })
     );
 
@@ -88,7 +119,7 @@ describe('getFhirBundleFromOuraData (integration)', () => {
   it('builds a bundle containing a nested patient bundle for a non-list type (personal_info)', async () => {
     mockFetchByType({ personal_info: personalResponse });
 
-    const bundle = await getFhirBundleFromOuraData({ types: ['personal_info'] }, token);
+    const bundle = await getFhirBundleFromOuraData({ types: ['personal_info'] }, tokenHandler);
     expect(bundle).toBeDefined();
 
     expect((bundle as Bundle).entry).toHaveLength(1);
@@ -107,7 +138,7 @@ describe('getFhirBundleFromOuraData (integration)', () => {
       personal_info: personalResponse
     });
 
-    const bundle = await getFhirBundleFromOuraData({ types: ['heartrate', 'personal_info'] }, token);
+    const bundle = await getFhirBundleFromOuraData({ types: ['heartrate', 'personal_info'] }, tokenHandler);
     expect(bundle).toBeDefined();
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(2);
@@ -122,7 +153,7 @@ describe('getFhirBundleFromOuraData (integration)', () => {
   it('uses the sandbox endpoint when the sandbox flag is enabled', async () => {
     mockFetchByType({ heartrate: heartRateResponse });
 
-    await getFhirBundleFromOuraData({ types: ['heartrate'] }, token, true);
+    await getFhirBundleFromOuraData({ types: ['heartrate'] }, tokenHandler, true);
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('https://api.ouraring.com/v2/sandbox/usercollection/heartrate?'),
@@ -132,20 +163,25 @@ describe('getFhirBundleFromOuraData (integration)', () => {
 
   it('throws when a requested type is not supported', async () => {
     await expect(
-      getFhirBundleFromOuraData({ types: ['not_a_real_type'] as unknown as ['heartrate'] }, token)
+      getFhirBundleFromOuraData({ types: ['not_a_real_type'] as unknown as ['heartrate'] }, tokenHandler)
     ).rejects.toThrow('Unsupported request type: not_a_real_type');
 
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('propagates an error when the Oura API responds with a non-ok status', async () => {
-    vi.mocked(globalThis.fetch).mockResolvedValue({
-      ok: false,
-      status: 401,
-      text: async () => 'Unauthorized'
-    } as unknown as Response);
+    vi.mocked(globalThis.fetch).mockImplementation((input) => {
+      if (String(input).includes('/oauth/token')) {
+        return Promise.resolve(okJson({ access_token: 'mock-token', expires_in: 3600 }));
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 401,
+        text: async () => 'Unauthorized'
+      } as unknown as Response);
+    });
 
-    await expect(getFhirBundleFromOuraData({ types: ['heartrate'] }, token)).rejects.toThrow(
+    await expect(getFhirBundleFromOuraData({ types: ['heartrate'] }, tokenHandler)).rejects.toThrow(
       'Oura request failed (401) for type "heartrate": Unauthorized'
     );
   });
@@ -155,7 +191,7 @@ describe('getFhirBundleFromOuraData (integration)', () => {
       heartrate: { data: [{ unexpected: 'structure' }], next_token: null }
     });
 
-    await expect(getFhirBundleFromOuraData({ types: ['heartrate'] }, token)).rejects.toThrow(
+    await expect(getFhirBundleFromOuraData({ types: ['heartrate'] }, tokenHandler)).rejects.toThrow(
       'Response data does not match any supported schema.'
     );
   });

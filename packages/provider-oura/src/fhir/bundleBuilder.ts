@@ -3,6 +3,7 @@ import type { RequestParams } from '../api/schemas/client';
 import type { OuraPersonal } from '../api/schemas/personal';
 import { requestOuraData } from '../utils/clientUtils';
 import { inferOuraResponse } from '../utils/objectUtils';
+import type { TokenHandler } from '../utils/tokenUtils';
 import type { SupportedSchemaTypes } from '../utils/typeUtils';
 import { mapOuraCardiovascularAgeToFHIR } from './mappers/cardiovascular';
 import { mapOuraDailyActivityToFHIR } from './mappers/daily';
@@ -21,11 +22,11 @@ import { mapOuraWorkoutToFHIR } from './mappers/workout';
 
 export async function buildBundleFromResponse(
   request: RequestParams,
-  bearerToken: string,
+  tokenHandler: TokenHandler,
   sandbox: boolean = false
 ): Promise<Bundle | undefined> {
   const entries: (Observation | Bundle)[] = [];
-  const responses = await requestOuraData(request, bearerToken, sandbox);
+  const responses = await requestOuraData(request, tokenHandler, sandbox);
   for (let i = 0; i < request.types.length; i++) {
     const type = request.types[i];
     const inferredData = inferOuraResponse(responses[i]);
