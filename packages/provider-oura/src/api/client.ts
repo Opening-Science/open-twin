@@ -1,4 +1,5 @@
 import type { OuraRingAppConfig } from '../config/config';
+import { errorResponseHandler } from '../utils/errorMessageHandler';
 import { getOuraOauthTokenUrl } from './endpoints';
 import { type TokenResponse, TokenResponseSchema } from './schemas/auth';
 
@@ -37,7 +38,12 @@ export async function getAccessToken(code: string, config: OuraRingAppConfig): P
     }).toString()
   }).then((res) => res.json());
 
-  return TokenResponseSchema.parse(response);
+  const parseResult = TokenResponseSchema.safeParse(response);
+  if (!parseResult.success) {
+    throw new Error(`Failed to parse token response: ${errorResponseHandler(response)}`);
+  }
+
+  return parseResult.data;
 }
 
 export async function refreshAccessToken(refresh_token: string, config: OuraRingAppConfig): Promise<TokenResponse> {
@@ -58,5 +64,10 @@ export async function refreshAccessToken(refresh_token: string, config: OuraRing
     }).toString()
   }).then((res) => res.json());
 
-  return TokenResponseSchema.parse(response);
+  const parseResult = TokenResponseSchema.safeParse(response);
+  if (!parseResult.success) {
+    throw new Error(`Failed to parse token response: ${errorResponseHandler(response)}`);
+  }
+
+  return parseResult.data;
 }
