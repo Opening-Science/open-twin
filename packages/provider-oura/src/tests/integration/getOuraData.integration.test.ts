@@ -1,10 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { OuraHeartRateList } from '../../api/schemas/heartrate';
 import type { OuraPersonal } from '../../api/schemas/personal';
+import type { OuraRingAppConfig } from '../../config/config';
 import { getOuraData } from '../../index';
+import { TokenHandler } from '../../utils/tokenUtils';
 
 describe('getOuraData (integration)', () => {
-  const token = 'integration_token';
+  const appConfig: OuraRingAppConfig = {
+    clientId: 'test-client-id',
+    clientSecret: 'test-client-secret',
+    redirectUri: 'https://example.com/callback'
+  };
+
+  const authorizationCode = 'test-authorization-code';
+
+  let tokenHandler: TokenHandler;
 
   const heartRateResponse = {
     data: [
@@ -46,19 +56,25 @@ describe('getOuraData (integration)', () => {
 
   beforeEach(() => {
     globalThis.fetch = vi.fn();
+    tokenHandler = new TokenHandler(appConfig, authorizationCode);
+
+    vi.spyOn(tokenHandler, 'getAccessToken').mockResolvedValue('mock-access-token');
   });
 
   it('fetches and infers a single list-based type (heartrate)', async () => {
     mockFetchByType({ heartrate: heartRateResponse });
 
-    const result = await getOuraData({ types: ['heartrate'], start_date: '2026-06-20', end_date: '2026-06-29' }, token);
+    const result = await getOuraData(
+      { types: ['heartrate'], start_date: '2026-06-20', end_date: '2026-06-29' },
+      tokenHandler
+    );
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('https://api.ouraring.com/v2/usercollection/heartrate?'),
       expect.objectContaining({
         method: 'GET',
-        headers: expect.objectContaining({ Authorization: `Bearer ${token}` })
+        headers: expect.objectContaining({ Authorization: 'Bearer mock-access-token' })
       })
     );
 
@@ -71,7 +87,7 @@ describe('getOuraData (integration)', () => {
   it('fetches and infers a non-list type (personal_info)', async () => {
     mockFetchByType({ personal_info: personalResponse });
 
-    const result = await getOuraData({ types: ['personal_info'] }, token);
+    const result = await getOuraData({ types: ['personal_info'] }, tokenHandler);
 
     expect(result).toHaveLength(1);
     const [personal] = result as [OuraPersonal];
@@ -84,7 +100,7 @@ describe('getOuraData (integration)', () => {
       personal_info: personalResponse
     });
 
-    const result = await getOuraData({ types: ['heartrate', 'personal_info'] }, token);
+    const result = await getOuraData({ types: ['heartrate', 'personal_info'] }, tokenHandler);
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(2);
     expect(result).toHaveLength(2);
@@ -93,7 +109,7 @@ describe('getOuraData (integration)', () => {
   });
 
   it('throws when a requested type is not supported', async () => {
-    await expect(getOuraData({ types: ['not_a_real_type'] as unknown as ['heartrate'] }, token)).rejects.toThrow(
+    await expect(getOuraData({ types: ['not_a_real_type'] as unknown as ['heartrate'] }, tokenHandler)).rejects.toThrow(
       'Unsupported request type: not_a_real_type'
     );
 
@@ -107,7 +123,7 @@ describe('getOuraData (integration)', () => {
       text: async () => 'Unauthorized'
     } as unknown as Response);
 
-    await expect(getOuraData({ types: ['heartrate'] }, token)).rejects.toThrow(
+    await expect(getOuraData({ types: ['heartrate'] }, tokenHandler)).rejects.toThrow(
       'Oura request failed (401) for type "heartrate": Unauthorized'
     );
   });
@@ -117,7 +133,7 @@ describe('getOuraData (integration)', () => {
       heartrate: { data: [{ unexpected: 'structure' }], next_token: null }
     });
 
-    await expect(getOuraData({ types: ['heartrate'] }, token)).rejects.toThrow(
+    await expect(getOuraData({ types: ['heartrate'] }, tokenHandler)).rejects.toThrow(
       'Response data does not match any supported schema.'
     );
   });

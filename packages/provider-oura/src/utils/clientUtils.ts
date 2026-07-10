@@ -1,6 +1,7 @@
 import { getOuraApiSandboxUserCollectionBaseUrl, getOuraApiUserCollectionBaseUrl } from '../api/endpoints';
 import type { OuraResponseParams, RequestParams } from '../api/schemas/client';
 import { SUPPORTED_SCOPES } from '../config/constants';
+import type { TokenHandler } from './tokenUtils';
 
 function buildQueryString(requestParams: Omit<RequestParams, 'types'>): string {
   const queryParams = new URLSearchParams();
@@ -20,9 +21,9 @@ function buildQueryString(requestParams: Omit<RequestParams, 'types'>): string {
   return queryParams.toString();
 }
 
-export function requestOuraData(
+export async function requestOuraData(
   request: RequestParams,
-  bearerToken: string,
+  tokenHandler: TokenHandler,
   sandbox: boolean = false
 ): Promise<OuraResponseParams[]> {
   const responses: Promise<OuraResponseParams>[] = [];
@@ -38,7 +39,7 @@ export function requestOuraData(
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${bearerToken}`
+          Authorization: `Bearer ${await tokenHandler.getAccessToken()}`
         }
       }).then(async (res) => {
         if (!res.ok) {
