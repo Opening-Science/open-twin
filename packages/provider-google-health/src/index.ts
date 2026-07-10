@@ -4,6 +4,9 @@ import type { GoogleHealthClient } from './api/client';
 import type { AllTypes } from './api/record_types';
 import { buildBundleFromResponses } from './fhir/bundleBuilder';
 
+// biome-ignore lint/style/useExportType: Exposing the type and GoogleHealthClient class is necessary for external usage
+export { AllTypes, GoogleHealthClient };
+
 export function getGoogleHealthAuthUrl(client: GoogleHealthClient): string {
   return client.getAuthUrl();
 }
