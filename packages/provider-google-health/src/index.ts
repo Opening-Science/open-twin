@@ -8,8 +8,11 @@ export function getGoogleHealthAuthUrl(client: GoogleHealthClient): string {
   return client.getAuthUrl();
 }
 
-export async function initializeGoogleHealthClient(client: GoogleHealthClient, code: string): Promise<void> {
-  await client.initialize(code);
+export async function initializeGoogleHealthClient(
+  client: GoogleHealthClient,
+  code: string
+): Promise<Auth.Credentials> {
+  return await client.initialize(code);
 }
 
 export async function getDataTypes({

@@ -34,6 +34,7 @@ export class GoogleHealthClient {
       auth: this.oauth2Client
     };
     this.client = health(healthOptions);
+    return tokens;
   }
 
   getClient(): health_v4.Health {
