@@ -24,7 +24,7 @@ To obtain these tokens:
  2. Handle the redirect: Once authorized, the user is redirected to your specified Redirect URI along with an Authorization Code.
  3. Exchange the code: Pass this authorization code to initializeGoogleHealthClient to exchange it for the tokens.
 
-⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens immediately and store them in a secure, persistent location.
+⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens and store them in a secure, persistent location.
 
 You can use the getGoogleHealthAuthUrl function to generate the authentication URL with the required scopes.
 

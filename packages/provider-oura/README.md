@@ -30,6 +30,8 @@ npm install @open-twin/provider-oura
 
 ## Usage
 
+⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens and store them in a secure, persistent location.
+
 ### `TokenHandler(config, authorizationToken)`
 
 A helper class which handles the runtime storage and automatic refreshing of the tokens
