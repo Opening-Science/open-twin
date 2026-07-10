@@ -8,13 +8,13 @@ t.b.d.
 
 # Installation
 
-t.b.d. (npm install @open-twin/provider-fitbit)
+t.b.d. (npm install @open-twin/provider-google-health)
 
 # Usage
 
 To use this connector, you need both an Access Token and a Refresh Token. You will initially use a one-time Authorization Code to generate them. Because the access token expires quickly (< 60 minutes), the connector relies on the refresh token to maintain a continuous connection. Please ensure your tokens are captured upon generation and stored in an env file accessible to the connector.
 
-You can user the getGoogleHealthAuthUrl function to generate the authentication URL with the required scopes.
+You can use the getGoogleHealthAuthUrl function to generate the authentication URL with the required scopes.
 
 # Disclaimer
 

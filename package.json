@@ -11,6 +11,7 @@
     "@googleapis/health": "^2.0.0",
     "axios": "^1.18.1",
     "googleapis": "^173.0.0",
+    "gts": "^7.0.0",
     "provider-oura": "link:packages/provider-oura",
     "zod": "^4.4.3"
   },
