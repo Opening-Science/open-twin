@@ -12,7 +12,14 @@ t.b.d. (npm install @open-twin/provider-google-health)
 
 # Usage
 
-To use this connector, you need both an Access Token and a Refresh Token. You will initially use a one-time Authorization Code to generate them. Because the access token expires quickly (< 60 minutes), the connector relies on the refresh token to maintain a continuous connection. Please ensure your tokens are captured upon generation and stored in a secure place. This package stores the access and refresh tokens only on run time.
+To use this connector, you must provide both an Access Token and a Refresh Token.
+To obtain these tokens:
+
+ 1. Redirect the user to the OAuth authorization page, where they will review the requested scopes and authorize your application.
+ 2. Handle the redirect: Once authorized, the user is redirected to your specified Redirect URI along with an Authorization Code.
+ 3. Exchange the code: Pass this authorization code to initializeGoogleHealthClient to exchange it for the tokens.
+
+Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens immediately and store them in a secure, persistent location.
 
 You can use the getGoogleHealthAuthUrl function to generate the authentication URL with the required scopes.
 
