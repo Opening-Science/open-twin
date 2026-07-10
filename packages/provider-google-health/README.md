@@ -19,33 +19,39 @@ To obtain these tokens:
  2. Handle the redirect: Once authorized, the user is redirected to your specified Redirect URI along with an Authorization Code.
  3. Exchange the code: Pass this authorization code to initializeGoogleHealthClient to exchange it for the tokens.
 
-Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens immediately and store them in a secure, persistent location.
+⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens immediately and store them in a secure, persistent location.
 
 You can use the getGoogleHealthAuthUrl function to generate the authentication URL with the required scopes.
 
 Example usage:
 
 ```ts
+import { 
+    GoogleHealthClient, 
+    getGoogleHealthAuthUrl, 
+    initializeGoogleHealthClient, 
+    getDataTypes, 
+    getFhirBundleFromGoogleHealthData 
+} from '@open-twin/provider-google-health';
+
 const client = new GoogleHealthClient({
     clientId: 'YOUR_CLIENT_ID',
     clientSecret: 'YOUR_CLIENT_SECRET',
-    redirectUri: 'YOUR_REDIRECT_URI',
+    redirectUri: 'YOUR_REDIRECT_URI', // Must be listed in your Google Cloud Console. For more information: https://developers.google.com/health/setup
 });
 
-// generate the Authorization URL
-// const url = getGoogleHealthAuthUrl(client);
-// After user completes the Authorization process they will be redirected to the specified URI above.
-// P.S.: The URI must be added to Authorized redirect URIs in the Google Cloud Console
-// For more information: https://developers.google.com/health/setup
+// 1. Generate the Authorization URL
+const url = getGoogleHealthAuthUrl(client);
 
-// Exchange the Auth token for access and refresh tokens
-await initializeGoogleHealthClient(client, code); // Returns Auth.Credentials
+// 2. Exchange the Authorization Code for tokens
+// (Run this after the user completes the flow and redirects back to your URI)
+const credentials = await initializeGoogleHealthClient(client, code); 
 
-// Get the raw google health data by specifying the types, start_date, end_date
-await getDataTypes({ client, types, start_date, end_date }); // Returns health_v4.Schema$ListDataPointsResponse[]
+// 3. Get raw Google Health data
+const rawData = await getDataTypes({ client, types, start_date, end_date }); 
 
-// Get the FHIR R4 parsed bundle by specifying the types, start_date, end_date
-await getFhirBundleFromGoogleHealthData({ client, types, start_date, end_date }) // Returns Bundle
+// 4. Get the data parsed into a FHIR R4 bundle
+const fhirBundle = await getFhirBundleFromGoogleHealthData({ client, types, start_date, end_date });
 
 ```
 
@@ -53,15 +59,15 @@ This package does not
 
 # Disclaimer
 
-This project is an independent and unofficial integration for Fitbit services and devices. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with Fitbit LLC or Google LLC.
+This project is an independent, community-driven, and unofficial integration for Google Health services. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with Fitbit LLC, Google LLC, or Alphabet Inc.
 
 “Fitbit” is a trademark of Google LLC. All product names, logos, and brands are property of their respective owners.
 
 # Trademarks
 
-Fitbit is a trademark of Google LLC.
-
-Use of these names does not imply endorsement or affiliation.
+• "Fitbit" and "Google" are trademarks of Google LLC.
+• All product names, logos, and brands are the property of their respective owners.
+• The use of these names, trademarks, and brands does not imply endorsement, sponsorship, or affiliation.
 
 # License
 
