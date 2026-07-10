@@ -1,0 +1,58 @@
+name: Publish provider-google-health
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/provider-google-health/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint provider-google-health
+        working-directory: packages/provider-google-health
+        run: pnpm run lint
+
+      - name: Test provider-google-health
+        working-directory: packages/provider-google-health
+        run: pnpm run test
+      
+      - name: Create test report
+        uses: dorny/test-reporter@v2
+        if: success() || failure()
+        with:
+          name: Unit Test Results
+          path: './packages/*/*.junit.xml'
+          reporter: java-junit
+
+      - name: Build provider-google-health
+        working-directory: packages/provider-google-health
+        run: pnpm run build
+
+    #   - name: Publish package
+    #     working-directory: packages/provider-google-health
+    #     run: pnpm publish --access public --no-git-checks
+    #     env:
+    #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
