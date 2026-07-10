@@ -1,16 +1,21 @@
-# open-twin-provider-google-health
+# Open Twin Google Health Provider
 
-A provider for connecting Fitbit devices and APIs to the Open Twin ecosystem. This package retrieves user and device data from Fitbit and transforms it into an open, standardized format for interoperable processing and further analysis.
+A provider for connecting Google Health APIs and Google/Fitbit devices to the Open Twin ecosystem. This package retrieves user and device data from Google Health API and transforms it into an open, standardized format for interoperable processing and further analysis.
 
-# Features
+## Features
 
-t.b.d.
+* **Token Exchange:** Fetches the `access_token` using an initial user authorization code.
+* **Token Refresh:** Automatically refreshes the `access_token` using a `refresh_token`.
+* **Data Retrieval:** Fetches granular Google Health and device data for a specific user.
+* **FHIR Standardization:** Converts raw Google Health data formats into the HL7 FHIR standard for medical/health interoperability.
 
-# Installation
+> **Note:** This package does not handle the initial OAuth2 user authentication where permissions are explicitly granted in the providers website. That must be managed by your client application.
+
+## Installation
 
 t.b.d. (npm install @open-twin/provider-google-health)
 
-# Usage
+## Usage
 
 To use this connector, you must provide both an Access Token and a Refresh Token.
 To obtain these tokens:
@@ -55,20 +60,16 @@ const fhirBundle = await getFhirBundleFromGoogleHealthData({ client, types, star
 
 ```
 
-This package does not
-
-# Disclaimer
+## Disclaimer
 
 This project is an independent, community-driven, and unofficial integration for Google Health services. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with Fitbit LLC, Google LLC, or Alphabet Inc.
 
-“Fitbit” is a trademark of Google LLC. All product names, logos, and brands are property of their respective owners.
-
-# Trademarks
+## Trademarks
 
 • "Fitbit" and "Google" are trademarks of Google LLC.
 • All product names, logos, and brands are the property of their respective owners.
 • The use of these names, trademarks, and brands does not imply endorsement, sponsorship, or affiliation.
 
-# License
+## License
 
 MIT
