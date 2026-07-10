@@ -61,6 +61,8 @@ describe('getFhirBundleFromOuraData (integration)', () => {
       token
     );
 
+    expect(bundle).toBeDefined();
+
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.stringContaining('https://api.ouraring.com/v2/usercollection/heartrate?'),
@@ -70,11 +72,11 @@ describe('getFhirBundleFromOuraData (integration)', () => {
       })
     );
 
-    expect(bundle.resourceType).toBe('Bundle');
-    expect(bundle.type).toBe('collection');
-    expect(bundle.entry).toHaveLength(2);
+    expect((bundle as Bundle).resourceType).toBe('Bundle');
+    expect((bundle as Bundle).type).toBe('collection');
+    expect((bundle as Bundle).entry).toHaveLength(2);
 
-    const observations = bundle.entry?.map((entry) => entry.resource as Observation) ?? [];
+    const observations = (bundle as Bundle).entry?.map((entry) => entry.resource as Observation) ?? [];
     for (const observation of observations) {
       expect(observation.resourceType).toBe('Observation');
       expect(observation.code?.coding?.[0]).toMatchObject({ code: '8867-4', display: 'Heart rate' });
@@ -87,9 +89,10 @@ describe('getFhirBundleFromOuraData (integration)', () => {
     mockFetchByType({ personal_info: personalResponse });
 
     const bundle = await getFhirBundleFromOuraData({ types: ['personal_info'] }, token);
+    expect(bundle).toBeDefined();
 
-    expect(bundle.entry).toHaveLength(1);
-    const nested = bundle.entry?.[0].resource as Bundle;
+    expect((bundle as Bundle).entry).toHaveLength(1);
+    const nested = (bundle as Bundle).entry?.[0].resource as Bundle;
     expect(nested.resourceType).toBe('Bundle');
 
     const patient = nested.entry?.[0].resource as Patient;
@@ -105,11 +108,12 @@ describe('getFhirBundleFromOuraData (integration)', () => {
     });
 
     const bundle = await getFhirBundleFromOuraData({ types: ['heartrate', 'personal_info'] }, token);
+    expect(bundle).toBeDefined();
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(2);
-    expect(bundle.entry).toHaveLength(3);
+    expect((bundle as Bundle).entry).toHaveLength(3);
 
-    const [first, second, third] = bundle.entry ?? [];
+    const [first, second, third] = (bundle as Bundle).entry ?? [];
     expect((first.resource as Observation).resourceType).toBe('Observation');
     expect((second.resource as Observation).resourceType).toBe('Observation');
     expect((third.resource as Bundle).resourceType).toBe('Bundle');
