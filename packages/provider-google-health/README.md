@@ -53,7 +53,10 @@ const url = getGoogleHealthAuthUrl(client);
 const credentials = await initializeGoogleHealthClient(client, code); 
 
 // 3. Get raw Google Health data
-const rawData = await getDataTypes({ client, types, start_date, end_date }); 
+const rawData = await getDataTypes({ client, types, start_date, end_date });
+// The response is in the type of health_v4.Schema$ListDataPointsResponse[]
+// Which is a type that comes from Google Health Node js package
+// For more information: https://github.com/googleapis/google-api-nodejs-client
 
 // 4. Get the data parsed into a FHIR R4 bundle
 const fhirBundle = await getFhirBundleFromGoogleHealthData({ client, types, start_date, end_date });
