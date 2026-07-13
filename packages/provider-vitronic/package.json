@@ -1,0 +1,52 @@
+{
+  "name": "provider-vitronic",
+  "version": "1.0.0",
+  "description": "Vitronic API to FHIR mapper",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./api/schemas/*": {
+      "types": "./dist/api/schemas/*.d.ts",
+      "import": "./dist/api/schemas/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/api/schemas/*.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "format": "biome check --write",
+    "lint": "biome ci",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build",
+    "test": "vitest --output-file=test.junit.xml"
+  },
+  "keywords": [
+    "vitronic",
+    "fhir",
+    "connector"
+  ],
+  "author": "Vuse XR",
+  "license": "MIT",
+  "dependencies": {
+    "@rollup/plugin-swc": "^0.4.1",
+    "@types/fhir": "^0.0.44",
+    "axios": "^1.18.1",
+    "jest-extended": "^7.0.0",
+    "reflect-metadata": "^0.2.2",
+    "vitest": "^4.1.9",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
