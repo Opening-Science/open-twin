@@ -118,7 +118,7 @@ try {
   const response = await getOuraData(request, tokenHandler);
   console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
-  console.error("An error happened:", error);
+  console.error("An unexpected error has occurred:", error);
 }
 ```
 
@@ -166,7 +166,7 @@ try {
   const response = await getFhirBundleFromOuraData(request, bearerToken);
   console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
-  console.error("An error happened:", error);
+  console.error("An unexpected error has occurred:", error);
 }
 ```
 
