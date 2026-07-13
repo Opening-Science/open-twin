@@ -1,4 +1,4 @@
-# open-twin-provider-oura
+# Open Twin Oura Provider
 
 A provider for connecting Oura devices and APIs to the Open Twin ecosystem. This package retrieves user and device data from Oura and transforms it into an open, standardized format for interoperable processing and further analysis.
 
@@ -9,7 +9,7 @@ A provider for connecting Oura devices and APIs to the Open Twin ecosystem. This
 * **Data Retrieval:** Fetches granular Oura health and device data for a specific user.
 * **FHIR Standardization:** Converts raw Oura data formats into the HL7 FHIR standard for medical/health interoperability.
 
-> **Note:** This package does not handle the initial OAuth2 user authentication UI where permissions are explicitly granted. That must be managed by your client application.
+> **Note:** This package does not handle the initial OAuth2 user authentication where permissions are explicitly granted in the providers website. That must be managed by your client application.
 
 ---
 
@@ -29,6 +29,8 @@ npm install @open-twin/provider-oura
 ---
 
 ## Usage
+
+⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens and store them in a secure, persistent location.
 
 ### `TokenHandler(config, authorizationToken)`
 
@@ -66,7 +68,7 @@ const tokenHandler = new TokenHandler(ouraRingAppConfig, options.auth_code);
 await tokenHandler.authenticate();
 
 // Or you can directly set the tokens
-// tokenHandler({access_token: string, token_type: "bearer", expires_in: number, refresh_token: string})
+// tokenHandler.setTokens({access_token: string, token_type: "bearer", expires_in: number, refresh_token: string})
 
 // Returns the access token. If token is expired, refreshes and returns it.
 await tokenHandler.getAccessToken()
@@ -116,7 +118,7 @@ try {
   const response = await getOuraData(request, tokenHandler);
   console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
-  console.error("Failed to fetch access token:", error);
+  console.error("An unexpected error has occurred:", error);
 }
 ```
 
@@ -164,7 +166,7 @@ try {
   const response = await getFhirBundleFromOuraData(request, bearerToken);
   console.log("Response:", JSON.stringify(data, null, 2));
 } catch (error) {
-  console.error("Failed to fetch access token:", error);
+  console.error("An unexpected error has occurred:", error);
 }
 ```
 
