@@ -14,13 +14,13 @@ export type Scope = (typeof SCOPES)[number];
 export type Scopes = Scope[];
 
 export const ENDPOINTS = {
-  ANGLE: (viatarId: string) => `/api/v2/viatars/${viatarId}/angles`,
-  DISTANCE: (viatarId: string) => `/api/v2/viatars/${viatarId}/distances`,
-  MARKER: (viatarId: string) => `/api/v2/viatars/${viatarId}/markers`,
-  AXIS: (viatarId: string) => `/api/v2/viatars/${viatarId}/axes`,
-  CROSS_SECTION: (viatarId: string) => `/api/v2/viatars/${viatarId}/crosssections`,
-  HEIGHT: (viatarId: string) => `/api/v2/viatars/${viatarId}/heights`,
-  PROPERTIES: (viatarId: string) => `/api/v2/viatars/${viatarId}/properties`,
+  ANGLE: (viatarId: string) => `/api/v2/viatars/${viatarId}/angles/`,
+  DISTANCE: (viatarId: string) => `/api/v2/viatars/${viatarId}/distances/`,
+  MARKER: (viatarId: string) => `/api/v2/viatars/${viatarId}/markers/`,
+  AXIS: (viatarId: string) => `/api/v2/viatars/${viatarId}/axes/`,
+  CROSS_SECTION: (viatarId: string) => `/api/v2/viatars/${viatarId}/crosssections/`,
+  HEIGHT: (viatarId: string) => `/api/v2/viatars/${viatarId}/heights/`,
+  PROPERTIES: (viatarId: string) => `/api/v2/viatars/${viatarId}/properties/`,
   AUTH: () => '/api/v2/authentification/token'
 };
 

@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
+import { CommonTypeSchema } from './common';
 import { MarkerSchema } from './marker';
-import { CommonTypeSchema } from './shared';
 
 export const DistanceSchema = CommonTypeSchema.extend({
   distance_path: z.string(),
