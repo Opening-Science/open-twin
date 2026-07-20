@@ -10,14 +10,17 @@ export const MarkerSchema = z.object({
   style: z.string().nullable(),
   key_external: z.string().nullable(),
   hidden: z.boolean(),
-  refering_measures: z.object({
-    heights: z.array(z.string()),
-    distances: z.array(z.string()),
-    crosssections: z.array(z.string()),
-    angles: z.array(z.string()),
-    axes: z.array(z.string())
-  }),
-  overriding: z.any().nullable()
+  refering_measures: z
+    .object({
+      heights: z.array(z.string()),
+      distances: z.array(z.string()),
+      crosssections: z.array(z.string()),
+      angles: z.array(z.string()),
+      axes: z.array(z.string())
+    })
+    .optional()
+    .nullable(),
+  overriding: z.any().nullable().optional()
 });
 
 export const MarkerListSchema = z.array(MarkerSchema);
