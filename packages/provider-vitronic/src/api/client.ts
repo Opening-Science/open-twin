@@ -1,6 +1,6 @@
 import type { BodyLoopClientConfig } from '../config/config';
-import type { CommonType } from './schemas/common';
-import { type Token, TokenSchema } from './schemas/token';
+import { ENDPOINTS, type Scopes } from '../config/constants';
+import { type CommonType, type Token, TokenSchema } from './schemas/shared';
 
 export class BodyLoopClient {
   private config: BodyLoopClientConfig;
@@ -10,7 +10,7 @@ export class BodyLoopClient {
   }
 
   private async getAccessToken(): Promise<Token> {
-    const response = await fetch('https://api.bodyloop.com/oauth/token', {
+    const response = await fetch(this.config.baseUrl + ENDPOINTS.AUTH(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -44,18 +44,32 @@ export class BodyLoopClient {
     return await this.getAccessToken();
   }
 
-  async getMeasurementData(): Promise<CommonType[]> {
+  async getMeasurementData(viatarId: string, scopes: Scopes): Promise<CommonType[]> {
+    if (scopes.length === 0) {
+      throw new Error('No scopes provided for measurement data request.');
+    }
+
     const token = await this.getToken();
-    const response = await fetch(`${this.config.baseUrl}/measurements`, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
+
+    const responses = await Promise.all(
+      scopes.map((scope) => {
+        const endpointKey = scope.toUpperCase() as keyof typeof ENDPOINTS;
+
+        return fetch(this.config.baseUrl + ENDPOINTS[endpointKey](viatarId), {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`
+          }
+        });
+      })
+    );
+
+    responses.forEach((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to get measurement data: ${response.statusText}`);
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to get measurement data: ${response.statusText}`);
-    }
-
-    return await response.json();
+    const data = await Promise.all(responses.map((response) => response.json()));
+    return data.flat();
   }
 }

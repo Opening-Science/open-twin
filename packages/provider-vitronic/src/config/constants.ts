@@ -8,7 +8,10 @@ export const SYSTEM_SCOPES = [
   'health_device'
 ];
 
-export const SCOPES = ['angle', 'distance', 'marker', 'axis', 'cross_section', 'height', 'properties'];
+export const SCOPES = ['angle', 'distance', 'marker', 'axis', 'cross_section', 'height', 'properties'] as const;
+
+export type Scope = (typeof SCOPES)[number];
+export type Scopes = Scope[];
 
 export const ENDPOINTS = {
   ANGLE: (viatarId: string) => `/api/v2/viatars/${viatarId}/angles`,
@@ -16,7 +19,9 @@ export const ENDPOINTS = {
   MARKER: (viatarId: string) => `/api/v2/viatars/${viatarId}/markers`,
   AXIS: (viatarId: string) => `/api/v2/viatars/${viatarId}/axes`,
   CROSS_SECTION: (viatarId: string) => `/api/v2/viatars/${viatarId}/crosssections`,
-  HEIGHT: (viatarId: string) => `/api/v2/viatars/${viatarId}/heights`
+  HEIGHT: (viatarId: string) => `/api/v2/viatars/${viatarId}/heights`,
+  PROPERTIES: (viatarId: string) => `/api/v2/viatars/${viatarId}/properties`,
+  AUTH: () => '/api/v2/authentification/token'
 };
 
 export type SystemScope = (typeof SYSTEM_SCOPES)[number];

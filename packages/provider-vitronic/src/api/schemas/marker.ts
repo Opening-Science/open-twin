@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { CommonTypeSchema } from './common';
+import { CommonTypeSchema } from './shared';
 
 export const MarkerSchema = CommonTypeSchema.extend({
   marker_type: z.string(),

@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
-import { CommonTypeSchema } from './common';
 import { MarkerSchema } from './marker';
+import { CommonTypeSchema } from './shared';
 
 export const AxisSchema = CommonTypeSchema.extend({
   axis_path: z.string(),

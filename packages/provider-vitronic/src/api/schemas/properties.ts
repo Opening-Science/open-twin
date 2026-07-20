@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 
-import { CommonTypeSchema } from './common';
+import { CommonTypeSchema } from './shared';
 
 export const PropertySchema = CommonTypeSchema.extend({
   property_path: z.string(),
