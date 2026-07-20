@@ -1,15 +1,11 @@
 import { z } from 'zod/v4';
+import { CommonTypeSchema } from './common';
 
-export const MarkerSchema = z.object({
+export const MarkerSchema = CommonTypeSchema.extend({
   marker_type: z.string(),
   marker_path: z.string(),
   position: z.tuple([z.number(), z.number(), z.number()]),
   normal: z.tuple([z.number(), z.number(), z.number()]),
-  label: z.string().nullable(),
-  note: z.string().nullable(),
-  style: z.string().nullable(),
-  key_external: z.string().nullable(),
-  hidden: z.boolean(),
   refering_measures: z
     .object({
       heights: z.array(z.string()),

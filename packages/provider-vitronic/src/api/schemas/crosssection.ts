@@ -1,13 +1,9 @@
 import { z } from 'zod/v4';
+import { CommonTypeSchema } from './common';
 import { MarkerSchema } from './marker';
 
-export const CrossSectionSchema = z.object({
+export const CrossSectionSchema = CommonTypeSchema.extend({
   crosssection_path: z.string(),
-  label: z.string().nullable(),
-  note: z.string().nullable(),
-  style: z.string().nullable(),
-  key_external: z.string().nullable(),
-  hidden: z.boolean().nullable(),
   preference: z.string().nullable(),
   circumferences: z.object({
     convex_circumference: z.number(),

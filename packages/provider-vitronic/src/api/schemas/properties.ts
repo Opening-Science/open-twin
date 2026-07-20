@@ -1,13 +1,10 @@
 import { z } from 'zod/v4';
 
-export const PropertySchema = z.object({
+import { CommonTypeSchema } from './common';
+
+export const PropertySchema = CommonTypeSchema.extend({
   property_path: z.string(),
-  value: z.any(),
-  label: z.string().nullable(),
-  note: z.string().nullable(),
-  style: z.string().nullable(),
-  key_external: z.string().nullable(),
-  hidden: z.boolean()
+  value: z.any()
 });
 
 export const PropertyListSchema = z.array(PropertySchema);

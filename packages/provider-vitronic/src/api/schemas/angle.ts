@@ -1,7 +1,8 @@
 import { z } from 'zod/v4';
+import { CommonTypeSchema } from './common';
 import { MarkerSchema } from './marker';
 
-export const AngleSchema = z.object({
+export const AngleSchema = CommonTypeSchema.extend({
   angle_path: z.string(),
   at_marker: z.string(),
   from_marker: z.string(),
@@ -11,11 +12,6 @@ export const AngleSchema = z.object({
     supplementary: z.number(),
     conjugate: z.number()
   }),
-  label: z.string().nullable(),
-  note: z.string().nullable(),
-  style: z.string().nullable(),
-  key_external: z.string().nullable(),
-  hidden: z.boolean(),
   preference: z.string().nullable(),
   details: z.object({
     at_marker: MarkerSchema,
