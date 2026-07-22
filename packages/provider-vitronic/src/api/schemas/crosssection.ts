@@ -14,7 +14,6 @@ const CrossSectionBaseSchema = CommonTypeSchema.extend({
     convex_circumference: z.number(),
     perimeter_circumference: z.number()
   }),
-  ares: CrossSectionAreaSchema.optional(),
   areas: CrossSectionAreaSchema.optional(),
   contours: z.object({
     convex_contour: z.object({
@@ -32,10 +31,10 @@ const CrossSectionBaseSchema = CommonTypeSchema.extend({
   })
 });
 
-export const CrossSectionSchema = CrossSectionBaseSchema.refine((value) => value.ares || value.areas, {
-  message: 'Expected either ares or areas'
+export const CrossSectionSchema = CrossSectionBaseSchema.refine((value) => value.areas, {
+  message: 'Expected areas'
 }).transform((value) => {
-  const areas = value.ares ?? value.areas;
+  const areas = value.areas;
 
   return {
     ...value,
