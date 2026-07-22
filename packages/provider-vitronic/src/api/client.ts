@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import type { BodyLoopClientConfig } from '../config/config';
 import { ENDPOINTS, type Scope } from '../config/constants';
 import { MEASUREMENT_SCHEMAS, type MeasurementData, type Token, TokenSchema } from './schemas/shared';
+import type { ViatarList } from './schemas/viatars';
 
 export class BodyLoopClient {
   private config: BodyLoopClientConfig;
@@ -53,7 +54,7 @@ export class BodyLoopClient {
     return await this.tokenPromise;
   }
 
-  async getAvailableViatars(): Promise<string[]> {
+  async getAvailableViatars(): Promise<ViatarList> {
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.VIATARS();
     const response = await fetch(url, {
