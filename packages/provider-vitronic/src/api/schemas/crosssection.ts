@@ -7,7 +7,7 @@ const CrossSectionAreaSchema = z.object({
   perimeter_area: z.number()
 });
 
-const CrossSectionBaseSchema = CommonTypeSchema.extend({
+const CrossSectionSchema = CommonTypeSchema.extend({
   crosssection_path: z.string(),
   preference: z.string().nullable(),
   circumferences: z.object({
@@ -29,18 +29,6 @@ const CrossSectionBaseSchema = CommonTypeSchema.extend({
   details: z.object({
     at_marker: MarkerSchema
   })
-});
-
-export const CrossSectionSchema = CrossSectionBaseSchema.refine((value) => value.areas, {
-  message: 'Expected areas'
-}).transform((value) => {
-  const areas = value.areas;
-
-  return {
-    ...value,
-    ares: areas,
-    areas
-  };
 });
 
 export const CrossSectionListSchema = z.array(CrossSectionSchema);
