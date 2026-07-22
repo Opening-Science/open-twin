@@ -1,18 +1,21 @@
 import { z } from 'zod/v4';
+import { CommonTypeSchema } from './common';
 import { MarkerSchema } from './marker';
-import { CommonTypeSchema } from './shared';
 
-export const CrossSectionSchema = CommonTypeSchema.extend({
+const CrossSectionAreaSchema = z.object({
+  convex_area: z.number(),
+  perimeter_area: z.number()
+});
+
+const CrossSectionBaseSchema = CommonTypeSchema.extend({
   crosssection_path: z.string(),
   preference: z.string().nullable(),
   circumferences: z.object({
     convex_circumference: z.number(),
     perimeter_circumference: z.number()
   }),
-  ares: z.object({
-    convex_area: z.number(),
-    perimeter_area: z.number()
-  }),
+  ares: CrossSectionAreaSchema.optional(),
+  areas: CrossSectionAreaSchema.optional(),
   contours: z.object({
     convex_contour: z.object({
       '3D': z.array(z.tuple([z.number(), z.number(), z.number()])),
@@ -29,4 +32,19 @@ export const CrossSectionSchema = CommonTypeSchema.extend({
   })
 });
 
+export const CrossSectionSchema = CrossSectionBaseSchema.refine((value) => value.ares || value.areas, {
+  message: 'Expected either ares or areas'
+}).transform((value) => {
+  const areas = value.ares ?? value.areas;
+
+  return {
+    ...value,
+    ares: areas,
+    areas
+  };
+});
+
 export const CrossSectionListSchema = z.array(CrossSectionSchema);
+
+export type CrossSection = z.infer<typeof CrossSectionSchema>;
+export type CrossSectionList = z.infer<typeof CrossSectionListSchema>;
