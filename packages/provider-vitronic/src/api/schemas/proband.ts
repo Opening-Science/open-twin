@@ -31,8 +31,8 @@ export const UploadCredentialsSchema = z
 
 export const MetaSchema = z
   .object({
-    crtime: z.string().datetime().nullable().optional(),
-    mtime: z.string().datetime().nullable().optional(),
+    crtime: z.iso.datetime({ local: true }).nullable().optional(),
+    mtime: z.iso.datetime({ local: true }).nullable().optional(),
     info: z.string().nullable().optional()
   })
   .nullable();

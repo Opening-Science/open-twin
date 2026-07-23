@@ -1,64 +1,39 @@
 import { z } from 'zod/v4';
 
-const StateSchema = z.object({
-  status: z.string(),
-  progress: z.number(),
-  description: z.string(),
-  notification: z.array(z.string()).optional()
+export const StateSchema = z.object({
+  status: z.string().nullable().optional(),
+  progress: z.number().nullable().optional(),
+  description: z.string().nullable().optional(),
+  notification: z.array(z.string()).nullable().optional()
 });
 
-const MetaSchema = z.object({
-  crtime: z.string(),
-  mtime: z.string()
+export const MetaSchema = z
+  .object({
+    crtime: z.string().nullable().optional(),
+    mtime: z.string().nullable().optional(),
+    info: z.string().nullable().optional()
+  })
+  .nullable();
+
+export const TargetSchema = z.object({
+  state: StateSchema.optional(),
+  meta: MetaSchema.optional()
 });
 
 export const ViatarSchema = z.object({
-  proband_id: z.number(),
-  parameters: z.object({
-    mesh_3d: z.object({
-      detail: z.string(),
-      texture: z.boolean()
-    }),
-    avatar_3d: z.object({
-      model: z.string(),
-      clothing: z.string(),
-      reverse: z.boolean()
-    }),
-    analyzed_avatar_3d: z.object({
-      preset_id: z.number()
-    })
-  }),
-  targets: z.object({
-    imageset_2d: z.object({
-      state: StateSchema,
-      meta: MetaSchema
-    }),
-    coarse_pointcloud_3d: z.object({
-      state: StateSchema,
-      meta: MetaSchema
-    }),
-    mesh_3d: z.object({
-      state: StateSchema,
-      meta: MetaSchema
-    }),
-    avatar_3d: z.object({
-      state: StateSchema,
-      meta: MetaSchema
-    }),
-    analyzed_avatar_3d: z.object({
-      state: StateSchema,
-      meta: MetaSchema
-    }),
-    report: z.object({
-      state: StateSchema
-    })
-  }),
-  observations: z.object({
-    weight: z.number()
-  }),
-  scan_folder: z.string(),
-  viatar_id: z.number(),
-  meta: MetaSchema
+  viatar_id: z.number().int(),
+  proband_id: z.number().int().nullable().optional(),
+  note: z.string().nullable().optional(),
+  key_external: z.string().nullable().optional(),
+  scan_folder: z.string().nullable().optional(),
+
+  parameters: z.record(z.string(), z.unknown()).nullable().optional(),
+
+  targets: z.record(z.string(), TargetSchema).nullable().optional(),
+
+  observations: z.record(z.string(), z.unknown()).nullable().optional(),
+
+  meta: MetaSchema.optional()
 });
 
 export const ViatarRequestSchema = z.object({
@@ -119,7 +94,7 @@ export const ViatarRequestSchema = z.object({
   scan_folder: z.string().nullable().optional()
 });
 
-export const ViatarListSchema = z.array(z.string());
+export const ViatarListSchema = z.array(ViatarSchema);
 
 export type Viatar = z.infer<typeof ViatarSchema>;
 export type ViatarList = z.infer<typeof ViatarListSchema>;

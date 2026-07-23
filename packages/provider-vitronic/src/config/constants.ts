@@ -14,6 +14,7 @@ export type Scope = (typeof SCOPES)[number];
 export type Scopes = Scope[];
 
 export const ENDPOINTS = {
+  VIATAR: (viatarId: string) => `/api/v2/viatars/${viatarId}`,
   VIATARS: () => '/api/v2/viatars/',
   VIATAR_START: (viatarId: string) => `/api/v2/viatars/${viatarId}/targets/`,
   PROBANDS: () => '/api/v2/probands/',

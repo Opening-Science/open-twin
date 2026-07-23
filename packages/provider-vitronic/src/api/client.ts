@@ -3,7 +3,7 @@ import type { BodyLoopClientConfig } from '../config/config';
 import { ENDPOINTS, type Scope } from '../config/constants';
 import { type ProbandRequest, type ProbandResponse, ProbandResponseSchema } from './schemas/proband';
 import { MEASUREMENT_SCHEMAS, type MeasurementData, type Token, TokenSchema } from './schemas/shared';
-import type { ViatarList, ViatarRequest } from './schemas/viatars';
+import { type Viatar, type ViatarList, type ViatarRequest, ViatarSchema } from './schemas/viatars';
 
 export class BodyLoopClient {
   private config: BodyLoopClientConfig;
@@ -74,6 +74,29 @@ export class BodyLoopClient {
     }
 
     return data;
+  }
+
+  async getViatar(viatarId: string): Promise<Viatar> {
+    const token = await this.getToken();
+    const url = this.config.baseUrl + ENDPOINTS.VIATAR(viatarId);
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get viatar ${viatarId}: ${response.statusText} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const parseResult = ViatarSchema.safeParse(data);
+
+    if (!parseResult.success) {
+      throw new Error(`Failed to parse viatar response: ${JSON.stringify(data)}`);
+    }
+
+    return parseResult.data;
   }
 
   async getMeasurementData<T extends Scope>(viatarId: string, scope: T): Promise<MeasurementData<T>> {
@@ -174,7 +197,9 @@ export class BodyLoopClient {
     const parseResult = ProbandResponseSchema.safeParse(data);
 
     if (!parseResult.success) {
-      throw new Error(`Failed to parse proband response: ${JSON.stringify(data)}`);
+      throw new Error(
+        `Failed to parse proband response: ${JSON.stringify(data)} - Errors: ${JSON.stringify(parseResult.error)}`
+      );
     }
 
     return parseResult.data;
