@@ -7,21 +7,23 @@ const CrossSectionAreaSchema = z.object({
   perimeter_area: z.number()
 });
 
-const CrossSectionBaseSchema = CommonTypeSchema.extend({
+const CrossSectionSchema = CommonTypeSchema.extend({
   crosssection_path: z.string(),
   preference: z.string().nullable(),
   circumferences: z.object({
     convex_circumference: z.number(),
     perimeter_circumference: z.number()
   }),
-  ares: CrossSectionAreaSchema.optional(),
   areas: CrossSectionAreaSchema.optional(),
   contours: z.object({
     convex_contour: z.object({
       '3D': z.array(z.tuple([z.number(), z.number(), z.number()])),
       '2D': z.array(z.tuple([z.number(), z.number()]))
     }),
-    perimeter_contour: z.array(z.tuple([z.number(), z.number()]))
+    perimeter_contour: z.object({
+      '3D': z.array(z.tuple([z.number(), z.number(), z.number()])),
+      '2D': z.array(z.tuple([z.number(), z.number()]))
+    })
   }),
   skeletonPosition: z.object({
     series_path: z.string(),
@@ -30,18 +32,6 @@ const CrossSectionBaseSchema = CommonTypeSchema.extend({
   details: z.object({
     at_marker: MarkerSchema
   })
-});
-
-export const CrossSectionSchema = CrossSectionBaseSchema.refine((value) => value.ares || value.areas, {
-  message: 'Expected either ares or areas'
-}).transform((value) => {
-  const areas = value.ares ?? value.areas;
-
-  return {
-    ...value,
-    ares: areas,
-    areas
-  };
 });
 
 export const CrossSectionListSchema = z.array(CrossSectionSchema);
