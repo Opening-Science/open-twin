@@ -1,6 +1,6 @@
 import type { Bundle } from 'fhir/r4';
 import { Auth, type health_v4 } from 'googleapis';
-import type { GoogleHealthClient } from './api/client';
+import { GoogleHealthClient } from './api/client';
 import type { AllTypes } from './api/record_types';
 import { buildBundleFromResponses } from './fhir/bundleBuilder';
 

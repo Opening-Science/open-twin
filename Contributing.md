@@ -5,6 +5,7 @@ Thank you for your interest in contributing to `open-twin` ❤️
 This project aims to provide an open and interoperable provider for Fitbit APIs and devices within the Open Twin ecosystem.
 
 We welcome:
+
 - Bug reports
 - Feature requests
 - Documentation improvements
@@ -102,6 +103,7 @@ npm run format
 New features and bug fixes should include tests whenever practical.
 
 Recommended test coverage areas:
+
 - API response parsing
 - Data normalization
 - OAuth/token handling
@@ -137,6 +139,7 @@ Before opening a pull request:
 - Keep pull requests focused and reasonably scoped
 
 Please include:
+
 - What changed
 - Why it changed
 - Any relevant screenshots or logs
@@ -162,6 +165,7 @@ security@open-twin.dev
 This project is an independent and unofficial integration for Fitbit services and devices.
 
 Contributors must not:
+
 - Use official Fitbit branding assets without permission
 - Misrepresent the project as official
 - Commit proprietary or confidential Fitbit materials
