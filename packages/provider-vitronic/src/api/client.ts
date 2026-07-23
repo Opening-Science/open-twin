@@ -1,8 +1,9 @@
 import { Readable } from 'node:stream';
 import type { BodyLoopClientConfig } from '../config/config';
 import { ENDPOINTS, type Scope } from '../config/constants';
+import { type ProbandRequest, type ProbandResponse, ProbandResponseSchema } from './schemas/proband';
 import { MEASUREMENT_SCHEMAS, type MeasurementData, type Token, TokenSchema } from './schemas/shared';
-import type { ViatarList } from './schemas/viatars';
+import type { ViatarList, ViatarRequest } from './schemas/viatars';
 
 export class BodyLoopClient {
   private config: BodyLoopClientConfig;
@@ -128,5 +129,95 @@ export class BodyLoopClient {
     }
 
     return Readable.from(response.body);
+  }
+
+  async createProband(proband: ProbandRequest): Promise<ProbandResponse> {
+    const token = await this.getToken();
+    const url = this.config.baseUrl + ENDPOINTS.PROBANDS();
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(proband)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create proband: ${response.statusText} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const parseResult = ProbandResponseSchema.safeParse(data);
+
+    if (!parseResult.success) {
+      throw new Error(`Failed to parse proband response: ${JSON.stringify(data)}`);
+    }
+
+    return parseResult.data;
+  }
+
+  async getProband(probandId: number): Promise<ProbandResponse> {
+    const token = await this.getToken();
+    const url = this.config.baseUrl + ENDPOINTS.PROBANDS() + probandId;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get proband: ${response.statusText} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const parseResult = ProbandResponseSchema.safeParse(data);
+
+    if (!parseResult.success) {
+      throw new Error(`Failed to parse proband response: ${JSON.stringify(data)}`);
+    }
+
+    return parseResult.data;
+  }
+
+  async startScan(viatarRequest: ViatarRequest, target_kind: string): Promise<{ viatar_id: number }> {
+    const token = await this.getToken();
+    const url = this.config.baseUrl + ENDPOINTS.VIATARS();
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(viatarRequest)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create viatar for scan: ${response.statusText} - ${await response.text()}`);
+    }
+    const responseJson = await response.json();
+
+    if (!responseJson?.viatar_id) {
+      throw new Error(`Invalid response from create viatar: ${JSON.stringify(responseJson)}`);
+    }
+    const viatarId = responseJson.viatar_id;
+
+    const scanStartResult = await fetch(this.config.baseUrl + ENDPOINTS.VIATAR_START(viatarId), {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ target_kind })
+    });
+
+    if (!scanStartResult.ok) {
+      throw new Error(
+        `Failed to start scan for viatarId ${viatarId}: ${scanStartResult.statusText} - ${await scanStartResult.text()}`
+      );
+    }
+
+    return { viatar_id: viatarId };
   }
 }
