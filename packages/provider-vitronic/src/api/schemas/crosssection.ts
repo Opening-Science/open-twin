@@ -20,7 +20,10 @@ const CrossSectionSchema = CommonTypeSchema.extend({
       '3D': z.array(z.tuple([z.number(), z.number(), z.number()])),
       '2D': z.array(z.tuple([z.number(), z.number()]))
     }),
-    perimeter_contour: z.array(z.tuple([z.number(), z.number()]))
+    perimeter_contour: z.object({
+      '3D': z.array(z.tuple([z.number(), z.number(), z.number()])),
+      '2D': z.array(z.tuple([z.number(), z.number()]))
+    })
   }),
   skeletonPosition: z.object({
     series_path: z.string(),

@@ -13,7 +13,7 @@ export const MarkerSchema = CommonTypeSchema.extend({
   marker_type: z.string(),
   marker_path: z.string(),
   position: z.tuple([z.number(), z.number(), z.number()]),
-  normal: z.tuple([z.number(), z.number(), z.number()]),
+  normal: z.tuple([z.number(), z.number(), z.number()]).nullable(),
   refering_measures: ReferringMeasuresSchema.optional().nullable(),
   referring_measures: ReferringMeasuresSchema.optional().nullable(),
   overriding: z.unknown().nullable().optional()

@@ -94,7 +94,9 @@ export class BodyLoopClient {
     const parseResult = MEASUREMENT_SCHEMAS[scope].safeParse(rawData);
 
     if (!parseResult.success) {
-      throw new Error(`Data validation failed for scope '${scope}'`);
+      throw new Error(
+        `Data validation failed for scope '${scope}' with data: ${JSON.stringify(rawData)}. Errors: ${JSON.stringify(parseResult.error)}`
+      );
     }
 
     return parseResult.data as MeasurementData<T>;
