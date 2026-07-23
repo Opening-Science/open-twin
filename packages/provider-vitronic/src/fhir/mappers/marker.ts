@@ -2,7 +2,7 @@ import type { Observation, ObservationComponent } from 'fhir/r4';
 import type { Marker, MarkerList } from '../../api/schemas/marker';
 import { applyCommonFields, CATEGORY, createObservation, numericComponent, SYSTEMS } from './shared';
 
-export function mapMarkerToFHIR(marker: Marker): Observation {
+export function mapMarkerToFHIR(marker: Marker, scan_id: string): Observation {
   const display = marker.label ?? `Marker ${marker.marker_path}`;
 
   const rawComponents = [
@@ -46,12 +46,13 @@ export function mapMarkerToFHIR(marker: Marker): Observation {
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: marker.marker_path, display },
+    patientReference: `Patient/${scan_id}`,
     components
   });
 
   return applyCommonFields(observation, marker, SYSTEMS.VITRONIC);
 }
 
-export function mapMarkerListToFHIR(markers: MarkerList): Observation[] {
-  return markers.map(mapMarkerToFHIR);
+export function mapMarkerListToFHIR(markers: MarkerList, scan_id: string): Observation[] {
+  return markers.map((marker) => mapMarkerToFHIR(marker, scan_id));
 }

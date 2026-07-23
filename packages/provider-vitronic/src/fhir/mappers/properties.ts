@@ -2,20 +2,21 @@ import type { Observation } from 'fhir/r4';
 import type { Property, PropertyList } from '../../api/schemas/properties';
 import { applyCommonFields, CATEGORY, createObservation, SYSTEMS } from './shared';
 
-export function mapPropertyToFHIR(property: Property): Observation {
+export function mapPropertyToFHIR(property: Property, scan_id: string): Observation {
   const display = property.label ?? `Property ${property.property_path}`;
 
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: property.property_path, display },
+    patientReference: `Patient/${scan_id}`,
     ...resolvePropertyValue(property.value)
   });
 
   return applyCommonFields(observation, property, SYSTEMS.VITRONIC);
 }
 
-export function mapPropertyListToFHIR(properties: PropertyList): Observation[] {
-  return properties.map(mapPropertyToFHIR);
+export function mapPropertyListToFHIR(properties: PropertyList, scan_id: string): Observation[] {
+  return properties.map((property) => mapPropertyToFHIR(property, scan_id));
 }
 
 function resolvePropertyValue(value: unknown): {

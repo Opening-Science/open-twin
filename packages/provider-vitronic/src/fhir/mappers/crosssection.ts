@@ -2,12 +2,13 @@ import type { Observation } from 'fhir/r4';
 import type { CrossSection, CrossSectionList } from '../../api/schemas/crosssection';
 import { applyCommonFields, CATEGORY, compact, createObservation, numericComponent, SYSTEMS } from './shared';
 
-export function mapCrossSectionToFHIR(crossSection: CrossSection): Observation {
+export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: string): Observation {
   const display = crossSection.label ?? `Cross Section ${crossSection.crosssection_path}`;
 
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: crossSection.crosssection_path, display },
+    patientReference: `Patient/${scan_id}`,
     valueQuantity: {
       value: crossSection.areas?.convex_area,
       unit: 'square millimeter',
@@ -57,6 +58,6 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection): Observation {
   return applyCommonFields(observation, crossSection, SYSTEMS.VITRONIC);
 }
 
-export function mapCrossSectionListToFHIR(crossSections: CrossSectionList): Observation[] {
-  return crossSections.map(mapCrossSectionToFHIR);
+export function mapCrossSectionListToFHIR(crossSections: CrossSectionList, scan_id: string): Observation[] {
+  return crossSections.map((crossSection) => mapCrossSectionToFHIR(crossSection, scan_id));
 }

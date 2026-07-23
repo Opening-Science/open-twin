@@ -2,12 +2,13 @@ import type { Observation } from 'fhir/r4';
 import type { Distance, DistanceList } from '../../api/schemas/distance';
 import { applyCommonFields, CATEGORY, compact, createObservation, numericComponent, SYSTEMS } from './shared';
 
-export function mapDistanceToFHIR(distance: Distance): Observation {
+export function mapDistanceToFHIR(distance: Distance, scan_id: string): Observation {
   const display = distance.label ?? `Distance ${distance.distance_path}`;
 
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: distance.distance_path, display },
+    patientReference: `Patient/${scan_id}`,
     valueQuantity: { value: distance.distances.linear_distance, unit: 'meters', code: 'm', system: SYSTEMS.UCUM },
     components: compact([
       numericComponent(
@@ -31,6 +32,6 @@ export function mapDistanceToFHIR(distance: Distance): Observation {
   return applyCommonFields(observation, distance, SYSTEMS.VITRONIC);
 }
 
-export function mapDistanceListToFHIR(distances: DistanceList): Observation[] {
-  return distances.map(mapDistanceToFHIR);
+export function mapDistanceListToFHIR(distances: DistanceList, scan_id: string): Observation[] {
+  return distances.map((distance) => mapDistanceToFHIR(distance, scan_id));
 }

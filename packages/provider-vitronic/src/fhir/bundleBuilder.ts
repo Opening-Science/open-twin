@@ -17,6 +17,7 @@ import { mapMarkerListToFHIR } from './mappers/marker';
 import { mapPropertyListToFHIR } from './mappers/properties';
 
 export interface VitronicMeasurementResponse {
+  scan_id: string;
   angle?: AngleList;
   axis?: AxesList;
   cross_section?: CrossSectionList;
@@ -30,25 +31,25 @@ export function buildBundleFromVitronicResponse(response: VitronicMeasurementRes
   const observations: Observation[] = [];
 
   if (response.angle) {
-    observations.push(...mapAngleListToFHIR(response.angle));
+    observations.push(...mapAngleListToFHIR(response.angle, response.scan_id));
   }
   if (response.axis) {
-    observations.push(...mapAxesListToFHIR(response.axis));
+    observations.push(...mapAxesListToFHIR(response.axis, response.scan_id));
   }
   if (response.cross_section) {
-    observations.push(...mapCrossSectionListToFHIR(response.cross_section));
+    observations.push(...mapCrossSectionListToFHIR(response.cross_section, response.scan_id));
   }
   if (response.distance) {
-    observations.push(...mapDistanceListToFHIR(response.distance));
+    observations.push(...mapDistanceListToFHIR(response.distance, response.scan_id));
   }
   if (response.height) {
-    observations.push(...mapHeightListToFHIR(response.height));
+    observations.push(...mapHeightListToFHIR(response.height, response.scan_id));
   }
   if (response.marker) {
-    observations.push(...mapMarkerListToFHIR(response.marker));
+    observations.push(...mapMarkerListToFHIR(response.marker, response.scan_id));
   }
   if (response.properties) {
-    observations.push(...mapPropertyListToFHIR(response.properties));
+    observations.push(...mapPropertyListToFHIR(response.properties, response.scan_id));
   }
 
   return {
@@ -65,9 +66,12 @@ export async function getFhirBundleFromBodyloopMeasurementData(
 ): Promise<Bundle> {
   const response = await client.getMeasurementsData(viatarId, scopes);
 
-  const measurementData = Object.fromEntries(
-    response.map((data, index) => [scopes[index], data])
-  ) as VitronicMeasurementResponse;
+  const scopesData = Object.fromEntries(response.map((data, index) => [scopes[index], data]));
+
+  const measurementData: VitronicMeasurementResponse = {
+    scan_id: viatarId,
+    ...scopesData
+  };
 
   return buildBundleFromVitronicResponse(measurementData);
 }

@@ -71,6 +71,7 @@ interface CreateObservationInput {
   valueString?: string;
   valueBoolean?: boolean;
   components?: Observation['component'];
+  patientReference?: string;
 }
 
 export function createObservation(input: CreateObservationInput): Observation {
@@ -78,7 +79,7 @@ export function createObservation(input: CreateObservationInput): Observation {
     resourceType: 'Observation',
     status: 'final',
     code: codeableConcept(input.code),
-    subject: { reference: PATIENT_REFERENCE }
+    subject: { reference: input.patientReference ?? PATIENT_REFERENCE }
   };
 
   if (input.category) {
