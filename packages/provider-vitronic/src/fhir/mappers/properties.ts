@@ -8,7 +8,7 @@ export function mapPropertyToFHIR(property: Property, scan_id: string): Observat
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: property.property_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     ...resolvePropertyValue(property.value)
   });
 

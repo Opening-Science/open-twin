@@ -8,7 +8,7 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: crossSection.crosssection_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     valueQuantity: {
       value: crossSection.areas?.convex_area,
       unit: 'square millimeter',

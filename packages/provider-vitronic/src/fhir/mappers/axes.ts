@@ -8,7 +8,7 @@ export function mapAxisToFHIR(axis: Axis, scan_id: string): Observation {
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: axis.axis_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     components: compact([
       numericComponent(
         { system: SYSTEMS.VITRONIC, code: `${axis.axis_path}.xy`, display: `${display} (Rotation XY axis)` },

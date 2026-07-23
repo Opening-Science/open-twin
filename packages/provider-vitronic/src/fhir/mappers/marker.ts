@@ -46,7 +46,7 @@ export function mapMarkerToFHIR(marker: Marker, scan_id: string): Observation {
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: marker.marker_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     components
   });
 

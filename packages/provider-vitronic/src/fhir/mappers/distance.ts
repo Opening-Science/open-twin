@@ -8,7 +8,7 @@ export function mapDistanceToFHIR(distance: Distance, scan_id: string): Observat
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: distance.distance_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     valueQuantity: { value: distance.distances.linear_distance, unit: 'meters', code: 'm', system: SYSTEMS.UCUM },
     components: compact([
       numericComponent(

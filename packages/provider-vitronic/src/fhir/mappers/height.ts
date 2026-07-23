@@ -8,7 +8,7 @@ export function mapHeightToFHIR(height: Height, scan_id: string): Observation {
   const observation = createObservation({
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: height.height_path, display },
-    patientReference: `Patient/${scan_id}`,
+    patientReference: `Scan/${scan_id}`,
     valueQuantity: { value: height.height, unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
   });
 
