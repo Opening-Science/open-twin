@@ -1,11 +1,11 @@
-name: Publish provider-google-health
+name: Publish provider-vitronic
 
 on:
   push:
     branches:
       - '**'
     paths:
-      - 'packages/provider-google-health/**'
+      - 'packages/provider-vitronic/**'
   workflow_dispatch:
     inputs:
       publish:
@@ -37,12 +37,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint provider-google-health
-        working-directory: packages/provider-google-health
+      - name: Lint provider-vitronic
+        working-directory: packages/provider-vitronic
         run: pnpm run lint
 
-      - name: Test provider-google-health
-        working-directory: packages/provider-google-health
+      - name: Test provider-vitronic
+        working-directory: packages/provider-vitronic
         run: pnpm run test
       
       - name: Create test report
@@ -53,14 +53,14 @@ jobs:
           path: './packages/*/*.junit.xml'
           reporter: java-junit
 
-      - name: Build provider-google-health
-        working-directory: packages/provider-google-health
+      - name: Build provider-vitronic
+        working-directory: packages/provider-vitronic
         run: pnpm run build
 
       - name: Publish package
         # Only run if triggered manually AND the publish checkbox was checked
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
-        working-directory: packages/provider-google-health
+        working-directory: packages/provider-vitronic
         run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
