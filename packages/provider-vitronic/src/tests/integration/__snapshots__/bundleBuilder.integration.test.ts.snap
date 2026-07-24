@@ -1,0 +1,597 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloop measurement data to a FHIR bundle 1`] = `
+{
+  "entry": [
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "arm.shoulder.R",
+              "display": "Shoulder Joint Right",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "arm.shoulder.R#supplementary",
+                  "display": "Supplementary angle",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 1.6599425335995173,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "arm.shoulder.R#conjugate",
+                  "display": "Conjugate angle",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 4.801535187189311,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+        "valueQuantity": {
+          "code": "deg",
+          "system": "http://unitsofmeasure.org",
+          "unit": "degree",
+          "value": 1.4816501199902758,
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "arm.shoulder.L",
+              "display": "Shoulder Joint Left",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "arm.shoulder.L#supplementary",
+                  "display": "Supplementary angle",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 1.6743036598010559,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "arm.shoulder.L#conjugate",
+                  "display": "Conjugate angle",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 4.815896313390849,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+        "valueQuantity": {
+          "code": "deg",
+          "system": "http://unitsofmeasure.org",
+          "unit": "degree",
+          "value": 1.4672889937887372,
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "leg.lateral.malleolus",
+              "display": "Outer Ankle",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.lateral.malleolus.xy",
+                  "display": "Outer Ankle (Rotation XY axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 0.0053695912546394275,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.lateral.malleolus.yz",
+                  "display": "Outer Ankle (Rotation YZ axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": -0.32149615939362786,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.lateral.malleolus.xz",
+                  "display": "Outer Ankle (Rotation XZ axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": -0.0017883613867235582,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "leg.trochanterion",
+              "display": "Hip Bone",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.trochanterion.xy",
+                  "display": "Hip Bone (Rotation XY axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": -0.006489517393493571,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.trochanterion.yz",
+                  "display": "Hip Bone (Rotation YZ axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": -0.7746367929397167,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.trochanterion.xz",
+                  "display": "Hip Bone (Rotation XZ axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "deg",
+              "system": "http://unitsofmeasure.org",
+              "unit": "degree",
+              "value": 0.006351330732472071,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "torso.cingulum_praefere_posterior.M",
+              "display": "Waist Back Point",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "0.08067300915718079",
+                  "display": "Waist Back Point (Convex Area)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meter",
+              "value": 0.08067300915718079,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "0.07914557307958603",
+                  "display": "Waist Back Point (Perimeter Area)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meter",
+              "value": 0.07914557307958603,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "1.0411115884780884",
+                  "display": "Waist Back Point (Convex Circumference)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meter",
+              "value": 1.0411115884780884,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "1.2969887256622314",
+                  "display": "Waist Back Point (Perimeter Circumference)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meter",
+              "value": 1.2969887256622314,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+        "valueQuantity": {
+          "code": "m2",
+          "system": "http://unitsofmeasure.org",
+          "unit": "square meter",
+          "value": 0.08067300915718079,
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "torso.shoulder.M",
+              "display": "Shoulder Width",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "torso.shoulder.M.x",
+                  "display": "Shoulder Width (X axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.4435584247112274,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "torso.shoulder.M.y",
+                  "display": "Shoulder Width (Y axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.0006640702486038208,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "torso.shoulder.M.z",
+                  "display": "Shoulder Width (Z axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.005529999732971191,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+        "valueQuantity": {
+          "code": "m",
+          "system": "http://unitsofmeasure.org",
+          "unit": "meters",
+          "value": 0.444,
+        },
+      },
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "exam",
+                "display": "Exam",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              },
+            ],
+          },
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "leg.hip.M",
+              "display": "Hip width",
+              "system": "https://www.vitronic.com/bodyloop/measurements",
+            },
+          ],
+        },
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.hip.M.x",
+                  "display": "Hip width (X axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.359340563416481,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.hip.M.y",
+                  "display": "Hip width (Y axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.0023319795727729797,
+            },
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "leg.hip.M.z",
+                  "display": "Hip width (Z axis)",
+                  "system": "https://www.vitronic.com/bodyloop/measurements",
+                },
+              ],
+            },
+            "valueQuantity": {
+              "code": "m",
+              "system": "http://unitsofmeasure.org",
+              "unit": "meters",
+              "value": 0.0022823214530944824,
+            },
+          },
+        ],
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Scan/scan-1",
+        },
+        "valueQuantity": {
+          "code": "m",
+          "system": "http://unitsofmeasure.org",
+          "unit": "meters",
+          "value": 0.359,
+        },
+      },
+    },
+  ],
+  "resourceType": "Bundle",
+  "type": "collection",
+}
+`;
