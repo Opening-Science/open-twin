@@ -11,9 +11,9 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
     patientReference: `Scan/${scan_id}`,
     valueQuantity: {
       value: crossSection.areas?.convex_area,
-      unit: 'square millimeter',
+      unit: 'square meter',
       system: SYSTEMS.UCUM,
-      code: 'mm2'
+      code: 'm2'
     },
     components: compact([
       numericComponent(
@@ -23,7 +23,7 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
           display: `${display} (Convex Area)`
         },
         crossSection.areas?.convex_area,
-        { unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
+        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
       ),
       numericComponent(
         {
@@ -32,7 +32,7 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
           display: `${display} (Perimeter Area)`
         },
         crossSection.areas?.perimeter_area,
-        { unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
+        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
       ),
       numericComponent(
         {
@@ -41,7 +41,7 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
           display: `${display} (Convex Circumference)`
         },
         crossSection.circumferences.convex_circumference,
-        { unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
+        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
       ),
       numericComponent(
         {
@@ -50,7 +50,7 @@ export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: strin
           display: `${display} (Perimeter Circumference)`
         },
         crossSection.circumferences.perimeter_circumference,
-        { unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
+        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
       )
     ])
   });

@@ -9,7 +9,7 @@ export function mapHeightToFHIR(height: Height, scan_id: string): Observation {
     category: CATEGORY.EXAM,
     code: { system: SYSTEMS.VITRONIC, code: height.height_path, display },
     patientReference: `Scan/${scan_id}`,
-    valueQuantity: { value: height.height, unit: 'millimeter', system: SYSTEMS.UCUM, code: 'mm' }
+    valueQuantity: { value: height.height, unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
   });
 
   return applyCommonFields(observation, height, SYSTEMS.VITRONIC);

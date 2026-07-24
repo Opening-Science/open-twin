@@ -15,7 +15,6 @@ export const MarkerSchema = CommonTypeSchema.extend({
   position: z.tuple([z.number(), z.number(), z.number()]),
   normal: z.tuple([z.number(), z.number(), z.number()]).nullable(),
   refering_measures: ReferringMeasuresSchema.optional().nullable(),
-  referring_measures: ReferringMeasuresSchema.optional().nullable(),
   overriding: z.unknown().nullable().optional()
 });
 

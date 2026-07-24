@@ -5,7 +5,8 @@
   },
   "scripts": {
     "format": "biome check --write",
-    "lint": "biome ci"
+    "lint": "biome ci",
+    "test": "vitest --output-file=test.junit.xml"
   },
   "dependencies": {
     "@googleapis/health": "^2.0.0",
