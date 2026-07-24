@@ -104,6 +104,14 @@ export function buildTypeFilter(type: AllType, startDate?: string, endDate?: str
       return `${field} >= "${start}" AND ${field} < "${end}"`;
     }
     case 'session': {
+      if (type === 'sleep') {
+        return `sleep.interval.end_time >= "${start}" AND sleep.interval.end_time < "${end}"`;
+      }
+
+      if (type === 'electrocardiogram') {
+        return `electrocardiogram.interval.start_time >= "${start}" AND electrocardiogram.interval.start_time < "${end}"`;
+      }
+
       const field = `${filterPrefix}.interval.civil_start_time`;
       return `${field} >= "${toCivilDate(start)}" AND ${field} < "${toCivilDate(end)}"`;
     }
