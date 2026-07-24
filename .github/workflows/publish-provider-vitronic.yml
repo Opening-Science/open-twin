@@ -7,6 +7,12 @@ on:
     paths:
       - 'packages/provider-vitronic/**'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish package to npm?'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build-and-publish:
@@ -51,8 +57,10 @@ jobs:
         working-directory: packages/provider-vitronic
         run: pnpm run build
 
-    #   - name: Publish package
-    #     working-directory: packages/provider-vitronic
-    #     run: pnpm publish --access public --no-git-checks
-    #     env:
-    #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish package
+        # Only run if triggered manually AND the publish checkbox was checked
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+        working-directory: packages/provider-vitronic
+        run: pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
