@@ -1,0 +1,138 @@
+{
+  "_readme": [
+    "Every LOINC / SNOMED code used under packages/*/src/fhir must appear here.",
+    "status 'approved'   -> someone looked the code up, confirmed the official name matches",
+    "                       what the mapper sends, and recorded it. Passes the gate.",
+    "status 'rejected'   -> the code does not mean what the mapper sends. Fails the gate.",
+    "status 'unreviewed' -> nobody has checked. Fails the gate.",
+    "",
+    "The five 'rejected' entries below were verified against the LOINC and SNOMED",
+    "browsers during the July 2026 assessment. The 'unreviewed' entries were NOT",
+    "individually verified: they are listed so the gate fails loudly until someone",
+    "with clinical terminology knowledge signs each one off. Do not bulk-approve them.",
+    "",
+    "Record who reviewed and when, so the sign-off is auditable."
+  ],
+
+  "codes": {
+    "77195-6": {
+      "status": "rejected",
+      "system": "LOINC",
+      "official_name": "Cardio-ankle vascular index (CAVI), calculated",
+      "used_for": "Oura vascular_age, in years",
+      "reason": "CAVI is a dimensionless ratio with a normal value near 8. Sending vascular_age 45 under this code reads as CAVI 45, which is clinically alarming and dimensionally wrong (the mapper also tags it UCUM 'a', years).",
+      "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "248263006": {
+      "status": "rejected",
+      "system": "SNOMED CT",
+      "official_name": "Duration of sleep",
+      "used_for": "Oura sleep efficiency, a percentage",
+      "reason": "Efficiency and duration are different quantities. efficiency 95 is published as 95 units of sleep duration, with no unit attached. The display string 'Sleep efficiency' is invented and does not belong to this concept.",
+      "suggested": "Use a vendor-local code with unit '%' until a reviewer identifies a standard concept for sleep efficiency.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/sleep.ts:44",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "60842-2": {
+      "status": "rejected",
+      "system": "LOINC",
+      "official_name": "Oxygen consumption (VO2), property VRat, example unit mL/min",
+      "used_for": "Oura vo2_max, in mL/min/kg",
+      "reason": "This is absolute VO2, not weight-indexed. The mapper sends mL/min/kg under it. provider-google-health already uses the correct weight-indexed code for the same measurement, so the two connectors disagree.",
+      "suggested": "94122-9",
+      "found_at": "packages/provider-oura/src/fhir/mappers/vo2max.ts:31",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "41979-6": {
+      "status": "rejected",
+      "system": "LOINC",
+      "official_name": "Calories burned in 24 hour, calculated (example unit kcal/(24.h))",
+      "used_for": "Oura per-workout calories, and separately a daily figure",
+      "reason": "A 30-minute workout burning 280 kcal is published as a 24-hour calorie total. The same code also appears elsewhere in the repository with a different, also-invented display string.",
+      "suggested": "For a single activity use a code scoped to the activity, not to a 24-hour window. Needs clinical review.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/workout.ts:22",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "99501-9": {
+      "status": "rejected",
+      "system": "LOINC",
+      "official_name": "Sex parameter for clinical use (nominal scale, bound to answer list LL6114-4)",
+      "used_for": "Oura biological_sex, sent as valueString",
+      "reason": "Two problems. The concept is not 'sex assigned at birth', and it is a coded concept: the mapper sends valueString instead of valueCodeableConcept, so the receiver cannot decode it.",
+      "suggested": "76689-9 for the labelled concept, sent as valueCodeableConcept.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/personal.ts:116",
+      "reviewed": "2026-07-25 assessment"
+    },
+
+    "103212-7": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Sleep latency. Also check the unit: the mapper sends seconds with no unit."
+    },
+    "103213-5": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Time in bed. Also check the unit: seconds sent with no unit."
+    },
+    "11524-6": { "status": "unreviewed", "system": "LOINC" },
+    "2339-0": { "status": "unreviewed", "system": "LOINC" },
+    "29463-7": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Body weight. Likely correct; confirm unit binding."
+    },
+    "40443-4": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Used for Oura lowest_heart_rate under the display 'Resting heart rate'. Confirm the two are the same concept."
+    },
+    "41950-7": { "status": "unreviewed", "system": "LOINC" },
+    "41981-2": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Official name is 'Calories burned'. The repository attaches a 24-hour display string to it."
+    },
+    "41982-0": { "status": "unreviewed", "system": "LOINC" },
+    "55423-8": { "status": "unreviewed", "system": "LOINC" },
+    "59408-5": { "status": "unreviewed", "system": "LOINC" },
+    "77196-4": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Pulse wave velocity. Believed correct in the assessment; still needs formal sign-off."
+    },
+    "8302-2": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Body height. provider-google-health sends mm; the vital-signs profile binds cm or [in_i]."
+    },
+    "8310-5": { "status": "unreviewed", "system": "LOINC" },
+    "8867-4": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Heart rate. Confirm session mappers are not sending a session mean under it without saying so."
+    },
+    "9279-1": { "status": "unreviewed", "system": "LOINC" },
+    "93829-0": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "REM sleep duration. Mapper sends seconds with no unit; LOINC example unit is min."
+    },
+    "93831-6": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Deep sleep duration. Same seconds-with-no-unit problem."
+    },
+    "93832-4": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Total sleep duration. provider-oura sends untagged seconds, provider-google-health sends min. These must agree."
+    },
+    "94122-9": {
+      "status": "unreviewed",
+      "system": "LOINC",
+      "note": "Weight-indexed VO2max. Used for two distinct Google measures with different displays."
+    }
+  }
+}

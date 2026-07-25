@@ -5,9 +5,3 @@ allowBuilds:
   '@swc/core': true
   core-js: false
   esbuild: true
-
-minimumReleaseAgeExclude:
-  - axios@1.18.1
-
-overrides:
-  provider-oura: link:packages/provider-oura

@@ -1,0 +1,55 @@
+{
+  "_readme": [
+    "Reviewed (unit, code) pairs for Quantities emitted against the UCUM system.",
+    "Key format is \"<unit>|<code>\", where unit is the human-readable Quantity.unit",
+    "and code is the machine-readable Quantity.code. '(none)' means Quantity.unit",
+    "was absent, which is itself usually a defect.",
+    "",
+    "status 'approved' -> a human confirmed the unit and the code describe the same",
+    "                     quantity, and that this is what the source API actually sends.",
+    "status 'rejected' -> the pair is wrong. Fails the gate with the recorded reason.",
+    "Anything absent  -> unreviewed. Fails the gate.",
+    "",
+    "The rejected entries below were verified during the July 2026 assessment.",
+    "The rest of the repository's pairs are deliberately absent so the gate fails",
+    "until each one is signed off. Do not bulk-approve."
+  ],
+
+  "pairs": {
+    "steps|steps": {
+      "status": "rejected",
+      "reason": "'steps' is not a UCUM code. UCUM expresses countable things as annotations.",
+      "suggested": "unit 'steps', code '{steps}'. The same file already uses {score} and {count} correctly.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/daily.ts:287",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "MET-min|min": {
+      "status": "rejected",
+      "reason": "MET-minutes is not minutes. A receiver reading code 'min' interprets 300 MET-minutes as 300 minutes of activity.",
+      "suggested": "There is no UCUM code for MET-min. Use an annotation such as '{MET-min}', or emit the value under a vendor-local system.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/daily.ts:144,154,164,174",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "degree|deg": {
+      "status": "rejected",
+      "reason": "The unit and code agree with each other, but not with the data. The VITRONIC API returns radians: in the committed snapshot primary + supplementary equals exactly pi. Values are published 57.3x too small.",
+      "suggested": "Convert radians to degrees before emitting, or keep the source value and use code 'rad'.",
+      "found_at": "packages/provider-vitronic/src/fhir/mappers/angle.ts:12,17,22 and axes.ts, marker.ts",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "°C|Cel": {
+      "status": "rejected",
+      "reason": "Used for a temperature deviation, not an absolute temperature. UCUM 'Cel' denotes a point on the Celsius scale; a difference is 'K'.",
+      "suggested": "unit 'Kelvin', code 'K' for deviations.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/readiness.ts:106",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "meter|m": {
+      "status": "rejected",
+      "reason": "Applied to cross-section AREA values, which are emitted as 'm2' at the top level of the same resource. The same number appears twice, once as an area and once as a length.",
+      "suggested": "Areas are 'm2' throughout. Remove the length-coded duplicates.",
+      "found_at": "packages/provider-vitronic/src/fhir/mappers/crosssection.ts:25-35",
+      "reviewed": "2026-07-25 assessment"
+    }
+  }
+}

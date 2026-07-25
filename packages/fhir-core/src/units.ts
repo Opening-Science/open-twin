@@ -1,0 +1,157 @@
+import type { Quantity } from 'fhir/r4';
+import { SYSTEMS } from './systems';
+
+/**
+ * Decision D4: one unit per concept, across all three connectors.
+ *
+ * Before this table the same concept was emitted with different units by different
+ * connectors — LOINC 93832-4 as unitless seconds by Oura and as `min` by
+ * Google Health; body height as `m` by Oura, `mm` by Google and a local code by
+ * VITRONIC. Merging two bundles for one person produced contradictory numbers under
+ * an identical code, which is precisely the cross-connector comparability this
+ * project exists to provide.
+ *
+ * `unit` is the human-readable string; `code` is the machine-readable UCUM symbol.
+ * They must describe the same quantity. `unit: 'MET-min'` with `code: 'min'`
+ * type-checks, validates structurally, and is wrong.
+ */
+
+/**
+ * UCUM annotations, per UCUM §6: material inside curly braces is an annotation.
+ * §6■4 — an annotation with no leading symbol implies the unity `1`. §6■2 — a
+ * conformant parser *discards* annotations, so `{steps}` and `{beats}` compare
+ * equal. The annotation is a label for humans; `Observation.code` carries the
+ * meaning. That asymmetry is why a wrong LOINC code is unrecoverable and a wrong
+ * annotation is merely untidy.
+ *
+ * A bare `steps` is not a UCUM symbol at all and any server validating UCUM
+ * rejects the resource.
+ */
+export const UCUM = {
+  // time
+  SECOND: { unit: 'seconds', code: 's' },
+  MINUTE: { unit: 'minutes', code: 'min' },
+  HOUR: { unit: 'hours', code: 'h' },
+  DAY: { unit: 'days', code: 'd' },
+  YEAR: { unit: 'years', code: 'a' },
+  MILLISECOND: { unit: 'milliseconds', code: 'ms' },
+
+  // length / area
+  METRE: { unit: 'meters', code: 'm' },
+  CENTIMETRE: { unit: 'centimeters', code: 'cm' },
+  MILLIMETRE: { unit: 'millimeters', code: 'mm' },
+  KILOMETRE: { unit: 'kilometers', code: 'km' },
+  SQUARE_METRE: { unit: 'square meters', code: 'm2' },
+
+  // mass
+  KILOGRAM: { unit: 'kilograms', code: 'kg' },
+  GRAM: { unit: 'grams', code: 'g' },
+
+  // temperature. UCUM §21/§22: `Cel` is a *special unit* on an interval scale and
+  // cannot take part in algebraic operations. An absolute body temperature is
+  // `Cel`; a temperature *difference* is `K`. The two are numerically equal as
+  // intervals, so no value conversion is needed — only the code changes.
+  CELSIUS: { unit: 'degrees Celsius', code: 'Cel' },
+  KELVIN: { unit: 'Kelvin', code: 'K' },
+
+  // plane angle. UCUM Table 2 makes `rad` the base unit; Table 5 derives
+  // `deg` = [pi].rad/360, so 1 rad = 180/pi ~ 57.2957795 deg.
+  DEGREE: { unit: 'degree', code: 'deg' },
+  RADIAN: { unit: 'radian', code: 'rad' },
+
+  // rates
+  PER_MINUTE: { unit: 'per minute', code: '/min' },
+  METRE_PER_SECOND: { unit: 'meters per second', code: 'm/s' },
+  ML_PER_KG_PER_MIN: { unit: 'mL/kg/min', code: 'mL/kg/min' },
+
+  // energy
+  KILOCALORIE: { unit: 'kcal', code: 'kcal' },
+
+  // dimensionless. `%` is a real UCUM atom (Table 3, = 10*-2), so the number sent
+  // is the percentage: 95% is `95`, never `0.95`. Do not write `{percent}`.
+  PERCENT: { unit: '%', code: '%' },
+  UNITY: { unit: '1', code: '1' },
+
+  // annotations
+  STEPS: { unit: 'steps', code: '{steps}' },
+  STEPS_PER_DAY: { unit: 'steps per day', code: '{steps}/d' },
+  BEATS_PER_MINUTE: { unit: 'beats per minute', code: '{beats}/min' },
+  BREATHS_PER_MINUTE: { unit: 'breaths per minute', code: '{breaths}/min' },
+  SCORE: { unit: 'score', code: '{score}' },
+  COUNT: { unit: 'count', code: '{count}' },
+  RATIO: { unit: 'ratio', code: '{ratio}' },
+  /**
+   * MET is a physiological ratio (3.5 mL/kg/min of oxygen uptake), not a UCUM unit
+   * atom, so MET-minutes has no UCUM code. `{MET-min}` is a valid annotation
+   * denoting the unity with a label. It must never be `min`: a conformant receiver
+   * discards the annotation, and with code `min` reads 300 MET-minutes as 300
+   * minutes of activity.
+   */
+  MET_MINUTES: { unit: 'MET-min', code: '{MET-min}' },
+  MET: { unit: 'MET', code: '{MET}' }
+} as const;
+
+export type UcumUnit = (typeof UCUM)[keyof typeof UCUM];
+
+/** Build a UCUM-system Quantity. Returns undefined for absent or non-finite values. */
+export function quantity(value: number | null | undefined, unit: UcumUnit): Quantity | undefined {
+  if (value === undefined || value === null || !Number.isFinite(value)) {
+    return undefined;
+  }
+  return { value, unit: unit.unit, system: SYSTEMS.UCUM, code: unit.code };
+}
+
+/**
+ * The unit every connector must use for a given LOINC code.
+ *
+ * Where the FHIR R4 vital-signs profiles *fix* a code (heart rate and respiratory
+ * rate to `/min`, oxygen saturation to `%`) the profile wins over LOINC's example
+ * unit — `{beats}/min` and `{steps}` are absent from `ucum-vitals-common`, so a
+ * vital-signs Observation carrying them is a conformance failure.
+ */
+export const LOINC_UNITS: Readonly<Record<string, UcumUnit>> = {
+  // Sleep durations. LOINC example units are `min` (REM/deep/latency) and `h`
+  // (total sleep duration); `min` is used throughout for internal consistency and
+  // to match what provider-google-health already emits for 93832-4.
+  '93832-4': UCUM.MINUTE, // Sleep duration
+  '93831-6': UCUM.MINUTE, // Deep sleep duration
+  '93830-8': UCUM.MINUTE, // Light sleep duration
+  '93829-0': UCUM.MINUTE, // REM sleep duration
+  '103212-7': UCUM.MINUTE, // Duration of falling asleep
+  // 103213-5 "Duration in bed" is a genuine LOINC modelling anomaly: the component
+  // says duration, the property is NRat and the example unit is `/h`. Those cannot
+  // both be right, and `/h` is dimensionally meaningless for a duration. `min` is
+  // emitted pending a term-change request to Regenstrief. See DECISIONS.md.
+  '103213-5': UCUM.MINUTE,
+
+  // Vital signs — unit fixed by the R4 profile, not merely bound.
+  '8867-4': UCUM.PER_MINUTE, // Heart rate
+  '40443-4': UCUM.PER_MINUTE, // Heart rate --resting
+  '103222-6': UCUM.PER_MINUTE, // Heart rate.minimum
+  '8873-2': UCUM.PER_MINUTE, // Heart rate 24 hour maximum
+  '9279-1': UCUM.PER_MINUTE, // Breaths (respiratory rate)
+  '59408-5': UCUM.PERCENT, // Oxygen saturation by pulse oximetry
+  '8310-5': UCUM.CELSIUS, // Body temperature (absolute only)
+  // ucum-bodylength is a *required* binding to exactly {cm, [in_i]}. `mm` and `m`
+  // are both invalid under the profile even though LOINC lists `m` as an example.
+  '8302-2': UCUM.CENTIMETRE, // Body height
+  '29463-7': UCUM.KILOGRAM, // Body weight
+
+  // Activity and fitness.
+  '55423-8': UCUM.STEPS, // Number of steps, unspecified time (interval + effectivePeriod)
+  '41950-7': UCUM.STEPS_PER_DAY, // Number of steps in 24 hour — the 24H time axis
+  //                                requires the per-day denominator
+  '41981-2': UCUM.KILOCALORIE, // Calories burned (point in time — a single activity)
+  '55411-3': UCUM.MINUTE, // Exercise duration
+  '94122-9': UCUM.ML_PER_KG_PER_MIN, // VO2/body weight, peak during exercise
+  '41982-0': UCUM.PERCENT, // Percentage of body fat
+  '77196-4': UCUM.METRE_PER_SECOND // Pulse wave velocity (LOINC example is cm/s;
+  //                                  m/s is commensurable and is what Oura sends)
+};
+
+/**
+ * Codes whose LOINC time axis is 24H and which therefore must not be applied to a
+ * single activity. 41979-6 "Calories burned in 24 hour" is correct for a genuine
+ * daily total with unit `kcal/(24.h)`; for one workout the code is 41981-2.
+ */
+export const DAILY_TOTAL_ONLY = new Set(['41979-6', '41950-7']);

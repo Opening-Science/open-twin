@@ -151,3 +151,13 @@ vite.config.ts.timestamp-*
 #pre-commit
 .pre-commit-config.yaml
 .pre-commit-hooks.yaml
+# vitest junit output
+test.junit.xml
+*.junit.xml
+
+# HL7 validator output
+/out/
+
+# Assessment handover package — reference material, not part of the build
+/open-twin-handover/
+/open-twin-handover.zip
