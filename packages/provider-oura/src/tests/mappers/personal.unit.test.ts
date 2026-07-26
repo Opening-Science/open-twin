@@ -61,7 +61,7 @@ describe('mapOuraPersonalToFHIR', () => {
     expect(weightObservation.code?.coding?.[0]).toMatchObject({ system: SYSTEMS.LOINC, code: '29463-7' });
     expect(weightObservation.valueQuantity).toEqual({
       value: 82.5,
-      unit: 'kilograms',
+      unit: 'kilogram',
       system: SYSTEMS.UCUM,
       code: 'kg'
     });
@@ -81,7 +81,7 @@ describe('mapOuraPersonalToFHIR', () => {
     // even though LOINC lists it as an example unit.
     expect(heightObservation.valueQuantity).toEqual({
       value: 185,
-      unit: 'centimeters',
+      unit: 'centimeter',
       system: SYSTEMS.UCUM,
       code: 'cm'
     });

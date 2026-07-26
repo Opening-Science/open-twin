@@ -86,7 +86,7 @@ describe('mapOuraSessionToFHIR', () => {
           }
         ]
       },
-      valueQuantity: { value: 45, unit: 'milliseconds', system: SYSTEMS.UCUM, code: 'ms' }
+      valueQuantity: { value: 45, unit: 'millisecond', system: SYSTEMS.UCUM, code: 'ms' }
     });
     expect(observation.component).toContainEqual({
       code: {

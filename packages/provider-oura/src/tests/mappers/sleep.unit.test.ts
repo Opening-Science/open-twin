@@ -5,7 +5,7 @@ import { ouraExtensionUrl } from '../../fhir/mappers/shared';
 import { mapOuraSleepToFHIR } from '../../fhir/mappers/sleep';
 import { TEST_CONTEXT, TEST_SUBJECT_REFERENCE } from '../testContext';
 
-const minutes = (value: number) => ({ value, unit: 'minutes', system: SYSTEMS.UCUM, code: 'min' });
+const minutes = (value: number) => ({ value, unit: 'minute', system: SYSTEMS.UCUM, code: 'min' });
 
 describe('mapOuraSleepToFHIR', () => {
   const baseSleep: OuraSleep = {
@@ -163,7 +163,7 @@ describe('mapOuraSleepToFHIR', () => {
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.OURA, code: 'temperature-deviation', display: 'Temperature Deviation' }] },
-      valueQuantity: { value: 0.2, unit: 'Kelvin', system: SYSTEMS.UCUM, code: 'K' }
+      valueQuantity: { value: 0.2, unit: 'degree Kelvin', system: SYSTEMS.UCUM, code: 'K' }
     });
   });
 

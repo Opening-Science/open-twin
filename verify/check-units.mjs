@@ -8,8 +8,8 @@
  *   1. the Quantity declares the UCUM system at all
  *   2. the Quantity declares a unit code at all
  *   3. the code is real UCUM, validated against the published grammar
- *   4. the (unit, code) pair has been reviewed, so a human-readable `unit` cannot
- *      silently disagree with the machine-readable `code`
+ *   4. `Quantity.unit` is UCUM's own name for `Quantity.code`, so the readable and
+ *      machine-readable halves cannot say different things
  *
  * Checks 1 and 2 exist because the previous version of this gate could not see the
  * defect it was written for. It anchored its scan on `SYSTEMS.UCUM`, so a Quantity
@@ -19,10 +19,19 @@
  *
  * Check 4 is the one that matters most. `unit: 'MET-min'` with `code: 'min'`
  * type-checks, validates structurally, and is wrong: a conformant parser discards
- * annotations, so a receiver reads 300 MET-minutes as 300 minutes of activity.
+ * annotations, so a receiver reads 300 MET-minutes as 300 minutes of activity. It
+ * was a per-pair allowlist until 2026-07-26, which recorded that somebody once
+ * agreed a pair was sound — only as good as the care taken that day, and silent
+ * about the next unit anyone adds. Asking UCUM directly cannot go stale and covers
+ * pairs nobody has looked at yet. Codes UCUM leaves unnamed are named exceptions.
+ *
+ * What it still cannot do is tell you the VALUE is in the unit claimed. `1.48 deg`
+ * is structurally perfect whether or not the source sent radians, so pairs whose
+ * real risk is a data defect carry a `guarded_by` note naming the numeric tests
+ * that protect them.
  *
  * Usage:  node verify/check-units.mjs [repoRoot]
- * Exit:   0 every Quantity is well-formed and every pair approved · 1 otherwise
+ * Exit:   0 every Quantity is well-formed, valid and correctly named · 1 otherwise
  */
 
 import { readFileSync } from 'node:fs';
@@ -42,20 +51,11 @@ import {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
-/**
- * `--allow-unreviewed` separates "known to be wrong" from "not yet audited".
- *
- * Both still fail by default. But a pipeline that is red for months because a
- * clinical reviewer has not yet signed off on twenty codes is a pipeline people
- * stop reading, and then a genuinely invalid unit lands unnoticed behind the same
- * red cross. So CI runs this gate twice: once with the flag as a blocking check
- * that no code is known-wrong, and once without it as a visible, non-blocking
- * report of how much review is outstanding.
- *
- * This is not bulk approval. An unreviewed code is still reported, still counted,
- * and still fails the strict run.
- */
-const ALLOW_UNREVIEWED = args.includes('--allow-unreviewed');
+// `--allow-unreviewed` is gone with the backlog it existed for. It waived pairs nobody
+// had signed off, which was a standing exemption with no expiry; the rule is now a
+// lookup against UCUM rather than a signature, so there is no backlog to waive. The
+// flag is still accepted and ignored, so an old invocation does not fail on an
+// unrecognised argument.
 const ROOT = args.find((arg) => !arg.startsWith('--')) ?? join(HERE, '..');
 const ALLOW = JSON.parse(readFileSync(join(HERE, 'units-allowlist.json'), 'utf8'));
 const UCUM_SYSTEM = 'http://unitsofmeasure.org';
@@ -67,9 +67,14 @@ const UCUM_SYSTEM = 'http://unitsofmeasure.org';
  */
 const require = createRequire(import.meta.url);
 let validateUcum;
+let ucumName;
 try {
   const utils = require('@lhncbc/ucum-lhc').UcumLhcUtils.getInstance();
   validateUcum = (code) => utils.validateUnitString(code, false).status === 'valid';
+  // UCUM's published name for a code, used to check `Quantity.unit` says the same
+  // thing as `Quantity.code`. Returns whatever the specification carries — including
+  // nothing, for codes like `%` that UCUM leaves unnamed.
+  ucumName = (code) => utils.validateUnitString(code, true).unit?.name;
 } catch {
   console.error('FAIL: @lhncbc/ucum-lhc is not installed. Run `pnpm install` before the gate.');
   process.exit(1);
@@ -242,37 +247,65 @@ for (const { rel, text } of sources) {
  * sign-off, and `numericComponent` requiring a unit means the compiler enforces
  * that nothing bypasses it.
  */
+/**
+ * Harvest every table of unit constants, wherever it is declared.
+ *
+ * This used to read one table at one hardcoded path. That was blind by construction:
+ * provider-google-health declares GH_UCUM in the same shape for units the shared table
+ * does not carry yet, and its eight entries — including `Hz`, `{floors}` and a second
+ * `mg/dL` — were emitted into real bundles without ever reaching this gate. A rule that
+ * only inspects the table it already knows about cannot report on the one somebody adds.
+ *
+ * An entry counts only when `unit` is a string literal. That is what separates a unit
+ * table from a lookup that merely happens to use the key `code`: GLUCOSE_CODES maps
+ * LOINC codes to units and writes `unit: UCUM.MG_PER_DL`, so harvesting it treated
+ * '2339-0' as a UCUM code and advised the annotation '{2339-0}'.
+ */
+const TABLE = /export const ([A-Z][A-Z0-9_]*)\s*(?::[^=]*)?=\s*\{/g;
+const ENTRY = /^\s{2}([A-Z][A-Z0-9_]*)\s*:\s*\{/gm;
+
+function harvestUnitTables(rel, text) {
+  const masked = maskLiterals(text);
+  const spans = [];
+  TABLE.lastIndex = 0;
+  for (const table of masked.matchAll(TABLE)) {
+    const start = table.index + table[0].length - 1;
+    const end = objectEnd(masked, start);
+    if (end !== -1) spans.push([start, end, table[1]]);
+  }
+  if (spans.length === 0) return [];
+
+  const names = new Set();
+  ENTRY.lastIndex = 0;
+  for (const match of masked.matchAll(ENTRY)) {
+    const start = match.index + match[0].length - 1;
+    const span = spans.find(([from, to]) => start > from && start < to);
+    if (!span) continue;
+    const end = objectEnd(masked, start);
+    if (end === -1) continue;
+    const props = topLevelProps(text, masked, start, end);
+    const unit = stringLiteral(props.get('unit'));
+    const code = stringLiteral(props.get('code'));
+    if (code === null || unit === null) continue; // a lookup table, not a unit table
+    record(pairs, `${unit}|${code}`, { rel, line: lineAt(text, start) });
+    names.add(span[2]);
+  }
+  return [...names];
+}
+
 const shared = readSharedUnits(ROOT);
 if (shared) {
-  const masked = maskLiterals(shared.text);
-  // Only the UCUM table itself. Matching every two-space-indented UPPERCASE key in the
-  // file swept up any other table that happens to use `code:` — GLUCOSE_CODES maps LOINC
-  // codes to units, so its entries were harvested as if '2339-0' were a UCUM code and
-  // reported as fatally invalid, with the gate advising the annotation '{2339-0}'.
-  // A LOINC code is not a UCUM code; the table it lives in decides which it is.
-  const tableStart = masked.indexOf('{', masked.search(/export const UCUM\b/));
-  const tableEnd = tableStart === -1 ? -1 : objectEnd(masked, tableStart);
-  if (tableEnd === -1) {
+  const tables = harvestUnitTables(shared.rel, shared.text);
+  if (!tables.includes('UCUM')) {
     console.error(
-      'FAIL: could not locate the `export const UCUM` table in fhir-core/src/units.ts.\n' +
-        'The shared unit table has moved or been renamed. Refusing to scan a file this\n' +
-        'gate no longer understands.'
+      'FAIL: could not read the `export const UCUM` table in fhir-core/src/units.ts.\n' +
+        'The shared unit table has moved, been renamed, or changed shape. Refusing to\n' +
+        'report on a file this gate no longer understands.'
     );
     process.exit(1);
   }
-  // Entries look like:  MINUTE: { unit: 'minutes', code: 'min' },
-  for (const match of masked.matchAll(/^\s{2}([A-Z][A-Z0-9_]*)\s*:\s*\{/gm)) {
-    const start = match.index + match[0].length - 1;
-    if (start < tableStart || start > tableEnd) continue;
-    const end = objectEnd(masked, start);
-    if (end === -1) continue;
-    const props = topLevelProps(shared.text, masked, start, end);
-    const unit = stringLiteral(props.get('unit'));
-    const code = stringLiteral(props.get('code'));
-    if (code === null) continue;
-    record(pairs, `${unit ?? '(none)'}|${code}`, { rel: shared.rel, line: lineAt(shared.text, start) });
-  }
 }
+for (const { rel, text } of sources) harvestUnitTables(rel, text);
 
 /**
  * A scan that finds nothing is a broken scan, not a clean bill of health. This is
@@ -288,8 +321,28 @@ if (pairs.size === 0) {
   process.exit(1);
 }
 
+/**
+ * The (unit, code) rule, reviewed 2026-07-26: `Quantity.unit` carries UCUM's own name
+ * for the code, so the check is a lookup rather than a judgement.
+ *
+ * This replaces a per-pair allowlist. An allowlist records that somebody once agreed
+ * a pair was sound, which is only as good as the care taken that day and says nothing
+ * about the next unit somebody adds. Asking UCUM directly cannot go stale, cannot be
+ * bulk-approved, and covers pairs nobody has thought about yet.
+ *
+ * An annotation names itself, so `{steps}` would demand the unit "{steps}". The
+ * annotation text is already the human-readable form, so braces come off and the
+ * solidus in a compound like `{steps}/day` is spelled out.
+ */
+const annotated = (name) => name.replace(/[{}]/g, '').replace(/\//g, ' per ');
+const officialName = (code) => {
+  const name = ucumName(code);
+  if (typeof name !== 'string' || name.length === 0) return null;
+  return name.includes('{') ? annotated(name) : name;
+};
+
 const invalid = [];
-const unreviewed = [];
+const mismatched = [];
 const approved = [];
 
 for (const [key, sites] of [...pairs.entries()].sort()) {
@@ -297,7 +350,7 @@ for (const [key, sites] of [...pairs.entries()].sort()) {
   const unit = key.slice(0, separator);
   const code = key.slice(separator + 1);
   const entry = ALLOW.pairs[key];
-  if (!validateUcum(code))
+  if (!validateUcum(code)) {
     invalid.push({
       unit,
       code,
@@ -305,9 +358,23 @@ for (const [key, sites] of [...pairs.entries()].sort()) {
       entry,
       reason: `'${code}' is not a valid UCUM code. Annotations must be braced, e.g. {${code}}.`
     });
-  else if (entry?.status === 'rejected') invalid.push({ unit, code, sites, entry, reason: entry.reason });
-  else if (entry?.status === 'approved') approved.push({ unit, code, sites });
-  else unreviewed.push({ unit, code, sites });
+    continue;
+  }
+  if (entry?.status === 'rejected') {
+    invalid.push({ unit, code, sites, entry, reason: entry.reason });
+    continue;
+  }
+
+  const official = officialName(code);
+  if (official !== null && unit === official) {
+    approved.push({ unit, code, sites, why: 'UCUM name' });
+  } else if (entry?.status === 'exception') {
+    // UCUM publishes no usable name for this code. Named, reasoned, and narrow —
+    // an exception is per-code and must say why, not waive the rule wholesale.
+    approved.push({ unit, code, sites, why: 'recorded exception' });
+  } else {
+    mismatched.push({ unit, code, sites, official });
+  }
 }
 
 const site = (sites) => `${sites[0].rel}:${sites[0].line}${sites.length > 1 ? ` (+${sites.length - 1})` : ''}`;
@@ -400,32 +467,43 @@ if (invalid.length) {
   }
 }
 
-if (unreviewed.length) {
-  console.log(`UNREVIEWED (${unreviewed.length}) — valid UCUM, but the pairing is unsigned:\n`);
-  for (const item of unreviewed) console.log(`  unit '${item.unit}' / code '${item.code}'   ${site(item.sites)}`);
-  console.log('\n  Confirm the human-readable unit describes the same quantity as the UCUM code,');
-  console.log('  then add the pair to verify/units-allowlist.json with status "approved".\n');
+if (mismatched.length) {
+  console.log(`NAME MISMATCH (${mismatched.length}) — Quantity.unit is not UCUM's name for Quantity.code:\n`);
+  for (const item of mismatched) {
+    console.log(`  unit '${item.unit}' / code '${item.code}'   ${site(item.sites)}`);
+    if (item.official === null) {
+      console.log(`      UCUM publishes no name for '${item.code}'.`);
+      console.log('      Record it under "pairs" with status "exception" and a reason.');
+    } else {
+      console.log(`      UCUM says: '${item.official}'`);
+    }
+    console.log('');
+  }
+  console.log("  Quantity.unit carries UCUM's own name for the code, so the readable and");
+  console.log('  machine-readable halves cannot drift. Use the name above verbatim.\n');
 }
 
-if (approved.length) console.log(`APPROVED (${approved.length}).\n`);
+if (approved.length) {
+  const byName = approved.filter((a) => a.why === 'UCUM name').length;
+  const byException = approved.length - byName;
+  console.log(
+    `APPROVED (${approved.length}) — ${byName} carry UCUM's own name` +
+      (byException ? `, ${byException} by recorded exception.\n` : '.\n')
+  );
+}
 
-// Malformed and invalid are always fatal: those Quantities are known to be wrong. A
-// stale waiver is fatal too — it is an exemption nobody withdrew, and leaving it in
-// place would let a future bare Quantity in that file inherit a sign-off written for
-// something else.
-const known = fatalMalformed.length + invalid.length + stale.length;
+// Every category here is fatal, and there is no longer anything to waive: a name is
+// either UCUM's or it is not, so the gate no longer depends on how much review is
+// outstanding. A stale waiver is fatal too — an exemption nobody withdrew would let a
+// future bare Quantity inherit a sign-off written for something else.
+const known = fatalMalformed.length + invalid.length + mismatched.length + stale.length;
 const summary =
-  `${fatalMalformed.length} malformed, ${invalid.length} invalid, ${unreviewed.length} unreviewed` +
+  `${fatalMalformed.length} malformed, ${invalid.length} invalid, ${mismatched.length} name mismatch` +
   (waived.length ? `, ${waived.length} unitless by review` : '') +
   (stale.length ? `, ${stale.length} stale waiver` : '');
 
-if (known || (unreviewed.length && !ALLOW_UNREVIEWED)) {
+if (known) {
   console.log(`FAIL: ${summary}.`);
   process.exit(1);
 }
-if (unreviewed.length) {
-  console.log(`PASS with ${unreviewed.length} unreviewed (--allow-unreviewed): no Quantity is known to be wrong.`);
-  console.log('Run without the flag for the outstanding review list.');
-  process.exit(0);
-}
-console.log('PASS: every UCUM Quantity in use is well-formed, valid and reviewed.');
+console.log('PASS: every UCUM Quantity is well-formed, valid, and named as UCUM names it.');

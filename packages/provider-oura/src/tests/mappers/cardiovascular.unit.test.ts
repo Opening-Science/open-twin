@@ -64,7 +64,7 @@ describe('mapOuraCardiovascularAgeToFHIR', () => {
 
     expect(observation.valueQuantity).toEqual({
       value: 32,
-      unit: 'years',
+      unit: 'year',
       system: SYSTEMS.UCUM,
       code: 'a'
     });
@@ -80,7 +80,7 @@ describe('mapOuraCardiovascularAgeToFHIR', () => {
         code: { coding: [{ system: SYSTEMS.LOINC, code: '77196-4', display: 'Pulse wave velocity' }] },
         valueQuantity: {
           value: 7.5,
-          unit: 'meters per second',
+          unit: 'meter per second',
           system: SYSTEMS.UCUM,
           code: 'm/s'
         }

@@ -55,7 +55,7 @@ describe('mapElectrocardiogramToFHIR', () => {
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'sampling-frequency-hertz', display: 'Sampling frequency' }] },
-      valueQuantity: { value: 250, unit: 'Hz', system: UCUM_SYSTEM, code: 'Hz' }
+      valueQuantity: { value: 250, unit: 'hertz', system: UCUM_SYSTEM, code: 'Hz' }
     });
     // Previously `{ value: 12 }` — a dimensionless magnitude with no way to know what
     // it measures.
@@ -102,11 +102,11 @@ describe('mapExerciseToFHIR', () => {
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'distance', display: 'Distance' }] },
-      valueQuantity: { value: 5000, unit: 'meters', system: UCUM_SYSTEM, code: 'm' }
+      valueQuantity: { value: 5000, unit: 'meter', system: UCUM_SYSTEM, code: 'm' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'elevation-gain', display: 'Elevation gain' }] },
-      valueQuantity: { value: 42, unit: 'meters', system: UCUM_SYSTEM, code: 'm' }
+      valueQuantity: { value: 42, unit: 'meter', system: UCUM_SYSTEM, code: 'm' }
     });
   });
 
@@ -121,7 +121,7 @@ describe('mapExerciseToFHIR', () => {
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: LOINC, code: '41981-2', display: 'Calories burned' }] },
-      valueQuantity: { value: 300, unit: 'kcal', system: UCUM_SYSTEM, code: 'kcal' }
+      valueQuantity: { value: 300, unit: 'kilocalorie', system: UCUM_SYSTEM, code: 'kcal' }
     });
   });
 });
@@ -137,7 +137,7 @@ describe('mapHydrationLogToFHIR', () => {
     ]);
     expect(observation.valueQuantity).toEqual({
       value: 500,
-      unit: 'milliliters',
+      unit: 'milliliter',
       system: UCUM_SYSTEM,
       code: 'mL'
     });
@@ -194,11 +194,11 @@ describe('mapNutritionLogToFHIR', () => {
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'energy', display: 'Energy intake' }] },
-      valueQuantity: { value: 320, unit: 'kcal', system: UCUM_SYSTEM, code: 'kcal' }
+      valueQuantity: { value: 320, unit: 'kilocalorie', system: UCUM_SYSTEM, code: 'kcal' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'total-carbohydrate', display: 'Total carbohydrate' }] },
-      valueQuantity: { value: 54, unit: 'grams', system: UCUM_SYSTEM, code: 'g' }
+      valueQuantity: { value: 54, unit: 'gram', system: UCUM_SYSTEM, code: 'g' }
     });
   });
 });
@@ -241,11 +241,11 @@ describe('mapSleepToFHIR', () => {
     });
     expect(children[1]?.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'duration', display: 'Stage duration' }] },
-      valueQuantity: { value: 90, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 90, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
     expect(children[2]).toMatchObject({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'out-of-bed-segment', display: 'Out of bed segment' }] },
-      valueQuantity: { value: 10, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 10, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
   });
 
@@ -254,11 +254,11 @@ describe('mapSleepToFHIR', () => {
 
     expect(session?.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'minutes-after-wake-up', display: 'Minutes after wake up' }] },
-      valueQuantity: { value: 10, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 10, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
     expect(session?.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'stage-minutes-deep', display: 'Minutes in DEEP' }] },
-      valueQuantity: { value: 90, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 90, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
   });
 
@@ -267,17 +267,17 @@ describe('mapSleepToFHIR', () => {
 
     expect(session?.component).toContainEqual({
       code: { coding: [{ system: LOINC, code: '93832-4', display: 'Sleep duration' }] },
-      valueQuantity: { value: 420, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 420, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
     // LOINC's own example unit for 103213-5 is `/h`, which is dimensionally meaningless
     // for a duration; `min` is emitted pending a term-change request. See DECISIONS.md.
     expect(session?.component).toContainEqual({
       code: { coding: [{ system: LOINC, code: '103213-5', display: 'Duration in bed' }] },
-      valueQuantity: { value: 480, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 480, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
     expect(session?.component).toContainEqual({
       code: { coding: [{ system: LOINC, code: '103212-7', display: 'Duration of falling asleep' }] },
-      valueQuantity: { value: 12, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 12, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
   });
 

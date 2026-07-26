@@ -5,7 +5,6 @@ import {
   codeableConcept,
   createGoogleObservation,
   type DataPointMeta,
-  GH_UCUM,
   ghOptionalNumericComponent,
   ghQuantity,
   gramsToKilograms,
@@ -40,7 +39,7 @@ export function mapBloodGlucoseToFHIR(data: health_v4.Schema$BloodGlucose, meta:
       code: { system: SYSTEMS.LOINC, code: '2339-0', display: 'Glucose [Mass/volume] in Blood' },
       effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
       expectsValue: true,
-      valueQuantity: ghQuantity(toNumber(data.bloodGlucoseMilligramsPerDeciliter), GH_UCUM.MG_PER_DL),
+      valueQuantity: ghQuantity(toNumber(data.bloodGlucoseMilligramsPerDeciliter), UCUM.MG_PER_DL),
       components: [
         stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'meal-type', display: 'Meal type' }, data.mealType),
         stringComponent(

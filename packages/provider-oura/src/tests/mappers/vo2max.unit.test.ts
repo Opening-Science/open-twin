@@ -56,7 +56,7 @@ describe('mapOuraVO2MaxToFHIR', () => {
 
     expect(observation.valueQuantity).toEqual({
       value: 48.5,
-      unit: 'mL/kg/min',
+      unit: 'milliliter per kilogram per minute',
       system: SYSTEMS.UCUM,
       code: 'mL/kg/min'
     });

@@ -193,7 +193,7 @@ describe('getFhirBundleFromBodyloopMeasurementData (integration)', () => {
       const observation = findByCode(bundle, 'torso.shoulder.M');
 
       expect(observation?.code.text).toBe('Shoulder Width');
-      expect(observation?.valueQuantity).toEqual({ value: 0.444, unit: 'meters', system: UCUM, code: 'm' });
+      expect(observation?.valueQuantity).toEqual({ value: 0.444, unit: 'meter', system: UCUM, code: 'm' });
       expect(observation?.component?.map((component) => component.valueQuantity?.value)).toEqual([
         0.444, 0.4435584247112274, 0.0006640702486038208, 0.005529999732971191
       ]);
@@ -219,7 +219,7 @@ describe('getFhirBundleFromBodyloopMeasurementData (integration)', () => {
 
       expect(observation?.valueQuantity).toEqual({
         value: 1.0411115884780884,
-        unit: 'meters',
+        unit: 'meter',
         system: UCUM,
         code: 'm'
       });

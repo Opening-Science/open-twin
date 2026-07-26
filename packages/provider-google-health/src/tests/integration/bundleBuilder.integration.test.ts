@@ -151,7 +151,7 @@ describe('buildBundleFromResponses (integration)', () => {
     const distance = byCode(observations, 'distance');
 
     expect(distance?.status).toBe('final');
-    expect(distance?.valueQuantity?.unit).toBe('meters');
+    expect(distance?.valueQuantity?.unit).toBe('meter');
     expect(distance?.valueQuantity?.system).toBe('http://unitsofmeasure.org');
     expect(distance?.device).toEqual({ display: 'MobileTrack' });
     // DERIVED says the number was estimated, not measured. It used to be dropped, so a

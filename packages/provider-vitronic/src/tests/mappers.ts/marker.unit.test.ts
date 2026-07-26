@@ -44,15 +44,15 @@ describe('mapMarkerToFHIR', () => {
     expect(observation.component).toEqual([
       {
         code: { coding: [{ system: VITRONIC, code: 'marker/knee.x', display: 'Position, x coordinate' }] },
-        valueQuantity: { value: 1, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 1, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: { coding: [{ system: VITRONIC, code: 'marker/knee.y', display: 'Position, y coordinate' }] },
-        valueQuantity: { value: 2, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 2, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: { coding: [{ system: VITRONIC, code: 'marker/knee.z', display: 'Position, z coordinate' }] },
-        valueQuantity: { value: 3, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 3, unit: 'meter', system: UCUM, code: 'm' }
       }
     ]);
   });

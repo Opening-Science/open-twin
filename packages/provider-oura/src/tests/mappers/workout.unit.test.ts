@@ -61,7 +61,7 @@ describe('mapOuraWorkoutToFHIR', () => {
     // example unit kcal, which is one activity.
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.LOINC, code: '41981-2', display: 'Calories burned' }] },
-      valueQuantity: { value: 500, unit: 'kcal', system: SYSTEMS.UCUM, code: 'kcal' }
+      valueQuantity: { value: 500, unit: 'kilocalorie', system: SYSTEMS.UCUM, code: 'kcal' }
     });
     expect(JSON.stringify(observation)).not.toContain('41979-6');
   });
@@ -73,7 +73,7 @@ describe('mapOuraWorkoutToFHIR', () => {
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.OURA, code: 'workout-distance', display: 'Workout Distance' }] },
-      valueQuantity: { value: 5, unit: 'meters', system: SYSTEMS.UCUM, code: 'm' }
+      valueQuantity: { value: 5, unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
     });
   });
 

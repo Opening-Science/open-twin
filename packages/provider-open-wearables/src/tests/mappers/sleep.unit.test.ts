@@ -47,7 +47,7 @@ describe('mapSleepSession', () => {
     const observation = mapSleepSession(session({ sleep_duration_seconds: 27000 }), context);
     expect(observation.valueQuantity).toEqual({
       value: 450,
-      unit: 'minutes',
+      unit: 'minute',
       system: SYSTEMS.UCUM,
       code: 'min'
     });
@@ -74,7 +74,7 @@ describe('mapSleepSession', () => {
     const observation = mapSleepSession(session(), context);
     expect(component(observation, '93831-6')?.valueQuantity).toEqual({
       value: 90,
-      unit: 'minutes',
+      unit: 'minute',
       system: SYSTEMS.UCUM,
       code: 'min'
     });

@@ -2,17 +2,24 @@
   "_readme": [
     "Reviewed (unit, code) pairs for Quantities emitted against the UCUM system.",
     "Key format is \"<unit>|<code>\", where unit is the human-readable Quantity.unit",
-    "and code is the machine-readable Quantity.code. '(none)' means Quantity.unit",
-    "was absent, which is itself usually a defect.",
+    "and code is the machine-readable Quantity.code.",
     "",
-    "status 'approved' -> a human confirmed the unit and the code describe the same",
-    "                     quantity, and that this is what the source API actually sends.",
-    "status 'rejected' -> the pair is wrong. Fails the gate with the recorded reason.",
-    "Anything absent  -> unreviewed. Fails the gate.",
+    "The rule, decided 2026-07-26: Quantity.unit carries UCUM's OWN name for the code.",
+    "check-units.mjs verifies that against @lhncbc/ucum-lhc, so a correct pair needs no",
+    "entry here at all \u2014 the gate looks the name up rather than trusting a signature.",
+    "That is why this file is short and does not grow with the codebase.",
     "",
-    "The rejected entries below were verified during the July 2026 assessment.",
-    "The rest of the repository's pairs are deliberately absent so the gate fails",
-    "until each one is signed off. Do not bulk-approve.",
+    "status 'rejected'  -> the pair is wrong. Fatal, with the recorded reason. These are",
+    "                      kept after the defect is fixed, as regression guards.",
+    "status 'exception' -> UCUM publishes no usable name for this code, so the rule",
+    "                      cannot be applied. Must say why. Per-code and narrow.",
+    "status 'approved'  -> historical note on a pair that now passes the name check on",
+    "                      its own. Kept for the record, not consulted by the gate.",
+    "",
+    "A unit gate compares a label to a code. It cannot see that the VALUE is in a",
+    "different scale \u2014 1.48 deg is structurally perfect whether or not the source sent",
+    "radians. Pairs whose real risk is a data defect carry a 'guarded_by' note naming",
+    "the numeric tests that protect them. Deleting those tests removes the protection.",
     "",
     "\"unitless\" records Quantities that carry a value and deliberately no unit, keyed",
     "by file. A missing unit is normally a defect, so an entry here needs a reason and",
@@ -38,10 +45,10 @@
       "reviewed": "2026-07-25 assessment"
     },
     "degree|deg": {
-      "status": "approved",
-      "reason": "UCUM Table 5 defines deg as [pi].rad/360, so 'degree'/'deg' is a correct pair. This entry was previously 'rejected', but what it actually flagged was a DATA defect, not a unit defect: VITRONIC emitted radian values under it. That conversion now happens in provider-vitronic (radiansToDegrees), so the pair itself is sound.",
-      "guarded_by": "A unit gate cannot detect a value in the wrong scale \u2014 1.48 deg is structurally perfect. The guard against a regression is numeric: provider-vitronic asserts a known angle reads ~84.89 degrees, and fhir-core asserts 1 rad converts to 57.2957795 deg via @lhncbc/ucum-lhc. If those tests are ever deleted, this pair loses its protection.",
-      "reviewed": "2026-07-26, verified against the UCUM specification Table 5"
+      "status": "exception",
+      "reason": "UCUM publishes the name of 'deg' as \"degree - plane angle\". That trailing phrase disambiguates it from degrees of temperature in UCUM's own tables; it is not part of the unit's name, and putting it in Quantity.unit would read as a unit nobody uses. 'degree' is the name with the disambiguator removed.",
+      "guarded_by": "A unit gate cannot detect a value in the wrong scale \u2014 1.48 deg is structurally perfect. The guard is numeric: provider-vitronic asserts a known angle reads ~84.89 degrees, and fhir-core asserts 1 rad converts to 57.2957795 deg via @lhncbc/ucum-lhc. This pair was 'rejected' until that conversion existed; what it flagged was a DATA defect, not a unit defect. If those tests are deleted, this pair loses its protection.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "\u00b0C|Cel": {
       "status": "rejected",
@@ -51,11 +58,25 @@
       "reviewed": "2026-07-25 assessment"
     },
     "meter|m": {
-      "status": "rejected",
-      "reason": "Applied to cross-section AREA values, which are emitted as 'm2' at the top level of the same resource. The same number appears twice, once as an area and once as a length.",
-      "suggested": "Areas are 'm2' throughout. Remove the length-coded duplicates.",
-      "found_at": "packages/provider-vitronic/src/fhir/mappers/crosssection.ts:25-35",
-      "reviewed": "2026-07-25 assessment"
+      "status": "approved",
+      "reason": "'meter' is UCUM's own name for 'm', so this now passes the name check unaided. The entry is kept as a record: it was 'rejected' because provider-vitronic applied it to cross-section AREA values, which were also emitted as 'm2' at the top level of the same resource \u2014 the same number appearing once as an area and once as a length. That was a DATA defect, not a unit defect, and a unit gate cannot express \"correct for a length, wrong for an area\".",
+      "guarded_by": "provider-vitronic now applies METRE only to circumference and distanceFromRoot, and SQUARE_METRE to areas. The guard is in the tests that pin areas to 'm2': crosssection.unit.test.ts and bundleBuilder.integration.test.ts.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "%|%": {
+      "status": "exception",
+      "reason": "UCUM defines '%' as a real unit atom (Table 3, = 10*-2) but publishes no name for it, so the name rule has nothing to check against. '%' is its own readable form. The consequence that matters is the scale: because '%' is a true atom rather than an annotation, 95% is sent as 95 and never as 0.95. Do not write '{percent}'.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "1|1": {
+      "status": "exception",
+      "reason": "The UCUM unity. UCUM names it '1', which is the code itself, so the name rule is vacuous here. Used only where the quantity is genuinely dimensionless: heartbeat entropy, VO2max covariance, surface-normal vector components, and allelic frequency under LOINC 81258-6, whose property is NFr \u2014 a number fraction in [0,1], never a percentage. Bare '1' was chosen over an annotation because these are dimensionless in fact, not merely unlabelled.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "US ring size|{ring_size}": {
+      "status": "exception",
+      "reason": "UCUM annotations cannot contain a space \u2014 '{US ring size}' is rejected by the grammar \u2014 so the code has to stay the machine token '{ring_size}', whose stripped name is 'ring_size'. The readable form names the sizing scale, and a ring size without it is not interpretable: US 8 and EU 57 are the same ring. The annotation carries no meaning to a receiver either way, since a conformant parser discards it and reads the unity.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     }
   },
   "unitless": {

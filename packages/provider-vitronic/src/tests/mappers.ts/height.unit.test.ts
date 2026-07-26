@@ -39,7 +39,7 @@ describe('mapHeightToFHIR', () => {
       },
       subject: SUBJECT,
       effectiveDateTime: RECORDED_AT,
-      valueQuantity: { value: 1.75, unit: 'meters', system: UCUM, code: 'm' }
+      valueQuantity: { value: 1.75, unit: 'meter', system: UCUM, code: 'm' }
     });
   });
 
