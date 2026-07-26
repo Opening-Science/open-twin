@@ -161,3 +161,6 @@ test.junit.xml
 # Assessment handover package — reference material, not part of the build
 /open-twin-handover/
 /open-twin-handover.zip
+
+# Generated from verify/conformance/declarations.json by build-conformance.mjs
+/verify/conformance/generated/

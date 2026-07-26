@@ -1,0 +1,168 @@
+{
+  "_readme": [
+    "Every extension and code system open-twin invents must be declared here.",
+    "",
+    "The HL7 validator treats an unresolvable EXTENSION as an error, not a warning \u2014",
+    "unlike an unresolvable CodeSystem, which is only a warning. So an extension that",
+    "nobody has declared fails the build, and the validator itself is the gate: there",
+    "is no separate script to keep in sync.",
+    "",
+    "This is the beginning of the implementation guide. Publishing it properly (with",
+    "SUSHI and the IG Publisher) is tracked as connector-completion work; these",
+    "generated definitions exist so that CI can validate today rather than after the",
+    "IG lands.",
+    "",
+    "Adding an entry is a deliberate act. If a connector wants a new extension, it",
+    "declares it here with what it means and what it attaches to."
+  ],
+  "canonicalBase": "http://opentwin.ch/fhir",
+  "codeSystems": [
+    {
+      "id": "oura",
+      "title": "Oura vendor concepts",
+      "description": "Measures reported by the Oura Ring v2 API that have no verified LOINC or SNOMED CT concept."
+    },
+    {
+      "id": "google-health",
+      "title": "Google Health vendor concepts",
+      "description": "Measures reported by the Google Health API v4 that have no verified LOINC or SNOMED CT concept."
+    },
+    {
+      "id": "vitronic",
+      "title": "VITRONIC BodyLoop vendor concepts",
+      "description": "Body-scan measurement paths reported by the VITRONIC BodyLoop scanner. No standard terminology covers 3D anthropometry."
+    },
+    {
+      "id": "connector",
+      "title": "open-twin connector identity",
+      "description": "Identifies which connector produced a bundle, and at which version, so output generated before a correction can be told apart from output generated after it."
+    }
+  ],
+  "extensions": [
+    {
+      "id": "oura-personal-age",
+      "type": "integer",
+      "context": ["Patient"],
+      "title": "Oura reported age",
+      "description": "Age in years as reported by Oura. Oura supplies no date of birth; a birthDate was previously derived from this and is not, which is why the age is carried as-is."
+    },
+    {
+      "id": "oura-sleep-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura sleep day",
+      "description": "The calendar day Oura assigns a sleep period to, which is not necessarily the day the period started."
+    },
+    {
+      "id": "oura-heart-rate-source",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura heart rate source",
+      "description": "Which Oura context produced a heart-rate sample, e.g. awake, rest, sleep, workout."
+    },
+    {
+      "id": "oura-heart-rate-timestamp-unix",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura heart rate unix timestamp",
+      "description": "Oura's own unix timestamp for the sample, in milliseconds. Retained verbatim because it is documented in milliseconds while a sibling field is in seconds, and conflating them is a 1000x error."
+    },
+    {
+      "id": "oura-workout-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout day",
+      "description": "The calendar day Oura assigns a workout to."
+    },
+    {
+      "id": "oura-workout-label",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout label",
+      "description": "The user's free-text label for a workout."
+    },
+    {
+      "id": "oura-workout-intensity",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout intensity",
+      "description": "Oura's intensity classification: easy, moderate or hard."
+    },
+    {
+      "id": "oura-workout-source",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout source",
+      "description": "How the workout was recorded: manual, autodetected, confirmed or workout_heart_rate."
+    },
+    {
+      "id": "oura-ring-id",
+      "type": "string",
+      "context": ["Device", "Observation"],
+      "title": "Oura ring configuration id",
+      "description": "Identifier of the ring configuration record a resource was derived from. Allowed on Observation as well as Device because sleep Observations carry the ring that produced them: declaring it Device-only surfaced that mismatch, which is the point of declaring it at all. Observation.device is the primary link; this extension survives for the case where no Device resource was built."
+    },
+    {
+      "id": "oura-ring-color",
+      "type": "string",
+      "context": ["Device"],
+      "title": "Oura ring colour",
+      "description": "Cosmetic finish of the ring, as reported by Oura."
+    },
+    {
+      "id": "oura-ring-design",
+      "type": "string",
+      "context": ["Device"],
+      "title": "Oura ring design",
+      "description": "Design variant of the ring, as reported by Oura."
+    },
+    {
+      "id": "vitronic-hidden",
+      "type": "boolean",
+      "context": ["Observation"],
+      "title": "VITRONIC measurement hidden",
+      "description": "True when the scanner operator suppressed this measurement. Carried rather than dropped because a suppressed measurement published as status 'final' with no indication is worse than one a receiver can filter. Whether it should instead downgrade Observation.status needs clinical review."
+    },
+    {
+      "id": "vitronic-marker-type",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "VITRONIC marker type",
+      "description": "The scanner's classification of an anatomical landmark."
+    },
+    {
+      "id": "vitronic-skeleton-series-path",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "VITRONIC skeleton series path",
+      "description": "Path identifying the skeleton series a cross-section was taken from, so a measurement can be traced back to its landmarks."
+    },
+    {
+      "id": "google-health-data-source",
+      "type": "complex",
+      "context": ["Observation"],
+      "title": "Google Health data source",
+      "description": "Provenance of a data point: which application, platform and recording method produced it. This is what lets a consumer decide whether an Oura heart rate and a Google Health heart rate are comparable, which is the reason this project exists.",
+      "subExtensions": [
+        {
+          "id": "application",
+          "type": "string",
+          "title": "Source application",
+          "description": "The application that wrote the data point."
+        },
+        {
+          "id": "platform",
+          "type": "code",
+          "title": "Source platform",
+          "description": "The platform the data point originated on, e.g. FITBIT."
+        },
+        {
+          "id": "recordingMethod",
+          "type": "code",
+          "title": "Recording method",
+          "description": "How the value was recorded: measured, manually entered, or automatically recorded."
+        }
+      ]
+    }
+  ]
+}
