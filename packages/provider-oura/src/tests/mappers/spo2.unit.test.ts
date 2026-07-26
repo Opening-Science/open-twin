@@ -67,7 +67,7 @@ describe('mapOuraSpo2ToFHIR', () => {
       code: {
         coding: [{ system: SYSTEMS.OURA, code: 'breathing-disturbance-index', display: 'Breathing Disturbance Index' }]
       },
-      valueQuantity: { value: 4, unit: 'events per hour', system: SYSTEMS.UCUM, code: '/h' }
+      valueQuantity: { value: 4, unit: 'per hour', system: SYSTEMS.UCUM, code: '/h' }
     });
   });
 

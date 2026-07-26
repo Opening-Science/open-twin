@@ -143,7 +143,7 @@ describe('mapOuraDailyActivityToFHIR', () => {
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.OURA, code: 'sedentary-time', display: 'Sedentary Time' }] },
-      valueQuantity: { value: 600, unit: 'minutes', system: SYSTEMS.UCUM, code: 'min' }
+      valueQuantity: { value: 600, unit: 'minute', system: SYSTEMS.UCUM, code: 'min' }
     });
   });
 

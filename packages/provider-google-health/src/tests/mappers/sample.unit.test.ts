@@ -48,7 +48,7 @@ describe('mapBloodGlucoseToFHIR', () => {
       // the unit agree; 15074-8 would require mmol/L.
       code: { coding: [{ system: LOINC, code: '2339-0', display: 'Glucose [Mass/volume] in Blood' }] },
       effectiveDateTime: '2026-06-20T12:00:00Z',
-      valueQuantity: { value: 120, unit: 'mg/dL', system: UCUM_SYSTEM, code: 'mg/dL' },
+      valueQuantity: { value: 120, unit: 'milligram per deciliter', system: UCUM_SYSTEM, code: 'mg/dL' },
       note: [{ text: 'Fasting blood glucose measurement' }]
     });
   });
@@ -91,7 +91,7 @@ describe('mapCoreBodyTemperatureToFHIR', () => {
 
     expect(observation).toMatchObject({
       code: { coding: [{ system: LOINC, code: '8310-5', display: 'Body temperature' }] },
-      valueQuantity: { value: 37.5, unit: 'degrees Celsius', system: UCUM_SYSTEM, code: 'Cel' },
+      valueQuantity: { value: 37.5, unit: 'degree Celsius', system: UCUM_SYSTEM, code: 'Cel' },
       component: [
         {
           code: { coding: [{ system: GOOGLE_HEALTH, code: 'measurement-location', display: 'Measurement location' }] },
@@ -199,13 +199,13 @@ describe('mapHeartRateVariabilityToFHIR', () => {
 
     expect(observation).toMatchObject({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-variability', display: 'Heart rate variability' }] },
-      valueQuantity: { value: 50, unit: 'milliseconds', system: UCUM_SYSTEM, code: 'ms' },
+      valueQuantity: { value: 50, unit: 'millisecond', system: UCUM_SYSTEM, code: 'ms' },
       component: [
         {
           code: {
             coding: [{ system: GOOGLE_HEALTH, code: 'standard-deviation', display: 'HRV standard deviation (SDNN)' }]
           },
-          valueQuantity: { value: 45, unit: 'milliseconds', system: UCUM_SYSTEM, code: 'ms' }
+          valueQuantity: { value: 45, unit: 'millisecond', system: UCUM_SYSTEM, code: 'ms' }
         }
       ]
     });
@@ -229,7 +229,7 @@ describe('mapHeightToFHIR', () => {
     // binding violation that a validating receiver rejects.
     expect(observation).toMatchObject({
       code: { coding: [{ system: LOINC, code: '8302-2', display: 'Body height' }] },
-      valueQuantity: { value: 175, unit: 'centimeters', system: UCUM_SYSTEM, code: 'cm' }
+      valueQuantity: { value: 175, unit: 'centimeter', system: UCUM_SYSTEM, code: 'cm' }
     });
     expect(observation.meta?.profile).toContain('http://hl7.org/fhir/StructureDefinition/bodyheight');
   });
@@ -351,7 +351,7 @@ describe('VO2 max under LOINC 94122-9', () => {
 
     expect(observation.valueQuantity).toEqual({
       value: 50,
-      unit: 'mL/kg/min',
+      unit: 'milliliter per kilogram per minute',
       system: UCUM_SYSTEM,
       code: 'mL/kg/min'
     });
@@ -369,7 +369,7 @@ describe('mapWeightToFHIR', () => {
 
     expect(observation).toMatchObject({
       code: { coding: [{ system: LOINC, code: '29463-7', display: 'Body weight' }] },
-      valueQuantity: { value: 70, unit: 'kilograms', system: UCUM_SYSTEM, code: 'kg' }
+      valueQuantity: { value: 70, unit: 'kilogram', system: UCUM_SYSTEM, code: 'kg' }
     });
     expect(observation.meta?.profile).toContain('http://hl7.org/fhir/StructureDefinition/bodyweight');
   });

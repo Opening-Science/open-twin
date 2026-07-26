@@ -31,10 +31,11 @@ export const CONNECTOR = { connector: 'google-health', version: '0.1.0' } as con
  * nothing else. Reported as a shared change rather than made unilaterally.
  */
 export const GH_UCUM = {
-  /** Google sends blood glucose as `bloodGlucoseMilligramsPerDeciliter`, i.e. mass concentration. */
-  MG_PER_DL: { unit: 'mg/dL', code: 'mg/dL' },
-  MILLILITRE: { unit: 'milliliters', code: 'mL' },
-  HERTZ: { unit: 'Hz', code: 'Hz' },
+  // MG_PER_DL was declared here as well as in the shared table, against this file's own
+  // rule — two definitions of one unit, free to drift apart. Blood glucose now uses
+  // `UCUM.MG_PER_DL`; see `glucoseCodeFor`, where the unit selects the LOINC code.
+  MILLILITRE: { unit: 'milliliter', code: 'mL' },
+  HERTZ: { unit: 'hertz', code: 'Hz' },
   // UCUM section 6: countable things are the unity carrying an annotation. A bare
   // `floors` is not a UCUM symbol and a validating server rejects it.
   FLOORS: { unit: 'floors', code: '{floors}' },

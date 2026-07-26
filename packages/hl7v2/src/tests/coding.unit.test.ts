@@ -163,7 +163,7 @@ describe('the LOINC code drives the unit policy, and a local code must not', () 
     const observation = convert('OBX|1|NM|8302-2^Body Height^LN||1.9|m^meter^UCUM|||||F|');
     expect(observation.valueQuantity).toEqual({
       value: 190,
-      unit: 'centimeters',
+      unit: 'centimeter',
       system: SYSTEMS.UCUM,
       code: 'cm'
     });

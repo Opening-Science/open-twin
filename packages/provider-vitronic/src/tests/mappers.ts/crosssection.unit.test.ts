@@ -43,7 +43,7 @@ describe('mapCrossSectionToFHIR', () => {
         text: 'Waist'
       },
       subject: SUBJECT,
-      valueQuantity: { value: 0.8, unit: 'meters', system: UCUM, code: 'm' }
+      valueQuantity: { value: 0.8, unit: 'meter', system: UCUM, code: 'm' }
     });
   });
 
@@ -67,7 +67,7 @@ describe('mapCrossSectionToFHIR', () => {
             }
           ]
         },
-        valueQuantity: { value: 0.8, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.8, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: {
@@ -79,19 +79,19 @@ describe('mapCrossSectionToFHIR', () => {
             }
           ]
         },
-        valueQuantity: { value: 0.82, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.82, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: {
           coding: [{ system: VITRONIC, code: 'crosssection/waist#convex-area', display: 'Area (Convex hull)' }]
         },
-        valueQuantity: { value: 0.15, unit: 'square meters', system: UCUM, code: 'm2' }
+        valueQuantity: { value: 0.15, unit: 'square meter', system: UCUM, code: 'm2' }
       },
       {
         code: {
           coding: [{ system: VITRONIC, code: 'crosssection/waist#perimeter-area', display: 'Area (Skin perimeter)' }]
         },
-        valueQuantity: { value: 0.16, unit: 'square meters', system: UCUM, code: 'm2' }
+        valueQuantity: { value: 0.16, unit: 'square meter', system: UCUM, code: 'm2' }
       },
       {
         code: {
@@ -103,7 +103,7 @@ describe('mapCrossSectionToFHIR', () => {
             }
           ]
         },
-        valueQuantity: { value: 0.5, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.5, unit: 'meter', system: UCUM, code: 'm' }
       }
     ]);
   });
@@ -118,7 +118,7 @@ describe('mapCrossSectionToFHIR', () => {
     ]);
     // The area is genuinely absent; the circumference is not, so value[x] stays
     // present and no Quantity with a unit and no value is emitted.
-    expect(observation.valueQuantity).toEqual({ value: 0.8, unit: 'meters', system: UCUM, code: 'm' });
+    expect(observation.valueQuantity).toEqual({ value: 0.8, unit: 'meter', system: UCUM, code: 'm' });
     expect(observation.dataAbsentReason).toBeUndefined();
   });
 

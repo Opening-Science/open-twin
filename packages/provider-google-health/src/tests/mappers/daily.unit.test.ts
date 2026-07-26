@@ -54,7 +54,7 @@ describe('mapDailyHeartRateVariabilityToFHIR', () => {
       code: {
         coding: [{ system: GOOGLE_HEALTH, code: 'average-heart-rate-variability', display: 'Average HRV (RMSSD)' }]
       },
-      valueQuantity: { value: 45, unit: 'milliseconds', system: UCUM_SYSTEM, code: 'ms' }
+      valueQuantity: { value: 45, unit: 'millisecond', system: UCUM_SYSTEM, code: 'ms' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'entropy', display: 'Heartbeat entropy' }] },
@@ -228,11 +228,11 @@ describe('mapDailySleepTemperatureDerivationsToFHIR', () => {
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'nightly-temperature', display: 'Nightly skin temperature' }] },
-      valueQuantity: { value: 36.5, unit: 'degrees Celsius', system: UCUM_SYSTEM, code: 'Cel' }
+      valueQuantity: { value: 36.5, unit: 'degree Celsius', system: UCUM_SYSTEM, code: 'Cel' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'baseline-temperature', display: 'Baseline skin temperature' }] },
-      valueQuantity: { value: 36.2, unit: 'degrees Celsius', system: UCUM_SYSTEM, code: 'Cel' }
+      valueQuantity: { value: 36.2, unit: 'degree Celsius', system: UCUM_SYSTEM, code: 'Cel' }
     });
   });
 
@@ -251,7 +251,7 @@ describe('mapDailySleepTemperatureDerivationsToFHIR', () => {
           }
         ]
       },
-      valueQuantity: { value: 0.3, unit: 'Kelvin', system: UCUM_SYSTEM, code: 'K' }
+      valueQuantity: { value: 0.3, unit: 'degree Kelvin', system: UCUM_SYSTEM, code: 'K' }
     });
   });
 
@@ -276,7 +276,7 @@ describe('mapDailyVo2MaxToFHIR', () => {
     });
     expect(observation.valueQuantity).toEqual({
       value: 42,
-      unit: 'mL/kg/min',
+      unit: 'milliliter per kilogram per minute',
       system: UCUM_SYSTEM,
       code: 'mL/kg/min'
     });

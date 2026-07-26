@@ -581,7 +581,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 1.0411115884780884,
             },
           },
@@ -598,7 +598,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 1.2969887256622314,
             },
           },
@@ -615,7 +615,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m2",
               "system": "http://unitsofmeasure.org",
-              "unit": "square meters",
+              "unit": "square meter",
               "value": 0.08067300915718079,
             },
           },
@@ -632,7 +632,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m2",
               "system": "http://unitsofmeasure.org",
-              "unit": "square meters",
+              "unit": "square meter",
               "value": 0.07914557307958603,
             },
           },
@@ -649,7 +649,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 1.0277,
             },
           },
@@ -694,7 +694,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
         "valueQuantity": {
           "code": "m",
           "system": "http://unitsofmeasure.org",
-          "unit": "meters",
+          "unit": "meter",
           "value": 1.0411115884780884,
         },
       },
@@ -740,7 +740,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.444,
             },
           },
@@ -757,7 +757,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.4435584247112274,
             },
           },
@@ -774,7 +774,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.0006640702486038208,
             },
           },
@@ -791,7 +791,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.005529999732971191,
             },
           },
@@ -838,7 +838,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
         "valueQuantity": {
           "code": "m",
           "system": "http://unitsofmeasure.org",
-          "unit": "meters",
+          "unit": "meter",
           "value": 0.444,
         },
       },
@@ -884,7 +884,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.359,
             },
           },
@@ -901,7 +901,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.359340563416481,
             },
           },
@@ -918,7 +918,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.0023319795727729797,
             },
           },
@@ -935,7 +935,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.0022823214530944824,
             },
           },
@@ -982,7 +982,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
         "valueQuantity": {
           "code": "m",
           "system": "http://unitsofmeasure.org",
-          "unit": "meters",
+          "unit": "meter",
           "value": 0.359,
         },
       },
@@ -1054,7 +1054,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
         "valueQuantity": {
           "code": "m",
           "system": "http://unitsofmeasure.org",
-          "unit": "meters",
+          "unit": "meter",
           "value": 1.7523504638671,
         },
       },
@@ -1100,7 +1100,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": -0.1600305587053299,
             },
           },
@@ -1117,7 +1117,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 0.1278497874736786,
             },
           },
@@ -1134,7 +1134,7 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "valueQuantity": {
               "code": "m",
               "system": "http://unitsofmeasure.org",
-              "unit": "meters",
+              "unit": "meter",
               "value": 1.4873504638671875,
             },
           },
