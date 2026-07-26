@@ -18,6 +18,7 @@ import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBu
 import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
+import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -190,5 +191,6 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'oura-sync', build: ouraBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
   { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
-  { name: 'fhir-r4-ingest', build: fhirR4IngestBundle }
+  { name: 'fhir-r4-ingest', build: fhirR4IngestBundle },
+  { name: 'hl7v2-oru-r01', build: hl7v2OruBundle }
 ];
