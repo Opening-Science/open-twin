@@ -12,7 +12,6 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
-import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -97,11 +96,4 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
-<<<<<<< HEAD
-export const BUNDLE_CASES: BundleCase[] = [
-  { name: 'fhir-core-exemplar', build: exemplar },
-  { name: 'oura-sync', build: ouraBundle }
-];
-=======
 export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
->>>>>>> open-twin/foundation
