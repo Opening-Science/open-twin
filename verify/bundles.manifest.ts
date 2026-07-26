@@ -20,6 +20,7 @@ import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/t
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
+import { openWearablesBundle } from '../packages/provider-open-wearables/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -194,5 +195,6 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
   { name: 'fhir-r4-ingest', build: fhirR4IngestBundle },
   { name: 'hl7v2-oru-r01', build: hl7v2OruBundle },
-  { name: 'genomics-vcf-hiseq', build: genomicsVcfBundle }
+  { name: 'genomics-vcf-hiseq', build: genomicsVcfBundle },
+  { name: 'open-wearables-sync', build: openWearablesBundle }
 ];
