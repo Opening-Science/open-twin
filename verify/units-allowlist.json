@@ -14,7 +14,6 @@
     "The rest of the repository's pairs are deliberately absent so the gate fails",
     "until each one is signed off. Do not bulk-approve."
   ],
-
   "pairs": {
     "steps|steps": {
       "status": "rejected",
@@ -31,13 +30,12 @@
       "reviewed": "2026-07-25 assessment"
     },
     "degree|deg": {
-      "status": "rejected",
-      "reason": "The unit and code agree with each other, but not with the data. The VITRONIC API returns radians: in the committed snapshot primary + supplementary equals exactly pi. Values are published 57.3x too small.",
-      "suggested": "Convert radians to degrees before emitting, or keep the source value and use code 'rad'.",
-      "found_at": "packages/provider-vitronic/src/fhir/mappers/angle.ts:12,17,22 and axes.ts, marker.ts",
-      "reviewed": "2026-07-25 assessment"
+      "status": "approved",
+      "reason": "UCUM Table 5 defines deg as [pi].rad/360, so 'degree'/'deg' is a correct pair. This entry was previously 'rejected', but what it actually flagged was a DATA defect, not a unit defect: VITRONIC emitted radian values under it. That conversion now happens in provider-vitronic (radiansToDegrees), so the pair itself is sound.",
+      "guarded_by": "A unit gate cannot detect a value in the wrong scale \u2014 1.48 deg is structurally perfect. The guard against a regression is numeric: provider-vitronic asserts a known angle reads ~84.89 degrees, and fhir-core asserts 1 rad converts to 57.2957795 deg via @lhncbc/ucum-lhc. If those tests are ever deleted, this pair loses its protection.",
+      "reviewed": "2026-07-26, verified against the UCUM specification Table 5"
     },
-    "°C|Cel": {
+    "\u00b0C|Cel": {
       "status": "rejected",
       "reason": "Used for a temperature deviation, not an absolute temperature. UCUM 'Cel' denotes a point on the Celsius scale; a difference is 'K'.",
       "suggested": "unit 'Kelvin', code 'K' for deviations.",

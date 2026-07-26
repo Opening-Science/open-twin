@@ -35,7 +35,19 @@ import {
 } from './lib/scan.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = process.argv[2] ?? join(HERE, '..');
+const args = process.argv.slice(2);
+/**
+ * `--allow-unreviewed` separates a code that is known to mean the wrong thing from
+ * one that nobody has checked yet. Both still fail by default; see the same flag in
+ * check-units.mjs for why CI runs this gate twice.
+ *
+ * The distinction matters here more than anywhere: clearing the unreviewed list
+ * requires a clinical terminology reviewer, which is weeks of a person's attention,
+ * not a code change. Blocking every merge on it until then would guarantee the red
+ * cross gets ignored — and a `rejected` code is exactly what must not be ignored.
+ */
+const ALLOW_UNREVIEWED = args.includes('--allow-unreviewed');
+const ROOT = args.find((arg) => !arg.startsWith('--')) ?? join(HERE, '..');
 const ALLOWLIST = JSON.parse(readFileSync(join(HERE, 'terminology-allowlist.json'), 'utf8'));
 
 /** system URI (or the SYSTEMS.* constant naming it) -> code system label */
@@ -136,9 +148,15 @@ if (unreviewed.length) {
 
 if (approved.length) console.log(`APPROVED (${approved.length}) — reviewed and recorded.\n`);
 
-const failures = rejected.length + unreviewed.length;
-if (failures) {
+// A rejected code is always fatal: someone has established that it means something
+// other than what the mapper sends.
+if (rejected.length || (unreviewed.length && !ALLOW_UNREVIEWED)) {
   console.log(`FAIL: ${rejected.length} rejected, ${unreviewed.length} unreviewed.`);
   process.exit(1);
+}
+if (unreviewed.length) {
+  console.log(`PASS with ${unreviewed.length} unreviewed (--allow-unreviewed): no code is known to be wrong.`);
+  console.log('Run without the flag for the outstanding review list.');
+  process.exit(0);
 }
 console.log('PASS: every terminology code in use has a recorded review.');

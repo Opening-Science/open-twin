@@ -31,8 +31,15 @@ env:
   VALIDATOR_VERSION: 6.9.12
 
 jobs:
+  # Two tiers, because "known to be wrong" and "not yet audited" are different
+  # facts and only one of them is a reason to stop a merge.
+  #
+  # Clearing the unreviewed list needs a clinical terminology reviewer — weeks of a
+  # person's attention, not a code change. A single gate covering both would leave
+  # this red for months, and a permanently red check is a check nobody reads, which
+  # is how a genuinely invalid unit would then slip past behind the same red cross.
   gates:
-    name: Terminology and unit gates
+    name: No known-wrong codes or units
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -44,11 +51,32 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Fails on a rejected code, an invalid UCUM code, or a malformed Quantity.
       - name: Terminology gate
-        run: node verify/check-terminology.mjs
+        run: node verify/check-terminology.mjs --allow-unreviewed
 
       - name: UCUM unit gate
-        run: node verify/check-units.mjs
+        run: node verify/check-units.mjs --allow-unreviewed
+
+  review-status:
+    name: Terminology review outstanding
+    runs-on: ubuntu-latest
+    # Visible, not blocking. Goes green only when a named reviewer has signed off
+    # on every code and unit pair. Do not make this pass by bulk-approving the
+    # allowlist: the entire value of the gate is that approval costs a lookup,
+    # which is exactly the step that was skipped when five wrong codes shipped.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: node verify/check-terminology.mjs
+      - run: node verify/check-units.mjs
 
   tests:
     name: Type check, lint and test
@@ -79,7 +107,6 @@ jobs:
   fhir-validate:
     name: HL7 FHIR validator (structure)
     runs-on: ubuntu-latest
-    needs: [gates]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -132,7 +159,6 @@ jobs:
   fhir-terminology:
     name: HL7 FHIR validator (terminology)
     runs-on: ubuntu-latest
-    needs: [fhir-validate]
     # tx.fhir.org is HL7's reference server and carries no SLA — their words are
     # that it "is not supported for production usage". A vendor outage must not
     # block a merge, but the signal is worth having: this tier is the only thing

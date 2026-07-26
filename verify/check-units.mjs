@@ -35,12 +35,28 @@ import {
   lineAt,
   maskLiterals,
   objectEnd,
+  readSharedUnits,
   stringLiteral,
   topLevelProps
 } from './lib/scan.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = process.argv[2] ?? join(HERE, '..');
+const args = process.argv.slice(2);
+/**
+ * `--allow-unreviewed` separates "known to be wrong" from "not yet audited".
+ *
+ * Both still fail by default. But a pipeline that is red for months because a
+ * clinical reviewer has not yet signed off on twenty codes is a pipeline people
+ * stop reading, and then a genuinely invalid unit lands unnoticed behind the same
+ * red cross. So CI runs this gate twice: once with the flag as a blocking check
+ * that no code is known-wrong, and once without it as a visible, non-blocking
+ * report of how much review is outstanding.
+ *
+ * This is not bulk approval. An unreviewed code is still reported, still counted,
+ * and still fails the strict run.
+ */
+const ALLOW_UNREVIEWED = args.includes('--allow-unreviewed');
+const ROOT = args.find((arg) => !arg.startsWith('--')) ?? join(HERE, '..');
 const ALLOW = JSON.parse(readFileSync(join(HERE, 'units-allowlist.json'), 'utf8'));
 const UCUM_SYSTEM = 'http://unitsofmeasure.org';
 
@@ -218,6 +234,44 @@ for (const { rel, text } of sources) {
   }
 }
 
+/**
+ * Pass 3: the shared UCUM table in @open-twin/fhir-core.
+ *
+ * This is where the (unit, code) choice actually lives now. Reviewing it here is
+ * strictly better than reviewing thirty scattered call sites — one table, one
+ * sign-off, and `numericComponent` requiring a unit means the compiler enforces
+ * that nothing bypasses it.
+ */
+const shared = readSharedUnits(ROOT);
+if (shared) {
+  const masked = maskLiterals(shared.text);
+  // Entries look like:  MINUTE: { unit: 'minutes', code: 'min' },
+  for (const match of masked.matchAll(/^\s{2}([A-Z][A-Z0-9_]*)\s*:\s*\{/gm)) {
+    const start = match.index + match[0].length - 1;
+    const end = objectEnd(masked, start);
+    if (end === -1) continue;
+    const props = topLevelProps(shared.text, masked, start, end);
+    const unit = stringLiteral(props.get('unit'));
+    const code = stringLiteral(props.get('code'));
+    if (code === null) continue;
+    record(pairs, `${unit ?? '(none)'}|${code}`, { rel: shared.rel, line: lineAt(shared.text, start) });
+  }
+}
+
+/**
+ * A scan that finds nothing is a broken scan, not a clean bill of health. This is
+ * the same failure the file-level guard in collectSources exists to prevent, one
+ * level down — and it fired for real once the units were centralised.
+ */
+if (pairs.size === 0) {
+  console.error(
+    'FAIL: found no reviewable (unit, code) pairs.\n' +
+      'Either the shared unit table has moved, or the scan no longer matches how units\n' +
+      'are expressed. Refusing to report success on an empty scan.'
+  );
+  process.exit(1);
+}
+
 const invalid = [];
 const unreviewed = [];
 const approved = [];
@@ -272,9 +326,17 @@ if (unreviewed.length) {
 
 if (approved.length) console.log(`APPROVED (${approved.length}).\n`);
 
-const failures = malformed.length + invalid.length + unreviewed.length;
-if (failures) {
-  console.log(`FAIL: ${malformed.length} malformed, ${invalid.length} invalid, ${unreviewed.length} unreviewed.`);
+// Malformed and invalid are always fatal: those Quantities are known to be wrong.
+const known = malformed.length + invalid.length;
+const summary = `${malformed.length} malformed, ${invalid.length} invalid, ${unreviewed.length} unreviewed`;
+
+if (known || (unreviewed.length && !ALLOW_UNREVIEWED)) {
+  console.log(`FAIL: ${summary}.`);
   process.exit(1);
+}
+if (unreviewed.length) {
+  console.log(`PASS with ${unreviewed.length} unreviewed (--allow-unreviewed): no Quantity is known to be wrong.`);
+  console.log('Run without the flag for the outstanding review list.');
+  process.exit(0);
 }
 console.log('PASS: every UCUM Quantity in use is well-formed, valid and reviewed.');
