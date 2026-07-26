@@ -1,58 +1,72 @@
-import type { Observation, ObservationComponent } from 'fhir/r4';
+/**
+ * BodyLoop markers — anatomical landmarks.
+ *
+ * A marker is a point in the scanner's coordinate system, optionally with the
+ * surface normal at that point. Being a vector rather than a scalar it has no
+ * single `value[x]`; the coordinates are carried as components.
+ *
+ * The normal is NOT an angle. It sits beside `position` and is a direction
+ * vector, so its components are direction cosines in [−1, 1]: dimensionless,
+ * UCUM `1`. They were previously published as `deg`, which asserts a plane angle
+ * where none exists — a receiver doing UCUM-aware arithmetic reads a normal
+ * component of 0.7071 as 0.7071 degrees. Converting them from radians would be
+ * worse still, and `rad` would be equally wrong (D10).
+ */
+import type { Observation } from 'fhir/r4';
 import type { Marker, MarkerList } from '../../api/schemas/marker';
-import { applyCommonFields, CATEGORY, createObservation, numericComponent, SYSTEMS } from './shared';
+import {
+  createMeasurementObservation,
+  EXTENSION_BASE,
+  type MeasurementContext,
+  numericComponent,
+  SYSTEMS,
+  UCUM
+} from './shared';
 
-export function mapMarkerToFHIR(marker: Marker, scan_id: string): Observation {
-  const display = marker.label ?? `Marker ${marker.marker_path}`;
+const AXES = ['x', 'y', 'z'] as const;
 
-  const rawComponents = [
-    numericComponent(
-      { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.x`, display: `${display} (X axis)` },
-      marker.position[0],
-      { unit: 'meters', system: SYSTEMS.UCUM, code: 'm' }
-    ),
-    numericComponent(
-      { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.y`, display: `${display} (Y axis)` },
-      marker.position[1],
-      { unit: 'meters', system: SYSTEMS.UCUM, code: 'm' }
-    ),
-    numericComponent(
-      { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.z`, display: `${display} (Z axis)` },
-      marker.position[2],
-      { unit: 'meters', system: SYSTEMS.UCUM, code: 'm' }
-    ),
-    marker.normal &&
+export function mapMarkerToFHIR(marker: Marker, context: MeasurementContext): Observation {
+  const path = marker.marker_path;
+  const normal = marker.normal;
+
+  const components = [
+    ...AXES.map((axis, index) =>
       numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.normal.x`, display: `${display} (Normal X axis)` },
-        marker.normal[0],
-        { unit: 'degree', system: SYSTEMS.UCUM, code: 'deg' }
-      ),
-    marker.normal &&
-      numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.normal.y`, display: `${display} (Normal Y axis)` },
-        marker.normal[1],
-        { unit: 'degree', system: SYSTEMS.UCUM, code: 'deg' }
-      ),
-    marker.normal &&
-      numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${marker.marker_path}.normal.z`, display: `${display} (Normal Z axis)` },
-        marker.normal[2],
-        { unit: 'degree', system: SYSTEMS.UCUM, code: 'deg' }
+        { system: SYSTEMS.VITRONIC, code: `${path}.${axis}`, display: `Position, ${axis} coordinate` },
+        marker.position[index],
+        UCUM.METRE
       )
+    ),
+    ...(normal
+      ? AXES.map((axis, index) =>
+          numericComponent(
+            {
+              system: SYSTEMS.VITRONIC,
+              code: `${path}.normal.${axis}`,
+              display: `Surface normal, ${axis} component`
+            },
+            normal[index],
+            UCUM.UNITY
+          )
+        )
+      : [])
   ];
 
-  const components = rawComponents.filter((comp): comp is ObservationComponent => !!comp);
+  // `marker_type` distinguishes an auto-detected landmark from a palpated one,
+  // which is provenance a consumer needs and FHIR has no element for.
+  const markerType = marker.marker_type.trim();
 
-  const observation = createObservation({
-    category: CATEGORY.EXAM,
-    code: { system: SYSTEMS.VITRONIC, code: marker.marker_path, display },
-    patientReference: `Scan/${scan_id}`,
-    components
+  return createMeasurementObservation({
+    context,
+    scope: 'marker',
+    path,
+    common: marker,
+    display: `Marker ${path}`,
+    components,
+    ...(markerType ? { extensions: [{ url: `${EXTENSION_BASE}-marker-type`, valueString: markerType }] } : {})
   });
-
-  return applyCommonFields(observation, marker, SYSTEMS.VITRONIC);
 }
 
-export function mapMarkerListToFHIR(markers: MarkerList, scan_id: string): Observation[] {
-  return markers.map((marker) => mapMarkerToFHIR(marker, scan_id));
+export function mapMarkerListToFHIR(markers: MarkerList, context: MeasurementContext): Observation[] {
+  return markers.map((marker) => mapMarkerToFHIR(marker, context));
 }

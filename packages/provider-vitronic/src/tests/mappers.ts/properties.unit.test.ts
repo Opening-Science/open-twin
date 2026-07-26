@@ -2,7 +2,7 @@ import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
 import type { Property } from '../../api/schemas/properties';
 import { mapPropertyListToFHIR, mapPropertyToFHIR } from '../../fhir/mappers/properties';
-import { OBSERVATION_CATEGORY, SCAN_ID, VITRONIC } from './testHelpers';
+import { CONTEXT, DATA_ABSENT_REASON, OBSERVATION_CATEGORY, SUBJECT, VITRONIC } from './testHelpers';
 
 function makeProperty(overrides: Partial<Property> = {}): Property {
   return {
@@ -12,29 +12,46 @@ function makeProperty(overrides: Partial<Property> = {}): Property {
   };
 }
 
+function absentReason(observation: Observation): string | undefined {
+  return observation.dataAbsentReason?.coding?.[0].code;
+}
+
 describe('mapPropertyToFHIR', () => {
   it('maps to an exam Observation with the property metadata', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ label: 'Gender' }), SCAN_ID);
+    const observation = mapPropertyToFHIR(makeProperty({ label: 'Gender' }), CONTEXT);
 
     expect(observation).toMatchObject<Partial<Observation>>({
       resourceType: 'Observation',
       status: 'final',
       category: [{ coding: [{ system: OBSERVATION_CATEGORY, code: 'exam', display: 'Exam' }] }],
-      code: { coding: [{ system: VITRONIC, code: 'property/gender', display: 'Gender' }] },
-      subject: { reference: `Scan/${SCAN_ID}` }
+      code: {
+        coding: [{ system: VITRONIC, code: 'property/gender', display: 'Property property/gender' }],
+        text: 'Gender'
+      },
+      subject: SUBJECT
     });
   });
 
-  it('maps a numeric value to valueQuantity', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ value: 42 }), SCAN_ID);
+  it('does not derive a body site from a property path', () => {
+    expect(mapPropertyToFHIR(makeProperty(), CONTEXT).bodySite).toBeUndefined();
+  });
+
+  /**
+   * The API states no unit for properties anywhere in the payload, so the
+   * Quantity carries a value and nothing else. Attaching a UCUM code nobody has
+   * verified would assert a dimension the source never claimed.
+   */
+  it('maps a numeric value to a deliberately unitless valueQuantity', () => {
+    const observation = mapPropertyToFHIR(makeProperty({ value: 42 }), CONTEXT);
 
     expect(observation.valueQuantity).toEqual({ value: 42 });
     expect(observation.valueString).toBeUndefined();
     expect(observation.valueBoolean).toBeUndefined();
+    expect(observation.dataAbsentReason).toBeUndefined();
   });
 
   it('maps a boolean value to valueBoolean', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ value: true }), SCAN_ID);
+    const observation = mapPropertyToFHIR(makeProperty({ value: true }), CONTEXT);
 
     expect(observation.valueBoolean).toBe(true);
     expect(observation.valueQuantity).toBeUndefined();
@@ -42,7 +59,7 @@ describe('mapPropertyToFHIR', () => {
   });
 
   it('maps a string value to valueString', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ value: 'male' }), SCAN_ID);
+    const observation = mapPropertyToFHIR(makeProperty({ value: '  male  ' }), CONTEXT);
 
     expect(observation.valueString).toBe('male');
     expect(observation.valueQuantity).toBeUndefined();
@@ -50,42 +67,57 @@ describe('mapPropertyToFHIR', () => {
   });
 
   it('serialises object values to a JSON valueString', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ value: { a: 1, b: 2 } }), SCAN_ID);
-
-    expect(observation.valueString).toBe('{"a":1,"b":2}');
+    expect(mapPropertyToFHIR(makeProperty({ value: { a: 1, b: 2 } }), CONTEXT).valueString).toBe('{"a":1,"b":2}');
   });
 
-  it('omits all value fields for null or undefined values', () => {
-    const nullObservation = mapPropertyToFHIR(makeProperty({ value: null }), SCAN_ID);
-    const undefinedObservation = mapPropertyToFHIR(makeProperty({ value: undefined }), SCAN_ID);
+  it('records a null or undefined value as unknown rather than saying nothing at all', () => {
+    const nullObservation = mapPropertyToFHIR(makeProperty({ value: null }), CONTEXT);
+    const undefinedObservation = mapPropertyToFHIR(makeProperty({ value: undefined }), CONTEXT);
 
     for (const observation of [nullObservation, undefinedObservation]) {
       expect(observation.valueQuantity).toBeUndefined();
       expect(observation.valueBoolean).toBeUndefined();
       expect(observation.valueString).toBeUndefined();
+      expect(observation.dataAbsentReason).toEqual({
+        coding: [{ system: DATA_ABSENT_REASON, code: 'unknown', display: 'Unknown' }]
+      });
     }
   });
 
-  it('does not treat a non-finite number as a numeric valueQuantity', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ value: Number.NaN }), SCAN_ID);
-
-    expect(observation.valueQuantity).toBeUndefined();
-    expect(observation.valueBoolean).toBeUndefined();
-    // A non-finite number is not a plain string/boolean, so it is JSON-serialised (NaN -> "null").
-    expect(observation.valueString).toBe('null');
+  it('records an empty string as unknown, because FHIR strings may not be empty', () => {
+    expect(absentReason(mapPropertyToFHIR(makeProperty({ value: '   ' }), CONTEXT))).toBe('unknown');
   });
 
-  it('falls back to a generated display when label is absent', () => {
-    const observation = mapPropertyToFHIR(makeProperty(), SCAN_ID);
+  /** `JSON.stringify(NaN)` is the string "null", which reads as a value. */
+  it('records a non-finite number as absent, never as the literal string "null"', () => {
+    for (const value of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+      const observation = mapPropertyToFHIR(makeProperty({ value }), CONTEXT);
+
+      expect(observation.valueQuantity).toBeUndefined();
+      expect(observation.valueString).toBeUndefined();
+      expect(absentReason(observation)).toBe('error');
+    }
+  });
+
+  it('records a non-serialisable value as an error instead of throwing', () => {
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    expect(absentReason(mapPropertyToFHIR(makeProperty({ value: circular }), CONTEXT))).toBe('error');
+  });
+
+  it('describes the code in coding.display and keeps the operator label in code.text', () => {
+    const observation = mapPropertyToFHIR(makeProperty(), CONTEXT);
 
     expect(observation.code.coding?.[0].display).toBe('Property property/gender');
+    expect(observation.code.text).toBeUndefined();
   });
 
   it('applies common fields (note and identifier)', () => {
-    const observation = mapPropertyToFHIR(makeProperty({ note: 'self-reported', key_external: 'ext-4' }), SCAN_ID);
+    const observation = mapPropertyToFHIR(makeProperty({ note: 'self-reported', key_external: 'ext-4' }), CONTEXT);
 
     expect(observation.note).toEqual([{ text: 'self-reported' }]);
-    expect(observation.identifier).toEqual([{ system: VITRONIC, value: 'ext-4' }]);
+    expect(observation.identifier?.[1]?.value).toBe('external-key/ext-4');
   });
 });
 
@@ -93,7 +125,7 @@ describe('mapPropertyListToFHIR', () => {
   it('maps every property in the list', () => {
     const observations = mapPropertyListToFHIR(
       [makeProperty({ property_path: 'property/a' }), makeProperty({ property_path: 'property/b' })],
-      SCAN_ID
+      CONTEXT
     );
 
     expect(observations).toHaveLength(2);
@@ -102,6 +134,6 @@ describe('mapPropertyListToFHIR', () => {
   });
 
   it('returns an empty array for an empty list', () => {
-    expect(mapPropertyListToFHIR([], SCAN_ID)).toEqual([]);
+    expect(mapPropertyListToFHIR([], CONTEXT)).toEqual([]);
   });
 });

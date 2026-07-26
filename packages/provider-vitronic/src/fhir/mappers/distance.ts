@@ -1,37 +1,86 @@
+/**
+ * BodyLoop distance measurements.
+ *
+ * The straight-line distance between two landmarks, with its decomposition along
+ * the scanner's x/y/z axes. `preference` names the component the operator
+ * selected; it is promoted to `value[x]`, and all four are kept as components so
+ * that promoting one never drops the others.
+ */
 import type { Observation } from 'fhir/r4';
 import type { Distance, DistanceList } from '../../api/schemas/distance';
-import { applyCommonFields, CATEGORY, compact, createObservation, numericComponent, SYSTEMS } from './shared';
+import {
+  createMeasurementObservation,
+  dataAbsentReason,
+  type MeasurementContext,
+  metres,
+  numericComponent,
+  SYSTEMS,
+  UCUM
+} from './shared';
 
-export function mapDistanceToFHIR(distance: Distance, scan_id: string): Observation {
-  const display = distance.label ?? `Distance ${distance.distance_path}`;
+type DistanceAspect = 'linear_distance' | 'linear_distance_x' | 'linear_distance_y' | 'linear_distance_z';
 
-  const observation = createObservation({
-    category: CATEGORY.EXAM,
-    code: { system: SYSTEMS.VITRONIC, code: distance.distance_path, display },
-    patientReference: `Scan/${scan_id}`,
-    valueQuantity: { value: distance.distances.linear_distance, unit: 'meters', code: 'm', system: SYSTEMS.UCUM },
-    components: compact([
-      numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${distance.distance_path}.x`, display: `${display} (X axis)` },
-        distance.distances.linear_distance_x,
-        { unit: 'meters', code: 'm', system: SYSTEMS.UCUM }
-      ),
-      numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${distance.distance_path}.y`, display: `${display} (Y axis)` },
-        distance.distances.linear_distance_y,
-        { unit: 'meters', code: 'm', system: SYSTEMS.UCUM }
-      ),
-      numericComponent(
-        { system: SYSTEMS.VITRONIC, code: `${distance.distance_path}.z`, display: `${display} (Z axis)` },
-        distance.distances.linear_distance_z,
-        { unit: 'meters', code: 'm', system: SYSTEMS.UCUM }
-      )
-    ])
-  });
+const ASPECT_CODE: Record<DistanceAspect, string> = {
+  linear_distance: 'linear',
+  linear_distance_x: 'x',
+  linear_distance_y: 'y',
+  linear_distance_z: 'z'
+};
 
-  return applyCommonFields(observation, distance, SYSTEMS.VITRONIC);
+const ASPECT_DISPLAY: Record<DistanceAspect, string> = {
+  linear_distance: 'Linear distance',
+  linear_distance_x: 'Linear distance, x component',
+  linear_distance_y: 'Linear distance, y component',
+  linear_distance_z: 'Linear distance, z component'
+};
+
+const ASPECTS: readonly DistanceAspect[] = [
+  'linear_distance',
+  'linear_distance_x',
+  'linear_distance_y',
+  'linear_distance_z'
+];
+
+/**
+ * Resolves `preference`, which may name a component in full
+ * (`linear_distance_x`) or by its axis (`x`). Defaults to the overall distance.
+ */
+function resolveAspect(preference: string | null | undefined): DistanceAspect {
+  const value = preference?.trim().toLowerCase().replace(/[\s-]/g, '_');
+  if (!value) {
+    return 'linear_distance';
+  }
+  if (value === 'x' || value === 'y' || value === 'z') {
+    return `linear_distance_${value}`;
+  }
+  return ASPECTS.find((aspect) => aspect === value) ?? 'linear_distance';
 }
 
-export function mapDistanceListToFHIR(distances: DistanceList, scan_id: string): Observation[] {
-  return distances.map((distance) => mapDistanceToFHIR(distance, scan_id));
+export function mapDistanceToFHIR(distance: Distance, context: MeasurementContext): Observation {
+  const path = distance.distance_path;
+  const preferred = metres(distance.distances[resolveAspect(distance.preference)]);
+
+  return createMeasurementObservation({
+    context,
+    scope: 'distance',
+    path,
+    common: distance,
+    display: `Distance ${path}`,
+    derivedFromMarkers: [
+      { path: distance.from_marker, role: 'From marker' },
+      { path: distance.to_marker, role: 'To marker' }
+    ],
+    ...(preferred ? { valueQuantity: preferred } : { dataAbsentReason: dataAbsentReason('error') }),
+    components: ASPECTS.map((aspect) =>
+      numericComponent(
+        { system: SYSTEMS.VITRONIC, code: `${path}.${ASPECT_CODE[aspect]}`, display: ASPECT_DISPLAY[aspect] },
+        distance.distances[aspect],
+        UCUM.METRE
+      )
+    )
+  });
+}
+
+export function mapDistanceListToFHIR(distances: DistanceList, context: MeasurementContext): Observation[] {
+  return distances.map((distance) => mapDistanceToFHIR(distance, context));
 }

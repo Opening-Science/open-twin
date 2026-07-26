@@ -2,7 +2,18 @@ import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
 import type { Distance } from '../../api/schemas/distance';
 import { mapDistanceListToFHIR, mapDistanceToFHIR } from '../../fhir/mappers/distance';
-import { makeMarker, OBSERVATION_CATEGORY, SCAN_ID, UCUM, VITRONIC } from './testHelpers';
+import {
+  CONTEXT,
+  makeMarker,
+  markerReferenceFor,
+  measurementIdentifierFor,
+  OBSERVATION_CATEGORY,
+  RECORDED_AT,
+  SCAN_REFERENCE,
+  SUBJECT,
+  UCUM,
+  VITRONIC
+} from './testHelpers';
 
 function makeDistance(overrides: Partial<Distance> = {}): Distance {
   return {
@@ -26,48 +37,94 @@ function makeDistance(overrides: Partial<Distance> = {}): Distance {
 
 describe('mapDistanceToFHIR', () => {
   it('maps to an exam Observation with the linear distance as valueQuantity', () => {
-    const observation = mapDistanceToFHIR(makeDistance({ label: 'Shoulder width' }), SCAN_ID);
+    const observation = mapDistanceToFHIR(makeDistance({ label: 'Shoulder width' }), CONTEXT);
 
     expect(observation).toMatchObject<Partial<Observation>>({
       resourceType: 'Observation',
       status: 'final',
       category: [{ coding: [{ system: OBSERVATION_CATEGORY, code: 'exam', display: 'Exam' }] }],
-      code: { coding: [{ system: VITRONIC, code: 'distance/shoulder', display: 'Shoulder width' }] },
-      subject: { reference: `Scan/${SCAN_ID}` },
-      valueQuantity: { value: 0.45, unit: 'meters', code: 'm', system: UCUM }
+      code: {
+        coding: [{ system: VITRONIC, code: 'distance/shoulder', display: 'Distance distance/shoulder' }],
+        text: 'Shoulder width'
+      },
+      subject: SUBJECT,
+      effectiveDateTime: RECORDED_AT,
+      valueQuantity: { value: 0.45, unit: 'meters', system: UCUM, code: 'm' }
     });
   });
 
-  it('maps the axis distances into x, y and z components', () => {
-    const observation = mapDistanceToFHIR(makeDistance({ label: 'Shoulder width' }), SCAN_ID);
+  it('keeps the overall distance and all three axis components', () => {
+    const observation = mapDistanceToFHIR(makeDistance(), CONTEXT);
 
     expect(observation.component).toEqual([
       {
-        code: { coding: [{ system: VITRONIC, code: 'distance/shoulder.x', display: 'Shoulder width (X axis)' }] },
-        valueQuantity: { value: 0.4, unit: 'meters', code: 'm', system: UCUM }
+        code: { coding: [{ system: VITRONIC, code: 'distance/shoulder.linear', display: 'Linear distance' }] },
+        valueQuantity: { value: 0.45, unit: 'meters', system: UCUM, code: 'm' }
       },
       {
-        code: { coding: [{ system: VITRONIC, code: 'distance/shoulder.y', display: 'Shoulder width (Y axis)' }] },
-        valueQuantity: { value: 0.1, unit: 'meters', code: 'm', system: UCUM }
+        code: {
+          coding: [{ system: VITRONIC, code: 'distance/shoulder.x', display: 'Linear distance, x component' }]
+        },
+        valueQuantity: { value: 0.4, unit: 'meters', system: UCUM, code: 'm' }
       },
       {
-        code: { coding: [{ system: VITRONIC, code: 'distance/shoulder.z', display: 'Shoulder width (Z axis)' }] },
-        valueQuantity: { value: 0.05, unit: 'meters', code: 'm', system: UCUM }
+        code: {
+          coding: [{ system: VITRONIC, code: 'distance/shoulder.y', display: 'Linear distance, y component' }]
+        },
+        valueQuantity: { value: 0.1, unit: 'meters', system: UCUM, code: 'm' }
+      },
+      {
+        code: {
+          coding: [{ system: VITRONIC, code: 'distance/shoulder.z', display: 'Linear distance, z component' }]
+        },
+        valueQuantity: { value: 0.05, unit: 'meters', system: UCUM, code: 'm' }
       }
     ]);
   });
 
-  it('falls back to a generated display when label is absent', () => {
-    const observation = mapDistanceToFHIR(makeDistance(), SCAN_ID);
+  it('promotes the component named by preference, by axis or in full', () => {
+    expect(mapDistanceToFHIR(makeDistance({ preference: 'x' }), CONTEXT).valueQuantity?.value).toBe(0.4);
+    expect(mapDistanceToFHIR(makeDistance({ preference: 'linear_distance_z' }), CONTEXT).valueQuantity?.value).toBe(
+      0.05
+    );
+    expect(mapDistanceToFHIR(makeDistance({ preference: 'unrecognised' }), CONTEXT).valueQuantity?.value).toBe(0.45);
+  });
+
+  it('states the distance is absent rather than emitting a Quantity with no value', () => {
+    const observation = mapDistanceToFHIR(
+      makeDistance({
+        distances: { linear_distance: Number.NaN, linear_distance_x: 0, linear_distance_y: 0, linear_distance_z: 0 }
+      }),
+      CONTEXT
+    );
+
+    expect(observation.valueQuantity).toBeUndefined();
+    expect(observation.dataAbsentReason?.coding?.[0].code).toBe('error');
+  });
+
+  it('describes the code in coding.display and keeps the operator label in code.text', () => {
+    const observation = mapDistanceToFHIR(makeDistance(), CONTEXT);
 
     expect(observation.code.coding?.[0].display).toBe('Distance distance/shoulder');
+    expect(observation.code.text).toBeUndefined();
+  });
+
+  it('records the scan and the two landmarks the distance runs between', () => {
+    const observation = mapDistanceToFHIR(makeDistance(), CONTEXT);
+
+    expect(observation.derivedFrom).toEqual([
+      SCAN_REFERENCE,
+      markerReferenceFor('marker/from', 'From marker'),
+      markerReferenceFor('marker/to', 'To marker')
+    ]);
+    expect(observation.identifier).toEqual([measurementIdentifierFor('distance', 'distance/shoulder')]);
   });
 
   it('applies common fields (note and identifier)', () => {
-    const observation = mapDistanceToFHIR(makeDistance({ note: 'across', key_external: 'ext-3' }), SCAN_ID);
+    const observation = mapDistanceToFHIR(makeDistance({ note: 'across', key_external: 'ext-3' }), CONTEXT);
 
     expect(observation.note).toEqual([{ text: 'across' }]);
-    expect(observation.identifier).toEqual([{ system: VITRONIC, value: 'ext-3' }]);
+    expect(observation.identifier?.[1]?.value).toBe('external-key/ext-3');
   });
 });
 
@@ -75,7 +132,7 @@ describe('mapDistanceListToFHIR', () => {
   it('maps every distance in the list', () => {
     const observations = mapDistanceListToFHIR(
       [makeDistance({ distance_path: 'distance/a' }), makeDistance({ distance_path: 'distance/b' })],
-      SCAN_ID
+      CONTEXT
     );
 
     expect(observations).toHaveLength(2);
@@ -84,6 +141,6 @@ describe('mapDistanceListToFHIR', () => {
   });
 
   it('returns an empty array for an empty list', () => {
-    expect(mapDistanceListToFHIR([], SCAN_ID)).toEqual([]);
+    expect(mapDistanceListToFHIR([], CONTEXT)).toEqual([]);
   });
 });
