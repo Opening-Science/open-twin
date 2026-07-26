@@ -98,13 +98,38 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY"
           node verify/check-terminology.mjs > /dev/null && node verify/check-units.mjs > /dev/null
 
+  # The package list is derived from the workspace rather than hardcoded. A fixed
+  # list silently stopped covering four packages the moment they were added — they
+  # were never type-checked or tested in CI, and nothing said so.
+  packages:
+    name: Enumerate workspace packages
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.enumerate.outputs.list }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - id: enumerate
+        run: |
+          list=$(pnpm -r --depth -1 list --json \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{
+                const dirs=JSON.parse(d).map(p=>p.path).filter(p=>p.includes("/packages/"));
+                console.log(JSON.stringify(dirs.map(p=>p.split("/packages/")[1])));
+              })')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "Matrix: $list"
+
   tests:
     name: Type check, lint and test
     runs-on: ubuntu-latest
+    needs: [packages]
     strategy:
       fail-fast: false
       matrix:
-        package: [fhir-core, provider-oura, provider-google-health, provider-vitronic]
+        package: ${{ fromJSON(needs.packages.outputs.list) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -115,6 +140,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+
+      # Workspace packages resolve @open-twin/* through `types: ./dist/index.d.ts`,
+      # so without a build every dependent package fails type check with
+      # "Cannot find module '@open-twin/fhir-core'".
+      - run: pnpm -r build
 
       - name: Type check ${{ matrix.package }}
         working-directory: packages/${{ matrix.package }}
