@@ -2,231 +2,311 @@ import type { Observation } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
   CATEGORY,
-  compact,
-  createObservation,
-  numericComponent,
+  codeableConcept,
+  createGoogleObservation,
+  type DataPointMeta,
+  GH_UCUM,
+  ghOptionalNumericComponent,
+  ghQuantity,
+  gramsToKilograms,
+  loincQuantity,
+  millimetresToCentimetres,
+  PROFILES,
   SYSTEMS,
   sampleTimeToDateTime,
   stringComponent,
-  toNumber
+  toNumber,
+  UCUM
 } from './shared';
 
-export function mapBloodGlucoseToFHIR(data: health_v4.Schema$BloodGlucose): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '2339-0', display: 'Glucose [Mass/volume] in Blood' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.bloodGlucoseMilligramsPerDeciliter !== undefined && data.bloodGlucoseMilligramsPerDeciliter !== null
-        ? { value: data.bloodGlucoseMilligramsPerDeciliter, unit: 'mg/dL', system: SYSTEMS.UCUM, code: 'mg/dL' }
-        : undefined,
-    components: compact([
-      stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'meal-type', display: 'Meal type' }, data.mealType),
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'measurement-timing', display: 'Measurement timing' },
-        data.measurementTiming
-      ),
-      stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'specimen', display: 'Specimen source' }, data.specimen)
-    ])
-  });
+/**
+ * LOINC's official Long Common Name. Two distinct Google measures — a general
+ * estimate and a run-test estimate — legitimately share this code, so they are
+ * separated by `Observation.method` and a vendor coding, never by a display string:
+ * a display is not a matching key for any FHIR search or de-duplication.
+ */
+const VO2_MAX_DISPLAY = 'Oxygen consumption (VO2)/Body weight [Volume Rate Content] --peak during exercise';
 
-  if (data.notes) {
-    observation.note = [{ text: data.notes }];
-  }
-
-  return observation;
+export function mapBloodGlucoseToFHIR(data: health_v4.Schema$BloodGlucose, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'blood-glucose',
+      category: CATEGORY.VITAL_SIGNS,
+      // 2339-0 is *mass* concentration (MCnc, mg/dL); 15074-8 is substance
+      // concentration (mmol/L). Both have UNITSREQUIRED=Y, so the pair must agree.
+      // Google's field is `bloodGlucoseMilligramsPerDeciliter`, documented in the v4
+      // discovery document as "Blood glucose level concentration in mg/dL", which
+      // settles it for this connector: 2339-0 with mg/dL.
+      code: { system: SYSTEMS.LOINC, code: '2339-0', display: 'Glucose [Mass/volume] in Blood' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: ghQuantity(toNumber(data.bloodGlucoseMilligramsPerDeciliter), GH_UCUM.MG_PER_DL),
+      components: [
+        stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'meal-type', display: 'Meal type' }, data.mealType),
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'measurement-timing', display: 'Measurement timing' },
+          data.measurementTiming
+        ),
+        stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'specimen', display: 'Specimen source' }, data.specimen)
+      ],
+      note: data.notes ?? undefined
+    },
+    meta
+  );
 }
 
-export function mapBodyFatToFHIR(data: health_v4.Schema$BodyFat): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '41982-0', display: 'Percentage of body fat Measured' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.percentage !== undefined && data.percentage !== null
-        ? { value: data.percentage, unit: '%', system: SYSTEMS.UCUM, code: '%' }
-        : undefined
-  });
+export function mapBodyFatToFHIR(data: health_v4.Schema$BodyFat, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'body-fat',
+      category: CATEGORY.VITAL_SIGNS,
+      code: { system: SYSTEMS.LOINC, code: '41982-0', display: 'Percentage of body fat Measured' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('41982-0', toNumber(data.percentage))
+    },
+    meta
+  );
 }
 
-export function mapCoreBodyTemperatureToFHIR(data: health_v4.Schema$CoreBodyTemperature): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '8310-5', display: 'Body temperature' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.temperatureCelsius !== undefined && data.temperatureCelsius !== null
-        ? { value: data.temperatureCelsius, unit: 'Cel', system: SYSTEMS.UCUM, code: 'Cel' }
-        : undefined,
-    components: compact([
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'measurement-location', display: 'Measurement location' },
-        data.measurementLocation
-      )
-    ])
-  });
-
-  if (data.id) {
-    observation.identifier = [{ system: SYSTEMS.GOOGLE_HEALTH, value: data.id }];
-  }
-
-  return observation;
+export function mapCoreBodyTemperatureToFHIR(
+  data: health_v4.Schema$CoreBodyTemperature,
+  meta: DataPointMeta
+): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'core-body-temperature',
+      category: CATEGORY.VITAL_SIGNS,
+      code: { system: SYSTEMS.LOINC, code: '8310-5', display: 'Body temperature' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('8310-5', toNumber(data.temperatureCelsius)),
+      components: [
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'measurement-location', display: 'Measurement location' },
+          data.measurementLocation
+        )
+      ],
+      identifier: data.id ? [{ system: SYSTEMS.GOOGLE_HEALTH_IDENTIFIER, value: data.id }] : undefined,
+      profiles: [PROFILES.BODY_TEMPERATURE]
+    },
+    meta
+  );
 }
 
-export function mapHeartRateToFHIR(data: health_v4.Schema$HeartRate): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      toNumber(data.beatsPerMinute) !== undefined
-        ? { value: toNumber(data.beatsPerMinute) as number, unit: 'beats/minute', system: SYSTEMS.UCUM, code: '/min' }
-        : undefined,
-    components: compact([
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'motion-context', display: 'Motion context' },
-        data.metadata?.motionContext
-      ),
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'sensor-location', display: 'Sensor location' },
-        data.metadata?.sensorLocation
-      )
-    ])
-  });
-
-  return observation;
+export function mapHeartRateToFHIR(data: health_v4.Schema$HeartRate, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'heart-rate',
+      category: CATEGORY.VITAL_SIGNS,
+      code: { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('8867-4', toNumber(data.beatsPerMinute)),
+      components: [
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'motion-context', display: 'Motion context' },
+          data.metadata?.motionContext
+        ),
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'sensor-location', display: 'Sensor location' },
+          data.metadata?.sensorLocation
+        )
+      ],
+      profiles: [PROFILES.HEART_RATE]
+    },
+    meta
+  );
 }
 
-export function mapHeartRateVariabilityToFHIR(data: health_v4.Schema$HeartRateVariability): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'heart-rate-variability', display: 'Heart rate variability' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.rootMeanSquareOfSuccessiveDifferencesMilliseconds !== undefined &&
-      data.rootMeanSquareOfSuccessiveDifferencesMilliseconds !== null
-        ? {
-            value: data.rootMeanSquareOfSuccessiveDifferencesMilliseconds,
-            unit: 'ms',
-            system: SYSTEMS.UCUM,
-            code: 'ms'
-          }
-        : undefined,
-    components: compact([
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'standard-deviation', display: 'HRV standard deviation (SDNN)' },
-        toNumber(data.standardDeviationMilliseconds),
-        { unit: 'ms', system: SYSTEMS.UCUM, code: 'ms' }
-      )
-    ])
-  });
+export function mapHeartRateVariabilityToFHIR(
+  data: health_v4.Schema$HeartRateVariability,
+  meta: DataPointMeta
+): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'heart-rate-variability',
+      category: CATEGORY.VITAL_SIGNS,
+      // TODO(clinical-review): no LOINC or SNOMED concept for RMSSD heart-rate
+      // variability was found. A vendor-local code needs sign-off, or replacement
+      // with a standard concept if a reviewer identifies one.
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'heart-rate-variability', display: 'Heart rate variability' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: ghQuantity(toNumber(data.rootMeanSquareOfSuccessiveDifferencesMilliseconds), UCUM.MILLISECOND),
+      components: [
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'standard-deviation', display: 'HRV standard deviation (SDNN)' },
+          toNumber(data.standardDeviationMilliseconds),
+          UCUM.MILLISECOND
+        )
+      ]
+    },
+    meta
+  );
 }
 
-export function mapHeightToFHIR(data: health_v4.Schema$Height): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '8302-2', display: 'Body height' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      toNumber(data.heightMillimeters) !== undefined
-        ? { value: toNumber(data.heightMillimeters) as number, unit: 'mm', system: SYSTEMS.UCUM, code: 'mm' }
-        : undefined
-  });
+export function mapHeightToFHIR(data: health_v4.Schema$Height, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'height',
+      category: CATEGORY.VITAL_SIGNS,
+      code: { system: SYSTEMS.LOINC, code: '8302-2', display: 'Body height' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      // The R4 Body height profile binds valueQuantity.code to exactly {cm, [in_i]}.
+      // `mm` is a required-binding violation, so the millimetres Google sends are
+      // converted rather than relabelled. No rounding: FHIR decimal keeps precision.
+      valueQuantity: loincQuantity('8302-2', millimetresToCentimetres(data.heightMillimeters)),
+      profiles: [PROFILES.BODY_HEIGHT]
+    },
+    meta
+  );
 }
 
-export function mapOxygenSaturationToFHIR(data: health_v4.Schema$OxygenSaturation): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.percentage !== undefined && data.percentage !== null
-        ? { value: data.percentage, unit: '%', system: SYSTEMS.UCUM, code: '%' }
-        : undefined
-  });
+export function mapOxygenSaturationToFHIR(data: health_v4.Schema$OxygenSaturation, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'oxygen-saturation',
+      category: CATEGORY.VITAL_SIGNS,
+      // The daily aggregate uses the same LOINC code. The vendor coding is what makes
+      // a spot reading distinguishable from a daily average in a queryable field.
+      code: [
+        { system: SYSTEMS.LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' },
+        { system: SYSTEMS.GOOGLE_HEALTH, code: 'oxygen-saturation', display: 'Spot oxygen saturation' }
+      ],
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('59408-5', toNumber(data.percentage)),
+      profiles: [PROFILES.OXYGEN_SATURATION]
+    },
+    meta
+  );
 }
 
-export function mapRespiratoryRateSleepSummaryToFHIR(data: health_v4.Schema$RespiratoryRateSleepSummary): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '9279-1', display: 'Respiratory rate' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.fullSleepStats?.breathsPerMinute !== undefined && data.fullSleepStats?.breathsPerMinute !== null
-        ? { value: data.fullSleepStats.breathsPerMinute, unit: 'breaths/minute', system: SYSTEMS.UCUM, code: '/min' }
-        : undefined,
-    components: compact([
-      numericComponent(
+export function mapRespiratoryRateSleepSummaryToFHIR(
+  data: health_v4.Schema$RespiratoryRateSleepSummary,
+  meta: DataPointMeta
+): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'respiratory-rate-sleep-summary',
+      category: CATEGORY.VITAL_SIGNS,
+      code: [
+        { system: SYSTEMS.LOINC, code: '9279-1', display: 'Respiratory rate' },
         {
           system: SYSTEMS.GOOGLE_HEALTH,
-          code: 'deep-sleep-breaths-per-minute',
-          display: 'Deep sleep respiratory rate'
-        },
-        toNumber(data.deepSleepStats?.breathsPerMinute),
-        { unit: 'breaths/minute', system: SYSTEMS.UCUM, code: '/min' }
-      ),
-      numericComponent(
-        {
-          system: SYSTEMS.GOOGLE_HEALTH,
-          code: 'light-sleep-breaths-per-minute',
-          display: 'Light sleep respiratory rate'
-        },
-        toNumber(data.lightSleepStats?.breathsPerMinute),
-        { unit: 'breaths/minute', system: SYSTEMS.UCUM, code: '/min' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'rem-sleep-breaths-per-minute', display: 'REM sleep respiratory rate' },
-        toNumber(data.remSleepStats?.breathsPerMinute),
-        { unit: 'breaths/minute', system: SYSTEMS.UCUM, code: '/min' }
-      )
-    ])
-  });
+          code: 'respiratory-rate-sleep-summary',
+          display: 'Respiratory rate over the sleep period'
+        }
+      ],
+      // The value is a mean over the whole sleep period, not an instantaneous rate.
+      method: codeableConcept({
+        system: SYSTEMS.GOOGLE_HEALTH,
+        code: 'sleep-period-average',
+        display: 'Averaged over the sleep period'
+      }),
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('9279-1', toNumber(data.fullSleepStats?.breathsPerMinute)),
+      components: [
+        ghOptionalNumericComponent(
+          {
+            system: SYSTEMS.GOOGLE_HEALTH,
+            code: 'deep-sleep-breaths-per-minute',
+            display: 'Deep sleep respiratory rate'
+          },
+          toNumber(data.deepSleepStats?.breathsPerMinute),
+          UCUM.PER_MINUTE
+        ),
+        ghOptionalNumericComponent(
+          {
+            system: SYSTEMS.GOOGLE_HEALTH,
+            code: 'light-sleep-breaths-per-minute',
+            display: 'Light sleep respiratory rate'
+          },
+          toNumber(data.lightSleepStats?.breathsPerMinute),
+          UCUM.PER_MINUTE
+        ),
+        ghOptionalNumericComponent(
+          {
+            system: SYSTEMS.GOOGLE_HEALTH,
+            code: 'rem-sleep-breaths-per-minute',
+            display: 'REM sleep respiratory rate'
+          },
+          toNumber(data.remSleepStats?.breathsPerMinute),
+          UCUM.PER_MINUTE
+        )
+      ]
+    },
+    meta
+  );
 }
 
-export function mapRunVo2MaxToFHIR(data: health_v4.Schema$RunVO2Max): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '94122-9', display: 'Running VO2 max' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.runVo2Max !== undefined && data.runVo2Max !== null
-        ? { value: data.runVo2Max, unit: 'mL/kg/min', system: SYSTEMS.UCUM, code: 'mL/kg/min' }
-        : undefined
-  });
+export function mapRunVo2MaxToFHIR(data: health_v4.Schema$RunVO2Max, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'run-vo2-max',
+      category: CATEGORY.VITAL_SIGNS,
+      code: [
+        { system: SYSTEMS.LOINC, code: '94122-9', display: VO2_MAX_DISPLAY },
+        { system: SYSTEMS.GOOGLE_HEALTH, code: 'run-vo2-max', display: 'Running VO2 max' }
+      ],
+      method: codeableConcept({
+        system: SYSTEMS.GOOGLE_HEALTH,
+        code: 'run-test-estimate',
+        display: 'Estimated from a running test'
+      }),
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('94122-9', toNumber(data.runVo2Max))
+    },
+    meta
+  );
 }
 
-export function mapVo2MaxToFHIR(data: health_v4.Schema$VO2Max): Observation {
-  return createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '94122-9', display: 'VO2 max' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.vo2Max !== undefined && data.vo2Max !== null
-        ? { value: data.vo2Max, unit: 'mL/kg/min', system: SYSTEMS.UCUM, code: 'mL/kg/min' }
-        : undefined,
-    components: compact([
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'measurement-method', display: 'Measurement method' },
-        data.measurementMethod
-      )
-    ])
-  });
+export function mapVo2MaxToFHIR(data: health_v4.Schema$VO2Max, meta: DataPointMeta): Observation {
+  // 94122-9 means "peak during exercise". A watch- or ring-derived VO2 max is a model
+  // output, not a measured peak from a graded exercise test, so the method records how
+  // the number was arrived at wherever Google states it.
+  const method = codeableConcept([
+    { system: SYSTEMS.GOOGLE_HEALTH, code: 'device-estimate', display: 'Device-estimated' },
+    ...(data.measurementMethod
+      ? [{ system: SYSTEMS.GOOGLE_HEALTH, code: data.measurementMethod, display: data.measurementMethod }]
+      : [])
+  ]);
+
+  return createGoogleObservation(
+    {
+      measure: 'vo2-max',
+      category: CATEGORY.VITAL_SIGNS,
+      code: [
+        { system: SYSTEMS.LOINC, code: '94122-9', display: VO2_MAX_DISPLAY },
+        { system: SYSTEMS.GOOGLE_HEALTH, code: 'vo2-max', display: 'VO2 max' }
+      ],
+      method,
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      valueQuantity: loincQuantity('94122-9', toNumber(data.vo2Max))
+    },
+    meta
+  );
 }
 
-export function mapWeightToFHIR(data: health_v4.Schema$Weight): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '29463-7', display: 'Body weight' },
-    effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
-    valueQuantity:
-      data.weightGrams !== undefined && data.weightGrams !== null
-        ? { value: data.weightGrams, unit: 'g', system: SYSTEMS.UCUM, code: 'g' }
-        : undefined
-  });
-
-  if (data.notes) {
-    observation.note = [{ text: data.notes }];
-  }
-
-  return observation;
+export function mapWeightToFHIR(data: health_v4.Schema$Weight, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'weight',
+      category: CATEGORY.VITAL_SIGNS,
+      code: { system: SYSTEMS.LOINC, code: '29463-7', display: 'Body weight' },
+      effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
+      expectsValue: true,
+      // Google sends grams. `kg` is what the R4 Body weight profile and every real
+      // consumer expects; 86000 published as a body weight is not a plausible number.
+      valueQuantity: loincQuantity('29463-7', gramsToKilograms(data.weightGrams)),
+      note: data.notes ?? undefined,
+      profiles: [PROFILES.BODY_WEIGHT]
+    },
+    meta
+  );
 }
