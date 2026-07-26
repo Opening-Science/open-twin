@@ -96,6 +96,4 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
-export const BUNDLE_CASES: BundleCase[] = [
-  { name: 'fhir-core-exemplar', build: exemplar }
-];
+export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
