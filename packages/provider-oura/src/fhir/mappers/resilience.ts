@@ -1,79 +1,49 @@
+import {
+  CATEGORY,
+  codeableConcept,
+  createObservation,
+  dataAbsentReason,
+  optionalNumericComponent,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { OuraResilienceResponseList } from '../../api/schemas/resilience';
-import { SYSTEMS } from './shared';
+import { type OuraMapperContext, ouraCoding, ouraIdentifier, ouraResourceId } from './shared';
 
-export function mapOuraResilienceToFHIR(ouraData: OuraResilienceResponseList): Observation[] {
-  if (!ouraData?.data || ouraData.data.length === 0) {
-    throw new Error('No resilience data available to map to FHIR.');
-  }
+export function mapOuraResilienceToFHIR(
+  ouraData: OuraResilienceResponseList,
+  context: OuraMapperContext
+): Observation[] {
+  if (!ouraData?.data || ouraData.data.length === 0) return [];
 
-  return ouraData.data.map((resilience) => {
-    const components: Observation['component'] = [];
-
-    const addComponent = (value: number | undefined, coding: { system: string; code: string; display: string }) => {
-      if (value === undefined) return;
-      components.push({
-        code: { coding: [coding] },
-        valueQuantity: { value, unit: 'score', system: SYSTEMS.UCUM, code: '{score}' }
-      });
-    };
-
-    addComponent(resilience.contributors.sleep_recovery, {
-      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
-      code: 'sleep-recovery',
-      display: 'Sleep Recovery'
-    });
-    addComponent(resilience.contributors.daytime_recovery, {
-      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
-      code: 'daytime-recovery',
-      display: 'Daytime Recovery'
-    });
-    addComponent(resilience.contributors.stress, {
-      system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
-      code: 'stress',
-      display: 'Stress'
-    });
-
-    const observation: Observation = {
-      resourceType: 'Observation',
-      identifier: [
-        {
-          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
-          value: `oura-resilience-${resilience.id}`
-        }
-      ],
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'activity',
-              display: 'Activity'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Resilience-Routes`,
-            code: 'resilience-level',
-            display: 'Oura Resilience Level'
-          }
-        ]
-      },
-      subject: {
-        reference: 'Patient/example'
-      },
+  return ouraData.data.map((resilience) =>
+    createObservation({
+      id: ouraResourceId(context, resilience.id, 'daily-resilience'),
+      identifier: ouraIdentifier(resilience.id),
+      code: ouraCoding('resilience-level', 'Oura Resilience Level'),
+      category: CATEGORY.ACTIVITY,
+      subject: context.subject,
       effectiveDateTime: resilience.day,
-      component: components.length > 0 ? components : undefined
-    };
-
-    if (resilience.level !== undefined) {
-      observation.valueString = resilience.level;
-    }
-
-    return observation;
-  });
+      // A five-term closed value set. Shipped as free text, a receiver cannot bind
+      // it to anything; as a CodeableConcept it is machine-readable.
+      valueCodeableConcept:
+        resilience.level === undefined || resilience.level === null
+          ? undefined
+          : codeableConcept(ouraCoding(resilience.level), resilience.level),
+      dataAbsentReason: dataAbsentReason(),
+      components: [
+        optionalNumericComponent(
+          ouraCoding('sleep-recovery', 'Sleep Recovery'),
+          resilience.contributors.sleep_recovery,
+          UCUM.SCORE
+        ),
+        optionalNumericComponent(
+          ouraCoding('daytime-recovery', 'Daytime Recovery'),
+          resilience.contributors.daytime_recovery,
+          UCUM.SCORE
+        ),
+        optionalNumericComponent(ouraCoding('stress', 'Stress'), resilience.contributors.stress, UCUM.SCORE)
+      ]
+    })
+  );
 }

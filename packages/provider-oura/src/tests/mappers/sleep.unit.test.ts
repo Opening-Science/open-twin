@@ -1,7 +1,11 @@
+import { SYSTEMS } from '@open-twin/fhir-core';
 import { describe, expect, it } from 'vitest';
 import type { OuraSleep, OuraSleepList } from '../../api/schemas/sleep';
-import { SYSTEMS } from '../../fhir/mappers/shared';
+import { ouraExtensionUrl } from '../../fhir/mappers/shared';
 import { mapOuraSleepToFHIR } from '../../fhir/mappers/sleep';
+import { TEST_CONTEXT, TEST_SUBJECT_REFERENCE } from '../testContext';
+
+const minutes = (value: number) => ({ value, unit: 'minutes', system: SYSTEMS.UCUM, code: 'min' });
 
 describe('mapOuraSleepToFHIR', () => {
   const baseSleep: OuraSleep = {
@@ -13,9 +17,11 @@ describe('mapOuraSleepToFHIR', () => {
     type: 'long_sleep',
     rem_sleep_duration: 5400,
     deep_sleep_duration: 3600,
+    light_sleep_duration: 18000,
     efficiency: 95,
     latency: 600,
     lowest_heart_rate: 48,
+    average_heart_rate: 55.5,
     time_in_bed: 28800,
     total_sleep_duration: 27000,
     sleep_algorithm_version: 'v2',
@@ -25,37 +31,30 @@ describe('mapOuraSleepToFHIR', () => {
     temperature_deviation: 0.2
   };
 
-  it('throws an error when no sleep data is provided', () => {
-    expect(() => mapOuraSleepToFHIR(null as unknown as OuraSleepList)).toThrow(
-      'No sleep data available to map to FHIR.'
-    );
+  it('returns an empty array when no sleep data is provided', () => {
+    expect(mapOuraSleepToFHIR(null as unknown as OuraSleepList, TEST_CONTEXT)).toEqual([]);
   });
 
-  it('throws an error when the response contains an empty data array', () => {
+  it('returns an empty array when the response contains an empty data array', () => {
     const input: OuraSleepList = { data: [], next_token: null };
 
-    expect(() => mapOuraSleepToFHIR(input)).toThrow('No sleep data available to map to FHIR.');
+    expect(mapOuraSleepToFHIR(input, TEST_CONTEXT)).toEqual([]);
   });
 
   it('maps a fully populated entry to a FHIR Observation resource', () => {
     const input: OuraSleepList = { data: [baseSleep], next_token: null };
 
-    const [observation] = mapOuraSleepToFHIR(input);
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
     expect(observation).toMatchObject({
       resourceType: 'Observation',
       status: 'final',
       code: {
-        coding: [
-          {
-            system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes',
-            code: 'sleep',
-            display: 'Oura Sleep Observation'
-          }
-        ]
+        coding: [{ system: SYSTEMS.OURA, code: 'sleep-score', display: 'Oura Sleep Score' }],
+        text: 'long_sleep'
       },
-      subject: { reference: 'Patient/example' },
-      identifier: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes', value: 'sleep-1' }],
+      subject: { reference: TEST_SUBJECT_REFERENCE },
+      identifier: [{ system: SYSTEMS.OURA_IDENTIFIER, value: 'sleep-1' }],
       effectivePeriod: {
         start: '2026-06-20T23:00:00+00:00',
         end: '2026-06-21T07:00:00+00:00'
@@ -63,74 +62,148 @@ describe('mapOuraSleepToFHIR', () => {
     });
   });
 
-  it('maps the sleep score to valueQuantity', () => {
+  it('maps the sleep score to a UCUM-coded score Quantity', () => {
     const input: OuraSleepList = { data: [baseSleep], next_token: null };
 
-    const [observation] = mapOuraSleepToFHIR(input);
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
+    // Quantity.system must be the code system that defines the *unit*. It used to
+    // be an Oura documentation URL, with 'sleep_score' as the unit code.
     expect(observation.valueQuantity).toEqual({
       value: 88,
-      system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes',
-      code: 'sleep_score'
+      unit: 'score',
+      system: SYSTEMS.UCUM,
+      code: '{score}'
     });
   });
 
-  it('maps optional metadata to category, method, note and device', () => {
+  it('converts sleep durations from seconds to the minutes LOINC binds them to', () => {
     const input: OuraSleepList = { data: [baseSleep], next_token: null };
 
-    const [observation] = mapOuraSleepToFHIR(input);
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
-    expect(observation.category).toEqual([
-      { coding: [{ system: 'https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes', code: 'long_sleep' }] }
-    ]);
-    expect(observation.method).toEqual({ text: 'v2' });
-    expect(observation.note).toEqual([{ text: 'normal' }]);
-    expect(observation.device).toEqual({ reference: 'Device/ring-9' });
-  });
-
-  it('maps known duration metrics to LOINC/SNOMED components', () => {
-    const input: OuraSleepList = { data: [baseSleep], next_token: null };
-
-    const [observation] = mapOuraSleepToFHIR(input);
-
+    // Oura reports seconds. These were emitted as a bare `{ value }` with no unit
+    // at all, so 5400 seconds of REM read as 5400 of whatever the receiver assumed.
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '93832-4', display: 'Sleep duration' }] },
+      valueQuantity: minutes(450)
+    });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.LOINC, code: '93829-0', display: 'REM sleep duration' }] },
-      valueQuantity: { value: 5400 }
+      valueQuantity: minutes(90)
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.LOINC, code: '93831-6', display: 'Deep sleep duration' }] },
-      valueQuantity: { value: 3600 }
+      valueQuantity: minutes(60)
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.SNOMED, code: '248263006', display: 'Sleep efficiency' }] },
-      valueQuantity: { value: 95 }
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '93830-8', display: 'Light sleep duration' }] },
+      valueQuantity: minutes(300)
     });
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.LOINC, code: '40443-4', display: 'Resting heart rate' }] },
-      valueQuantity: { value: 48 }
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '103212-7', display: 'Duration of falling asleep' }] },
+      valueQuantity: minutes(10)
+    });
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '103213-5', display: 'Duration in bed' }] },
+      valueQuantity: minutes(480)
     });
   });
 
-  it('maps deviation and phase data to Oura custom components and extensions', () => {
+  it('maps sleep efficiency to an Oura code with a percent unit', () => {
     const input: OuraSleepList = { data: [baseSleep], next_token: null };
 
-    const [observation] = mapOuraSleepToFHIR(input);
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    // SNOMED 248263006 means "Duration of sleep", so 95% efficiency was published
+    // as 95 units of sleep duration with no unit attached.
+    expect(observation.component).toContainEqual({
+      code: {
+        coding: [{ system: SYSTEMS.OURA, code: 'sleep-efficiency-percentage', display: 'Sleep Efficiency' }]
+      },
+      valueQuantity: { value: 95, unit: '%', system: SYSTEMS.UCUM, code: '%' }
+    });
+    expect(JSON.stringify(observation)).not.toContain('248263006');
+  });
+
+  it('maps the lowest heart rate to LOINC 103222-6, not to the resting heart rate code', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    // 40443-4 is "Heart rate --resting": measured awake and at rest, a different
+    // statistic from a different physiological state.
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '103222-6', display: 'Heart rate.minimum' }] },
+      valueQuantity: { value: 48, unit: 'per minute', system: SYSTEMS.UCUM, code: '/min' }
+    });
+    expect(JSON.stringify(observation)).not.toContain('40443-4');
+  });
+
+  it('says on the code itself that the average heart rate is a period mean', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: SYSTEMS.OURA_CUSTOM, code: 'temperature_deviation' }] },
-      valueQuantity: { value: 0.2 }
+      code: {
+        coding: [
+          { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
+          { system: SYSTEMS.OURA, code: 'sleep-average-heart-rate', display: 'Average Heart Rate During Sleep' }
+        ]
+      },
+      valueQuantity: { value: 55.5, unit: 'per minute', system: SYSTEMS.UCUM, code: '/min' }
     });
+  });
+
+  it('emits the temperature deviation in Kelvin under an Oura code', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: SYSTEMS.OURA, code: 'temperature-deviation', display: 'Temperature Deviation' }] },
+      valueQuantity: { value: 0.2, unit: 'Kelvin', system: SYSTEMS.UCUM, code: 'K' }
+    });
+  });
+
+  it('maps optional metadata to method and note', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.method).toEqual({ text: 'v2' });
+    expect(observation.note).toEqual([{ text: 'normal' }]);
+  });
+
+  it('carries the ring id as an extension instead of a Device reference that resolves to nothing', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.device).toBeUndefined();
     expect(observation.extension).toContainEqual({
-      url: `${SYSTEMS.OURA_CUSTOM}/day`,
+      url: ouraExtensionUrl('ring-id'),
+      valueString: 'ring-9'
+    });
+  });
+
+  it('maps phase data to distinct extension urls', () => {
+    const input: OuraSleepList = { data: [baseSleep], next_token: null };
+
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.extension).toContainEqual({
+      url: ouraExtensionUrl('sleep-day'),
       valueString: '2026-06-21'
     });
     expect(observation.extension).toContainEqual({
-      url: `${SYSTEMS.OURA_CUSTOM}/sleep_phase_30_sec`,
+      url: ouraExtensionUrl('sleep-phase-30-sec'),
       valueString: '111222333'
     });
   });
 
-  it('omits optional resource properties when their fields are absent', () => {
+  it('sets dataAbsentReason when the score is absent', () => {
     const minimalSleep: OuraSleep = {
       id: 'sleep-min',
       bedtime_start: '2026-06-20T23:00:00+00:00',
@@ -139,15 +212,17 @@ describe('mapOuraSleepToFHIR', () => {
     };
     const input: OuraSleepList = { data: [minimalSleep], next_token: null };
 
-    const [observation] = mapOuraSleepToFHIR(input);
+    const [observation] = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
     expect(observation.valueQuantity).toBeUndefined();
-    expect(observation.category).toBeUndefined();
+    expect(observation.dataAbsentReason).toEqual({
+      coding: [{ system: SYSTEMS.DATA_ABSENT_REASON, code: 'unknown', display: 'Unknown' }]
+    });
     expect(observation.method).toBeUndefined();
     expect(observation.note).toBeUndefined();
     expect(observation.device).toBeUndefined();
     expect(observation.component).toBeUndefined();
-    expect(observation.extension).toEqual([{ url: `${SYSTEMS.OURA_CUSTOM}/day`, valueString: '2026-06-21' }]);
+    expect(observation.extension).toEqual([{ url: ouraExtensionUrl('sleep-day'), valueString: '2026-06-21' }]);
   });
 
   it('maps every entry in the list preserving order', () => {
@@ -156,7 +231,7 @@ describe('mapOuraSleepToFHIR', () => {
       next_token: null
     };
 
-    const observations = mapOuraSleepToFHIR(input);
+    const observations = mapOuraSleepToFHIR(input, TEST_CONTEXT);
 
     expect(observations).toHaveLength(2);
     expect(observations[0].identifier?.[0].value).toBe('sleep-1');

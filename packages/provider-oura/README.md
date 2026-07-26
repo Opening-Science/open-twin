@@ -77,178 +77,190 @@ await tokenHandler.getAccessToken()
 
 ---
 
-### `getOuraData(request, tokenHandler)`
+### `getOuraData(request, tokenHandler, options?)`
 
-Retrieves the Oura Data types specified in the request
+Retrieves the Oura data types named in the request, parsed against the schema for
+the type that was **requested** — not guessed from the response shape.
 
 #### Parameters
 
-* **`request`** (`RequestParams`): The parameters required to make a request
+* **`request`** (`RequestParams`): validated before any network call. `start_date`
+  and `end_date` are `YYYY-MM-DD`.
 
 ```ts
 interface RequestParams {
-    types: string[];
-    start_date?: string | undefined;
-    end_date?: string | undefined;
-    next_token?: string | null | undefined;
-    fields?: string[] | undefined;
-    latest?: boolean | null | undefined;
+  types: SupportedScope[];
+  start_date?: string;   // YYYY-MM-DD
+  end_date?: string;     // YYYY-MM-DD
+  next_token?: string | null;
+  fields?: string[];
+  latest?: boolean | null;   // heartrate only; ignored elsewhere
 }
 ```
 
-* **`tokenHandler`** (`TokenHandler`): The runtime token handler class for automatic token refresh
+* **`tokenHandler`** (`TokenHandler`)
+* **`options`** (`OuraRequestOptions`, optional): `sandbox`, `subject`,
+  `subjectKey`, `timestamp`, `maxAttempts`, `sleep`.
 
-#### Return Value
+#### Return value
 
-Returns a `Promise<(SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal)[]>` with the following structure:
+```ts
+interface OuraDataResult {
+  data: OuraTypedData[];        // successes, tagged with their type, in request order
+  issues?: OperationOutcome;    // types that failed or came back empty
+}
+```
+
+A type that fails does not discard its siblings: it appears in `issues` as an
+`OperationOutcome.issue`. A type that returns no data appears there too, as
+`severity: information`, so "requested and empty" is distinguishable from "never
+requested".
 
 #### Example
 
 ```ts
-
 import { getOuraData } from '@open-twin/provider-oura';
 
-const request = {
-    types: ["heartrate", "sleep", "workout", "spo2", "personal"],
-    start_date: "2026-07-01",
-    end_date: "2026-07-02",
-};
+const { data, issues } = await getOuraData(
+  { types: ['heartrate', 'sleep', 'workout'], start_date: '2026-07-01', end_date: '2026-07-02' },
+  tokenHandler
+);
 
-try {
-  const response = await getOuraData(request, tokenHandler);
-  console.log("Response:", JSON.stringify(data, null, 2));
-} catch (error) {
-  console.error("An unexpected error has occurred:", error);
+for (const item of data) {
+  if (item.type === 'sleep') console.log(item.data.data.length, 'sleep records');
 }
+if (issues) console.warn(JSON.stringify(issues, null, 2));
 ```
 
 ---
 
-### `getFhirBundleFromOuraData(request, tokenHandler, sandbox)`
+### `getFhirBundleFromOuraData(request, tokenHandler, options?)`
 
-Retrieves the Oura Data types specified in the request and converts it into FHIR standard to return as a Bundle of data
+As above, and maps the result into one flat FHIR `collection` Bundle.
 
-#### Parameters
+#### Subject
 
-* **`request`** (`RequestParams`): The parameters required to make a request
+The connector does not know who the wearer is, so it will not guess. Supply one of:
+
+* `options.subject` — a `Reference` you control, used verbatim;
+* `options.subjectKey` — Oura's user id or another stable key, from which a
+  deterministic `urn:uuid:` subject and a matching `Patient` are derived;
+* `personal_info` in `request.types` — the subject key is then Oura's own user id.
+
+With none of the three the call rejects rather than emitting `Patient/example`.
+
+#### Return value
 
 ```ts
-RequestParams: interface {
-    types: string[];
-    start_date?: string | undefined;
-    end_date?: string | undefined;
-    next_token?: string | null | undefined;
-    fields?: string[] | undefined;
-    latest?: boolean | null | undefined;
+interface OuraBundleResult {
+  bundle: Bundle;
+  issues?: OperationOutcome;
 }
 ```
 
-* **`tokenHandler`** (`TokenHandler`): The runtime token handler class for automatic token refresh
-
-* **`sandbox`** (`boolean`): A flag to choose if the request should be true values or mocked ones. Default false
-
-#### Return Value
-
-Returns a `Promise<Bundle>`
+Every entry carries a `urn:uuid:` `fullUrl` matching its resource id, and both are
+deterministic: re-syncing the same window produces the same ids rather than
+duplicates.
 
 #### Example
 
 ```ts
 import { getFhirBundleFromOuraData } from '@open-twin/provider-oura';
 
-const request = {
-    types: ["heartrate", "sleep", "workout", "spo2", "personal"],
-    start_date: "2026-07-01",
-    end_date: "2026-07-02",
-};
-
-try {
-  const response = await getFhirBundleFromOuraData(request, bearerToken);
-  console.log("Response:", JSON.stringify(data, null, 2));
-} catch (error) {
-  console.error("An unexpected error has occurred:", error);
-}
+const { bundle, issues } = await getFhirBundleFromOuraData(
+  { types: ['personal_info', 'sleep', 'heartrate'], start_date: '2026-07-01', end_date: '2026-07-02' },
+  tokenHandler
+);
 ```
-
-## Oura to FHIR Mappings
-
-### Sleep
-
-| OURA Data Feature             | FHIR Correspondence                     | Clinical Code (LOINC / SNOMED) |
-| :---------------------------- | :-------------------------------------- | :----------------------------- |
-| `id`                          | `Observation.identifier`                |                                |
-| `bedtime_start`               | `Observation.effectivePeriod.start`     |                                |
-| `bedtime_end`                 | `Observation.effectivePeriod.end`       |                                |
-| `score`                       | `Observation.valueQuantity`             | Custom (Oura System)           |
-| `day`                         | `Observation.extension`                 |                                |
-| `readiness_score_delta`       | `Observation.component.valueQuantity`   | Custom (Oura System)           |
-| `rem_sleep_duration`          | `Observation.component.valueQuantity`   | 93829-0 (LOINC)                |
-| `restless_periods`            | `Observation.component.valueQuantity`   | Custom (Oura System)           |
-| `sleep_algorithm_version`     | `Observation.method`                    |                                |
-| `sleep_analysis_reason`       | `Observation.note`                      |                                |
-| `sleep_phase_30_sec`          | `Observation.extension`                 |                                |
-| `sleep_phase_5_min`           | `Observation.extension`                 |                                |
-| `sleep_score_delta`           | `Observation.component.valueQuantity`   | Custom (Oura System)           |
-| `time_in_bed`                 | `Observation.component.valueQuantity`   | 103214-3 (LOINC)               |
-| `total_sleep_duration`        | `Observation.component.valueQuantity`   | 93832-4 (LOINC)                |
-| `type`                        | `Observation.category`                  |                                |
-| `ring_id`                     | `Observation.device` _(Reference Type)_ |                                |
-| `app_sleep_phase_5_min`       | `Observation.extension`                 |                                |
-| `temperature_deviation`       | `Observation.component.valueQuantity`   | Custom (Oura System)           |
-| `temperature_trend_deviation` | `Observation.component.valueQuantity`   | Custom (Oura System)           |
 
 ---
 
-### Sleep Contributors
+### `getSandboxOuraData(request, tokenHandler, options?)`
 
-| OURA Data Feature    | FHIR Correspondence                   | Clinical Code (LOINC / SNOMED) |
-| :------------------- | :------------------------------------ | :----------------------------- |
-| `deep_sleep`         | `Observation.component.valueQuantity` | 93831-6 (LOINC)                |
-| `efficiency`         | `Observation.component.valueQuantity` | 248263006 (SNOMED CT)          |
-| `latency`            | `Observation.component.valueQuantity` | 103212-7 (LOINC)               |
-| `rem_sleep`          | `Observation.component.valueQuantity` | 93829-0 (LOINC)                |
-| `restfulness`        | `Observation.component.valueQuantity` | Custom (Oura System)           |
-| `timing`             | `Observation.component.valueQuantity` | Custom (Oura System)           |
-| `total_sleep`        | `Observation.component.valueQuantity` | 93832-4 (LOINC)                |
-| `recovery_index`     | `Observation.component.valueQuantity` | Custom (Oura System)           |
-| `resting_heart_rate` | `Observation.component.valueQuantity` | 40443-4 (LOINC)                |
-| `sleep_balance`      | `Observation.component.valueQuantity` | Custom (Oura System)           |
-| `sleep_regularity`   | `Observation.component.valueQuantity` | Custom (Oura System)           |
+As `getOuraData`, against Oura's sandbox. Note the sandbox has no `personal_info`
+route, so requesting that type yields a `not-found` issue rather than data.
+
+---
+
+## Oura to FHIR mappings
+
+Units follow `LOINC_UNITS` in `@open-twin/fhir-core`, so the same concept carries
+the same unit in every connector. **Oura reports durations in seconds; they are
+converted to minutes**, not relabelled.
+
+Codes marked *Oura* are `http://opentwin.ch/fhir/CodeSystem/oura`. Each exists
+because no standard concept was found for the measure, and each is marked
+`TODO(clinical-review)` in the source.
+
+### Sleep
+
+| Oura field | FHIR | Code | Unit |
+| :--- | :--- | :--- | :--- |
+| `id` | `Observation.identifier` | | |
+| `bedtime_start` / `bedtime_end` | `Observation.effectivePeriod` | | |
+| `score` | `Observation.valueQuantity` | Oura `sleep-score` | `{score}` |
+| `type` | `Observation.code.text` | | |
+| `total_sleep_duration` | component | 93832-4 | `min` |
+| `rem_sleep_duration` | component | 93829-0 | `min` |
+| `deep_sleep_duration` | component | 93831-6 | `min` |
+| `light_sleep_duration` | component | 93830-8 | `min` |
+| `latency` | component | 103212-7 | `min` |
+| `time_in_bed` | component | 103213-5 | `min` |
+| `awake_time` | component | Oura `awake-time` | `min` |
+| `efficiency` | component | Oura `sleep-efficiency-percentage` | `%` |
+| `lowest_heart_rate` | component | 103222-6 | `/min` |
+| `average_heart_rate` | component | 8867-4 + Oura `sleep-average-heart-rate` | `/min` |
+| `average_breath` | component | 9279-1 + Oura `sleep-average-breath` | `/min` |
+| `average_hrv` | component | Oura `sleep-average-hrv` | `ms` |
+| `restless_periods` | component | Oura `restless-periods` | `{count}` |
+| `temperature_deviation` | component | Oura `temperature-deviation` | `K` |
+| `sleep_algorithm_version` | `Observation.method` | | |
+| `sleep_analysis_reason` | `Observation.note` | | |
+| `ring_id`, `day`, phase strings | `Observation.extension` (one url each) | | |
+
+### Daily activity
+
+| Oura field | FHIR | Code | Unit |
+| :--- | :--- | :--- | :--- |
+| `score` | `Observation.valueQuantity` | Oura `activity-score` | `{score}` |
+| `timestamp` | `Observation.effectiveDateTime` | | local offset preserved |
+| `steps` | component | 41950-7 | `{steps}/d` |
+| `total_calories` | component | 41979-6 | `kcal/(24.h)` |
+| `active_calories` | component | Oura `active-calories` | `kcal` |
+| `*_met_minutes` | component | Oura | `{MET-min}` |
+| `*_time` | component | Oura | `min` |
+| contributors | component | Oura | `{score}` |
 
 ### Personal
 
-| OURA Data Feature | FHIR Correspondence         | LOINC Code |
-| :---------------- | :-------------------------- | :--------- |
-| `id`              | `Observation.identifier`    |            |
-| `weight`          | `Observation.valueQuantity` | 29463-7    |
-| `height`          | `Observation.valueQuantity` | 8302-2     |
-| `gender`          | `Patient.gender`            | 99501-9    |
-| `age`             | `Now() - Patient.birthDate` |            |
-| `email`           | `Observation.identifier`    |            |
-
-### SpO2
-
-| OURA Data Feature             | FHIR Correspondence             | LOINC Code |
-| :---------------------------- | :------------------------------ | :--------- |
-| `id`                          | `Observation.identifier`        |            |
-| `breathing_disturbance_index` | `Observation.valueQuantity`     | 90566-1    |
-| `spo2_percentage.average`     | `Observation.valueQuantity`     | 59408-5    |
-| `day`                         | `Observation.effectiveDateTime` |            |
+| Oura field | FHIR | Code | Unit |
+| :--- | :--- | :--- | :--- |
+| `id` | `Patient.id` (uuid) and `Patient.identifier` | | |
+| `biological_sex` | `Patient.gender` | administrative-gender | |
+| `age` | `Patient.extension` (`oura-personal-age`) | | |
+| `weight` | Observation `valueQuantity` | 29463-7 | `kg` |
+| `height` | Observation `valueQuantity` | 8302-2 | `cm` (converted from metres) |
+| `email` | **not emitted** | | |
 
 ### Workout
 
-| OURA Data Feature | FHIR Correspondence                          | LOINC Code | Notes                               |
-| :---------------- | :------------------------------------------- | :--------- | :---------------------------------- |
-| `id`              | `Observation.identifier`                     |            |                                     |
-| `activity`        | `Observation.valueCodeableConcept`           | 73985-4    |                                     |
-| `source`          | `Observation.method`                         |            |                                     |
-| `intensity`       | `Observation.component.valueCodeableConcept` | 74008-4    |                                     |
-| `start_datetime`  | `Observation.effectivePeriod.start`          |            |                                     |
-| `end_datetime`    | `Observation.effectivePeriod.end`            |            |                                     |
-| `day`             | `Observation.effectiveDateTime`              |            |                                     |
-| `calories`        | `Observation.component.valueQuantity`        | 41981-2    |                                     |
-| `distance`        | `Observation.component.valueQuantity`        | 112427-0   | Walking and running distance in 24h |
-| `label`           | `Observation.note`                           |            |                                     |
+| Oura field | FHIR | Code | Unit |
+| :--- | :--- | :--- | :--- |
+| `activity` | `Observation.code.text` | | |
+| `calories` | component | 41981-2 | `kcal` |
+| `distance` | component | Oura `workout-distance` | `m` |
+| `source`, `intensity`, `day`, `label` | `Observation.extension` (one url each) | | |
+
+### Other types
+
+`daily_readiness`, `daily_stress`, `daily_resilience`, `daily_spo2`,
+`daily_cardiovascular_age`, `vO2_max`, `session`, `rest_mode_period` and
+`ring_configuration` follow the same conventions. Two are worth calling out:
+
+* `vO2_max` uses **94122-9** (weight-indexed VO2, `mL/kg/min`), matching
+  `provider-google-health`.
+* `ring_configuration` emits a `Device` resource as well as the Observation, and
+  the Observation's `device` reference resolves to it by `fullUrl`.
 
 ## Disclaimer
 

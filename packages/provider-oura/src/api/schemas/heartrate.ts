@@ -3,7 +3,7 @@ import { ResponseParams } from './client';
 
 export const HeartRateSchema = z.object({
   timestamp: z.iso.datetime({ offset: true }),
-  timestamp_unix: z.number().optional(), // Format: UNIX timestamp
+  timestamp_unix: z.number().optional(), // UNIX time in MILLISECONDS, per Oura's spec
   bpm: z.number(),
   source: z.enum(['awake', 'workout', 'rest', 'sleep', 'live', 'session'])
 });

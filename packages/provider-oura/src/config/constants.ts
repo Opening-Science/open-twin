@@ -1,3 +1,9 @@
+/**
+ * `as const` is load-bearing. Without it `SupportedScope` widens to `string`, so
+ * `scopes: ['nonsense_scope']` compiled cleanly, `z.enum(SUPPORTED_SCOPES)` inferred
+ * `string[]`, and the switch over request types had no exhaustiveness checking —
+ * a missing case was a runtime throw rather than a compile error.
+ */
 const SUPPORTED_SCOPES = [
   'daily_activity',
   'heartrate',
@@ -13,7 +19,7 @@ const SUPPORTED_SCOPES = [
   'rest_mode_period',
   'ring_configuration',
   'session'
-];
+] as const;
 
 export type SupportedScope = (typeof SUPPORTED_SCOPES)[number];
 

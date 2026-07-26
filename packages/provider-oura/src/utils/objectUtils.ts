@@ -1,41 +1,46 @@
-import type { OuraResponseParams } from '../api/schemas/client';
-import { type OuraPersonal, PersonalSchema } from '../api/schemas/personal';
-import {
-  getListOfSupportedSchemas,
-  getSchemaNameRuntime,
-  type SupportedSchemaName,
-  type SupportedSchemaTypes
-} from './typeUtils';
+import { ConnectorError } from '@open-twin/fhir-core';
+import type { z } from 'zod';
+import { PersonalSchema } from '../api/schemas/personal';
+import type { SupportedScope } from '../config/constants';
+import { CONNECTOR } from '../fhir/mappers/shared';
+import { LIST_SCHEMAS, type OuraTypedData } from './typeUtils';
 
-export function inferOuraResponse(
-  params: OuraResponseParams | OuraPersonal
-): SupportedSchemaTypes[SupportedSchemaName] | OuraPersonal | undefined {
-  const parseResult = PersonalSchema.safeParse(params);
-  if (parseResult.success) {
-    return parseResult.data;
+/**
+ * Describes a schema mismatch without quoting the payload.
+ *
+ * The previous version threw `new Error(msg, { cause: { listOfSupportedSchemas,
+ * params } })`, where `params` was the entire raw Oura response — a full biometric
+ * record. `Error.cause` is serialised by most error reporters and by Node's own
+ * uncaught-exception printer, so every parse failure wrote health data into the
+ * logs. Field *names* are structural and describe the shape; field values are the
+ * data, and they stay out.
+ */
+function schemaMismatch(type: SupportedScope, body: unknown, error: z.ZodError): ConnectorError {
+  const paths = error.issues
+    .slice(0, 10)
+    .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.code}`)
+    .join(', ');
+  const record = Array.isArray((body as { data?: unknown })?.data)
+    ? ((body as { data: unknown[] }).data[0] as Record<string, unknown> | undefined)
+    : (body as Record<string, unknown> | undefined);
+  const keys = record && typeof record === 'object' ? Object.keys(record).join(', ') : '(none)';
+
+  return new ConnectorError(
+    `Oura ${type} response did not match its schema. Failing paths: ${paths}. Received keys: ${keys}.`,
+    { code: 'validation', connector: CONNECTOR.connector, operation: `GET usercollection/${type}` }
+  );
+}
+
+/** Parses a response against the schema for the type that was requested (D5). */
+export function parseOuraResponse(type: SupportedScope, body: unknown): OuraTypedData {
+  if (type === 'personal_info') {
+    const result = PersonalSchema.safeParse(body);
+    if (!result.success) throw schemaMismatch(type, body, result.error);
+    return { type, data: result.data };
   }
 
-  if (!('data' in params)) {
-    throw parseResult.error;
-  }
-
-  const runtimeSchemaName = getSchemaNameRuntime(params.data);
-  const listOfSupportedSchemas = getListOfSupportedSchemas();
-  for (const { schemaName, schema } of listOfSupportedSchemas) {
-    if (runtimeSchemaName === schemaName) {
-      const parseResult = schema.safeParse(params);
-      if (parseResult.success) {
-        return parseResult.data;
-      }
-      throw parseResult.error;
-    }
-  }
-
-  if (params.data.length === 0) {
-    return;
-  }
-
-  throw new Error('Response data does not match any supported schema.', {
-    cause: { listOfSupportedSchemas, params }
-  });
+  const schema = LIST_SCHEMAS[type] as unknown as z.ZodType<unknown>;
+  const result = schema.safeParse(body);
+  if (!result.success) throw schemaMismatch(type, body, result.error);
+  return { type, data: result.data } as OuraTypedData;
 }

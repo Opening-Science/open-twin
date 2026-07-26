@@ -1,6 +1,12 @@
+import { PROFILES, SYSTEMS } from '@open-twin/fhir-core';
 import { describe, expect, it } from 'vitest';
 import type { OuraHeartRate, OuraHeartRateList } from '../../api/schemas/heartrate';
 import { mapOuraHeartRateToFHIR } from '../../fhir/mappers/heartrate';
+import { ouraExtensionUrl } from '../../fhir/mappers/shared';
+import { TEST_CONTEXT, TEST_SUBJECT_REFERENCE } from '../testContext';
+
+const SOURCE_URL = ouraExtensionUrl('heart-rate-source');
+const TIMESTAMP_URL = ouraExtensionUrl('heart-rate-timestamp-unix');
 
 describe('mapOuraHeartRateToFHIR', () => {
   const baseEntry: OuraHeartRate = {
@@ -13,69 +19,61 @@ describe('mapOuraHeartRateToFHIR', () => {
   it('maps a fully populated entry to a FHIR Observation resource', () => {
     const input: OuraHeartRateList = { data: [baseEntry], next_token: null };
 
-    const [observation] = mapOuraHeartRateToFHIR(input);
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
     expect(observation).toMatchObject({
       resourceType: 'Observation',
       status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: 'http://terminology.hl7.org/CodeSystem/observation-category',
-              code: 'vital-signs',
-              display: 'Vital Signs'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: 'http://loinc.org',
-            code: '8867-4',
-            display: 'Heart rate'
-          }
-        ]
-      },
+      category: [{ coding: [{ system: SYSTEMS.OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }] }],
+      code: { coding: [{ system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' }] },
       effectiveDateTime: '2026-06-20T04:00:00+00:00',
       valueQuantity: {
         value: 60,
-        unit: 'beats/minute',
-        system: 'http://unitsofmeasure.org',
+        unit: 'per minute',
+        system: SYSTEMS.UCUM,
         code: '/min'
-      },
-      extension: [
-        {
-          url: 'https://cloud.ouraring.com/v2/docs#tag/Heart-Rate-Routes',
-          valueString: 'awake'
-        },
-        {
-          url: 'https://cloud.ouraring.com/v2/docs#tag/Heart-Rate-Routes',
-          valueString: '123412341234'
-        }
-      ]
+      }
     });
   });
 
-  it('sets the subject reference to the example patient', () => {
+  it('declares the R4 heart-rate profile, whose fixed unit code is /min', () => {
     const input: OuraHeartRateList = { data: [baseEntry], next_token: null };
 
-    const [observation] = mapOuraHeartRateToFHIR(input);
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
-    expect(observation.subject?.reference).toBe('Patient/example');
+    expect(observation.meta?.profile).toContain(PROFILES.HEART_RATE);
+    expect(observation.valueQuantity?.code).toBe('/min');
   });
 
-  it('includes the producer_timestamp as a second extension', () => {
+  it('attributes the Observation to the subject supplied by the caller', () => {
     const input: OuraHeartRateList = { data: [baseEntry], next_token: null };
 
-    const [observation] = mapOuraHeartRateToFHIR(input);
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
-    expect(observation.extension).toHaveLength(2);
-    expect(observation.extension?.[1]).toEqual({
-      url: 'https://cloud.ouraring.com/v2/docs#tag/Heart-Rate-Routes',
-      valueString: '123412341234'
-    });
+    expect(observation.subject?.reference).toBe(TEST_SUBJECT_REFERENCE);
+  });
+
+  it('gives the source and the unix timestamp distinct extension urls', () => {
+    const input: OuraHeartRateList = { data: [baseEntry], next_token: null };
+
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
+
+    // Both extensions used to share one url, so a consumer could read the two
+    // strings and not know which was which.
+    expect(observation.extension).toEqual([
+      { url: SOURCE_URL, valueString: 'awake' },
+      { url: TIMESTAMP_URL, valueString: '123412341234' }
+    ]);
+    expect(SOURCE_URL).not.toBe(TIMESTAMP_URL);
+  });
+
+  it('omits the unix timestamp extension when the field is absent', () => {
+    const { timestamp_unix: _unix, ...withoutUnix } = baseEntry;
+    const input: OuraHeartRateList = { data: [withoutUnix], next_token: null };
+
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.extension).toEqual([{ url: SOURCE_URL, valueString: 'awake' }]);
   });
 
   it.each([
@@ -85,14 +83,26 @@ describe('mapOuraHeartRateToFHIR', () => {
     'sleep',
     'live',
     'session'
-  ] as const)('maps the "%s" source into the first extension', (source) => {
+  ] as const)('maps the "%s" source into the source extension', (source) => {
     const input: OuraHeartRateList = { data: [{ ...baseEntry, source }], next_token: null };
 
-    const [observation] = mapOuraHeartRateToFHIR(input);
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
-    expect(observation.extension?.[0]).toEqual({
-      url: 'https://cloud.ouraring.com/v2/docs#tag/Heart-Rate-Routes',
-      valueString: source
+    expect(observation.extension?.[0]).toEqual({ url: SOURCE_URL, valueString: source });
+  });
+
+  it('sets dataAbsentReason rather than a 0 bpm reading when bpm is not a number', () => {
+    // A 0 bpm vital sign reads as asystole. `bpm ?? 0` made that the fallback.
+    const input = {
+      data: [{ ...baseEntry, bpm: undefined as unknown as number }],
+      next_token: null
+    } as OuraHeartRateList;
+
+    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
+
+    expect(observation.valueQuantity).toBeUndefined();
+    expect(observation.dataAbsentReason).toEqual({
+      coding: [{ system: SYSTEMS.DATA_ABSENT_REASON, code: 'unknown', display: 'Unknown' }]
     });
   });
 
@@ -105,7 +115,7 @@ describe('mapOuraHeartRateToFHIR', () => {
       next_token: null
     };
 
-    const observations = mapOuraHeartRateToFHIR(input);
+    const observations = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
     expect(observations).toHaveLength(2);
     expect(observations[0].valueQuantity?.value).toBe(60);
@@ -114,15 +124,15 @@ describe('mapOuraHeartRateToFHIR', () => {
     expect(observations[1].effectiveDateTime).toBe('2026-06-20T04:05:00+00:00');
   });
 
-  it('throws an error when no data is provided', () => {
+  it('returns an empty array when no data is provided', () => {
     const input: OuraHeartRateList = { data: [], next_token: null };
 
-    expect(() => mapOuraHeartRateToFHIR(input)).toThrowError('No heart rate data available to map to FHIR.');
+    expect(mapOuraHeartRateToFHIR(input, TEST_CONTEXT)).toEqual([]);
   });
 
-  it('throws an error when the data property is missing', () => {
+  it('returns an empty array when the data property is missing', () => {
     const input = { next_token: null } as unknown as OuraHeartRateList;
 
-    expect(() => mapOuraHeartRateToFHIR(input)).toThrowError('No heart rate data available to map to FHIR.');
+    expect(mapOuraHeartRateToFHIR(input, TEST_CONTEXT)).toEqual([]);
   });
 });

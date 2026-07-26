@@ -1,10 +1,10 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ResponseParams } from './client';
 
 export const VO2MaxSchema = z.object({
   id: z.string().nonempty(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  timestamp: z.string(), // ISO 8601 datetime string
+  timestamp: z.iso.datetime({ offset: true }), // with the wearer's UTC offset
   vo2_max: z.number().optional()
 });
 
