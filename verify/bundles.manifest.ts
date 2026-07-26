@@ -17,6 +17,7 @@ import type { Bundle, FhirResource, Patient } from 'fhir/r4';
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
 import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
+import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -188,5 +189,6 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'fhir-core-exemplar', build: exemplar },
   { name: 'oura-sync', build: ouraBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
-  { name: 'vitronic-scan', build: buildVitronicExemplarBundle }
+  { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
+  { name: 'fhir-r4-ingest', build: fhirR4IngestBundle }
 ];
