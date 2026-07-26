@@ -45,16 +45,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Derived from the workspace rather than listed. The hardcoded list named the four
+  # packages that existed when it was written, so the four connectors added later were
+  # never built or tested here at all — the same defect this workflow's sibling had.
+  packages:
+    name: Enumerate workspace packages
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.enumerate.outputs.list }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - id: enumerate
+        run: |
+          list=$(pnpm -r --depth -1 list --json \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{
+                const dirs=JSON.parse(d).map(p=>p.path).filter(p=>p.includes("/packages/"));
+                console.log(JSON.stringify(dirs.map(p=>p.split("/packages/")[1])));
+              })')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "Matrix: $list"
+
   build:
     name: Build ${{ matrix.package }}
     runs-on: ubuntu-latest
+    needs: [packages]
     permissions:
       contents: read
       checks: write # dorny/test-reporter publishes a check run
     strategy:
       fail-fast: false
       matrix:
-        package: [fhir-core, provider-oura, provider-google-health, provider-vitronic]
+        package: ${{ fromJSON(needs.packages.outputs.list) }}
     steps:
       # Third-party actions are pinned to commit SHAs. A tag is mutable, and these
       # run in the same workflow that holds the npm publish token.
@@ -71,6 +96,13 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Before the tests, not after. Workspace packages resolve @open-twin/* through
+      # `types: ./dist/index.d.ts`, so with no build every dependent package failed with
+      # "Failed to resolve entry for package @open-twin/fhir-core" — which is what this
+      # job had been reporting on every run, including on main.
+      - name: Build
+        run: pnpm -r build
+
       - name: Test ${{ matrix.package }}
         working-directory: packages/${{ matrix.package }}
         run: npx vitest run --reporter=junit --outputFile=test.junit.xml
@@ -85,8 +117,10 @@ jobs:
           path: 'packages/${{ matrix.package }}/test.junit.xml'
           reporter: java-junit
 
-      - name: Build ${{ matrix.package }}
-        run: pnpm --filter "@open-twin/${{ matrix.package }}..." build
+  # The build that used to sit here ran last, so it could not help the tests above it,
+  # and its filter was the wrong way round: in pnpm `pkg...` selects a package and its
+  # DEPENDENTS, so building provider-oura never built the fhir-core it depends on.
+  # `pnpm -r build` above builds everything in topological order instead.
 
   publish:
     name: Publish to npm
