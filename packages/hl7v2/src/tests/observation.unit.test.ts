@@ -61,8 +61,12 @@ describe('OBX-2 selects the value type', () => {
 
   it('CE and CWE become a valueCodeableConcept, not a string', () => {
     const { observation } = convert('OBX|1|CWE|664-3^Poikilocytosis^LN||260350009^Present^SCT||||||F');
+    // SNOMED CT 260350009 is 'Present (qualifier value)'. The sender wrote 'Present',
+    // which is close but is not the concept's fully specified name, so it becomes
+    // text rather than an assertion about what SNOMED calls the code.
     expect(observation.valueCodeableConcept).toEqual({
-      coding: [{ system: SYSTEMS.SNOMED, code: '260350009', display: 'Present' }]
+      coding: [{ system: SYSTEMS.SNOMED, code: '260350009' }],
+      text: 'Present'
     });
     // A coded answer flattened to text is not machine-readable, which is the whole
     // reason the sender coded it.

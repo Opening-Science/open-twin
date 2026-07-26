@@ -78,11 +78,17 @@ describe('OBX-3 in the IG example messages', () => {
     };
   };
 
-  it('publishes an LN-declared code under http://loinc.org', () => {
+  it("publishes an LN-declared code under http://loinc.org, without the sender's wording as its display", () => {
     // IG ORU_R01 example, OBX|1: `6153-1^IgE Blue Grass Kentucky^LN`.
+    //
+    // The code is LOINC's; the wording is not. LOINC calls 6153-1 'Kentucky blue
+    // grass IgE Ab [Units/volume] in Serum', and asserting the sender's phrasing as
+    // Coding.display claims a name the system does not use — which the HL7
+    // validator reports as an error. The wording is preserved as text instead.
     const { context: ctx, segments } = context(ORU_R01);
     const result = cweToCodeableConcept(segments[0]?.fields[2]?.[0], ctx);
-    expect(result?.codings).toEqual([{ system: SYSTEMS.LOINC, code: '6153-1', display: 'IgE Blue Grass Kentucky' }]);
+    expect(result?.codings).toEqual([{ system: SYSTEMS.LOINC, code: '6153-1' }]);
+    expect(result?.concept.text).toBe('IgE Blue Grass Kentucky');
   });
 
   it('publishes a code with no coding system under the local system, not LOINC', () => {
@@ -103,6 +109,9 @@ describe('OBX-3 in the IG example messages', () => {
     const result = cweToCodeableConcept(segments[0]?.fields[2]?.[0], ctx);
 
     expect(result?.codings).toHaveLength(2);
+    // The sender defines their own local code system, so their display for a local
+    // code IS authoritative and is kept. Only a standard system's display is not
+    // theirs to assert.
     expect(result?.codings[0]).toEqual({
       system: HL7V2_LOCAL_SYSTEM,
       code: '1111.2',
@@ -110,8 +119,7 @@ describe('OBX-3 in the IG example messages', () => {
     });
     expect(result?.codings[1]).toEqual({
       system: SYSTEMS.LOINC,
-      code: '44249-1',
-      display: 'PHQ-9 quick depression assessment panel [Reported.PHQ]'
+      code: '44249-1'
     });
     expect(codingFrom(result, SYSTEMS.LOINC)?.code).toBe('44249-1');
   });

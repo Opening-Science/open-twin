@@ -60,19 +60,44 @@ export function cweToCodeableConcept(rep: Repetition | undefined, context: Datat
 
   const codings: Coding[] = [];
   let anyRecognised = false;
+  // The sender's own wording for a standard code, kept for CodeableConcept.text.
+  let senderWording: string | undefined;
+
   for (const triplet of triplets) {
     if (triplet.code === undefined) continue;
     const resolved = resolveCodingSystem(triplet.system, localCodeSystem);
     anyRecognised ||= resolved.recognised;
+
+    // The IG maps CWE.2 to coding.display, and mechanically that is what this is.
+    // But FHIR defines Coding.display as the meaning of the code *in that system*,
+    // and a v2 sender's text usually is not: a message carrying LOINC 6153-1 as
+    // 'IgE Blue Grass Kentucky' means the right concept while naming it something
+    // LOINC does not, and the HL7 validator reports that as an error.
+    //
+    // For a system this connector does not define, the sender's wording is not
+    // authoritative, so it moves to CodeableConcept.text — which is exactly what
+    // text is for — and display is left absent rather than asserted wrongly.
+    // Looking the official name up would need a terminology server, which the
+    // offline path deliberately does not have.
+    //
+    // For a local code system the sender *does* define the code, so their wording
+    // is the authoritative display and is kept.
+    const keepDisplay = !resolved.recognised;
+    if (resolved.recognised && triplet.display && senderWording === undefined) {
+      senderWording = triplet.display;
+    }
+
     codings.push({
       system: resolved.system,
       code: triplet.code,
-      ...(triplet.display ? { display: triplet.display } : {}),
+      ...(keepDisplay && triplet.display ? { display: triplet.display } : {}),
       ...(triplet.version ? { version: triplet.version } : {})
     });
   }
 
-  const text = component(rep, 9, encoding);
+  // CWE.9 is the sender's own text and wins when present; otherwise the wording
+  // displaced from a standard coding above stands in, so it is never simply lost.
+  const text = component(rep, 9, encoding) ?? senderWording;
   if (codings.length === 0 && text === undefined) return undefined;
 
   const concept: CodeableConcept = {

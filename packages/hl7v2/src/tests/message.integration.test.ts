@@ -107,8 +107,7 @@ describe('the IG ORU_R01 example', () => {
     expect(report?.status).toBe('final');
     expect(report?.code.coding?.[0]).toEqual({
       system: SYSTEMS.LOINC,
-      code: '51523-9',
-      display: 'Grass Pollen Mix'
+      code: '51523-9'
     });
   });
 
@@ -142,8 +141,7 @@ describe('the IG ADT_A01 example', () => {
     const observation = entries<Observation>(result.bundle, 'Observation')[0];
     expect(observation?.code.coding?.[0]).toEqual({
       system: SYSTEMS.LOINC,
-      code: '8302-2',
-      display: 'Body Height'
+      code: '8302-2'
     });
     expect(observation?.valueQuantity).toEqual({
       value: 190,
