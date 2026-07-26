@@ -6,18 +6,9 @@ State of `etzm/open-twin` as of **2026-07-27**, and how it differs from
 Every number below was measured, not recalled. Where a claim comes from running a tool,
 the tool is named so it can be re-run.
 
-> **Scope.** The figures describe `main` **plus the three open PRs** — #9 (unit rule),
-> #10 (real-payload fixtures), #11 (aggregation) — which merge in that order. `main`
-> alone today tracks 8 packages, not 9; still passes `--allow-unreviewed` to both
-> gates; and has neither `minimalPatient` nor `@open-twin/aggregate`. This document
-> may therefore land before the state it describes. Where the distinction matters:
->
-> | | `main` today | with #9–#11 |
-> |---|---|---|
-> | packages | 8 | 9 |
-> | gates | `--allow-unreviewed` | strict |
-> | validated bundles | 9 | 11 |
-> | unit pairs verified | 1 signed | 35 |
+> **Scope.** Describes `main` at `d62ab5c`, which carries every connector PR plus the
+> unit rule, the real-payload fixtures and the aggregation layer. Verified against that
+> tree: 9 packages, 11 validated bundles, both gates strict, 35 unit pairs approved.
 
 ---
 
