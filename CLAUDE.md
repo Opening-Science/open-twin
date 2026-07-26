@@ -4,6 +4,12 @@ Standing brief for any session working on this codebase.
 
 ## What this repository is
 
+**This repository is `etzm/open-twin`, and it is the source of truth.**
+`Opening-Science/open-twin` is where the code came from and is now a historical
+reference only — it is not kept in sync, and pushing to it is deliberately
+disabled. See `PROVENANCE.md` before assuming anything about the other repo, or
+before acting on a pull request that lives there.
+
 A pnpm monorepo of health-data connectors that translate vendor APIs into FHIR R4
 bundles.
 
