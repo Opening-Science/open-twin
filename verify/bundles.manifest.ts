@@ -12,6 +12,7 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -96,4 +97,7 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
-export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
+export const BUNDLE_CASES: BundleCase[] = [
+  { name: 'fhir-core-exemplar', build: exemplar },
+  { name: 'google-health-sync', build: googleHealthBundle }
+];
