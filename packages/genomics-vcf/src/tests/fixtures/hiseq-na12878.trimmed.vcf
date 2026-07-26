@@ -1,0 +1,44 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=ABFilter,Description="AB  0.75 && DP  40">
+##FILTER=<ID=DPFilter,Description="DP  120 || SB  -0.10">
+##FILTER=<ID=FDRtranche0.00to0.10,Description="FDR tranche level at qual 0.06">
+##FILTER=<ID=FDRtranche0.10to1.00,Description="FDR tranche level at qual 0.03">
+##FILTER=<ID=FDRtranche1.00to2.00,Description="FDR tranche level at qual 0.02">
+##FILTER=<ID=FDRtranche2.00to10.00+,Description="FDR tranche level at qual > 0.06">
+##FILTER=<ID=FDRtranche2.00to10.00,Description="FDR tranche level at qual unknown">
+##FILTER=<ID=HARD_TO_VALIDATE,Description="MQ0 = 4 && ((MQ0 / (1.0 * DP))  0.1)">
+##FILTER=<ID=Indel,Description="Overlaps a user-input mask">
+##FILTER=<ID=LowQual,Description="Low quality">
+##FILTER=<ID=LowQual,Description="QUAL  50.0">
+##FILTER=<ID=SnpCluster,Description="SNPs found in clusters">
+##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth (only filtered reads used for calling)">
+##FORMAT=<ID=GL,Number=3,Type=Float,Description="Log-scaled likelihoods for AA,AB,BB genotypes where A=ref and B=alt; not applicable if site is not biallelic">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=AC,Number=.,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP Membership">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
+##INFO=<ID=HRun,Number=1,Type=Integer,Description="Largest Contiguous Homopolymer Run of Variant Allele In Either Direction">
+##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with two (and only two) segregating haplotypes">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQ0,Number=1,Type=Integer,Description="Total Mapping Quality Zero Reads">
+##INFO=<ID=OQ,Number=1,Type=Float,Description="The original variant quality score">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=SB,Number=1,Type=Float,Description="Strand Bias">
+##source=VariantOptimizer
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NA12878	
+chr1	109	.	A	T	0	FDRtranche2.00to10.00+	AC=1;AF=0.50;AN=2;DP=1019;Dels=0.00;HRun=0;HaplotypeScore=686.65;MQ=19.20;MQ0=288;OQ=2175.54;QD=2.13;SB=-1042.18	GT:AD:DP:GL:GQ	0/1:610,327:308:-316.30,-95.47,-803.03:99
+chr1	250	.	A	C	22.88	DPFilter;HARD_TO_VALIDATE;LowQual	AC=1;AF=0.50;AN=2;DP=182;Dels=0.01;HRun=3;HaplotypeScore=244.83;MQ=21.91;MQ0=52;QD=0.13;SB=-23.67	GT:AD:DP:GL:GQ	0/1:148,33:70:-26.66,-21.09,-215.78:55.69
+chr1	664	.	C	G	30.66	PASS	AC=2;AF=1.00;AN=2;DP=2;Dels=0.00;HRun=0;HaplotypeScore=0.00;MQ=29.00;MQ0=0;OQ=50.85;QD=25.42;SB=-10.00	GT:AD:DP:GL:GQ	1/1:0,2:2:-8.49,-0.60,-0.00:6.02
+chr1	666	.	C	G	10.99	LowQual	AC=1;AF=0.50;AN=2;DP=1;Dels=0.00;HRun=0;HaplotypeScore=0.00;MQ=29.00;MQ0=0;QD=10.99;SB=-10.00	GT:AD:DP:GL:GQ	0/1:0,1:1:-4.35,-0.30,-0.00:1.76
+chr1	2646	rs62635284	G	A	0.15	PASS	AC=2;AF=1.00;AN=2;DB;DP=128;Dels=0.00;HRun=0;HaplotypeScore=9.27;MQ=6.23;MQ0=107;OQ=89.13;QD=0.70;SB=-10.00	GT:AD:DP:GL:GQ	1/1:53,75:3:-12.40,-0.90,-0.00:9.03
+chr1	2979	rs62635286	T	G	83.67	PASS	AC=2;AF=1.00;AN=2;DB;DP=63;Dels=0.00;HRun=1;HaplotypeScore=0.00;MQ=11.99;MQ0=41;OQ=300.29;QD=4.77;SB=-10.00	GT:AD:DP:GL:GQ	1/1:31,32:9:-33.61,-2.71,-0.00:27.09
+chr1	2981	rs62028691	A	G	14.69	PASS	AC=2;AF=1.00;AN=2;DB;DP=64;Dels=0.00;HRun=2;HaplotypeScore=0.00;MQ=11.89;MQ0=42;OQ=285.31;QD=4.46;SB=-10.00	GT:AD:DP:GL:GQ	1/1:31,33:9:-32.12,-2.71,-0.00:27.08
+chr1	3759	.	C	A	0.19	PASS	AC=1;AF=0.50;AN=2;DP=146;Dels=0.00;HRun=0;HaplotypeScore=1.16;MQ=9.71;MQ0=116;OQ=458.45;QD=3.14;SB=-211.61	GT:AD:DP:GL:GQ	0/1:106,40:25:-56.66,-7.53,-33.77:99
+chr1	4536	rs11582131	G	C	0.18	PASS	AC=1;AF=0.50;AN=2;DB;DP=75;Dels=0.00;HRun=0;HaplotypeScore=9.63;MQ=12.37;MQ0=52;OQ=335.66;QD=4.48;SB=8.06	GT:AD:DP:GL:GQ	0/1:42,33:16:-41.67,-4.82,-26.29:99
+chr1	4540	.	G	A	47.71	DPFilter;HARD_TO_VALIDATE;LowQual	AC=1;AF=0.50;AN=2;DP=71;Dels=0.00;HRun=2;HaplotypeScore=11.12;MQ=11.52;MQ0=49;QD=0.67;SB=8.05	GT:AD:DP:GL:GQ	0/1:66,5:13:-11.97,-3.92,-35.35:80.54
+chr1	4562	rs11490464	C	G	0.14	PASS	AC=1;AF=0.50;AN=2;DB;DP=56;Dels=0.00;HRun=1;HaplotypeScore=2.62;MQ=11.28;MQ0=37;OQ=136.40;QD=2.44;SB=-10.00	GT:AD:DP:GL:GQ	0/1:26,30:9:-19.64,-2.72,-14.87:99
