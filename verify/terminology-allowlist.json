@@ -18,24 +18,13 @@
     "The 45 genomic codes were initially approved on HL7 Genomics Reporting IG",
     "provenance alone. That was later found to be much weaker evidence than it looked:",
     "only 5 of the 38 answer codes appear in the emitted sample bundle, so the",
-    "validator \u2014 even against a live terminology server \u2014 had ever checked 5 of them.",
+    "validator — even against a live terminology server — had ever checked 5 of them.",
     "All 45 were then individually validated against tx.fhir.org and all 45 passed.",
     "",
     "The general lesson, which applies to every connector: a validator only checks what",
     "you actually emit. Declaring a code and never exercising it leaves it unguarded."
   ],
   "codes": {
-    "77195-6": {
-      "status": "rejected",
-      "system": "LOINC",
-      "official_name": "Cardio-ankle vascular index (CAVI), calculated",
-      "used_for": "Oura vascular_age, in years",
-      "reason": "Was used for Oura vascular_age in years. CAVI is a dimensionless ratio with a normal value near 8, so vascular_age 45 reads as CAVI 45 \u2014 anything above 9 indicates arteriosclerosis.",
-      "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
-      "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
-      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
-    },
     "248263006": {
       "status": "rejected",
       "system": "SNOMED CT",
@@ -45,7 +34,22 @@
       "suggested": "Use a vendor-local code with unit '%' until a reviewer identifies a standard concept for sleep efficiency.",
       "found_at": "packages/provider-oura/src/fhir/mappers/sleep.ts:44",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
-      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
+      "verified_display": "Duration of sleep",
+      "verified_on": "2026-07-26"
+    },
+    "77195-6": {
+      "status": "rejected",
+      "system": "LOINC",
+      "official_name": "Cardio-ankle vascular index (CAVI), calculated",
+      "used_for": "Oura vascular_age, in years",
+      "reason": "Was used for Oura vascular_age in years. CAVI is a dimensionless ratio with a normal value near 8, so vascular_age 45 reads as CAVI 45 — anything above 9 indicates arteriosclerosis.",
+      "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
+      "verified_display": "Cardio-ankle vascular index Calculated",
+      "verified_on": "2026-07-26"
     },
     "60842-2": {
       "status": "rejected",
@@ -56,7 +60,9 @@
       "suggested": "94122-9",
       "found_at": "packages/provider-oura/src/fhir/mappers/vo2max.ts:31",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
-      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
+      "verified_display": "Oxygen consumption (VO2)",
+      "verified_on": "2026-07-26"
     },
     "41979-6": {
       "status": "approved",
@@ -65,7 +71,9 @@
       "used_for": "Oura per-workout calories, and separately a daily figure",
       "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:48",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
-      "open_question": "Retired from 'rejected' at sign-off. The misuse that caused the rejection (a single workout's calories under a 24-hour code) is fixed: workouts now use 41981-2, and 41979-6 appears only on a genuine daily total with unit kcal/(24.h)."
+      "open_question": "Retired from 'rejected' at sign-off. The misuse that caused the rejection (a single workout's calories under a 24-hour code) is fixed: workouts now use 41981-2, and 41979-6 appears only on a genuine daily total with unit kcal/(24.h).",
+      "verified_display": "Calories burned in 24 hour Calculated",
+      "verified_on": "2026-07-26"
     },
     "99501-9": {
       "status": "rejected",
@@ -76,7 +84,9 @@
       "suggested": "76689-9 for the labelled concept, sent as valueCodeableConcept.",
       "found_at": "packages/provider-oura/src/fhir/mappers/personal.ts:116",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
-      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
+      "verified_display": "Sex parameter for clinical use",
+      "verified_on": "2026-07-26"
     },
     "103212-7": {
       "status": "approved",
@@ -86,7 +96,9 @@
       "used_for": "Sleep latency, in min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:37",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Duration of falling asleep",
+      "verified_on": "2026-07-26"
     },
     "103213-5": {
       "status": "approved",
@@ -95,23 +107,29 @@
       "official_name": "Recorded during the July 2026 assessment.",
       "open_question": "OPEN QUESTION, approved anyway. LOINC is internally inconsistent here: the component says duration, the property is NRat and the example unit is /h. Verified against two independent sources. We emit min because /h is dimensionally meaningless for a duration. A term-change request to Regenstrief is still outstanding.",
       "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:38",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Duration in bed",
+      "verified_on": "2026-07-26"
     },
     "11524-6": {
       "status": "rejected",
       "system": "LOINC",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
       "official_name": "EKG study:Find:Pt:Heart:Doc:EKG",
-      "reason": "Scale is Doc \u2014 a document code, not a numeric observation.",
-      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
+      "reason": "Scale is Doc — a document code, not a numeric observation.",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
+      "verified_display": "EKG study",
+      "verified_on": "2026-07-26"
     },
     "2339-0": {
       "status": "approved",
       "system": "LOINC",
       "official_name": "Recorded during the July 2026 assessment.",
-      "open_question": "OPEN QUESTION, approved anyway. This is MASS concentration (mg/dL). If any deployment receives mmol/L the CODE must change to 15074-8, not just the unit \u2014 the same class of property mismatch that produced the original VO2max defect. Nobody has confirmed the source units against Google's documentation.",
+      "open_question": "OPEN QUESTION, approved anyway. This is MASS concentration (mg/dL). If any deployment receives mmol/L the CODE must change to 15074-8, not just the unit — the same class of property mismatch that produced the original VO2max defect. Nobody has confirmed the source units against Google's documentation.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:40",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Glucose [Mass/volume] in Blood",
+      "verified_on": "2026-07-26"
     },
     "29463-7": {
       "status": "approved",
@@ -121,7 +139,9 @@
       "used_for": "Body weight, in kg",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:301",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Body weight",
+      "verified_on": "2026-07-26"
     },
     "40443-4": {
       "status": "approved",
@@ -130,7 +150,9 @@
       "official_name": "Recorded during the July 2026 assessment.",
       "open_question": "OPEN QUESTION, approved anyway. 'Heart rate --resting' is measured awake and at rest. A wearable's daily figure is typically derived from sleep or a rolling minimum, which is a different statistic. Oura's lowest_heart_rate was moved to 103222-6 for exactly this reason; this one was not.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:200",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Heart rate --resting",
+      "verified_on": "2026-07-26"
     },
     "41950-7": {
       "status": "approved",
@@ -139,7 +161,9 @@
       "used_for": "Daily step total, in {steps}/d",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:46",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Number of steps in 24 hour Measured",
+      "verified_on": "2026-07-26"
     },
     "41981-2": {
       "status": "approved",
@@ -149,7 +173,9 @@
       "used_for": "Calories for a single activity, in kcal",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/interval.ts:31",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Calories burned",
+      "verified_on": "2026-07-26"
     },
     "41982-0": {
       "status": "approved",
@@ -158,7 +184,9 @@
       "used_for": "Body fat percentage, in %",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:63",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Percentage of body fat Measured",
+      "verified_on": "2026-07-26"
     },
     "55423-8": {
       "status": "approved",
@@ -167,7 +195,9 @@
       "used_for": "Interval step count, {steps}, with effectivePeriod",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/interval.ts:215",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Number of steps in unspecified time Pedometer",
+      "verified_on": "2026-07-26"
     },
     "59408-5": {
       "status": "approved",
@@ -176,7 +206,9 @@
       "used_for": "SpO2, in %",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:132",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Oxygen saturation in Arterial blood by Pulse oximetry",
+      "verified_on": "2026-07-26"
     },
     "77196-4": {
       "status": "approved",
@@ -186,7 +218,9 @@
       "used_for": "Pulse wave velocity, in m/s",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:58",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Pulse wave velocity",
+      "verified_on": "2026-07-26"
     },
     "8302-2": {
       "status": "approved",
@@ -196,7 +230,9 @@
       "used_for": "Body height, in cm",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:154",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Body height",
+      "verified_on": "2026-07-26"
     },
     "8310-5": {
       "status": "approved",
@@ -205,7 +241,9 @@
       "used_for": "Absolute body temperature, in Cel",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:80",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Body temperature",
+      "verified_on": "2026-07-26"
     },
     "8867-4": {
       "status": "approved",
@@ -215,7 +253,9 @@
       "used_for": "Instantaneous heart rate, in /min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:102",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Heart rate",
+      "verified_on": "2026-07-26"
     },
     "9279-1": {
       "status": "approved",
@@ -224,7 +264,9 @@
       "used_for": "Respiratory rate, in /min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:178",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Respiratory rate",
+      "verified_on": "2026-07-26"
     },
     "93829-0": {
       "status": "approved",
@@ -234,7 +276,9 @@
       "used_for": "REM sleep time, in min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:101",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "REM sleep duration",
+      "verified_on": "2026-07-26"
     },
     "93831-6": {
       "status": "approved",
@@ -244,7 +288,9 @@
       "used_for": "Deep sleep time, in min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:91",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Deep sleep duration",
+      "verified_on": "2026-07-26"
     },
     "93832-4": {
       "status": "approved",
@@ -254,7 +300,9 @@
       "used_for": "Total sleep time, in min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:75",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Sleep duration",
+      "verified_on": "2026-07-26"
     },
     "94122-9": {
       "status": "approved",
@@ -264,7 +312,9 @@
       "used_for": "VO2max, in mL/kg/min",
       "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:252",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verified_display": "Oxygen consumption (VO2)/Body weight [Volume Rate Content] --peak during exercise",
+      "verified_on": "2026-07-26"
     },
     "103222-6": {
       "status": "approved",
@@ -278,8 +328,8 @@
     "48000-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Not independently verified — see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:99",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -303,8 +353,8 @@
     "62374-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Not independently verified — see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:93",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -319,8 +369,8 @@
     "69548-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Not independently verified — see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:64",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -351,8 +401,8 @@
     "81258-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Not independently verified — see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:85",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },

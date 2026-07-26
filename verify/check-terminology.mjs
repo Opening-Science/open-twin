@@ -24,15 +24,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  collectSources,
-  enclosingObjectStart,
-  lineAt,
-  maskLiterals,
-  objectEnd,
-  stringLiteral,
-  topLevelProps
-} from './lib/scan.mjs';
+import { collectCodings } from './lib/codings.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -50,62 +42,34 @@ const ALLOW_UNREVIEWED = args.includes('--allow-unreviewed');
 const ROOT = args.find((arg) => !arg.startsWith('--')) ?? join(HERE, '..');
 const ALLOWLIST = JSON.parse(readFileSync(join(HERE, 'terminology-allowlist.json'), 'utf8'));
 
-/** system URI (or the SYSTEMS.* constant naming it) -> code system label */
-const CODE_SYSTEMS = [
-  { match: /SYSTEMS\.LOINC|loinc\.org/, name: 'LOINC' },
-  { match: /SYSTEMS\.SNOMED|snomed\.info/, name: 'SNOMED CT' }
-];
-
-let sources;
+let codings;
 try {
-  sources = collectSources(ROOT);
+  codings = collectCodings(ROOT);
 } catch (error) {
   console.error(`FAIL: ${error.message}`);
   process.exit(1);
 }
 
-const found = new Map(); // code -> { system, sites: [] }
-
-for (const { rel, text } of sources) {
-  const masked = maskLiterals(text);
-
-  for (const match of masked.matchAll(/SYSTEMS\.(?:LOINC|SNOMED)|loinc\.org|snomed\.info/g)) {
-    const start = enclosingObjectStart(masked, match.index);
-    if (start === -1) continue;
-    const end = objectEnd(masked, start);
-    if (end === -1) continue;
-
-    const props = topLevelProps(text, masked, start, end);
-    const rawSystem = props.get('system');
-    if (!rawSystem) continue;
-    const systemName = CODE_SYSTEMS.find((candidate) => candidate.match.test(rawSystem))?.name;
-    if (!systemName) continue;
-
-    const code = stringLiteral(props.get('code'));
-    if (code === null) continue; // dynamically built code; cannot be reviewed statically
-
-    if (!found.has(code)) found.set(code, { system: systemName, sites: [] });
-    found.get(code).sites.push({ rel, line: lineAt(text, start) });
-  }
-}
+const found = new Map();
+for (const [code, info] of codings) found.set(code, { system: info.system, sites: info.sites });
 
 /**
- * The positional helper used throughout provider-oura passes the code and the
- * system as separate arguments, so the code never sits in an object with a system:
- *   addComponent(sleep.efficiency, '248263006', SYSTEMS.SNOMED, 'Sleep efficiency')
+ * A display must be the code system's own name for the concept, or absent.
+ *
+ * This is checked offline against `verified_display`, recorded by
+ * refresh-terminology.mjs from tx.fhir.org. Nine paraphrased displays shipped
+ * before this existed — 'Oxygen saturation by pulse oximetry' for 59408-5, which
+ * drops "in Arterial blood", and 'Number of steps, unspecified time' for 55423-8,
+ * which drops "Pedometer". Both lose the distinction a receiver would rely on the
+ * display for, and neither is visible to the offline FHIR validator.
  */
-for (const { rel, text } of sources) {
-  const masked = maskLiterals(text);
-  for (const match of masked.matchAll(/\(([^()]*)\)/g)) {
-    const inner = text.slice(match.index + 1, match.index + match[0].length - 1);
-    const systemName = CODE_SYSTEMS.find((candidate) => candidate.match.test(inner))?.name;
-    if (!systemName) continue;
-    for (const literal of inner.matchAll(/'(\d{4,6}-\d|\d{6,18})'/g)) {
-      const code = literal[1];
-      if (!found.has(code)) found.set(code, { system: systemName, sites: [] });
-      const sites = found.get(code).sites;
-      const line = lineAt(text, match.index);
-      if (!sites.some((site) => site.rel === rel && site.line === line)) sites.push({ rel, line });
+const wrongDisplays = [];
+for (const [code, info] of codings) {
+  const verified = ALLOWLIST.codes?.[code]?.verified_display;
+  if (!verified) continue;
+  for (const display of info.displays) {
+    if (display !== verified) {
+      wrongDisplays.push({ code, system: info.system, ours: display, official: verified, sites: info.sites });
     }
   }
 }
@@ -124,7 +88,7 @@ for (const [code, { system, sites }] of [...found.entries()].sort()) {
 
 const site = (sites) => `${sites[0].rel}:${sites[0].line}${sites.length > 1 ? ` (+${sites.length - 1} more)` : ''}`;
 
-console.log(`Terminology gate: ${found.size} distinct codes across ${sources.length} files\n`);
+console.log(`Terminology gate: ${found.size} distinct codes across the workspace\n`);
 
 if (rejected.length) {
   console.log(`REJECTED (${rejected.length}) — these codes do not mean what the mapper sends:\n`);
@@ -135,6 +99,17 @@ if (rejected.length) {
     if (item.entry.suggested) console.log(`      suggested: ${item.entry.suggested}`);
     console.log('');
   }
+}
+
+if (wrongDisplays.length) {
+  console.log(`WRONG DISPLAY (${wrongDisplays.length}) — the code is right, the name is not:\n`);
+  for (const item of wrongDisplays) {
+    console.log(`  ${item.code} (${item.system})  ${item.sites[0].rel}:${item.sites[0].line}`);
+    console.log(`      we send:  '${item.ours}'`);
+    console.log(`      ${item.system} says: '${item.official}'`);
+    console.log('');
+  }
+  console.log("  Use the code system's own name, or omit the display entirely.\n");
 }
 
 if (unreviewed.length) {
@@ -150,8 +125,11 @@ if (approved.length) console.log(`APPROVED (${approved.length}) — reviewed and
 
 // A rejected code is always fatal: someone has established that it means something
 // other than what the mapper sends.
-if (rejected.length || (unreviewed.length && !ALLOW_UNREVIEWED)) {
-  console.log(`FAIL: ${rejected.length} rejected, ${unreviewed.length} unreviewed.`);
+// A wrong display is always fatal: it is known-wrong, not merely unaudited.
+if (rejected.length || wrongDisplays.length || (unreviewed.length && !ALLOW_UNREVIEWED)) {
+  console.log(
+    `FAIL: ${rejected.length} rejected, ${wrongDisplays.length} wrong display, ${unreviewed.length} unreviewed.`
+  );
   process.exit(1);
 }
 if (unreviewed.length) {
