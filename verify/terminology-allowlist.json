@@ -19,34 +19,37 @@
   ],
   "codes": {
     "77195-6": {
-      "status": "retired",
+      "status": "rejected",
       "system": "LOINC",
       "official_name": "Cardio-ankle vascular index (CAVI), calculated",
       "used_for": "Oura vascular_age, in years",
-      "reason": "CAVI is a dimensionless ratio with a normal value near 8. Sending vascular_age 45 under this code reads as CAVI 45, which is clinically alarming and dimensionally wrong (the mapper also tags it UCUM 'a', years).",
+      "reason": "Was used for Oura vascular_age in years. CAVI is a dimensionless ratio with a normal value near 8, so vascular_age 45 reads as CAVI 45 \u2014 anything above 9 indicates arteriosclerosis.",
       "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
       "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
     },
     "248263006": {
-      "status": "retired",
+      "status": "rejected",
       "system": "SNOMED CT",
       "official_name": "Duration of sleep",
       "used_for": "Oura sleep efficiency, a percentage",
-      "reason": "Efficiency and duration are different quantities. efficiency 95 is published as 95 units of sleep duration, with no unit attached. The display string 'Sleep efficiency' is invented and does not belong to this concept.",
+      "reason": "Was used for Oura sleep efficiency, a percentage. SNOMED CT has no sleep-efficiency concept; confirmed by expanding all eight descendants of 363817001 Sleep related observable.",
       "suggested": "Use a vendor-local code with unit '%' until a reviewer identifies a standard concept for sleep efficiency.",
       "found_at": "packages/provider-oura/src/fhir/mappers/sleep.ts:44",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
     },
     "60842-2": {
-      "status": "retired",
+      "status": "rejected",
       "system": "LOINC",
       "official_name": "Oxygen consumption (VO2), property VRat, example unit mL/min",
       "used_for": "Oura vo2_max, in mL/min/kg",
-      "reason": "This is absolute VO2, not weight-indexed. The mapper sends mL/min/kg under it. provider-google-health already uses the correct weight-indexed code for the same measurement, so the two connectors disagree.",
+      "reason": "Was used for a weight-indexed mL/kg/min value. That is 94122-9, which provider-google-health already uses for the same measurement.",
       "suggested": "94122-9",
       "found_at": "packages/provider-oura/src/fhir/mappers/vo2max.ts:31",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
     },
     "41979-6": {
       "status": "approved",
@@ -58,14 +61,15 @@
       "open_question": "Retired from 'rejected' at sign-off. The misuse that caused the rejection (a single workout's calories under a 24-hour code) is fixed: workouts now use 41981-2, and 41979-6 appears only on a genuine daily total with unit kcal/(24.h)."
     },
     "99501-9": {
-      "status": "retired",
+      "status": "rejected",
       "system": "LOINC",
-      "official_name": "Sex parameter for clinical use (nominal scale, bound to answer list LL6114-4)",
+      "official_name": "Sex parameter for clinical use (nominal, answer list LL6114-4)",
       "used_for": "Oura biological_sex, sent as valueString",
-      "reason": "Two problems. The concept is not 'sex assigned at birth', and it is a coded concept: the mapper sends valueString instead of valueCodeableConcept, so the receiver cannot decode it.",
+      "reason": "Was sent as valueString for biological sex. It is a coded concept and a clinical-workflow parameter, not a demographic attribute.",
       "suggested": "76689-9 for the labelled concept, sent as valueCodeableConcept.",
       "found_at": "packages/provider-oura/src/fhir/mappers/personal.ts:116",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
     },
     "103212-7": {
       "status": "approved",
@@ -87,9 +91,12 @@
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "11524-6": {
-      "status": "retired",
+      "status": "rejected",
       "system": "LOINC",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "official_name": "EKG study:Find:Pt:Heart:Doc:EKG",
+      "reason": "Scale is Doc \u2014 a document code, not a numeric observation.",
+      "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point."
     },
     "2339-0": {
       "status": "approved",
