@@ -23,6 +23,13 @@ export const SYSTEMS = {
   GOOGLE_HEALTH: 'http://opentwin.ch/fhir/CodeSystem/google-health',
   VITRONIC: 'http://opentwin.ch/fhir/CodeSystem/vitronic',
 
+  /**
+   * How a value was arrived at — measured, device-estimated, derived from sleep, or
+   * selected from several sources. R4 has no element for measurement provenance
+   * beyond `Observation.method`, so this is the vocabulary that fills it.
+   */
+  METHOD: 'http://opentwin.ch/fhir/CodeSystem/method',
+
   /** Foundation-controlled identifier namespaces, reused as `Identifier.system` (D2). */
   OURA_IDENTIFIER: 'http://opentwin.ch/fhir/sid/oura',
   GOOGLE_HEALTH_IDENTIFIER: 'http://opentwin.ch/fhir/sid/google-health',
@@ -55,3 +62,8 @@ export const CATEGORY = {
 } as const;
 
 export type CategoryKey = keyof typeof CATEGORY;
+
+/** Identifier namespace for a connector's own device identifiers. */
+export function deviceIdentifierSystem(connector: string): string {
+  return `http://opentwin.ch/fhir/sid/${connector}-device`;
+}

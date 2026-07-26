@@ -36,6 +36,11 @@
       "id": "connector",
       "title": "open-twin connector identity",
       "description": "Identifies which connector produced a bundle, and at which version, so output generated before a correction can be told apart from output generated after it."
+    },
+    {
+      "id": "method",
+      "title": "How a value was arrived at",
+      "description": "Whether a value was measured directly, estimated by the device from sensor data, derived from the sleep period, or selected from several overlapping sources. R4 has no element for measurement provenance beyond Observation.method, so this fills it. It matters because a consumer VO2max under LOINC 94122-9 (\"peak during exercise\") is a model output, not a graded exercise test, and a receiver cannot tell without being told."
     }
   ],
   "extensions": [
