@@ -1,4 +1,11 @@
-import { buildBundle, ConnectorError, subjectReference, toOperationOutcome } from '@open-twin/fhir-core';
+import {
+  buildBundle,
+  ConnectorError,
+  minimalPatient,
+  SYSTEMS,
+  subjectReference,
+  toOperationOutcome
+} from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4';
 import type { RequestParams } from '../api/schemas/client';
 import { type RequestOuraDataOptions, requestOuraData } from '../utils/clientUtils';
@@ -174,7 +181,36 @@ export function buildOuraBundle(
   options: OuraRequestOptions = {}
 ): Bundle {
   const context = resolveContext(data, options);
-  const resources = data.flatMap((item) => mapTyped(item, context));
+  const mapped = data.flatMap((item) => mapTyped(item, context));
+
+  // `personal_info` is what normally puts the Patient in the bundle. The sandbox
+  // returns 404 for it, and a caller can simply not request it, so without this every
+  // Observation referenced a Patient that was not there.
+  //
+  // Only when the reference was minted here and something actually uses it. A caller
+  // who supplied their own `subject` is pointing at a Patient in their own system, and
+  // a second one under our id would fork one person into two. A sync that returned
+  // nothing — a 401, or an empty window — must stay empty rather than assert that a
+  // person exists about whom we observed nothing.
+  const hasPatient = mapped.some((resource) => resource.resourceType === 'Patient');
+  const referencesSubject = mapped.some((resource) => {
+    // `subject` is a Reference on most resource types and a Reference[] on a few, so
+    // it is normalised rather than assumed.
+    const subject = 'subject' in resource ? (resource.subject as Reference | Reference[] | undefined) : undefined;
+    const references = Array.isArray(subject) ? subject : subject ? [subject] : [];
+    return references.some((entry) => entry.reference === context.subject.reference);
+  });
+  const resources =
+    hasPatient || options.subject || !referencesSubject
+      ? mapped
+      : [
+          minimalPatient({
+            connector: CONNECTOR.connector,
+            subjectKey: context.subjectKey,
+            identifierSystem: SYSTEMS.OURA_IDENTIFIER
+          }),
+          ...mapped
+        ];
 
   return buildBundle({
     connector: CONNECTOR,

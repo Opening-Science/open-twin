@@ -20,6 +20,7 @@ import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle
 import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { openWearablesBundle } from '../packages/provider-open-wearables/src/verification/exampleBundle';
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
+import { ouraSandboxBundle } from '../packages/provider-oura/src/verification/sandboxBundle';
 import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 
 /**
@@ -191,6 +192,8 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'anchor-hba1c', build: anchorHbA1c },
   { name: 'fhir-core-exemplar', build: exemplar },
   { name: 'oura-sync', build: ouraBundle },
+  // The recorded sandbox capture: real Oura payloads, all thirteen scopes.
+  { name: 'oura-sandbox-real', build: ouraSandboxBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
   { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
   { name: 'fhir-r4-ingest', build: fhirR4IngestBundle },

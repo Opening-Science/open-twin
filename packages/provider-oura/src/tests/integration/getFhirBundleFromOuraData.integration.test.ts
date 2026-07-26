@@ -119,9 +119,15 @@ describe('getFhirBundleFromOuraData (integration)', () => {
     expect(bundle.timestamp).toBe(TIMESTAMP);
     expect(bundle.id).toBeTruthy();
     expect(bundle.meta?.tag?.[0]).toMatchObject({ code: 'oura' });
-    expect(bundle.entry).toHaveLength(2);
+    // Two heart-rate Observations plus the Patient they are attributed to. Without it
+    // both referenced a subject that was not in the bundle.
+    expect(bundle.entry).toHaveLength(3);
+    expect(bundle.entry?.[0]?.resource?.resourceType).toBe('Patient');
 
-    const observations = bundle.entry?.map((entry) => entry.resource as Observation) ?? [];
+    const observations =
+      bundle.entry
+        ?.map((entry) => entry.resource as Observation)
+        .filter((resource) => resource.resourceType === 'Observation') ?? [];
     for (const observation of observations) {
       expect(observation.resourceType).toBe('Observation');
       expect(observation.code?.coding?.[0]).toMatchObject({ code: '8867-4', display: 'Heart rate' });
@@ -236,14 +242,15 @@ describe('getFhirBundleFromOuraData (integration)', () => {
     });
 
     expect(issues).toBeUndefined();
-    const workout = bundle.entry?.[0].resource as Observation;
+    const workout = bundle.entry?.[1]?.resource as Observation;
     expect(workout.code?.coding?.[0]).toMatchObject({ system: SYSTEMS.OURA, code: 'workout' });
     expect(workout.component).toContainEqual(
       expect.objectContaining({
         code: { coding: [{ system: SYSTEMS.LOINC, code: '41981-2', display: 'Calories burned' }] }
       })
     );
-    expect(bundle.entry).toHaveLength(3);
+    // Workout Observation, its two derived resources, and the Patient.
+    expect(bundle.entry).toHaveLength(4);
   });
 
   it('uses the sandbox endpoint when the sandbox flag is enabled', async () => {

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { Reference } from 'fhir/r4';
+import type { Patient, Reference } from 'fhir/r4';
 
 /**
  * UUIDv5 namespace for open-twin, derived as UUIDv5(DNS, 'opentwin.ch').
@@ -73,4 +73,31 @@ export function subjectReference(options: SubjectOptions): Reference {
 
 export function patientUuid(connector: string, subjectKey: string): string {
   return uuidv5(`patient|${connector}|${subjectKey}`);
+}
+
+/**
+ * The Patient a minted `urn:uuid:` subject reference points at.
+ *
+ * `subjectReference` mints a reference from the subject key whenever the caller does
+ * not supply one, and something in the bundle has to answer it. Without this, a sync
+ * that carried no vendor demographics — the Oura sandbox 404s on `personal_info`, so
+ * this is its ordinary path, not an edge case — produced a bundle in which every
+ * Observation referenced a Patient that was not there. The HL7 validator says it 73
+ * times over: "URN reference is not locally contained within the bundle".
+ *
+ * It carries an identifier and nothing else. That is deliberate: the resource asserts
+ * only that these Observations are about the person the vendor calls `subjectKey`,
+ * which is exactly what the reference already claimed. Name, birth date and gender
+ * come from the vendor's own demographics when a connector has them, and inventing
+ * them here would be asserting clinical facts to satisfy a reference.
+ *
+ * The id is deterministic, so re-syncing the same subject resolves to the same
+ * Patient rather than accumulating duplicates on the receiving server.
+ */
+export function minimalPatient(options: { connector: string; subjectKey: string; identifierSystem: string }): Patient {
+  return {
+    resourceType: 'Patient',
+    id: patientUuid(options.connector, options.subjectKey),
+    identifier: [{ system: options.identifierSystem, value: options.subjectKey }]
+  };
 }
