@@ -170,7 +170,7 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
     acceptedUnits: ['brpm', 'breaths/min'],
     // The `resprate` profile *fixes* `/min`, so the `{breaths}` annotation this
     // repository uses elsewhere is a conformance failure here, not a nicety.
-    sample: loincMeasure('9279-1', 'Breaths (respiratory rate)', {
+    sample: loincMeasure('9279-1', 'Respiratory rate', {
       category: 'VITAL_SIGNS',
       profile: PROFILES.RESPIRATORY_RATE
     })
@@ -178,7 +178,7 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
   oxygen_saturation: {
     declaredUnit: 'percent',
     acceptedUnits: PERCENT_SPELLINGS,
-    sample: loincMeasure('59408-5', 'Oxygen saturation by pulse oximetry', {
+    sample: loincMeasure('59408-5', 'Oxygen saturation in Arterial blood by Pulse oximetry', {
       category: 'VITAL_SIGNS',
       profile: PROFILES.OXYGEN_SATURATION,
       alsoCode: { code: '2708-6', display: 'Oxygen saturation in Arterial blood' }
@@ -209,7 +209,11 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
   vo2_max: {
     declaredUnit: 'ml_kg_min',
     acceptedUnits: ['ml_kg_min', 'mL/kg/min'],
-    sample: loincMeasure('94122-9', 'VO2/body weight, peak during exercise', { category: 'ACTIVITY' })
+    sample: loincMeasure(
+      '94122-9',
+      'Oxygen consumption (VO2)/Body weight [Volume Rate Content] --peak during exercise',
+      { category: 'ACTIVITY' }
+    )
   },
   exercise_time: {
     declaredUnit: 'minutes',
@@ -219,10 +223,10 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
   steps: {
     declaredUnit: 'count',
     acceptedUnits: ['count'],
-    sample: loincMeasure('55423-8', 'Number of steps, unspecified time', { category: 'ACTIVITY' }),
+    sample: loincMeasure('55423-8', 'Number of steps in unspecified time Pedometer', { category: 'ACTIVITY' }),
     // 41950-7 carries a 24H time axis in the code itself, which is what makes the
     // `{steps}/d` denominator correct rather than decorative.
-    dailyTotal: loincMeasure('41950-7', 'Number of steps in 24 hour', { category: 'ACTIVITY' })
+    dailyTotal: loincMeasure('41950-7', 'Number of steps in 24 hour Measured', { category: 'ACTIVITY' })
   },
   energy: {
     declaredUnit: 'kcal',
