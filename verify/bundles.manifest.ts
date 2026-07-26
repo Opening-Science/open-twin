@@ -97,7 +97,11 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
+<<<<<<< HEAD
 export const BUNDLE_CASES: BundleCase[] = [
   { name: 'fhir-core-exemplar', build: exemplar },
   { name: 'hl7v2-oru-r01', build: hl7v2OruBundle }
 ];
+=======
+export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
+>>>>>>> open-twin/foundation
