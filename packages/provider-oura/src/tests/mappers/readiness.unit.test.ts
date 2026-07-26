@@ -97,13 +97,13 @@ describe('mapOuraReadinessToFHIR', () => {
     // value conversion is needed.
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.OURA, code: 'temperature-deviation', display: 'Temperature Deviation' }] },
-      valueQuantity: { value: 0.3, unit: 'Kelvin', system: SYSTEMS.UCUM, code: 'K' }
+      valueQuantity: { value: 0.3, unit: 'degree Kelvin', system: SYSTEMS.UCUM, code: 'K' }
     });
     expect(observation.component).toContainEqual({
       code: {
         coding: [{ system: SYSTEMS.OURA, code: 'temperature-trend-deviation', display: 'Temperature Trend Deviation' }]
       },
-      valueQuantity: { value: 0.1, unit: 'Kelvin', system: SYSTEMS.UCUM, code: 'K' }
+      valueQuantity: { value: 0.1, unit: 'degree Kelvin', system: SYSTEMS.UCUM, code: 'K' }
     });
   });
 

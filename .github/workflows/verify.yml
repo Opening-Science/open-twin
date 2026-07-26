@@ -51,12 +51,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Fails on a rejected code, an invalid UCUM code, or a malformed Quantity.
+      # Both gates run strict. `--allow-unreviewed` was a standing waiver with no expiry,
+      # carried while 72 terminology codes and 35 unit pairs were outstanding. Those were
+      # signed off on 2026-07-26, and the unit rule became a lookup rather than a
+      # signature — Quantity.unit must be UCUM's own name for Quantity.code — so there is
+      # no backlog left for the flag to hide.
       - name: Terminology gate
-        run: node verify/check-terminology.mjs --allow-unreviewed
+        run: node verify/check-terminology.mjs
 
       - name: UCUM unit gate
-        run: node verify/check-units.mjs --allow-unreviewed
+        run: node verify/check-units.mjs
 
   review-status:
     name: Terminology review outstanding

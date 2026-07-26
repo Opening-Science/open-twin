@@ -114,7 +114,7 @@ describe('loincQuantity', () => {
   it('takes the unit from the shared LOINC table rather than from the call site', () => {
     expect(loincQuantity('8302-2', 175)).toEqual({
       value: 175,
-      unit: 'centimeters',
+      unit: 'centimeter',
       system: 'http://unitsofmeasure.org',
       code: 'cm'
     });

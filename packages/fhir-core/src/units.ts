@@ -27,51 +27,69 @@ import { SYSTEMS } from './systems';
  * A bare `steps` is not a UCUM symbol at all and any server validating UCUM
  * rejects the resource.
  */
+/**
+ * `unit` is UCUM's own name for the code, not a name of our choosing.
+ *
+ * Reviewed 2026-07-26. The rule replaces a judgement with a lookup: `Quantity.unit`
+ * carries the name the UCUM specification gives the code in `Quantity.code`, so the
+ * human-readable and machine-readable halves cannot drift apart. `check-units.mjs`
+ * verifies this mechanically against @lhncbc/ucum-lhc, which is why the table no
+ * longer needs a per-pair allowlist.
+ *
+ * Three kinds of entry cannot follow the rule, and the gate carries each as a named
+ * exception rather than a blanket waiver:
+ *
+ *   - `%` has no name in UCUM at all, and `1` names itself.
+ *   - `deg` is published as "degree - plane angle", a disambiguation against degrees
+ *     of temperature rather than a unit name.
+ *   - an annotation names itself, so `{steps}` would give the unit "{steps}". The
+ *     annotation text is already the human-readable form, so the braces come off.
+ *
+ * Ten entries were deleted in the same review because nothing emitted them. Two of
+ * those were live traps: the FHIR vital-signs profiles *fix* heart rate and
+ * respiratory rate to `/min`, so `{beats}/min` and `{breaths}/min` would have failed
+ * validation for anyone who reached for the more descriptive-looking constant.
+ */
 export const UCUM = {
   // time
-  SECOND: { unit: 'seconds', code: 's' },
-  MINUTE: { unit: 'minutes', code: 'min' },
-  HOUR: { unit: 'hours', code: 'h' },
-  DAY: { unit: 'days', code: 'd' },
-  YEAR: { unit: 'years', code: 'a' },
-  MILLISECOND: { unit: 'milliseconds', code: 'ms' },
+  MINUTE: { unit: 'minute', code: 'min' },
+  YEAR: { unit: 'year', code: 'a' },
+  MILLISECOND: { unit: 'millisecond', code: 'ms' },
 
   // length / area
-  METRE: { unit: 'meters', code: 'm' },
-  CENTIMETRE: { unit: 'centimeters', code: 'cm' },
-  MILLIMETRE: { unit: 'millimeters', code: 'mm' },
-  KILOMETRE: { unit: 'kilometers', code: 'km' },
-  SQUARE_METRE: { unit: 'square meters', code: 'm2' },
+  METRE: { unit: 'meter', code: 'm' },
+  CENTIMETRE: { unit: 'centimeter', code: 'cm' },
+  SQUARE_METRE: { unit: 'square meter', code: 'm2' },
 
   // mass
-  KILOGRAM: { unit: 'kilograms', code: 'kg' },
-  GRAM: { unit: 'grams', code: 'g' },
+  KILOGRAM: { unit: 'kilogram', code: 'kg' },
+  GRAM: { unit: 'gram', code: 'g' },
 
   // temperature. UCUM §21/§22: `Cel` is a *special unit* on an interval scale and
   // cannot take part in algebraic operations. An absolute body temperature is
   // `Cel`; a temperature *difference* is `K`. The two are numerically equal as
   // intervals, so no value conversion is needed — only the code changes.
-  CELSIUS: { unit: 'degrees Celsius', code: 'Cel' },
-  KELVIN: { unit: 'Kelvin', code: 'K' },
+  // "degree Kelvin" is UCUM's published name for `K`. It is archaic — SI dropped
+  // the degree in 1967 — but the rule is to carry UCUM's name, not a better one.
+  CELSIUS: { unit: 'degree Celsius', code: 'Cel' },
+  KELVIN: { unit: 'degree Kelvin', code: 'K' },
 
   // plane angle. UCUM Table 2 makes `rad` the base unit; Table 5 derives
   // `deg` = [pi].rad/360, so 1 rad = 180/pi ~ 57.2957795 deg.
   DEGREE: { unit: 'degree', code: 'deg' },
-  RADIAN: { unit: 'radian', code: 'rad' },
 
   // rates
   PER_MINUTE: { unit: 'per minute', code: '/min' },
-  METRE_PER_SECOND: { unit: 'meters per second', code: 'm/s' },
-  ML_PER_KG_PER_MIN: { unit: 'mL/kg/min', code: 'mL/kg/min' },
+  METRE_PER_SECOND: { unit: 'meter per second', code: 'm/s' },
+  ML_PER_KG_PER_MIN: { unit: 'milliliter per kilogram per minute', code: 'mL/kg/min' },
 
   // concentration
-  MG_PER_DL: { unit: 'mg/dL', code: 'mg/dL' },
-  MICROGRAM_PER_LITRE: { unit: 'µg/L', code: 'ug/L' },
-  NANOGRAM_PER_ML: { unit: 'ng/mL', code: 'ng/mL' },
-  MMOL_PER_L: { unit: 'mmol/L', code: 'mmol/L' },
+  MG_PER_DL: { unit: 'milligram per deciliter', code: 'mg/dL' },
+  MICROGRAM_PER_LITRE: { unit: 'microgram per liter', code: 'ug/L' },
+  MMOL_PER_L: { unit: 'millimole per liter', code: 'mmol/L' },
 
   // energy
-  KILOCALORIE: { unit: 'kcal', code: 'kcal' },
+  KILOCALORIE: { unit: 'kilocalorie', code: 'kcal' },
 
   // dimensionless. `%` is a real UCUM atom (Table 3, = 10*-2), so the number sent
   // is the percentage: 95% is `95`, never `0.95`. Do not write `{percent}`.
@@ -81,11 +99,8 @@ export const UCUM = {
   // annotations
   STEPS: { unit: 'steps', code: '{steps}' },
   STEPS_PER_DAY: { unit: 'steps per day', code: '{steps}/d' },
-  BEATS_PER_MINUTE: { unit: 'beats per minute', code: '{beats}/min' },
-  BREATHS_PER_MINUTE: { unit: 'breaths per minute', code: '{breaths}/min' },
   SCORE: { unit: 'score', code: '{score}' },
   COUNT: { unit: 'count', code: '{count}' },
-  RATIO: { unit: 'ratio', code: '{ratio}' },
   /**
    * MET is a physiological ratio (3.5 mL/kg/min of oxygen uptake), not a UCUM unit
    * atom, so MET-minutes has no UCUM code. `{MET-min}` is a valid annotation

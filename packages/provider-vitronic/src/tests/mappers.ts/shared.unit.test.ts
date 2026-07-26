@@ -38,7 +38,7 @@ describe('radiansToDegrees', () => {
 describe('quantity builders', () => {
   it('builds UCUM-coded quantities', () => {
     expect(degrees(Math.PI)).toEqual({ value: 180, unit: 'degree', system: UCUM, code: 'deg' });
-    expect(metres(1.75)).toEqual({ value: 1.75, unit: 'meters', system: UCUM, code: 'm' });
+    expect(metres(1.75)).toEqual({ value: 1.75, unit: 'meter', system: UCUM, code: 'm' });
   });
 
   it('returns undefined for absent or non-finite values, never a value-less Quantity', () => {
@@ -49,7 +49,7 @@ describe('quantity builders', () => {
   });
 
   it('keeps a zero value', () => {
-    expect(metres(0)).toEqual({ value: 0, unit: 'meters', system: UCUM, code: 'm' });
+    expect(metres(0)).toEqual({ value: 0, unit: 'meter', system: UCUM, code: 'm' });
   });
 });
 

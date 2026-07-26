@@ -49,7 +49,7 @@ describe('mapDistanceToFHIR', () => {
       },
       subject: SUBJECT,
       effectiveDateTime: RECORDED_AT,
-      valueQuantity: { value: 0.45, unit: 'meters', system: UCUM, code: 'm' }
+      valueQuantity: { value: 0.45, unit: 'meter', system: UCUM, code: 'm' }
     });
   });
 
@@ -59,25 +59,25 @@ describe('mapDistanceToFHIR', () => {
     expect(observation.component).toEqual([
       {
         code: { coding: [{ system: VITRONIC, code: 'distance/shoulder.linear', display: 'Linear distance' }] },
-        valueQuantity: { value: 0.45, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.45, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: {
           coding: [{ system: VITRONIC, code: 'distance/shoulder.x', display: 'Linear distance, x component' }]
         },
-        valueQuantity: { value: 0.4, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.4, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: {
           coding: [{ system: VITRONIC, code: 'distance/shoulder.y', display: 'Linear distance, y component' }]
         },
-        valueQuantity: { value: 0.1, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.1, unit: 'meter', system: UCUM, code: 'm' }
       },
       {
         code: {
           coding: [{ system: VITRONIC, code: 'distance/shoulder.z', display: 'Linear distance, z component' }]
         },
-        valueQuantity: { value: 0.05, unit: 'meters', system: UCUM, code: 'm' }
+        valueQuantity: { value: 0.05, unit: 'meter', system: UCUM, code: 'm' }
       }
     ]);
   });

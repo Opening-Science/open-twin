@@ -45,104 +45,6 @@
   ],
   "extensions": [
     {
-      "id": "oura-personal-age",
-      "type": "integer",
-      "context": ["Patient"],
-      "title": "Oura reported age",
-      "description": "Age in years as reported by Oura. Oura supplies no date of birth; a birthDate was previously derived from this and is not, which is why the age is carried as-is."
-    },
-    {
-      "id": "oura-sleep-day",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura sleep day",
-      "description": "The calendar day Oura assigns a sleep period to, which is not necessarily the day the period started."
-    },
-    {
-      "id": "oura-heart-rate-source",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura heart rate source",
-      "description": "Which Oura context produced a heart-rate sample, e.g. awake, rest, sleep, workout."
-    },
-    {
-      "id": "oura-heart-rate-timestamp-unix",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura heart rate unix timestamp",
-      "description": "Oura's own unix timestamp for the sample, in milliseconds. Retained verbatim because it is documented in milliseconds while a sibling field is in seconds, and conflating them is a 1000x error."
-    },
-    {
-      "id": "oura-workout-day",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura workout day",
-      "description": "The calendar day Oura assigns a workout to."
-    },
-    {
-      "id": "oura-workout-label",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura workout label",
-      "description": "The user's free-text label for a workout."
-    },
-    {
-      "id": "oura-workout-intensity",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura workout intensity",
-      "description": "Oura's intensity classification: easy, moderate or hard."
-    },
-    {
-      "id": "oura-workout-source",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "Oura workout source",
-      "description": "How the workout was recorded: manual, autodetected, confirmed or workout_heart_rate."
-    },
-    {
-      "id": "oura-ring-id",
-      "type": "string",
-      "context": ["Device", "Observation"],
-      "title": "Oura ring configuration id",
-      "description": "Identifier of the ring configuration record a resource was derived from. Allowed on Observation as well as Device because sleep Observations carry the ring that produced them: declaring it Device-only surfaced that mismatch, which is the point of declaring it at all. Observation.device is the primary link; this extension survives for the case where no Device resource was built."
-    },
-    {
-      "id": "oura-ring-color",
-      "type": "string",
-      "context": ["Device"],
-      "title": "Oura ring colour",
-      "description": "Cosmetic finish of the ring, as reported by Oura."
-    },
-    {
-      "id": "oura-ring-design",
-      "type": "string",
-      "context": ["Device"],
-      "title": "Oura ring design",
-      "description": "Design variant of the ring, as reported by Oura."
-    },
-    {
-      "id": "vitronic-hidden",
-      "type": "boolean",
-      "context": ["Observation"],
-      "title": "VITRONIC measurement hidden",
-      "description": "True when the scanner operator suppressed this measurement. Carried rather than dropped because a suppressed measurement published as status 'final' with no indication is worse than one a receiver can filter. Whether it should instead downgrade Observation.status needs clinical review."
-    },
-    {
-      "id": "vitronic-marker-type",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "VITRONIC marker type",
-      "description": "The scanner's classification of an anatomical landmark."
-    },
-    {
-      "id": "vitronic-skeleton-series-path",
-      "type": "string",
-      "context": ["Observation"],
-      "title": "VITRONIC skeleton series path",
-      "description": "Path identifying the skeleton series a cross-section was taken from, so a measurement can be traced back to its landmarks."
-    },
-    {
       "id": "google-health-data-source",
       "type": "complex",
       "context": ["Observation"],
@@ -168,6 +70,125 @@
           "description": "How the value was recorded: measured, manually entered, or automatically recorded."
         }
       ]
+    },
+    {
+      "id": "oura-app-sleep-phase-5-min",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura 5-minute sleep phase series",
+      "description": "Oura's `sleep_phase_5_min`: one character per five-minute epoch across the sleep period. Carried verbatim as the vendor's own encoded series rather than expanded into components, which would multiply one night into hundreds of Observations."
+    },
+    {
+      "id": "oura-heart-rate-source",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura heart rate source",
+      "description": "Which Oura context produced a heart-rate sample, e.g. awake, rest, sleep, workout."
+    },
+    {
+      "id": "oura-heart-rate-timestamp-unix",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura heart rate unix timestamp",
+      "description": "Oura's own unix timestamp for the sample, in milliseconds. Retained verbatim because it is documented in milliseconds while a sibling field is in seconds, and conflating them is a 1000x error."
+    },
+    {
+      "id": "oura-personal-age",
+      "type": "integer",
+      "context": ["Patient"],
+      "title": "Oura reported age",
+      "description": "Age in years as reported by Oura. Oura supplies no date of birth; a birthDate was previously derived from this and is not, which is why the age is carried as-is."
+    },
+    {
+      "id": "oura-rest-mode-end-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura rest mode end day",
+      "description": "The day an Oura rest mode period ended. Absent while a period is still open, which is why it is 0..1 rather than required."
+    },
+    {
+      "id": "oura-rest-mode-episode",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura rest mode episode",
+      "description": "One episode within a rest mode period, as reported by Oura. A period carries zero or more, so the extension repeats; the value is the episode's own tag rather than a code, because Oura publishes no vocabulary for it."
+    },
+    {
+      "id": "oura-rest-mode-start-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura rest mode start day",
+      "description": "The day an Oura rest mode period began, as the API's own `start_day`. Carried as a string to match `oura-sleep-day` and `oura-workout-day`; see the note in this file about the day extensions as a group."
+    },
+    {
+      "id": "oura-ring-color",
+      "type": "string",
+      "context": ["Device"],
+      "title": "Oura ring colour",
+      "description": "Cosmetic finish of the ring, as reported by Oura."
+    },
+    {
+      "id": "oura-ring-design",
+      "type": "string",
+      "context": ["Device"],
+      "title": "Oura ring design",
+      "description": "Design variant of the ring, as reported by Oura."
+    },
+    {
+      "id": "oura-ring-id",
+      "type": "string",
+      "context": ["Device", "Observation"],
+      "title": "Oura ring configuration id",
+      "description": "Identifier of the ring configuration record a resource was derived from. Allowed on Observation as well as Device because sleep Observations carry the ring that produced them: declaring it Device-only surfaced that mismatch, which is the point of declaring it at all. Observation.device is the primary link; this extension survives for the case where no Device resource was built."
+    },
+    {
+      "id": "oura-session-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura session day",
+      "description": "The day an Oura session took place, as the API's own `day`."
+    },
+    {
+      "id": "oura-session-type",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura session type",
+      "description": "Oura's own session type, e.g. a breathing or meditation session. A vendor label, not a coded concept: Oura publishes no value set for it, so inventing a code system for it would assert a vocabulary nobody maintains."
+    },
+    {
+      "id": "oura-sleep-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura sleep day",
+      "description": "The calendar day Oura assigns a sleep period to, which is not necessarily the day the period started."
+    },
+    {
+      "id": "oura-workout-day",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout day",
+      "description": "The calendar day Oura assigns a workout to."
+    },
+    {
+      "id": "oura-workout-intensity",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout intensity",
+      "description": "Oura's intensity classification: easy, moderate or hard."
+    },
+    {
+      "id": "oura-workout-label",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout label",
+      "description": "The user's free-text label for a workout."
+    },
+    {
+      "id": "oura-workout-source",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "Oura workout source",
+      "description": "How the workout was recorded: manual, autodetected, confirmed or workout_heart_rate."
     },
     {
       "id": "reference-range-source",
@@ -201,6 +222,27 @@
           "description": "The catalogue's own version or status date, where it states one. This is what tells the 2025 IMD catalogue apart from the 2015 one."
         }
       ]
+    },
+    {
+      "id": "vitronic-hidden",
+      "type": "boolean",
+      "context": ["Observation"],
+      "title": "VITRONIC measurement hidden",
+      "description": "True when the scanner operator suppressed this measurement. Carried rather than dropped because a suppressed measurement published as status 'final' with no indication is worse than one a receiver can filter. Whether it should instead downgrade Observation.status needs clinical review."
+    },
+    {
+      "id": "vitronic-marker-type",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "VITRONIC marker type",
+      "description": "The scanner's classification of an anatomical landmark."
+    },
+    {
+      "id": "vitronic-skeleton-series-path",
+      "type": "string",
+      "context": ["Observation"],
+      "title": "VITRONIC skeleton series path",
+      "description": "Path identifying the skeleton series a cross-section was taken from, so a measurement can be traced back to its landmarks."
     }
   ]
 }

@@ -101,7 +101,12 @@ export function ouraIdentifier(value: string): Identifier[] {
  * which UCUM §6■4 defines as the unity carrying a human-readable label.
  */
 export const OURA_UNITS = {
-  PER_HOUR: { unit: 'events per hour', code: '/h' },
+  // `unit` is UCUM's own name for the code — see the note on the shared UCUM table.
+  // What is being counted per hour belongs in the Observation's code, not its unit.
+  PER_HOUR: { unit: 'per hour', code: '/h' },
+  // UCUM annotations cannot contain a space, so the code stays a machine token while
+  // the readable form names the sizing scale. A ring size means nothing without it.
+  // Recorded as an exception in verify/units-allowlist.json.
   RING_SIZE: { unit: 'US ring size', code: '{ring_size}' }
 } as const;
 

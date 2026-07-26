@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { deterministicId, OPEN_TWIN_NAMESPACE, patientUuid, subjectReference, uuidv5 } from '../identity';
+import {
+  deterministicId,
+  minimalPatient,
+  OPEN_TWIN_NAMESPACE,
+  patientUuid,
+  subjectReference,
+  uuidv5
+} from '../identity';
 
 describe('uuidv5', () => {
   it('matches the RFC 4122 test vector', () => {
@@ -63,5 +70,48 @@ describe('subjectReference', () => {
     const a = subjectReference({ connector: 'oura', subjectKey: 'u1' });
     const b = subjectReference({ connector: 'oura', subjectKey: 'u1' });
     expect(a.reference).toBe(b.reference);
+  });
+});
+
+describe('minimalPatient', () => {
+  const patient = minimalPatient({
+    connector: 'oura',
+    subjectKey: 'sandbox-subject',
+    identifierSystem: 'http://opentwin.ch/fhir/sid/oura'
+  });
+
+  it('answers the reference subjectReference mints for the same subject', () => {
+    // The defect this exists for: with no vendor demographics, every Observation
+    // carried a urn:uuid subject and no Patient was in the bundle to resolve it. The
+    // HL7 validator reported "URN reference is not locally contained" for all 73.
+    const reference = subjectReference({ connector: 'oura', subjectKey: 'sandbox-subject' }).reference;
+    expect(reference).toBe(`urn:uuid:${patient.id}`);
+  });
+
+  it('asserts an identifier and nothing more', () => {
+    // Name, birth date and gender are clinical facts. Inventing them to satisfy a
+    // reference would be worse than the dangling reference it fixes.
+    expect(Object.keys(patient).sort()).toEqual(['id', 'identifier', 'resourceType']);
+    expect(patient.identifier).toEqual([{ system: 'http://opentwin.ch/fhir/sid/oura', value: 'sandbox-subject' }]);
+  });
+
+  it('is stable, so re-syncing resolves rather than duplicating', () => {
+    const again = minimalPatient({
+      connector: 'oura',
+      subjectKey: 'sandbox-subject',
+      identifierSystem: 'http://opentwin.ch/fhir/sid/oura'
+    });
+    expect(again.id).toBe(patient.id);
+  });
+
+  it('separates subjects, and separates connectors for one subject', () => {
+    const other = minimalPatient({ connector: 'oura', subjectKey: 'other', identifierSystem: 'x' });
+    const otherConnector = minimalPatient({
+      connector: 'vitronic',
+      subjectKey: 'sandbox-subject',
+      identifierSystem: 'x'
+    });
+    expect(other.id).not.toBe(patient.id);
+    expect(otherConnector.id).not.toBe(patient.id);
   });
 });

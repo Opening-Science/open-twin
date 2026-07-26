@@ -61,11 +61,11 @@ describe('mapOuraStressToFHIR', () => {
     expect(observation.component).toEqual([
       {
         code: { coding: [{ system: SYSTEMS.OURA, code: 'stress-high', display: 'Stress High Duration' }] },
-        valueQuantity: { value: 120, unit: 'minutes', system: SYSTEMS.UCUM, code: 'min' }
+        valueQuantity: { value: 120, unit: 'minute', system: SYSTEMS.UCUM, code: 'min' }
       },
       {
         code: { coding: [{ system: SYSTEMS.OURA, code: 'recovery-high', display: 'Recovery High Duration' }] },
-        valueQuantity: { value: 60, unit: 'minutes', system: SYSTEMS.UCUM, code: 'min' }
+        valueQuantity: { value: 60, unit: 'minute', system: SYSTEMS.UCUM, code: 'min' }
       }
     ]);
   });

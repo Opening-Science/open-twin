@@ -48,7 +48,7 @@ describe('mapActiveEnergyBurnedToFHIR', () => {
         ]
       },
       effectivePeriod: PERIOD,
-      valueQuantity: { value: 320, unit: 'kcal', system: UCUM_SYSTEM, code: 'kcal' }
+      valueQuantity: { value: 320, unit: 'kilocalorie', system: UCUM_SYSTEM, code: 'kcal' }
     });
   });
 
@@ -69,7 +69,7 @@ describe('mapBasalEnergyBurnedToFHIR', () => {
       code: 'basal-energy-burned',
       display: 'Basal energy burned'
     });
-    expect(observation.valueQuantity).toEqual({ value: 1450, unit: 'kcal', system: UCUM_SYSTEM, code: 'kcal' });
+    expect(observation.valueQuantity).toEqual({ value: 1450, unit: 'kilocalorie', system: UCUM_SYSTEM, code: 'kcal' });
   });
 
   it('does not collide with the active-energy Observation for the same interval', () => {
@@ -98,7 +98,7 @@ describe('mapActiveMinutesToFHIR', () => {
       code: {
         coding: [{ system: GOOGLE_HEALTH, code: 'active-minutes-vigorous', display: 'Active minutes (VIGOROUS)' }]
       },
-      valueQuantity: { value: 7, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 7, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
   });
 
@@ -114,7 +114,7 @@ describe('mapActiveZoneMinutesToFHIR', () => {
       meta()
     );
 
-    expect(observation.valueQuantity).toEqual({ value: 24, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' });
+    expect(observation.valueQuantity).toEqual({ value: 24, unit: 'minute', system: UCUM_SYSTEM, code: 'min' });
     expect(typeof observation.valueQuantity?.value).toBe('number');
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone', display: 'Heart rate zone' }] },
@@ -136,7 +136,7 @@ describe('mapActivityLevelToFHIR', () => {
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'duration', display: 'Duration at this activity level' }] },
-      valueQuantity: { value: 30, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' }
+      valueQuantity: { value: 30, unit: 'minute', system: UCUM_SYSTEM, code: 'min' }
     });
   });
 
@@ -152,7 +152,7 @@ describe('mapAltitudeToFHIR', () => {
   it('converts the millimetres Google sends into metres', () => {
     const observation = mapAltitudeToFHIR({ interval: INTERVAL, gainMillimeters: '125000' }, meta());
 
-    expect(observation.valueQuantity).toEqual({ value: 125, unit: 'meters', system: UCUM_SYSTEM, code: 'm' });
+    expect(observation.valueQuantity).toEqual({ value: 125, unit: 'meter', system: UCUM_SYSTEM, code: 'm' });
   });
 
   it('records a dataAbsentReason when the gain is missing', () => {
@@ -166,7 +166,7 @@ describe('mapDistanceToFHIR', () => {
     // not agree with provider-vitronic, which already emits metres.
     const observation = mapDistanceToFHIR({ interval: INTERVAL, millimeters: '44286' }, meta());
 
-    expect(observation.valueQuantity).toEqual({ value: 44.286, unit: 'meters', system: UCUM_SYSTEM, code: 'm' });
+    expect(observation.valueQuantity).toEqual({ value: 44.286, unit: 'meter', system: UCUM_SYSTEM, code: 'm' });
     expect(typeof observation.valueQuantity?.value).toBe('number');
   });
 
@@ -197,7 +197,7 @@ describe('mapSedentaryPeriodToFHIR', () => {
     const observation = mapSedentaryPeriodToFHIR({ interval: INTERVAL }, meta());
 
     expect(observation.effectivePeriod).toEqual(PERIOD);
-    expect(observation.valueQuantity).toEqual({ value: 30, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' });
+    expect(observation.valueQuantity).toEqual({ value: 30, unit: 'minute', system: UCUM_SYSTEM, code: 'min' });
   });
 
   it('records a dataAbsentReason when the interval has no end', () => {
@@ -260,7 +260,7 @@ describe('mapTimeInHeartRateZoneToFHIR', () => {
   it('emits the duration as the value and the zone as the method', () => {
     const observation = mapTimeInHeartRateZoneToFHIR({ interval: INTERVAL, heartRateZoneType: 'PEAK' }, meta());
 
-    expect(observation.valueQuantity).toEqual({ value: 30, unit: 'minutes', system: UCUM_SYSTEM, code: 'min' });
+    expect(observation.valueQuantity).toEqual({ value: 30, unit: 'minute', system: UCUM_SYSTEM, code: 'min' });
     expect(observation.method).toEqual({ coding: [{ system: GOOGLE_HEALTH, code: 'PEAK', display: 'PEAK' }] });
   });
 

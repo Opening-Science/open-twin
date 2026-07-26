@@ -50,7 +50,7 @@ describe('mapWorkout', () => {
     expect(observation.code.coding?.[0]?.code).toBe('55411-3');
     expect(observation.valueQuantity).toEqual({
       value: 60,
-      unit: 'minutes',
+      unit: 'minute',
       system: SYSTEMS.UCUM,
       code: 'min'
     });
@@ -60,7 +60,7 @@ describe('mapWorkout', () => {
     // LOINC 41979-6 "Calories burned in 24 hour" would claim a whole day's total
     // for a one-hour run.
     const calories = component(mapWorkout(workout(), context), '41981-2');
-    expect(calories?.valueQuantity).toEqual({ value: 450, unit: 'kcal', system: SYSTEMS.UCUM, code: 'kcal' });
+    expect(calories?.valueQuantity).toEqual({ value: 450, unit: 'kilocalorie', system: SYSTEMS.UCUM, code: 'kcal' });
   });
 
   it('does not publish an average heart rate under the point-in-time LOINC heart rate code', () => {
@@ -80,7 +80,7 @@ describe('mapWorkout', () => {
     const observation = mapWorkout(workout(), context);
     expect(component(observation, 'workout-distance')?.valueQuantity).toEqual({
       value: 8500,
-      unit: 'meters',
+      unit: 'meter',
       system: SYSTEMS.UCUM,
       code: 'm'
     });
