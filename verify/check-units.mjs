@@ -314,13 +314,80 @@ const site = (sites) => `${sites[0].rel}:${sites[0].line}${sites.length > 1 ? ` 
 
 console.log(`UCUM gate: ${pairs.size} distinct (unit, code) pairs across ${sources.length} files\n`);
 
-if (malformed.length) {
-  console.log(`MALFORMED (${malformed.length}) — these Quantities cannot be reviewed because they are incomplete:\n`);
-  for (const item of malformed) {
+/**
+ * A Quantity can be incomplete on purpose.
+ *
+ * VITRONIC states no unit for scan properties anywhere in its payload, so the mapper
+ * emits the number with none — asserting an unverified UCUM unit would break the first
+ * ground rule, and the HL7 validator accepts the result. That is a reviewed decision,
+ * but the gate had no way to hold one: malformed was unconditionally fatal, so the only
+ * way to a green run was to weaken the gate for everything.
+ *
+ * A waiver is keyed by file and by how many incomplete Quantities that file is expected
+ * to contain — never by line, which drifts under any edit above it and would silently
+ * come to cover a different Quantity than the one that was reviewed. If the count moves
+ * in either direction the waiver stops applying and the file returns for review, so a
+ * newly added bare number cannot hide behind an older one's sign-off.
+ */
+const UNITLESS = ALLOW.unitless ?? {};
+const malformedByFile = new Map();
+for (const item of malformed) record(malformedByFile, item.rel, item);
+
+const waived = [];
+const fatalMalformed = [];
+for (const [rel, items] of malformedByFile) {
+  const entry = UNITLESS[rel];
+  if (entry?.status === 'approved' && entry.occurrences === items.length) {
+    waived.push({ rel, items, entry });
+  } else {
+    for (const item of items) {
+      fatalMalformed.push({
+        ...item,
+        countChanged:
+          entry?.status === 'approved' && entry.occurrences !== items.length
+            ? `Reviewed for ${entry.occurrences}, found ${items.length}.`
+            : null
+      });
+    }
+  }
+}
+
+// A waiver matching nothing is stale. Say so: the list emptying is the goal, and an
+// entry nobody removed reads as an outstanding exemption that no longer exists.
+const stale = Object.keys(UNITLESS).filter((rel) => !malformedByFile.has(rel));
+
+if (fatalMalformed.length) {
+  console.log(
+    `MALFORMED (${fatalMalformed.length}) — these Quantities cannot be reviewed because they are incomplete:\n`
+  );
+  for (const item of fatalMalformed) {
     console.log(`  ${item.rel}:${item.line}`);
     console.log(`      ${item.problem}`);
-    console.log(`      ${item.detail}\n`);
+    console.log(`      ${item.detail}`);
+    if (item.countChanged) {
+      console.log(`      ${item.countChanged} The waiver in verify/units-allowlist.json no longer applies.`);
+    }
+    console.log('');
   }
+  console.log('  If a missing unit is deliberate, record it under "unitless" in');
+  console.log('  verify/units-allowlist.json with a reason and an occurrence count.\n');
+}
+
+if (waived.length) {
+  console.log(`UNITLESS BY REVIEW (${waived.length}) — deliberate, recorded, and still outstanding:\n`);
+  for (const { rel, items, entry } of waived) {
+    console.log(
+      `  ${rel}  (${items.length} site${items.length === 1 ? '' : 's'}: ${items.map((i) => i.line).join(', ')})`
+    );
+    console.log(`      ${entry.reason}`);
+    console.log(`      reviewed: ${entry.reviewed}\n`);
+  }
+}
+
+if (stale.length) {
+  console.log(`STALE WAIVER (${stale.length}) — recorded under "unitless" but no longer found:\n`);
+  for (const rel of stale) console.log(`  ${rel}\n      Remove it from verify/units-allowlist.json.`);
+  console.log('');
 }
 
 if (invalid.length) {
@@ -342,9 +409,15 @@ if (unreviewed.length) {
 
 if (approved.length) console.log(`APPROVED (${approved.length}).\n`);
 
-// Malformed and invalid are always fatal: those Quantities are known to be wrong.
-const known = malformed.length + invalid.length;
-const summary = `${malformed.length} malformed, ${invalid.length} invalid, ${unreviewed.length} unreviewed`;
+// Malformed and invalid are always fatal: those Quantities are known to be wrong. A
+// stale waiver is fatal too — it is an exemption nobody withdrew, and leaving it in
+// place would let a future bare Quantity in that file inherit a sign-off written for
+// something else.
+const known = fatalMalformed.length + invalid.length + stale.length;
+const summary =
+  `${fatalMalformed.length} malformed, ${invalid.length} invalid, ${unreviewed.length} unreviewed` +
+  (waived.length ? `, ${waived.length} unitless by review` : '') +
+  (stale.length ? `, ${stale.length} stale waiver` : '');
 
 if (known || (unreviewed.length && !ALLOW_UNREVIEWED)) {
   console.log(`FAIL: ${summary}.`);

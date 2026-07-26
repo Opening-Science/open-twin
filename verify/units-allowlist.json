@@ -12,7 +12,15 @@
     "",
     "The rejected entries below were verified during the July 2026 assessment.",
     "The rest of the repository's pairs are deliberately absent so the gate fails",
-    "until each one is signed off. Do not bulk-approve."
+    "until each one is signed off. Do not bulk-approve.",
+    "",
+    "\"unitless\" records Quantities that carry a value and deliberately no unit, keyed",
+    "by file. A missing unit is normally a defect, so an entry here needs a reason and",
+    "an occurrence count. The count is the guard: it is checked exactly, so adding a",
+    "new bare Quantity to a waived file fails the gate rather than inheriting the",
+    "sign-off written for a different one. Keying by line was rejected \u2014 a line number",
+    "drifts under any edit above it and the waiver would quietly move to another",
+    "Quantity. A waiver that matches nothing is stale and also fails."
   ],
   "pairs": {
     "steps|steps": {
@@ -48,6 +56,15 @@
       "suggested": "Areas are 'm2' throughout. Remove the length-coded duplicates.",
       "found_at": "packages/provider-vitronic/src/fhir/mappers/crosssection.ts:25-35",
       "reviewed": "2026-07-25 assessment"
+    }
+  },
+  "unitless": {
+    "packages/provider-vitronic/src/fhir/mappers/properties.ts": {
+      "status": "approved",
+      "occurrences": 1,
+      "reason": "VITRONIC BodyLoop scan properties are untyped key/value pairs and the API states no unit for them anywhere in the payload. The mapper emits the number with no unit rather than asserting a UCUM unit nobody has verified, which ground rule 1 forbids and which would be the worse error: a wrong unit is silently interpretable, a missing one is visibly incomplete. FHIR permits a Quantity with only a value, and the HL7 validator reports no error on the emitted bundle.",
+      "resolved_by": "A reviewed property_path -> unit table, tracked as TODO(clinical-review) in the mapper. Once it exists the paths with a known unit carry one and this waiver shrinks or goes away.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     }
   }
 }
