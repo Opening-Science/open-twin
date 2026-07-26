@@ -14,8 +14,15 @@
     "Four entries carry an 'open_question' field. They are approved AND the question is",
     "unresolved; approving did not answer it. Read those before relying on the code.",
     "",
-    "The 38 LOINC LA* answer codes and the genomic observation codes were approved on",
-    "the strength of HL7 Genomics Reporting IG provenance, not individual verification."
+    "",
+    "The 45 genomic codes were initially approved on HL7 Genomics Reporting IG",
+    "provenance alone. That was later found to be much weaker evidence than it looked:",
+    "only 5 of the 38 answer codes appear in the emitted sample bundle, so the",
+    "validator \u2014 even against a live terminology server \u2014 had ever checked 5 of them.",
+    "All 45 were then individually validated against tx.fhir.org and all 45 passed.",
+    "",
+    "The general lesson, which applies to every connector: a validator only checks what",
+    "you actually emit. Declaring a code and never exercising it leaves it unguarded."
   ],
   "codes": {
     "77195-6": {
@@ -279,10 +286,10 @@
     "53034-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Allelic state",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:81",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Allelic state' as a display for this code."
     },
     "55411-3": {
       "status": "approved",
@@ -304,10 +311,10 @@
     "69547-8": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Genomic ref allele [ID]",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:73",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Genomic ref allele [ID]' as a display for this code."
     },
     "69548-6": {
       "status": "approved",
@@ -320,26 +327,26 @@
     "69551-0": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Genomic alt allele [ID]",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:75",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Genomic alt allele [ID]' as a display for this code."
     },
     "81252-9": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Discrete genetic variant",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:91",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Discrete genetic variant' as a display for this code."
     },
     "81254-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Genomic allele start-end",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:77",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Genomic allele start-end' as a display for this code."
     },
     "81258-6": {
       "status": "approved",
@@ -352,18 +359,18 @@
     "82121-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Allelic read depth",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:83",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Allelic read depth' as a display for this code."
     },
     "92822-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Genomic coordinate system [Type]",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:79",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Genomic coordinate system [Type]' as a display for this code."
     },
     "93830-8": {
       "status": "approved",
@@ -377,306 +384,306 @@
     "LA11884-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Indeterminate",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:114",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Indeterminate' as a display for this code."
     },
     "LA14029-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "GRCh37",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:136",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'GRCh37' as a display for this code."
     },
     "LA14030-3": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "NCBI Build 36.1",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:137",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'NCBI Build 36.1' as a display for this code."
     },
     "LA14031-1": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "NCBI Build 35",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:138",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'NCBI Build 35' as a display for this code."
     },
     "LA14032-9": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "NCBI Build 34",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:139",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'NCBI Build 34' as a display for this code."
     },
     "LA18198-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "No call",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:113",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'No call' as a display for this code."
     },
     "LA21254-0": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 1",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:196",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 1' as a display for this code."
     },
     "LA21255-7": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 2",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:197",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 2' as a display for this code."
     },
     "LA21256-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 3",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:198",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 3' as a display for this code."
     },
     "LA21257-3": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 4",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:199",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 4' as a display for this code."
     },
     "LA21258-1": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 5",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:200",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 5' as a display for this code."
     },
     "LA21259-9": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 6",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:201",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 6' as a display for this code."
     },
     "LA21260-7": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 7",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:202",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 7' as a display for this code."
     },
     "LA21261-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 8",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:203",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 8' as a display for this code."
     },
     "LA21262-3": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 9",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:204",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 9' as a display for this code."
     },
     "LA21263-1": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 10",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:205",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 10' as a display for this code."
     },
     "LA21264-9": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 11",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:206",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 11' as a display for this code."
     },
     "LA21265-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 12",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:207",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 12' as a display for this code."
     },
     "LA21266-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 13",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:208",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 13' as a display for this code."
     },
     "LA21267-2": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 14",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:209",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 14' as a display for this code."
     },
     "LA21268-0": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 15",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:210",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 15' as a display for this code."
     },
     "LA21269-8": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 16",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:211",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 16' as a display for this code."
     },
     "LA21270-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 17",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:212",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 17' as a display for this code."
     },
     "LA21271-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 18",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:213",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 18' as a display for this code."
     },
     "LA21272-2": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 19",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:214",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 19' as a display for this code."
     },
     "LA21273-0": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 20",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:215",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 20' as a display for this code."
     },
     "LA21274-8": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 21",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:216",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 21' as a display for this code."
     },
     "LA21275-5": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome 22",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:217",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome 22' as a display for this code."
     },
     "LA21276-3": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome X",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:218",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome X' as a display for this code."
     },
     "LA21277-1": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Chromosome Y",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:219",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Chromosome Y' as a display for this code."
     },
     "LA26806-2": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "GRCh38",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:135",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'GRCh38' as a display for this code."
     },
     "LA30100-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "0-based interval counting",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:119",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts '0-based interval counting' as a display for this code."
     },
     "LA30102-0": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "1-based character counting",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:120",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts '1-based character counting' as a display for this code."
     },
     "LA6705-3": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Homozygous",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:125",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Homozygous' as a display for this code."
     },
     "LA6706-1": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Heterozygous",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:126",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Heterozygous' as a display for this code."
     },
     "LA6707-9": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Hemizygous",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:127",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Hemizygous' as a display for this code."
     },
     "LA9633-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Present",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:111",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Present' as a display for this code."
     },
     "LA9634-2": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified \u2014 see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "official_name": "Absent",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:112",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Absent' as a display for this code."
     }
   }
 }
