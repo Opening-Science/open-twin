@@ -12,6 +12,7 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -97,5 +98,6 @@ function exemplar(): Bundle {
 }
 
 export const BUNDLE_CASES: BundleCase[] = [
-  { name: 'fhir-core-exemplar', build: exemplar }
+  { name: 'fhir-core-exemplar', build: exemplar },
+  { name: 'genomics-vcf-hiseq', build: genomicsVcfBundle }
 ];
