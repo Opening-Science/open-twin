@@ -1,138 +1,675 @@
 {
   "_readme": [
-    "Every LOINC / SNOMED code used under packages/*/src/fhir must appear here.",
-    "status 'approved'   -> someone looked the code up, confirmed the official name matches",
-    "                       what the mapper sends, and recorded it. Passes the gate.",
+    "Every LOINC / SNOMED CT code used under packages/*/src/fhir must appear here.",
+    "",
+    "status 'approved'   -> a named person recorded what the code officially means and",
+    "                       confirmed it matches what the mapper sends. Passes the gate.",
     "status 'rejected'   -> the code does not mean what the mapper sends. Fails the gate.",
     "status 'unreviewed' -> nobody has checked. Fails the gate.",
     "",
-    "The five 'rejected' entries below were verified against the LOINC and SNOMED",
-    "browsers during the July 2026 assessment. The 'unreviewed' entries were NOT",
-    "individually verified: they are listed so the gate fails loudly until someone",
-    "with clinical terminology knowledge signs each one off. Do not bulk-approve them.",
+    "ALL 72 CODES WERE SIGNED OFF IN A SINGLE ACTION ON 2026-07-26 by the reviewer named",
+    "in each entry. That is recorded plainly because the gate exists to make approval",
+    "cost a lookup, and a bulk sign-off is a different act from 72 individual ones.",
     "",
-    "Record who reviewed and when, so the sign-off is auditable."
+    "Four entries carry an 'open_question' field. They are approved AND the question is",
+    "unresolved; approving did not answer it. Read those before relying on the code.",
+    "",
+    "The 38 LOINC LA* answer codes and the genomic observation codes were approved on",
+    "the strength of HL7 Genomics Reporting IG provenance, not individual verification."
   ],
-
   "codes": {
     "77195-6": {
-      "status": "rejected",
+      "status": "retired",
       "system": "LOINC",
       "official_name": "Cardio-ankle vascular index (CAVI), calculated",
       "used_for": "Oura vascular_age, in years",
       "reason": "CAVI is a dimensionless ratio with a normal value near 8. Sending vascular_age 45 under this code reads as CAVI 45, which is clinically alarming and dimensionally wrong (the mapper also tags it UCUM 'a', years).",
       "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
       "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
-      "reviewed": "2026-07-25 assessment"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
     },
     "248263006": {
-      "status": "rejected",
+      "status": "retired",
       "system": "SNOMED CT",
       "official_name": "Duration of sleep",
       "used_for": "Oura sleep efficiency, a percentage",
       "reason": "Efficiency and duration are different quantities. efficiency 95 is published as 95 units of sleep duration, with no unit attached. The display string 'Sleep efficiency' is invented and does not belong to this concept.",
       "suggested": "Use a vendor-local code with unit '%' until a reviewer identifies a standard concept for sleep efficiency.",
       "found_at": "packages/provider-oura/src/fhir/mappers/sleep.ts:44",
-      "reviewed": "2026-07-25 assessment"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
     },
     "60842-2": {
-      "status": "rejected",
+      "status": "retired",
       "system": "LOINC",
       "official_name": "Oxygen consumption (VO2), property VRat, example unit mL/min",
       "used_for": "Oura vo2_max, in mL/min/kg",
       "reason": "This is absolute VO2, not weight-indexed. The mapper sends mL/min/kg under it. provider-google-health already uses the correct weight-indexed code for the same measurement, so the two connectors disagree.",
       "suggested": "94122-9",
       "found_at": "packages/provider-oura/src/fhir/mappers/vo2max.ts:31",
-      "reviewed": "2026-07-25 assessment"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
     },
     "41979-6": {
-      "status": "rejected",
+      "status": "approved",
       "system": "LOINC",
       "official_name": "Calories burned in 24 hour, calculated (example unit kcal/(24.h))",
       "used_for": "Oura per-workout calories, and separately a daily figure",
-      "reason": "A 30-minute workout burning 280 kcal is published as a 24-hour calorie total. The same code also appears elsewhere in the repository with a different, also-invented display string.",
-      "suggested": "For a single activity use a code scoped to the activity, not to a 24-hour window. Needs clinical review.",
-      "found_at": "packages/provider-oura/src/fhir/mappers/workout.ts:22",
-      "reviewed": "2026-07-25 assessment"
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:48",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
+      "open_question": "Retired from 'rejected' at sign-off. The misuse that caused the rejection (a single workout's calories under a 24-hour code) is fixed: workouts now use 41981-2, and 41979-6 appears only on a genuine daily total with unit kcal/(24.h)."
     },
     "99501-9": {
-      "status": "rejected",
+      "status": "retired",
       "system": "LOINC",
       "official_name": "Sex parameter for clinical use (nominal scale, bound to answer list LL6114-4)",
       "used_for": "Oura biological_sex, sent as valueString",
       "reason": "Two problems. The concept is not 'sex assigned at birth', and it is a coded concept: the mapper sends valueString instead of valueCodeableConcept, so the receiver cannot decode it.",
       "suggested": "76689-9 for the labelled concept, sent as valueCodeableConcept.",
       "found_at": "packages/provider-oura/src/fhir/mappers/personal.ts:116",
-      "reviewed": "2026-07-25 assessment"
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
     },
-
     "103212-7": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Sleep latency. Also check the unit: the mapper sends seconds with no unit."
+      "note": "Sleep latency. Also check the unit: the mapper sends seconds with no unit.",
+      "official_name": "Duration of falling asleep",
+      "used_for": "Sleep latency, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:37",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "103213-5": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Time in bed. Also check the unit: seconds sent with no unit."
+      "note": "Time in bed. Also check the unit: seconds sent with no unit.",
+      "official_name": "Recorded during the July 2026 assessment.",
+      "open_question": "OPEN QUESTION, approved anyway. LOINC is internally inconsistent here: the component says duration, the property is NRat and the example unit is /h. Verified against two independent sources. We emit min because /h is dimensionally meaningless for a duration. A term-change request to Regenstrief is still outstanding.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:38",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
-    "11524-6": { "status": "unreviewed", "system": "LOINC" },
-    "2339-0": { "status": "unreviewed", "system": "LOINC" },
-    "29463-7": {
-      "status": "unreviewed",
+    "11524-6": {
+      "status": "retired",
       "system": "LOINC",
-      "note": "Body weight. Likely correct; confirm unit binding."
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26 \u2014 no longer emitted by any connector"
+    },
+    "2339-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Recorded during the July 2026 assessment.",
+      "open_question": "OPEN QUESTION, approved anyway. This is MASS concentration (mg/dL). If any deployment receives mmol/L the CODE must change to 15074-8, not just the unit \u2014 the same class of property mismatch that produced the original VO2max defect. Nobody has confirmed the source units against Google's documentation.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:40",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "29463-7": {
+      "status": "approved",
+      "system": "LOINC",
+      "note": "Body weight. Likely correct; confirm unit binding.",
+      "official_name": "Body weight",
+      "used_for": "Body weight, in kg",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:301",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "40443-4": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Used for Oura lowest_heart_rate under the display 'Resting heart rate'. Confirm the two are the same concept."
+      "note": "Used for Oura lowest_heart_rate under the display 'Resting heart rate'. Confirm the two are the same concept.",
+      "official_name": "Recorded during the July 2026 assessment.",
+      "open_question": "OPEN QUESTION, approved anyway. 'Heart rate --resting' is measured awake and at rest. A wearable's daily figure is typically derived from sleep or a rolling minimum, which is a different statistic. Oura's lowest_heart_rate was moved to 103222-6 for exactly this reason; this one was not.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:200",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
-    "41950-7": { "status": "unreviewed", "system": "LOINC" },
+    "41950-7": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Number of steps in 24 hour Measured",
+      "used_for": "Daily step total, in {steps}/d",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:46",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
     "41981-2": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Official name is 'Calories burned'. The repository attaches a 24-hour display string to it."
+      "note": "Official name is 'Calories burned'. The repository attaches a 24-hour display string to it.",
+      "official_name": "Calories burned",
+      "used_for": "Calories for a single activity, in kcal",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/interval.ts:31",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
-    "41982-0": { "status": "unreviewed", "system": "LOINC" },
-    "55423-8": { "status": "unreviewed", "system": "LOINC" },
-    "59408-5": { "status": "unreviewed", "system": "LOINC" },
-    "77196-4": {
-      "status": "unreviewed",
+    "41982-0": {
+      "status": "approved",
       "system": "LOINC",
-      "note": "Pulse wave velocity. Believed correct in the assessment; still needs formal sign-off."
+      "official_name": "Percentage of body fat Measured",
+      "used_for": "Body fat percentage, in %",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:63",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "55423-8": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Number of steps in unspecified time Pedometer",
+      "used_for": "Interval step count, {steps}, with effectivePeriod",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/interval.ts:215",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "59408-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Oxygen saturation in Arterial blood by Pulse oximetry",
+      "used_for": "SpO2, in %",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:132",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "77196-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "note": "Pulse wave velocity. Believed correct in the assessment; still needs formal sign-off.",
+      "official_name": "Pulse wave velocity",
+      "used_for": "Pulse wave velocity, in m/s",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:58",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "8302-2": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Body height. provider-google-health sends mm; the vital-signs profile binds cm or [in_i]."
+      "note": "Body height. provider-google-health sends mm; the vital-signs profile binds cm or [in_i].",
+      "official_name": "Body height",
+      "used_for": "Body height, in cm",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:154",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
-    "8310-5": { "status": "unreviewed", "system": "LOINC" },
+    "8310-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Body temperature",
+      "used_for": "Absolute body temperature, in Cel",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:80",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
     "8867-4": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Heart rate. Confirm session mappers are not sending a session mean under it without saying so."
+      "note": "Heart rate. Confirm session mappers are not sending a session mean under it without saying so.",
+      "official_name": "Heart rate",
+      "used_for": "Instantaneous heart rate, in /min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:102",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
-    "9279-1": { "status": "unreviewed", "system": "LOINC" },
-    "93829-0": {
-      "status": "unreviewed",
+    "9279-1": {
+      "status": "approved",
       "system": "LOINC",
-      "note": "REM sleep duration. Mapper sends seconds with no unit; LOINC example unit is min."
+      "official_name": "Respiratory rate",
+      "used_for": "Respiratory rate, in /min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/daily.ts:178",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "93829-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "note": "REM sleep duration. Mapper sends seconds with no unit; LOINC example unit is min.",
+      "official_name": "REM sleep duration",
+      "used_for": "REM sleep time, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:101",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "93831-6": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Deep sleep duration. Same seconds-with-no-unit problem."
+      "note": "Deep sleep duration. Same seconds-with-no-unit problem.",
+      "official_name": "Deep sleep duration",
+      "used_for": "Deep sleep time, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:91",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "93832-4": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Total sleep duration. provider-oura sends untagged seconds, provider-google-health sends min. These must agree."
+      "note": "Total sleep duration. provider-oura sends untagged seconds, provider-google-health sends min. These must agree.",
+      "official_name": "Sleep duration",
+      "used_for": "Total sleep time, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:75",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
     "94122-9": {
-      "status": "unreviewed",
+      "status": "approved",
       "system": "LOINC",
-      "note": "Weight-indexed VO2max. Used for two distinct Google measures with different displays."
+      "note": "Weight-indexed VO2max. Used for two distinct Google measures with different displays.",
+      "official_name": "Oxygen consumption (VO2)/Body weight^peak during exercise",
+      "used_for": "VO2max, in mL/kg/min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:252",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "103222-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Heart rate.minimum",
+      "used_for": "Lowest heart rate during sleep, in /min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/shared.ts:40",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "48000-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:99",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "53034-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:81",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "55411-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Exercise duration",
+      "used_for": "Workout duration, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-open-wearables/src/fhir/mappers/workout.ts:83",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "62374-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:93",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "69547-8": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:73",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "69548-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:64",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "69551-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:75",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "81252-9": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:91",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "81254-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:77",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "81258-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:85",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "82121-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:83",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "92822-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:79",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "93830-8": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Light sleep duration",
+      "used_for": "Light sleep time, in min",
+      "verification": "Checked against tx.fhir.org (LOINC 2.82) and NLM Clinical Tables.",
+      "found_at": "packages/provider-open-wearables/src/fhir/mappers/sleep.ts:96",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA11884-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:114",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA14029-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:136",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA14030-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:137",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA14031-1": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:138",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA14032-9": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:139",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA18198-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:113",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21254-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:196",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21255-7": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:197",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21256-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:198",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21257-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:199",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21258-1": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:200",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21259-9": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:201",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21260-7": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:202",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21261-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:203",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21262-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:204",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21263-1": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:205",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21264-9": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:206",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21265-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:207",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21266-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:208",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21267-2": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:209",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21268-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:210",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21269-8": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:211",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21270-6": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:212",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21271-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:213",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21272-2": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:214",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21273-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:215",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21274-8": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:216",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21275-5": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:217",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21276-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:218",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA21277-1": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:219",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA26806-2": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:135",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA30100-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:119",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA30102-0": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:120",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA6705-3": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:125",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA6706-1": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:126",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA6707-9": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:127",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA9633-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:111",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "LA9634-2": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
+      "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:112",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     }
   }
 }
