@@ -14,12 +14,14 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import { aggregateBundle } from '../packages/aggregate/src/verification/exampleBundle';
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
 import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
 import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { openWearablesBundle } from '../packages/provider-open-wearables/src/verification/exampleBundle';
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
+import { ouraSandboxBundle } from '../packages/provider-oura/src/verification/sandboxBundle';
 import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 
 /**
@@ -191,6 +193,10 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'anchor-hba1c', build: anchorHbA1c },
   { name: 'fhir-core-exemplar', build: exemplar },
   { name: 'oura-sync', build: ouraBundle },
+  // The recorded sandbox capture: real Oura payloads, all thirteen scopes.
+  { name: 'oura-sandbox-real', build: ouraSandboxBundle },
+  // Two connectors reconciled: exercises derivedFrom and the open-twin method system.
+  { name: 'aggregate-two-sources', build: aggregateBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
   { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
   { name: 'fhir-r4-ingest', build: fhirR4IngestBundle },
