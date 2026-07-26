@@ -14,13 +14,13 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
-import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
-import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
-import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
-import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
+import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
+import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { openWearablesBundle } from '../packages/provider-open-wearables/src/verification/exampleBundle';
+import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
+import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
