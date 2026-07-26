@@ -12,6 +12,7 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -96,4 +97,7 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
-export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
+export const BUNDLE_CASES: BundleCase[] = [
+  { name: 'fhir-core-exemplar', build: exemplar },
+  { name: 'vitronic-scan', build: buildVitronicExemplarBundle }
+];
