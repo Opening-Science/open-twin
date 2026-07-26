@@ -137,7 +137,7 @@
       }
     },
     {
-      "includes": ["verify/**"],
+      "includes": ["verify/**", "packages/*/scripts/**"],
       "linter": {
         "rules": {
           "suspicious": {
