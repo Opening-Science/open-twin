@@ -1,157 +1,241 @@
 import { describe, expect, it } from 'vitest';
 import type { CommonType } from '../../api/schemas/common';
 import {
-  applyCommonFields,
-  CATEGORY,
-  codeableConcept,
-  compact,
-  createObservation,
-  numericComponent,
-  PATIENT_REFERENCE,
-  SYSTEMS,
-  stringComponent
+  bodySiteFromPath,
+  commonExtensions,
+  createMeasurementObservation,
+  degrees,
+  humanizePath,
+  markerReference,
+  measurementContext,
+  measurementIdentifier,
+  metres,
+  radiansToDegrees,
+  scanReference,
+  toFhirDateTime,
+  toFhirInstant
 } from '../../fhir/mappers/shared';
+import { CONTEXT, RECORDED_AT, SCAN_ID, SUBJECT, UCUM, VITRONIC, VITRONIC_IDENTIFIER } from './testHelpers';
 
-describe('codeableConcept', () => {
-  it('builds a CodeableConcept with a single coding', () => {
-    expect(codeableConcept({ system: SYSTEMS.VITRONIC, code: 'abc', display: 'ABC' })).toEqual({
-      coding: [{ system: SYSTEMS.VITRONIC, code: 'abc', display: 'ABC' }]
-    });
+const CODE: CommonType = {};
+
+describe('radiansToDegrees', () => {
+  it('converts the BodyLoop radian payload to degrees', () => {
+    expect(radiansToDegrees(Math.PI)).toBe(180);
+    expect(radiansToDegrees(Math.PI / 2)).toBe(90);
+    expect(radiansToDegrees(1.4816501199902758)).toBe(84.8923);
   });
 
-  it('omits the display when not provided', () => {
-    expect(codeableConcept({ system: SYSTEMS.VITRONIC, code: 'abc' })).toEqual({
-      coding: [{ system: SYSTEMS.VITRONIC, code: 'abc' }]
-    });
+  it('rounds to four decimals so conversion noise does not reach the wire', () => {
+    expect(radiansToDegrees(Math.PI / 18)).toBe(10);
+  });
+
+  it('passes non-finite input through so the Quantity builder can reject it', () => {
+    expect(radiansToDegrees(Number.NaN)).toBeNaN();
   });
 });
 
-describe('numericComponent', () => {
-  it('creates a component with a valueQuantity', () => {
-    expect(
-      numericComponent({ system: SYSTEMS.VITRONIC, code: 'abc', display: 'ABC' }, 5, {
-        unit: 'meters',
-        system: SYSTEMS.UCUM,
-        code: 'm'
-      })
-    ).toEqual({
-      code: { coding: [{ system: SYSTEMS.VITRONIC, code: 'abc', display: 'ABC' }] },
-      valueQuantity: { value: 5, unit: 'meters', system: SYSTEMS.UCUM, code: 'm' }
-    });
+describe('quantity builders', () => {
+  it('builds UCUM-coded quantities', () => {
+    expect(degrees(Math.PI)).toEqual({ value: 180, unit: 'degree', system: UCUM, code: 'deg' });
+    expect(metres(1.75)).toEqual({ value: 1.75, unit: 'meters', system: UCUM, code: 'm' });
   });
 
-  it('returns undefined when the value is null or undefined', () => {
-    expect(numericComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, null)).toBeUndefined();
-    expect(numericComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, undefined)).toBeUndefined();
+  it('returns undefined for absent or non-finite values, never a value-less Quantity', () => {
+    expect(degrees(null)).toBeUndefined();
+    expect(degrees(Number.NaN)).toBeUndefined();
+    expect(metres(undefined)).toBeUndefined();
+    expect(metres(Number.POSITIVE_INFINITY)).toBeUndefined();
   });
 
   it('keeps a zero value', () => {
-    expect(numericComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, 0)).toEqual({
-      code: { coding: [{ system: SYSTEMS.VITRONIC, code: 'abc' }] },
-      valueQuantity: { value: 0 }
+    expect(metres(0)).toEqual({ value: 0, unit: 'meters', system: UCUM, code: 'm' });
+  });
+});
+
+describe('toFhirDateTime', () => {
+  it('keeps a timestamp that carries an offset', () => {
+    expect(toFhirDateTime('2026-07-25T09:15:00+02:00')).toBe('2026-07-25T09:15:00+02:00');
+    expect(toFhirDateTime('2026-07-25T07:15:00.500Z')).toBe('2026-07-25T07:15:00.500Z');
+  });
+
+  /** FHIR requires an offset once a time is present, and D7 forbids inventing one. */
+  it('narrows an offsetless timestamp to the civil date it actually states', () => {
+    expect(toFhirDateTime('2026-07-25T09:15:00')).toBe('2026-07-25');
+    expect(toFhirDateTime('2026-07-25')).toBe('2026-07-25');
+  });
+
+  it('returns undefined for absent or unparseable input', () => {
+    expect(toFhirDateTime(undefined)).toBeUndefined();
+    expect(toFhirDateTime(null)).toBeUndefined();
+    expect(toFhirDateTime('   ')).toBeUndefined();
+    expect(toFhirDateTime('yesterday')).toBeUndefined();
+  });
+});
+
+describe('toFhirInstant', () => {
+  it('accepts only a full instant, because Bundle.timestamp admits no lower precision', () => {
+    expect(toFhirInstant('2026-07-25T09:15:00+02:00')).toBe('2026-07-25T09:15:00+02:00');
+    expect(toFhirInstant('2026-07-25T09:15:00')).toBeUndefined();
+    expect(toFhirInstant('2026-07-25')).toBeUndefined();
+  });
+});
+
+describe('humanizePath', () => {
+  it('reads a measurement path as words and expands the laterality suffix', () => {
+    expect(humanizePath('arm.shoulder.R')).toBe('Arm shoulder (right)');
+    expect(humanizePath('leg.hip.M')).toBe('Leg hip (midline)');
+    expect(humanizePath('torso.cingulum_praefere_posterior.M')).toBe('Torso cingulum praefere posterior (midline)');
+  });
+
+  it('drops the model namespace, which names a geometry and not an anatomy', () => {
+    expect(humanizePath('stick_model.arm.shoulder.R')).toBe('Arm shoulder (right)');
+  });
+
+  it('returns an empty string when nothing is left to say', () => {
+    expect(humanizePath('')).toBe('');
+    expect(bodySiteFromPath('')).toBeUndefined();
+  });
+
+  it('produces a text-only body site rather than guessing a SNOMED CT code', () => {
+    expect(bodySiteFromPath('arm.shoulder.R')).toEqual({ text: 'Arm shoulder (right)' });
+  });
+});
+
+describe('identity', () => {
+  it('mints a business identifier scoped to the scan, the scope and the path', () => {
+    expect(measurementIdentifier(SCAN_ID, 'angle', 'arm.shoulder.R')).toEqual({
+      system: VITRONIC_IDENTIFIER,
+      value: `scan/${SCAN_ID}/angle/arm.shoulder.R`
+    });
+  });
+
+  it('models the scan as a logical ImagingStudy reference, not as the subject', () => {
+    expect(scanReference(SCAN_ID)).toEqual({
+      type: 'ImagingStudy',
+      identifier: { system: VITRONIC_IDENTIFIER, value: `scan/${SCAN_ID}` },
+      display: `BodyLoop scan ${SCAN_ID}`
+    });
+  });
+
+  it('references a landmark Observation by its business identifier', () => {
+    expect(markerReference(SCAN_ID, 'marker/knee', 'At marker')).toEqual({
+      type: 'Observation',
+      identifier: { system: VITRONIC_IDENTIFIER, value: `scan/${SCAN_ID}/marker/marker/knee` },
+      display: 'At marker: marker/knee'
     });
   });
 });
 
-describe('stringComponent', () => {
-  it('creates a component with a valueString', () => {
-    expect(stringComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, 'hello')).toEqual({
-      code: { coding: [{ system: SYSTEMS.VITRONIC, code: 'abc' }] },
-      valueString: 'hello'
-    });
+describe('measurementContext', () => {
+  it('derives a deterministic urn:uuid subject when the caller supplies none', () => {
+    const context = measurementContext({ scanId: SCAN_ID, subjectKey: 'proband/1' });
+
+    expect(context.subject).toEqual(SUBJECT);
+    expect(context.subject).toEqual(measurementContext({ scanId: SCAN_ID, subjectKey: 'proband/1' }).subject);
   });
 
-  it('returns undefined when the value is null or undefined', () => {
-    expect(stringComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, null)).toBeUndefined();
-    expect(stringComponent({ system: SYSTEMS.VITRONIC, code: 'abc' }, undefined)).toBeUndefined();
-  });
-});
+  it('uses a caller-supplied subject verbatim', () => {
+    const context = measurementContext({ scanId: SCAN_ID, subject: { reference: 'Patient/1234' } });
 
-describe('compact', () => {
-  it('removes undefined entries while keeping falsy values', () => {
-    expect(compact([1, undefined, 0, undefined, 2])).toEqual([1, 0, 2]);
+    expect(context.subject).toEqual({ reference: 'Patient/1234' });
   });
 
-  it('returns an empty array when everything is undefined', () => {
-    expect(compact([undefined, undefined])).toEqual([]);
+  it('falls back to the scan as the subject key, and says so by never claiming a person', () => {
+    const context = measurementContext({ scanId: SCAN_ID });
+
+    expect(context.subjectKey).toBe(`viatar/${SCAN_ID}`);
+    expect(context.subject.reference).toMatch(/^urn:uuid:/);
   });
 });
 
-describe('createObservation', () => {
-  it('creates a minimal Observation with the default patient reference', () => {
-    const observation = createObservation({ code: { system: SYSTEMS.VITRONIC, code: 'abc' } });
-
-    expect(observation).toEqual({
-      resourceType: 'Observation',
-      status: 'final',
-      code: { coding: [{ system: SYSTEMS.VITRONIC, code: 'abc' }] },
-      subject: { reference: PATIENT_REFERENCE }
-    });
-  });
-
-  it('uses a custom patient reference when provided', () => {
-    const observation = createObservation({
-      code: { system: SYSTEMS.VITRONIC, code: 'abc' },
-      patientReference: 'Scan/xyz'
-    });
-
-    expect(observation.subject).toEqual({ reference: 'Scan/xyz' });
-  });
-
-  it('adds a category coding when a category is provided', () => {
-    const observation = createObservation({ code: { system: SYSTEMS.VITRONIC, code: 'abc' }, category: CATEGORY.EXAM });
-
-    expect(observation.category).toEqual([
-      { coding: [{ system: SYSTEMS.OBSERVATION_CATEGORY, code: 'exam', display: 'Exam' }] }
+describe('commonExtensions', () => {
+  it('preserves the operator flags FHIR has no element for', () => {
+    expect(commonExtensions({ hidden: false, style: 'dashed' })).toEqual([
+      { url: 'http://opentwin.ch/fhir/StructureDefinition/vitronic-hidden', valueBoolean: false },
+      { url: 'http://opentwin.ch/fhir/StructureDefinition/vitronic-style', valueString: 'dashed' }
     ]);
   });
 
-  it('sets value fields when provided', () => {
-    const observation = createObservation({
-      code: { system: SYSTEMS.VITRONIC, code: 'abc' },
-      valueQuantity: { value: 12, unit: 'mm', system: SYSTEMS.UCUM, code: 'mm' },
-      valueString: 'text',
-      valueBoolean: true
-    });
-
-    expect(observation.valueQuantity).toEqual({ value: 12, unit: 'mm', system: SYSTEMS.UCUM, code: 'mm' });
-    expect(observation.valueString).toBe('text');
-    expect(observation.valueBoolean).toBe(true);
-  });
-
-  it('omits the component array when no components are provided', () => {
-    const observation = createObservation({ code: { system: SYSTEMS.VITRONIC, code: 'abc' }, components: [] });
-
-    expect(observation.component).toBeUndefined();
+  it('emits nothing when the flags are absent or null', () => {
+    expect(commonExtensions({})).toEqual([]);
+    expect(commonExtensions({ hidden: null, style: null })).toEqual([]);
   });
 });
 
-describe('applyCommonFields', () => {
-  const base = () => createObservation({ code: { system: SYSTEMS.VITRONIC, code: 'abc' }, patientReference: 'Scan/1' });
+describe('createMeasurementObservation', () => {
+  it('builds a minimal Observation with an id, an identifier, a subject and a time', () => {
+    const observation = createMeasurementObservation({
+      context: CONTEXT,
+      scope: 'height',
+      path: 'height/body',
+      common: CODE,
+      display: 'Height height/body'
+    });
 
-  it('adds a note when present', () => {
-    const common: CommonType = { note: 'a note' };
-    const observation = applyCommonFields(base(), common, SYSTEMS.VITRONIC);
-
-    expect(observation.note).toEqual([{ text: 'a note' }]);
+    expect(observation).toEqual({
+      resourceType: 'Observation',
+      id: observation.id,
+      identifier: [{ system: VITRONIC_IDENTIFIER, value: `scan/${SCAN_ID}/height/height/body` }],
+      status: 'final',
+      code: { coding: [{ system: VITRONIC, code: 'height/body', display: 'Height height/body' }] },
+      category: [
+        {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/observation-category',
+              code: 'exam',
+              display: 'Exam'
+            }
+          ]
+        }
+      ],
+      subject: SUBJECT,
+      effectiveDateTime: RECORDED_AT,
+      derivedFrom: [scanReference(SCAN_ID)],
+      bodySite: { text: 'Height/body' }
+    });
+    expect(observation.id).toBeTypeOf('string');
   });
 
-  it('adds an identifier when key_external is present', () => {
-    const common: CommonType = { key_external: 'ext-1' };
-    const observation = applyCommonFields(base(), common, SYSTEMS.VITRONIC);
+  it('omits the body site for measurements that are not about an anatomical location', () => {
+    const observation = createMeasurementObservation({
+      context: CONTEXT,
+      scope: 'properties',
+      path: 'property/gender',
+      common: CODE,
+      display: 'Property property/gender',
+      bodySitePath: null
+    });
 
-    expect(observation.identifier).toEqual([{ system: SYSTEMS.VITRONIC, value: 'ext-1' }]);
+    expect(observation.bodySite).toBeUndefined();
   });
 
-  it('leaves note and identifier untouched when common fields are empty', () => {
-    const observation = applyCommonFields(base(), {}, SYSTEMS.VITRONIC);
+  it('drops components whose value could not be expressed', () => {
+    const observation = createMeasurementObservation({
+      context: CONTEXT,
+      scope: 'marker',
+      path: 'marker/knee',
+      common: CODE,
+      display: 'Marker marker/knee',
+      components: [undefined]
+    });
 
-    expect(observation.note).toBeUndefined();
-    expect(observation.identifier).toBeUndefined();
+    expect(observation.component).toBeUndefined();
   });
 
-  it('returns the same observation instance', () => {
-    const observation = base();
-    expect(applyCommonFields(observation, {}, SYSTEMS.VITRONIC)).toBe(observation);
+  it('never emits both a value and a dataAbsentReason', () => {
+    const observation = createMeasurementObservation({
+      context: CONTEXT,
+      scope: 'height',
+      path: 'height/body',
+      common: CODE,
+      display: 'Height height/body',
+      valueQuantity: metres(1.75),
+      dataAbsentReason: { coding: [{ code: 'unknown' }] }
+    });
+
+    expect(observation.valueQuantity).toBeDefined();
+    expect(observation.dataAbsentReason).toBeUndefined();
   });
 });

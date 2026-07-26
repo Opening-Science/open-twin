@@ -1,63 +1,108 @@
+/**
+ * BodyLoop cross-section measurements.
+ *
+ * A cross-section yields two circumferences: `perimeter` follows the true skin
+ * contour and `convex` follows its convex hull, which is what a tape measure
+ * pulled taut reports. `preference` names the contour the operator chose, and
+ * the corresponding circumference becomes `value[x]` — the clinical measure of a
+ * body cross-section is its circumference, not its enclosed area, and promoting
+ * the area published 0.08 m² where a consumer reading `value[x]` expects 1.04 m.
+ *
+ * The raw 2D/3D contour polylines are deliberately not mapped: they are geometry
+ * rather than a clinical result and would add thousands of coordinates to every
+ * resource.
+ */
 import type { Observation } from 'fhir/r4';
 import type { CrossSection, CrossSectionList } from '../../api/schemas/crosssection';
-import { applyCommonFields, CATEGORY, compact, createObservation, numericComponent, SYSTEMS } from './shared';
+import {
+  createMeasurementObservation,
+  dataAbsentReason,
+  EXTENSION_BASE,
+  type MeasurementContext,
+  metres,
+  numericComponent,
+  optionalNumericComponent,
+  SYSTEMS,
+  UCUM
+} from './shared';
 
-export function mapCrossSectionToFHIR(crossSection: CrossSection, scan_id: string): Observation {
-  const display = crossSection.label ?? `Cross Section ${crossSection.crosssection_path}`;
+type Contour = 'convex' | 'perimeter';
 
-  const observation = createObservation({
-    category: CATEGORY.EXAM,
-    code: { system: SYSTEMS.VITRONIC, code: crossSection.crosssection_path, display },
-    patientReference: `Scan/${scan_id}`,
-    valueQuantity: {
-      value: crossSection.areas?.convex_area,
-      unit: 'square meter',
-      system: SYSTEMS.UCUM,
-      code: 'm2'
-    },
-    components: compact([
-      numericComponent(
-        {
-          system: SYSTEMS.VITRONIC,
-          code: `${crossSection.areas?.convex_area}`,
-          display: `${display} (Convex Area)`
-        },
-        crossSection.areas?.convex_area,
-        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
-      ),
-      numericComponent(
-        {
-          system: SYSTEMS.VITRONIC,
-          code: `${crossSection.areas?.perimeter_area}`,
-          display: `${display} (Perimeter Area)`
-        },
-        crossSection.areas?.perimeter_area,
-        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
-      ),
-      numericComponent(
-        {
-          system: SYSTEMS.VITRONIC,
-          code: `${crossSection.circumferences.convex_circumference}`,
-          display: `${display} (Convex Circumference)`
-        },
-        crossSection.circumferences.convex_circumference,
-        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
-      ),
-      numericComponent(
-        {
-          system: SYSTEMS.VITRONIC,
-          code: `${crossSection.circumferences.perimeter_circumference}`,
-          display: `${display} (Perimeter Circumference)`
-        },
-        crossSection.circumferences.perimeter_circumference,
-        { unit: 'meter', system: SYSTEMS.UCUM, code: 'm' }
-      )
-    ])
-  });
+const CONTOUR_DISPLAY: Record<Contour, string> = {
+  convex: 'Convex hull',
+  perimeter: 'Skin perimeter'
+};
 
-  return applyCommonFields(observation, crossSection, SYSTEMS.VITRONIC);
+const CONTOURS: readonly Contour[] = ['convex', 'perimeter'];
+
+/**
+ * Resolves `preference`. Defaults to the convex contour, which is the
+ * tape-measure equivalent and what BodyLoop itself sends for a waist.
+ */
+function resolveContour(preference: string | null | undefined): Contour {
+  return preference?.trim().toLowerCase() === 'perimeter' ? 'perimeter' : 'convex';
 }
 
-export function mapCrossSectionListToFHIR(crossSections: CrossSectionList, scan_id: string): Observation[] {
-  return crossSections.map((crossSection) => mapCrossSectionToFHIR(crossSection, scan_id));
+export function mapCrossSectionToFHIR(crossSection: CrossSection, context: MeasurementContext): Observation {
+  const path = crossSection.crosssection_path;
+  const circumferences = crossSection.circumferences;
+  const areas = crossSection.areas;
+  const contour = resolveContour(crossSection.preference);
+  const preferred = metres(
+    contour === 'perimeter' ? circumferences.perimeter_circumference : circumferences.convex_circumference
+  );
+
+  const components = [
+    ...CONTOURS.map((name) =>
+      numericComponent(
+        {
+          system: SYSTEMS.VITRONIC,
+          code: `${path}#${name}-circumference`,
+          display: `Circumference (${CONTOUR_DISPLAY[name]})`
+        },
+        name === 'perimeter' ? circumferences.perimeter_circumference : circumferences.convex_circumference,
+        UCUM.METRE
+      )
+    ),
+    // `areas` is the one genuinely optional measurement block in the API. When
+    // the whole block is absent nothing was measured, so the components are
+    // omitted rather than asserted absent.
+    ...CONTOURS.map((name) =>
+      optionalNumericComponent(
+        { system: SYSTEMS.VITRONIC, code: `${path}#${name}-area`, display: `Area (${CONTOUR_DISPLAY[name]})` },
+        areas ? (name === 'perimeter' ? areas.perimeter_area : areas.convex_area) : undefined,
+        UCUM.SQUARE_METRE
+      )
+    ),
+    // TODO(clinical-review): the API states no unit for `distanceFromRoot`.
+    // Metres follow every other length in the BodyLoop payload; confirm against
+    // a live instance before a consumer relies on it.
+    numericComponent(
+      {
+        system: SYSTEMS.VITRONIC,
+        code: `${path}#distance-from-root`,
+        display: 'Distance from the root of the skeleton series'
+      },
+      crossSection.skeletonPosition.distanceFromRoot,
+      UCUM.METRE
+    )
+  ];
+
+  const seriesPath = crossSection.skeletonPosition.series_path.trim();
+
+  return createMeasurementObservation({
+    context,
+    scope: 'cross_section',
+    path,
+    common: crossSection,
+    display: `Cross Section ${path}`,
+    derivedFromMarkers: [{ path: crossSection.details.at_marker.marker_path, role: 'At marker' }],
+    ...(preferred ? { valueQuantity: preferred } : { dataAbsentReason: dataAbsentReason('error') }),
+    components,
+    ...(seriesPath ? { extensions: [{ url: `${EXTENSION_BASE}-skeleton-series-path`, valueString: seriesPath }] } : {})
+  });
+}
+
+export function mapCrossSectionListToFHIR(crossSections: CrossSectionList, context: MeasurementContext): Observation[] {
+  return crossSections.map((crossSection) => mapCrossSectionToFHIR(crossSection, context));
 }

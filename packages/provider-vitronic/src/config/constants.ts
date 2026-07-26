@@ -1,3 +1,6 @@
+// `as const` is load-bearing: without it `SystemScope` widens to `string`, and
+// `BodyLoopClientConfig.scope` — the package's public entry point — accepts any
+// string and posts it straight into the OAuth token request.
 export const SYSTEM_SCOPES = [
   'admin',
   'bodyloop_zero',
@@ -6,7 +9,7 @@ export const SYSTEM_SCOPES = [
   'cloud_connect',
   'external_auth',
   'health_device'
-];
+] as const;
 
 export const SCOPES = ['angle', 'distance', 'marker', 'axis', 'cross_section', 'height', 'properties'] as const;
 

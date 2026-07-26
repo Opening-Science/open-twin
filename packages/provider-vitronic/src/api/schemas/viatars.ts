@@ -7,10 +7,14 @@ export const StateSchema = z.object({
   notification: z.array(z.string()).nullable().optional()
 });
 
+// `crtime` becomes `Observation.effective[x]`, so an unparseable timestamp must
+// fail at the API boundary rather than land in a FHIR instant field. BodyLoop
+// may or may not send an offset, so both forms are accepted here and narrowed
+// where they are mapped. `proband.ts` types the same two fields the same way.
 export const MetaSchema = z
   .object({
-    crtime: z.string().nullable().optional(),
-    mtime: z.string().nullable().optional(),
+    crtime: z.iso.datetime({ offset: true, local: true }).nullable().optional(),
+    mtime: z.iso.datetime({ offset: true, local: true }).nullable().optional(),
     info: z.string().nullable().optional()
   })
   .nullable();
