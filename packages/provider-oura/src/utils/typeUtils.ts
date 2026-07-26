@@ -2,6 +2,7 @@ import type { z } from 'zod';
 import { CardiovascularAgeListSchema } from '../api/schemas/cardiovascular';
 import { OuraDailyActivityResponseListSchema } from '../api/schemas/daily';
 import { HeartRateListSchema } from '../api/schemas/heartrate';
+import type { OuraPersonal } from '../api/schemas/personal';
 import { OuraReadinessResponseListSchema } from '../api/schemas/readiness';
 import { OuraResilienceResponseListSchema } from '../api/schemas/resilience';
 import { RestModeListSchema } from '../api/schemas/restmode';
@@ -12,73 +13,54 @@ import { Spo2ListSchema } from '../api/schemas/spo2';
 import { StressListSchema } from '../api/schemas/stress';
 import { VO2MaxListSchema } from '../api/schemas/vo2max';
 import { WorkoutListSchema } from '../api/schemas/workout';
+import type { SupportedScope } from '../config/constants';
 
-export type SupportedSchemas = {
-  daily_activity: typeof OuraDailyActivityResponseListSchema;
-  heartrate: typeof HeartRateListSchema;
-  sleep: typeof SleepListSchema;
-  session: typeof SessionListSchema;
-  workout: typeof WorkoutListSchema;
-  spo2: typeof Spo2ListSchema;
-  daily_cardiovascular_age: typeof CardiovascularAgeListSchema;
-  vO2_max: typeof VO2MaxListSchema;
-  daily_readiness: typeof OuraReadinessResponseListSchema;
-  daily_resilience: typeof OuraResilienceResponseListSchema;
-  daily_stress: typeof StressListSchema;
-  rest_mode_period: typeof RestModeListSchema;
-  ring_configuration: typeof RingConfigListSchema;
+/**
+ * Decision D5: the schema is selected by the type that was **requested**.
+ *
+ * `getSchemaNameRuntime` used to discard that knowledge and guess again by probing
+ * `data[0]` for a marker field. Seven of the thirteen markers were fields the
+ * schema itself marks optional, so a perfectly valid response that happened to
+ * omit one — `daily_activity` without `met`, `daily_readiness` without
+ * `temperature_trend_deviation`, `ring_configuration` without `set_up_at` — was
+ * classified `unknown` and rejected the whole fan-out. `workout` was worse: its
+ * marker, `workout_type`, is a field that does not exist on any Oura response, so
+ * the workout mapper was unreachable and any request including it discarded every
+ * sibling type.
+ *
+ * Selecting by the requested type removes the entire class, not one instance.
+ */
+export const LIST_SCHEMAS = {
+  daily_activity: OuraDailyActivityResponseListSchema,
+  heartrate: HeartRateListSchema,
+  sleep: SleepListSchema,
+  daily_spo2: Spo2ListSchema,
+  workout: WorkoutListSchema,
+  daily_cardiovascular_age: CardiovascularAgeListSchema,
+  vO2_max: VO2MaxListSchema,
+  daily_readiness: OuraReadinessResponseListSchema,
+  daily_resilience: OuraResilienceResponseListSchema,
+  daily_stress: StressListSchema,
+  rest_mode_period: RestModeListSchema,
+  ring_configuration: RingConfigListSchema,
+  session: SessionListSchema
+} as const;
+
+/** Every supported scope except `personal_info`, which is not a list response. */
+export type ListScope = keyof typeof LIST_SCHEMAS;
+
+export type OuraListData = {
+  [K in ListScope]: z.infer<(typeof LIST_SCHEMAS)[K]>;
 };
 
-export type SupportedSchemaName = keyof SupportedSchemas;
+/**
+ * Compile-time proof that every scope has a schema. Adding a scope to
+ * `SUPPORTED_SCOPES` without adding it here is a type error, not a runtime throw.
+ */
+type AssertNever<T extends never> = T;
+export type AllScopesHaveASchema = AssertNever<Exclude<SupportedScope, ListScope | 'personal_info'>>;
 
-export type SupportedSchemaTypes = {
-  [K in SupportedSchemaName]: z.infer<SupportedSchemas[K]>;
-};
-
-export type SupportedSchemaEntry = {
-  [K in SupportedSchemaName]: { schemaName: K; schema: SupportedSchemas[K] };
-}[SupportedSchemaName];
-
-export type GetSchemaType<T extends SupportedSchemaName> = SupportedSchemaTypes[T];
-
-export type GetSchemaName<T extends SupportedSchemaTypes[SupportedSchemaName]> = {
-  [K in SupportedSchemaName]: T extends SupportedSchemaTypes[K] ? K : never;
-}[SupportedSchemaName];
-
-export function getSchemaNameRuntime(data: SupportedSchemaTypes[SupportedSchemaName]): SupportedSchemaName | 'unknown' {
-  if (Array.isArray(data) && data[0]?.bpm !== undefined) return 'heartrate';
-  if (Array.isArray(data) && data[0]?.met !== undefined) return 'daily_activity';
-  if (Array.isArray(data) && data[0]?.bedtime_start !== undefined) return 'sleep';
-  if (Array.isArray(data) && data[0]?.spo2_percentage !== undefined) return 'spo2';
-  if (Array.isArray(data) && data[0]?.workout_type !== undefined) return 'workout';
-  if (Array.isArray(data) && data[0]?.vascular_age !== undefined) return 'daily_cardiovascular_age';
-  if (Array.isArray(data) && data[0]?.vo2_max !== undefined) return 'vO2_max';
-  if (Array.isArray(data) && data[0]?.temperature_trend_deviation !== undefined) return 'daily_readiness';
-  if (Array.isArray(data) && data[0]?.level !== undefined) return 'daily_resilience';
-  if (Array.isArray(data) && data[0]?.stress_high !== undefined) return 'daily_stress';
-  if (Array.isArray(data) && data[0]?.episodes !== undefined) return 'rest_mode_period';
-  if (Array.isArray(data) && data[0]?.set_up_at !== undefined) return 'ring_configuration';
-  if (Array.isArray(data) && data[0]?.mood !== undefined) return 'session';
-  return 'unknown';
-}
-
-export function getListOfSupportedSchemas(): SupportedSchemaEntry[] {
-  return [
-    {
-      schemaName: 'daily_activity',
-      schema: OuraDailyActivityResponseListSchema
-    },
-    { schemaName: 'heartrate', schema: HeartRateListSchema },
-    { schemaName: 'sleep', schema: SleepListSchema },
-    { schemaName: 'workout', schema: WorkoutListSchema },
-    { schemaName: 'spo2', schema: Spo2ListSchema },
-    { schemaName: 'daily_cardiovascular_age', schema: CardiovascularAgeListSchema },
-    { schemaName: 'vO2_max', schema: VO2MaxListSchema },
-    { schemaName: 'daily_readiness', schema: OuraReadinessResponseListSchema },
-    { schemaName: 'daily_resilience', schema: OuraResilienceResponseListSchema },
-    { schemaName: 'daily_stress', schema: StressListSchema },
-    { schemaName: 'rest_mode_period', schema: RestModeListSchema },
-    { schemaName: 'ring_configuration', schema: RingConfigListSchema },
-    { schemaName: 'session', schema: SessionListSchema }
-  ];
-}
+/** A parsed response that still knows which endpoint it came from. */
+export type OuraTypedData =
+  | { type: 'personal_info'; data: OuraPersonal }
+  | { [K in ListScope]: { type: K; data: OuraListData[K] } }[ListScope];

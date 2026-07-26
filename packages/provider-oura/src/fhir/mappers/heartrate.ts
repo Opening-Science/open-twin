@@ -1,65 +1,39 @@
-import type { Observation } from 'fhir/r4';
-import type { OuraHeartRateList } from '../../api/schemas/heartrate'; // Adjust path as needed
-import { SYSTEMS } from './shared';
+import { CATEGORY, createObservation, dataAbsentReason, PROFILES, quantity, UCUM } from '@open-twin/fhir-core';
+import type { Extension, Observation } from 'fhir/r4';
+import type { OuraHeartRateList } from '../../api/schemas/heartrate';
+import { LOINC, type OuraMapperContext, ouraExtensionUrl, ouraResourceId } from './shared';
 
-export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList): Observation[] {
-  if (!ouraData?.data || ouraData.data.length === 0) {
-    throw new Error('No heart rate data available to map to FHIR.');
-  }
+export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList, context: OuraMapperContext): Observation[] {
+  if (!ouraData?.data || ouraData.data.length === 0) return [];
 
-  const fhirObservations: Observation[] = [];
-
-  for (const hr of ouraData.data) {
-    const observation: Observation = {
-      resourceType: 'Observation',
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'vital-signs',
-              display: 'Vital Signs'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: SYSTEMS.LOINC,
-            code: '8867-4',
-            display: 'Heart rate'
-          }
-        ]
-      },
-      subject: {
-        reference: 'Patient/example'
-      },
-      effectiveDateTime: hr.timestamp,
-      valueQuantity: {
-        value: hr.bpm ?? 0,
-        unit: 'beats/minute',
-        system: SYSTEMS.UCUM,
-        code: '/min'
-      },
-      extension: [
-        {
-          url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
-          valueString: hr.source
-        }
-      ]
-    };
-
-    if (hr.timestamp_unix !== undefined && observation.extension) {
-      observation.extension.push({
-        url: `${SYSTEMS.OURA_CUSTOM}#tag/Heart-Rate-Routes`,
+  return ouraData.data.map((hr) => {
+    // One url per concept. Both extensions previously shared a single url, so a
+    // consumer could not tell the source from the unix timestamp.
+    const extensions: Extension[] = [{ url: ouraExtensionUrl('heart-rate-source'), valueString: hr.source }];
+    if (hr.timestamp_unix !== undefined) {
+      extensions.push({
+        url: ouraExtensionUrl('heart-rate-timestamp-unix'),
         valueString: hr.timestamp_unix.toString()
       });
     }
 
-    fhirObservations.push(observation);
-  }
+    const observation = createObservation({
+      id: ouraResourceId(context, hr.timestamp, 'heart-rate'),
+      code: LOINC.HEART_RATE,
+      category: CATEGORY.VITAL_SIGNS,
+      subject: context.subject,
+      effectiveDateTime: hr.timestamp,
+      // `bpm ?? 0` was a fallback on a required field, so a loosened schema or an
+      // unvalidated caller would publish a 0 bpm vital sign, which reads as
+      // asystole. Absence is dataAbsentReason.
+      valueQuantity: quantity(hr.bpm, UCUM.PER_MINUTE),
+      dataAbsentReason: dataAbsentReason(),
+      // The R4 heart-rate profile *fixes* valueQuantity.code to `/min`, which is
+      // why `{beats}/min` is not used even though it is LOINC's example unit.
+      profiles: [PROFILES.HEART_RATE]
+    });
 
-  return fhirObservations;
+    observation.extension = extensions;
+    return observation;
+  });
 }

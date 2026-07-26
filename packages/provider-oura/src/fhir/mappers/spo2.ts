@@ -1,98 +1,47 @@
+import { CATEGORY, createObservation, dataAbsentReason, optionalNumericComponent, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
-import type { OuraSpo2List } from '../../api/schemas/spo2'; // Adjust path as needed
-import { SYSTEMS } from './shared';
+import type { OuraSpo2List } from '../../api/schemas/spo2';
+import {
+  LOINC,
+  localNumericComponent,
+  OURA_UNITS,
+  type OuraMapperContext,
+  ouraCoding,
+  ouraIdentifier,
+  ouraResourceId
+} from './shared';
 
-export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List): Observation[] {
-  if (!ouraData?.data || ouraData.data.length === 0) {
-    throw new Error('No SpO2 data available to map to FHIR.');
-  }
+export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List, context: OuraMapperContext): Observation[] {
+  if (!ouraData?.data || ouraData.data.length === 0) return [];
 
-  const fhirObservations: Observation[] = [];
-
-  for (const spo2 of ouraData.data) {
-    const components: Observation['component'] = [];
-
-    if (spo2.spo2_percentage && spo2.spo2_percentage.average !== null) {
-      components.push({
-        code: {
-          coding: [
-            {
-              system: SYSTEMS.LOINC,
-              code: '59408-5',
-              display: 'Oxygen saturation average'
-            }
-          ]
-        },
-        valueQuantity: {
-          value: spo2.spo2_percentage.average,
-          unit: '%',
-          system: SYSTEMS.UCUM,
-          code: '%'
-        }
-      });
-    }
-
-    if (spo2.breathing_disturbance_index !== null) {
-      components.push({
-        code: {
-          coding: [
-            {
-              system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
-              code: 'breathing_disturbance_index',
-              display: 'Breathing Disturbance Index'
-            }
-          ]
-        },
-        valueQuantity: {
-          value: spo2.breathing_disturbance_index,
-          unit: 'events/hour',
-          system: SYSTEMS.UCUM,
-          code: '/h'
-        }
-      });
-    }
-
-    const observation: Observation = {
-      resourceType: 'Observation',
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'vital-signs',
-              display: 'Vital Signs'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
-            code: 'spo2_daily_summary',
-            display: 'Oura Daily SpO2 Summary'
-          }
-        ]
-      },
-      subject: {
-        reference: 'Patient/example'
-      },
-      identifier: [
-        {
-          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Spo2-Routes`,
-          value: spo2.id
-        }
-      ],
-      effectiveDateTime: spo2.day
-    };
-
-    if (components.length > 0) {
-      observation.component = components;
-    }
-
-    fhirObservations.push(observation);
-  }
-
-  return fhirObservations;
+  return ouraData.data.map((spo2) =>
+    createObservation({
+      id: ouraResourceId(context, spo2.id, 'daily-spo2'),
+      identifier: ouraIdentifier(spo2.id),
+      code: ouraCoding('spo2-daily-summary', 'Oura Daily SpO2 Summary'),
+      category: CATEGORY.VITAL_SIGNS,
+      subject: context.subject,
+      effectiveDateTime: spo2.day,
+      // The daily summary carries no value of its own; its measurements are
+      // components. Saying so is better than an Observation with a vital-signs
+      // category, no value and no reason for the absence.
+      dataAbsentReason: dataAbsentReason('not-applicable'),
+      components: [
+        optionalNumericComponent(
+          // TODO(clinical-review): 59408-5 is a point-in-time SpO2 by pulse
+          // oximetry, and this is a nightly average. The second coding says so;
+          // an effectivePeriod covering the night would say it better, but Oura
+          // supplies only the civil day on this endpoint.
+          [LOINC.OXYGEN_SATURATION, ouraCoding('spo2-daily-average', 'Daily Average Oxygen Saturation')],
+          spo2.spo2_percentage?.average,
+          UCUM.PERCENT
+        ),
+        localNumericComponent(
+          ouraCoding('breathing-disturbance-index', 'Breathing Disturbance Index'),
+          spo2.breathing_disturbance_index,
+          OURA_UNITS.PER_HOUR
+        )
+      ]
+    })
+  );
 }

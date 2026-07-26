@@ -4,7 +4,7 @@ import { ResponseParams } from './client';
 const ActivityMetSchema = z.object({
   interval: z.number().nonnegative().optional(),
   items: z.array(z.number().nonnegative()),
-  timestamp: z.string() // ISO 8601 datetime string indicating starting time
+  timestamp: z.iso.datetime({ offset: true }) // starting time, with the wearer's UTC offset
 });
 
 const ActivityContributorsSchema = z.object({
@@ -19,7 +19,7 @@ const ActivityContributorsSchema = z.object({
 const DailyActivityItemSchema = z.object({
   id: z.string().nonempty(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  timestamp: z.string(), // ISO 8601 datetime string
+  timestamp: z.iso.datetime({ offset: true }), // local midnight, with the wearer's UTC offset
   score: z.number().int().min(0).max(100).optional(),
   active_calories: z.number().int().nonnegative().optional(),
   average_met_minutes: z.number().optional(),

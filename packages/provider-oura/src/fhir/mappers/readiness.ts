@@ -1,177 +1,62 @@
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  optionalNumericComponent,
+  quantity,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { OuraReadinessResponseList } from '../../api/schemas/readiness';
-import { SYSTEMS } from './shared';
+import { type OuraMapperContext, ouraCoding, ouraIdentifier, ouraResourceId } from './shared';
 
-export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList): Observation[] {
-  if (!ouraData?.data || ouraData.data.length === 0) {
-    throw new Error('No readiness data available to map to FHIR.');
-  }
+export function mapOuraReadinessToFHIR(ouraData: OuraReadinessResponseList, context: OuraMapperContext): Observation[] {
+  if (!ouraData?.data || ouraData.data.length === 0) return [];
 
   return ouraData.data.map((readiness) => {
-    const components: Observation['component'] = [];
+    const contributor = (code: string, display: string, value: number | null | undefined) =>
+      optionalNumericComponent(ouraCoding(code, display), value, UCUM.SCORE);
 
-    const addComponent = (
-      value: number | null | undefined,
-      coding: { system: string; code: string; display: string },
-      unit: string,
-      code: string
-    ) => {
-      if (value === undefined || value === null) return;
-      components.push({
-        code: { coding: [coding] },
-        valueQuantity: { value, unit, system: SYSTEMS.UCUM, code }
-      });
-    };
-
-    addComponent(
-      readiness.contributors.activity_balance,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'activity-balance',
-        display: 'Activity Balance'
-      },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.hrv_balance,
-      { system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`, code: 'hrv-balance', display: 'HRV Balance' },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.previous_day_activity,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'previous-day-activity',
-        display: 'Previous Day Activity'
-      },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.previous_night,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'previous-night',
-        display: 'Previous Night'
-      },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.recovery_index,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'recovery-index',
-        display: 'Recovery Index'
-      },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.resting_heart_rate,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'resting-heart-rate',
-        display: 'Resting Heart Rate'
-      },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.sleep_balance,
-      { system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`, code: 'sleep-balance', display: 'Sleep Balance' },
-      'Score',
-      '{score}'
-    );
-    addComponent(
-      readiness.contributors.sleep_regularity,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'sleep-regularity',
-        display: 'Sleep Regularity'
-      },
-      'Score',
-      '{score}'
-    );
-
-    addComponent(
-      readiness.temperature_deviation,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'temperature-deviation',
-        display: 'Temperature Deviation'
-      },
-      '°C',
-      'Cel'
-    );
-    addComponent(
-      readiness.temperature_trend_deviation,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-        code: 'temperature-trend-deviation',
-        display: 'Temperature Trend Deviation'
-      },
-      '°C',
-      'Cel'
-    );
-
-    const observation: Observation = {
-      resourceType: 'Observation',
-      identifier: [
-        {
-          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-          value: `oura-readiness-${readiness.id}`
-        }
-      ],
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'activity',
-              display: 'Activity'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Readiness-Routes`,
-            code: 'readiness-score',
-            display: 'Oura Readiness Score'
-          }
-        ]
-      },
-      subject: {
-        reference: 'Patient/example'
-      },
-      effectiveDateTime: new Date(readiness.timestamp).toISOString(),
-      component: components.length > 0 ? components : undefined
-    };
-
-    if (readiness.score !== undefined && readiness.score !== null) {
-      observation.valueQuantity = {
-        value: readiness.score,
-        unit: 'Score',
-        system: SYSTEMS.UCUM,
-        code: '{score}'
-      };
-    } else {
-      observation.dataAbsentReason = {
-        coding: [
-          {
-            system: SYSTEMS.DATA_ABSENT,
-            code: 'unknown',
-            display: 'Unknown'
-          }
-        ]
-      };
-    }
-
-    return observation;
+    return createObservation({
+      id: ouraResourceId(context, readiness.id, 'daily-readiness'),
+      identifier: ouraIdentifier(readiness.id),
+      code: ouraCoding('readiness-score', 'Oura Readiness Score'),
+      category: CATEGORY.ACTIVITY,
+      subject: context.subject,
+      // The offset Oura supplies is the wearer's own; discarding it shifted every
+      // daily summary east of UTC to the previous day (D7).
+      effectiveDateTime: readiness.timestamp,
+      valueQuantity: quantity(readiness.score, UCUM.SCORE),
+      dataAbsentReason: dataAbsentReason(),
+      components: [
+        contributor('activity-balance', 'Activity Balance', readiness.contributors.activity_balance),
+        contributor('hrv-balance', 'HRV Balance', readiness.contributors.hrv_balance),
+        contributor('previous-day-activity', 'Previous Day Activity', readiness.contributors.previous_day_activity),
+        contributor('previous-night', 'Previous Night', readiness.contributors.previous_night),
+        contributor('recovery-index', 'Recovery Index', readiness.contributors.recovery_index),
+        contributor('resting-heart-rate', 'Resting Heart Rate', readiness.contributors.resting_heart_rate),
+        contributor('sleep-balance', 'Sleep Balance', readiness.contributors.sleep_balance),
+        contributor('sleep-regularity', 'Sleep Regularity', readiness.contributors.sleep_regularity),
+        // A deviation from a personal baseline is a temperature *difference*. UCUM
+        // `Cel` denotes a point on an interval scale and cannot take part in
+        // algebraic operations (UCUM §21-22); a difference is `K`. The two are
+        // numerically equal as intervals, so only the code changes.
+        //
+        // TODO(clinical-review): no LOINC or SNOMED concept exists for a
+        // temperature deviation, and it must not travel under 8310-5 "Body
+        // temperature" — a receiver storing "body temperature = 0.3" reads a
+        // lethal value. The local code needs sign-off.
+        optionalNumericComponent(
+          ouraCoding('temperature-deviation', 'Temperature Deviation'),
+          readiness.temperature_deviation,
+          UCUM.KELVIN
+        ),
+        optionalNumericComponent(
+          ouraCoding('temperature-trend-deviation', 'Temperature Trend Deviation'),
+          readiness.temperature_trend_deviation,
+          UCUM.KELVIN
+        )
+      ]
+    });
   });
 }

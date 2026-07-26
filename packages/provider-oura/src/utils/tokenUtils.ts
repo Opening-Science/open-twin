@@ -1,12 +1,20 @@
+import { ConnectorError } from '@open-twin/fhir-core';
 import { getAccessToken, refreshAccessToken } from '../api/client';
 import type { TokenResponse } from '../api/schemas/auth';
 import type { OuraRingAppConfig } from '../config/config';
+import { CONNECTOR } from '../fhir/mappers/shared';
 
 export class TokenHandler {
   private tokenContainer: TokenResponse | null = null;
   private expiresAt: number | null = null;
   private config: OuraRingAppConfig;
   private authToken: string;
+  /**
+   * A refresh already under way. Without this, N concurrent callers finding an
+   * expired token each start their own refresh and each overwrite
+   * `tokenContainer`, and Oura may invalidate the newest refresh token.
+   */
+  private refreshInFlight: Promise<TokenResponse> | null = null;
 
   constructor(config: OuraRingAppConfig, authorizationToken: string) {
     this.config = config;
@@ -15,14 +23,15 @@ export class TokenHandler {
 
   async authenticate(): Promise<void> {
     if (!this.authToken) {
-      throw new Error('No auth token provided. Please provide an auth token to authenticate.');
+      throw new ConnectorError('No authorization code provided', {
+        code: 'auth',
+        connector: CONNECTOR.connector,
+        operation: 'authenticate'
+      });
     }
-    try {
-      const tokenResponse: TokenResponse = await getAccessToken(this.authToken, this.config);
-      this.setTokens(tokenResponse);
-    } catch (error) {
-      throw new Error(`Failed to authenticate with Oura API: ${error}`);
-    }
+    // Errors from `getAccessToken` are already ConnectorErrors carrying a code and
+    // a status. Re-wrapping them in an interpolated string threw both away.
+    this.setTokens(await getAccessToken(this.authToken, this.config));
   }
 
   async getAccessToken(): Promise<string> {
@@ -30,22 +39,27 @@ export class TokenHandler {
       return this.tokenContainer.access_token;
     }
 
-    if (this.tokenContainer?.refresh_token) {
-      try {
-        const tokenResponse: TokenResponse = await refreshAccessToken(this.tokenContainer.refresh_token, this.config);
-        this.setTokens(tokenResponse);
-        return this.tokenContainer.access_token;
-      } catch (error) {
-        throw new Error(`Failed to refresh access token: ${error}`);
+    const refreshToken = this.tokenContainer?.refresh_token;
+    if (refreshToken) {
+      if (!this.refreshInFlight) {
+        this.refreshInFlight = refreshAccessToken(refreshToken, this.config).finally(() => {
+          this.refreshInFlight = null;
+        });
       }
+      const tokenResponse = await this.refreshInFlight;
+      this.setTokens(tokenResponse);
+      return tokenResponse.access_token;
     }
 
-    throw new Error('No access token or refresh token available. Please authenticate first.');
+    throw new ConnectorError('No access token or refresh token available; authenticate first', {
+      code: 'auth',
+      connector: CONNECTOR.connector,
+      operation: 'getAccessToken'
+    });
   }
 
   setTokens(tokenResponse: TokenResponse): void {
     this.tokenContainer = tokenResponse;
-
     this.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
   }
 }

@@ -1,14 +1,26 @@
-export function errorResponseHandler(response: Response): string {
-  switch (response.status) {
-    case 400:
-      return 'Bad Request (400) Explanation: The request contains query parameters that are invalid or incorrectly formatted.';
-    case 401:
-      return 'Unauthorized (401) Explanation: Invalid or expired authentication token.';
-    case 403:
-      return "Forbidden (403) Explanation: The requested resource requires additional permissions or the user's Oura subscription has expired.";
-    case 429:
-      return 'Too Many Requests (429) Explanation: Rate limit exceeded. See response headers for retry guidance.';
-    default:
-      return `Unexpected error (${response.status}): ${response.statusText}`;
-  }
+import { type ConnectorError, fromHttpStatus, parseRetryAfter } from '@open-twin/fhir-core';
+import { CONNECTOR } from '../fhir/mappers/shared';
+
+/**
+ * Turns an HTTP response into a typed error that carries no response body.
+ *
+ * This replaces a `switch (response.status)` returning prose. That function was
+ * declared `(response: Response)` but was called with the *parsed JSON body* at
+ * both token endpoints, so `response.status` was always `undefined`, every call
+ * fell to the default branch, and the whole status table — including the 429 case
+ * this connector needs — was unreachable. It type-checked only because
+ * `res.json()` returns `any`.
+ */
+export function ouraHttpError(response: Response, operation: string): ConnectorError {
+  return fromHttpStatus(response.status, {
+    connector: CONNECTOR.connector,
+    operation,
+    retryAfterSeconds: retryAfterSeconds(response)
+  });
+}
+
+/** Oura documents `Retry-After` on 429 as RFC 7231 delta-seconds, safe to use directly. */
+export function retryAfterSeconds(response: Response): number | undefined {
+  const header = typeof response.headers?.get === 'function' ? response.headers.get('retry-after') : null;
+  return parseRetryAfter(header, Date.now());
 }

@@ -1,73 +1,46 @@
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  optionalNumericComponent,
+  quantity,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { OuraCardiovascularAgeList } from '../../api/schemas/cardiovascular';
-import { SYSTEMS } from './shared';
+import { LOINC, type OuraMapperContext, ouraCoding, ouraIdentifier, ouraResourceId } from './shared';
 
-export function mapOuraCardiovascularAgeToFHIR(cardioAge: OuraCardiovascularAgeList): Observation[] {
-  return cardioAge.data.map((cardioAge) => {
-    const observation: Observation = {
-      resourceType: 'Observation',
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'exam',
-              display: 'Exam'
-            }
-          ]
-        }
-      ],
-      code: {
-        coding: [
-          {
-            system: SYSTEMS.LOINC,
-            code: '77195-6',
-            display: 'Vascular age'
-          }
-        ]
-      },
-      identifier: [
-        {
-          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Cardiovascular-Age-Routes`,
-          value: cardioAge.id
-        }
-      ],
+export function mapOuraCardiovascularAgeToFHIR(
+  cardioAgeList: OuraCardiovascularAgeList,
+  context: OuraMapperContext
+): Observation[] {
+  if (!cardioAgeList?.data || cardioAgeList.data.length === 0) return [];
 
-      effectiveDateTime: cardioAge.day
-    };
-
-    if (cardioAge.vascular_age !== null && cardioAge.vascular_age !== undefined) {
-      observation.valueQuantity = {
-        value: cardioAge.vascular_age,
-        unit: 'years',
-        system: SYSTEMS.UCUM,
-        code: 'a' // UCUM code for years
-      };
-    }
-
-    if (cardioAge.pulse_wave_velocity !== null && cardioAge.pulse_wave_velocity !== undefined) {
-      observation.component = [
-        {
-          code: {
-            coding: [
-              {
-                system: SYSTEMS.LOINC,
-                code: '77196-4',
-                display: 'Pulse wave velocity'
-              }
-            ]
-          },
-          valueQuantity: {
-            value: cardioAge.pulse_wave_velocity,
-            unit: 'm/s',
-            system: SYSTEMS.UCUM,
-            code: 'm/s' // UCUM code for meters per second
-          }
-        }
-      ];
-    }
-
-    return observation;
-  });
+  return cardioAgeList.data.map((cardioAge) =>
+    createObservation({
+      id: ouraResourceId(context, cardioAge.id, 'cardiovascular-age'),
+      identifier: ouraIdentifier(cardioAge.id),
+      // TODO(clinical-review): neither LOINC nor SNOMED CT has a concept for
+      // vascular age — searched on both, plus the NLM LOINC index, with zero hits.
+      // LOINC 77195-6, used here before, is the cardio-ankle vascular index: a
+      // dimensionless ratio whose normal value is near 8 and where anything above
+      // 9 indicates arteriosclerosis. A vascular_age of 45 published under it read
+      // as CAVI 45. The local code needs sign-off.
+      code: ouraCoding('vascular-age', 'Oura Vascular Age'),
+      category: CATEGORY.EXAM,
+      subject: context.subject,
+      effectiveDateTime: cardioAge.day,
+      valueQuantity: quantity(cardioAge.vascular_age, UCUM.YEAR),
+      dataAbsentReason: dataAbsentReason(),
+      components: [
+        optionalNumericComponent(
+          LOINC.PULSE_WAVE_VELOCITY,
+          cardioAge.pulse_wave_velocity,
+          // LOINC's example unit is cm/s; m/s is commensurable and is what Oura
+          // documents this field as, so LOINC_UNITS binds 77196-4 to m/s.
+          UCUM.METRE_PER_SECOND
+        )
+      ]
+    })
+  );
 }

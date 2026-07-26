@@ -1,10 +1,10 @@
-import type { Bundle, Observation } from 'fhir/r4';
+import { buildBundle, ConnectorError, subjectReference, toOperationOutcome } from '@open-twin/fhir-core';
+import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4';
 import type { RequestParams } from '../api/schemas/client';
-import type { OuraPersonal } from '../api/schemas/personal';
-import { requestOuraData } from '../utils/clientUtils';
-import { inferOuraResponse } from '../utils/objectUtils';
+import { type RequestOuraDataOptions, requestOuraData } from '../utils/clientUtils';
+import { parseOuraResponse } from '../utils/objectUtils';
 import type { TokenHandler } from '../utils/tokenUtils';
-import type { SupportedSchemaTypes } from '../utils/typeUtils';
+import type { OuraTypedData } from '../utils/typeUtils';
 import { mapOuraCardiovascularAgeToFHIR } from './mappers/cardiovascular';
 import { mapOuraDailyActivityToFHIR } from './mappers/daily';
 import { mapOuraHeartRateToFHIR } from './mappers/heartrate';
@@ -14,81 +14,188 @@ import { mapOuraResilienceToFHIR } from './mappers/resilience';
 import { mapOuraRestModeToFHIR } from './mappers/restmode';
 import { mapOuraRingConfigToFHIR } from './mappers/ringconfig';
 import { mapOuraSessionToFHIR } from './mappers/session';
+import { CONNECTOR, type OuraMapperContext } from './mappers/shared';
 import { mapOuraSleepToFHIR } from './mappers/sleep';
 import { mapOuraSpo2ToFHIR } from './mappers/spo2';
 import { mapOuraStressToFHIR } from './mappers/stress';
 import { mapOuraVO2MaxToFHIR } from './mappers/vo2max';
 import { mapOuraWorkoutToFHIR } from './mappers/workout';
 
-export async function buildBundleFromResponse(
+export interface OuraRequestOptions extends RequestOuraDataOptions {
+  /**
+   * The patient every Observation is attributed to. The connector genuinely does
+   * not know who the wearer is, so an integrator that does should say so (D1).
+   */
+  subject?: Reference;
+  /**
+   * Oura's own user id, or another stable key. Used to derive resource ids, and
+   * to derive a `urn:uuid:` subject when `subject` is not supplied. Defaults to
+   * the id from `personal_info` when that type is part of the request.
+   */
+  subjectKey?: string;
+  /** Bundle.timestamp. Supplied by the caller so bundles are reproducible. */
+  timestamp?: string;
+}
+
+export interface OuraDataResult {
+  /** Successfully parsed responses, in request order. */
+  data: OuraTypedData[];
+  /** Types that failed or came back empty. Absent when everything succeeded. */
+  issues?: OperationOutcome;
+}
+
+export interface OuraBundleResult {
+  bundle: Bundle;
+  issues?: OperationOutcome;
+}
+
+/**
+ * Fetches and parses every requested type, without letting one failure discard
+ * the others (D6). A rejected `Promise.all` used to throw away four successful
+ * responses because the fifth was rate-limited.
+ */
+export async function fetchOuraTypedData(
   request: RequestParams,
   tokenHandler: TokenHandler,
-  sandbox: boolean = false
-): Promise<Bundle | undefined> {
-  const entries: (Observation | Bundle)[] = [];
-  const responses = await requestOuraData(request, tokenHandler, sandbox);
-  for (let i = 0; i < request.types.length; i++) {
-    const type = request.types[i];
-    const inferredData = inferOuraResponse(responses[i]);
+  options: OuraRequestOptions = {}
+): Promise<{ data: OuraTypedData[]; errors: ConnectorError[]; emptyTypes: string[] }> {
+  const responses = await requestOuraData(request, tokenHandler, options);
 
-    if (inferredData) {
-      if ('data' in inferredData) {
-        switch (type) {
-          case 'daily_activity':
-            entries.push(
-              ...mapOuraDailyActivityToFHIR(inferredData as SupportedSchemaTypes['daily_activity'], 'unknown')
-            );
-            break;
-          case 'heartrate':
-            entries.push(...mapOuraHeartRateToFHIR(inferredData as SupportedSchemaTypes['heartrate']));
-            break;
-          case 'sleep':
-            entries.push(...mapOuraSleepToFHIR(inferredData as SupportedSchemaTypes['sleep']));
-            break;
-          case 'daily_spo2':
-            entries.push(...mapOuraSpo2ToFHIR(inferredData as SupportedSchemaTypes['spo2']));
-            break;
-          case 'workout':
-            entries.push(...mapOuraWorkoutToFHIR(inferredData as SupportedSchemaTypes['workout']));
-            break;
-          case 'daily_cardiovascular_age':
-            entries.push(
-              ...mapOuraCardiovascularAgeToFHIR(inferredData as SupportedSchemaTypes['daily_cardiovascular_age'])
-            );
-            break;
-          case 'vO2_max':
-            entries.push(...mapOuraVO2MaxToFHIR(inferredData as SupportedSchemaTypes['vO2_max']));
-            break;
-          case 'daily_readiness':
-            entries.push(...mapOuraReadinessToFHIR(inferredData as SupportedSchemaTypes['daily_readiness']));
-            break;
-          case 'daily_resilience':
-            entries.push(...mapOuraResilienceToFHIR(inferredData as SupportedSchemaTypes['daily_resilience']));
-            break;
-          case 'daily_stress':
-            entries.push(...mapOuraStressToFHIR(inferredData as SupportedSchemaTypes['daily_stress']));
-            break;
-          case 'rest_mode_period':
-            entries.push(...mapOuraRestModeToFHIR(inferredData as SupportedSchemaTypes['rest_mode_period']));
-            break;
-          case 'ring_configuration':
-            entries.push(...mapOuraRingConfigToFHIR(inferredData as SupportedSchemaTypes['ring_configuration']));
-            break;
-          case 'session':
-            entries.push(...mapOuraSessionToFHIR(inferredData as SupportedSchemaTypes['session']));
-            break;
-          default:
-            throw new Error(`Unsupported type: ${type}`);
-        }
-      } else {
-        entries.push(mapOuraPersonalToFHIR(inferredData as OuraPersonal));
+  const data: OuraTypedData[] = [];
+  const errors: ConnectorError[] = [];
+  const emptyTypes: string[] = [];
+
+  for (const response of responses) {
+    if (response.error) {
+      errors.push(response.error);
+      continue;
+    }
+    try {
+      const parsed = parseOuraResponse(response.type, response.body);
+      if (parsed.type !== 'personal_info' && parsed.data.data.length === 0) {
+        // "Requested and empty" and "never requested" used to be indistinguishable
+        // in the output. It is a normal outcome, so it is information, not an error.
+        emptyTypes.push(parsed.type);
       }
+      data.push(parsed);
+    } catch (error) {
+      errors.push(
+        error instanceof ConnectorError
+          ? error
+          : new ConnectorError('Response could not be parsed', {
+              code: 'validation',
+              connector: CONNECTOR.connector,
+              operation: `GET usercollection/${response.type}`
+            })
+      );
     }
   }
 
+  return { data, errors, emptyTypes };
+}
+
+export function collectIssues(errors: ConnectorError[], emptyTypes: string[]): OperationOutcome | undefined {
+  const issue: OperationOutcomeIssue[] = [
+    ...(toOperationOutcome(errors)?.issue ?? []),
+    ...emptyTypes.map<OperationOutcomeIssue>((type) => ({
+      severity: 'information',
+      code: 'not-found',
+      diagnostics: `No ${type} data in the requested window.`
+    }))
+  ];
+  return issue.length > 0 ? { resourceType: 'OperationOutcome', issue } : undefined;
+}
+
+/**
+ * Used only when the caller supplies no timestamp. Fixed rather than `new Date()`
+ * so a bundle stays reproducible and a test cannot pass by accident of the clock.
+ */
+const DEFAULT_RETRIEVED_AT = '1970-01-01T00:00:00Z';
+
+function resolveContext(data: OuraTypedData[], options: OuraRequestOptions): OuraMapperContext {
+  const personal = data.find(
+    (item): item is Extract<OuraTypedData, { type: 'personal_info' }> => item.type === 'personal_info'
+  );
+  const subjectKey = options.subjectKey ?? personal?.data.id ?? options.subject?.reference;
+
+  if (!subjectKey) {
+    throw new ConnectorError(
+      'Cannot attribute Observations: supply `subject` or `subjectKey`, or include `personal_info` in the request',
+      { code: 'validation', connector: CONNECTOR.connector, operation: 'buildBundle' }
+    );
+  }
+
   return {
-    resourceType: 'Bundle',
-    type: 'collection',
-    entry: entries.map((entry) => ({ resource: entry }))
+    subject: subjectReference({ reference: options.subject, connector: CONNECTOR.connector, subjectKey }),
+    subjectKey,
+    retrievedAt: options.timestamp ?? DEFAULT_RETRIEVED_AT
   };
+}
+
+function mapTyped(item: OuraTypedData, context: OuraMapperContext): FhirResource[] {
+  // Exhaustive over the discriminated union: adding a scope without a case here is
+  // a compile error, which is what the `string`-typed switch could never give.
+  switch (item.type) {
+    case 'personal_info':
+      return mapOuraPersonalToFHIR(item.data, context);
+    case 'daily_activity':
+      return mapOuraDailyActivityToFHIR(item.data, context);
+    case 'heartrate':
+      return mapOuraHeartRateToFHIR(item.data, context);
+    case 'sleep':
+      return mapOuraSleepToFHIR(item.data, context);
+    case 'daily_spo2':
+      return mapOuraSpo2ToFHIR(item.data, context);
+    case 'workout':
+      return mapOuraWorkoutToFHIR(item.data, context);
+    case 'daily_cardiovascular_age':
+      return mapOuraCardiovascularAgeToFHIR(item.data, context);
+    case 'vO2_max':
+      return mapOuraVO2MaxToFHIR(item.data, context);
+    case 'daily_readiness':
+      return mapOuraReadinessToFHIR(item.data, context);
+    case 'daily_resilience':
+      return mapOuraResilienceToFHIR(item.data, context);
+    case 'daily_stress':
+      return mapOuraStressToFHIR(item.data, context);
+    case 'rest_mode_period':
+      return mapOuraRestModeToFHIR(item.data, context);
+    case 'ring_configuration':
+      return mapOuraRingConfigToFHIR(item.data, context);
+    case 'session':
+      return mapOuraSessionToFHIR(item.data, context);
+  }
+}
+
+/** Builds one flat collection bundle from every requested type. */
+export function buildOuraBundle(
+  data: OuraTypedData[],
+  request: RequestParams,
+  options: OuraRequestOptions = {}
+): Bundle {
+  const context = resolveContext(data, options);
+  const resources = data.flatMap((item) => mapTyped(item, context));
+
+  return buildBundle({
+    connector: CONNECTOR,
+    resources,
+    timestamp: options.timestamp ?? new Date().toISOString(),
+    // Re-running the same sync for the same window yields the same Bundle.id.
+    bundleKey: [
+      CONNECTOR.connector,
+      context.subjectKey,
+      [...request.types].sort().join(','),
+      request.start_date ?? '',
+      request.end_date ?? ''
+    ].join('|')
+  });
+}
+
+export async function buildBundleFromResponse(
+  request: RequestParams,
+  tokenHandler: TokenHandler,
+  options: OuraRequestOptions = {}
+): Promise<OuraBundleResult> {
+  const { data, errors, emptyTypes } = await fetchOuraTypedData(request, tokenHandler, options);
+  return { bundle: buildOuraBundle(data, request, options), issues: collectIssues(errors, emptyTypes) };
 }

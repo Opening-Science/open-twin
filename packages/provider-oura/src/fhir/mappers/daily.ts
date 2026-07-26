@@ -1,336 +1,155 @@
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  optionalNumericComponent,
+  quantity,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { OuraDailyActivityResponseList } from '../../api/schemas/daily';
-import { SYSTEMS } from './shared';
+import {
+  LOINC,
+  localNumericComponent,
+  minutesFromSeconds,
+  type OuraMapperContext,
+  ouraCoding,
+  ouraIdentifier,
+  ouraResourceId
+} from './shared';
+
+/**
+ * LOINC 41979-6 has TIME = 24H, so its example unit carries the per-day
+ * denominator: `kcal/(24.h)`. A bare `kcal` under it is the same category of error
+ * as sending a single workout's calories under a 24-hour code.
+ */
+const KCAL_PER_24H = { unit: 'kcal/24h', code: 'kcal/(24.h)' };
 
 export function mapOuraDailyActivityToFHIR(
   dailyActivity: OuraDailyActivityResponseList,
-  patientId: string = 'unknown'
+  context: OuraMapperContext
 ): Observation[] {
+  if (!dailyActivity?.data || dailyActivity.data.length === 0) return [];
+
   return dailyActivity.data.map((activity) => {
-    const components: Observation['component'] = [];
+    const contributor = (code: string, display: string, value: number | undefined) =>
+      optionalNumericComponent(ouraCoding(code, display), value, UCUM.SCORE);
 
-    const addComponent = (
-      value: number | undefined,
-      coding: { system: string; code: string; display: string },
-      unit: string,
-      code: string
-    ) => {
-      if (value === undefined) return;
-      components.push({
-        code: { coding: [coding] },
-        valueQuantity: { value, unit, system: SYSTEMS.UCUM, code }
-      });
-    };
+    return createObservation({
+      id: ouraResourceId(context, activity.id, 'daily-activity'),
+      identifier: ouraIdentifier(activity.id),
+      code: ouraCoding('activity-score', 'Oura Activity Score'),
+      category: CATEGORY.ACTIVITY,
+      subject: context.subject,
+      // Oura's daily timestamp is the wearer's local midnight and carries their UTC
+      // offset. `new Date(t).toISOString()` discarded that offset, moving every
+      // daily summary east of UTC to the previous day (D7).
+      effectiveDateTime: activity.timestamp,
+      // Missing data is never zero: `score ?? 0` publishes the worst possible value
+      // on an 0-100 scale, indistinguishable from a genuine zero.
+      valueQuantity: quantity(activity.score, UCUM.SCORE),
+      dataAbsentReason: dataAbsentReason(),
+      components: [
+        localNumericComponent(LOINC.CALORIES_BURNED_24H, activity.total_calories, KCAL_PER_24H),
+        // TODO(clinical-review): LOINC has no 24-hour code for the *active* subset
+        // of a day's calories. 41981-2 "Calories burned" is a point-in-time code
+        // for one activity and 41979-6 is the whole-day total, which is already
+        // emitted above; reusing either would make two measures indistinguishable.
+        optionalNumericComponent(
+          ouraCoding('active-calories', 'Active Calories'),
+          activity.active_calories,
+          UCUM.KILOCALORIE
+        ),
+        optionalNumericComponent(
+          ouraCoding('target-calories', 'Target Calories'),
+          activity.target_calories,
+          UCUM.KILOCALORIE
+        ),
+        // 41950-7's TIME axis is 24H, so the unit must carry the per-day
+        // denominator. A bare count under it understates the time window.
+        optionalNumericComponent(LOINC.STEPS_24H, activity.steps, UCUM.STEPS_PER_DAY),
 
-    addComponent(
-      activity.total_calories,
-      {
-        system: SYSTEMS.LOINC,
-        code: '41979-6',
-        display: 'Calories burned in 24 hours'
-      },
-      'kcal',
-      'kcal'
-    );
-    addComponent(
-      activity.active_calories,
-      {
-        system: SYSTEMS.LOINC,
-        code: '41981-2',
-        display: 'Calories burned in 24 hours with moderate to vigorous activity'
-      },
-      'kcal',
-      'kcal'
-    );
-    addComponent(
-      activity.target_calories,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'target-calories',
-        display: 'Target Calories'
-      },
-      'kcal',
-      'kcal'
-    );
+        contributor('meet-daily-targets', 'Meet Daily Targets', activity.contributors.meet_daily_targets),
+        contributor('move-every-hour', 'Move Every Hour', activity.contributors.move_every_hour),
+        contributor('recovery-time', 'Recovery Time', activity.contributors.recovery_time),
+        contributor('stay-active', 'Stay Active', activity.contributors.stay_active),
+        contributor('training-frequency', 'Training Frequency', activity.contributors.training_frequency),
+        contributor('training-volume', 'Training Volume', activity.contributors.training_volume),
 
-    addComponent(
-      activity.score,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'activity-score',
-        display: 'Oura Activity Score'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.meet_daily_targets,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'meet-daily-targets',
-        display: 'Meet Daily Targets'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.move_every_hour,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'move-every-hour',
-        display: 'Move Every Hour'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.recovery_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'recovery-time',
-        display: 'Recovery Time'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.stay_active,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'stay-active',
-        display: 'Stay Active'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.training_frequency,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'training-frequency',
-        display: 'Training Frequency'
-      },
-      'score',
-      '{score}'
-    );
-    addComponent(
-      activity.contributors.training_volume,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'training-volume',
-        display: 'Training Volume'
-      },
-      'score',
-      '{score}'
-    );
+        optionalNumericComponent(ouraCoding('average-met', 'Average MET'), activity.average_met_minutes, UCUM.MET),
+        // There is no UCUM code for MET-minutes. `{MET-min}` is an annotation
+        // denoting the unity with a label; `min` — the previous code — is read by
+        // a conformant parser as 300 minutes of activity, not 300 MET-minutes.
+        optionalNumericComponent(
+          ouraCoding('high-activity-met-minutes', 'High Activity MET Minutes'),
+          activity.high_activity_met_minutes,
+          UCUM.MET_MINUTES
+        ),
+        optionalNumericComponent(
+          ouraCoding('medium-activity-met-minutes', 'Medium Activity MET Minutes'),
+          activity.medium_activity_met_minutes,
+          UCUM.MET_MINUTES
+        ),
+        optionalNumericComponent(
+          ouraCoding('low-activity-met-minutes', 'Low Activity MET Minutes'),
+          activity.low_activity_met_minutes,
+          UCUM.MET_MINUTES
+        ),
+        optionalNumericComponent(
+          ouraCoding('sedentary-met-minutes', 'Sedentary MET Minutes'),
+          activity.sedentary_met_minutes,
+          UCUM.MET_MINUTES
+        ),
 
-    addComponent(
-      activity.average_met_minutes,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'average-met',
-        display: 'Average MET'
-      },
-      'MET',
-      '{MET}'
-    );
-    addComponent(
-      activity.high_activity_met_minutes,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'high-activity-met-minutes',
-        display: 'High Activity MET Minutes'
-      },
-      'MET-min',
-      'min'
-    );
-    addComponent(
-      activity.medium_activity_met_minutes,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'medium-activity-met-minutes',
-        display: 'Medium Activity MET Minutes'
-      },
-      'MET-min',
-      'min'
-    );
-    addComponent(
-      activity.low_activity_met_minutes,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'low-activity-met-minutes',
-        display: 'Low Activity MET Minutes'
-      },
-      'MET-min',
-      'min'
-    );
-    addComponent(
-      activity.sedentary_met_minutes,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'sedentary-met-minutes',
-        display: 'Sedentary MET Minutes'
-      },
-      'MET-min',
-      'min'
-    );
+        // Oura reports these in seconds; D4 fixes durations at `min`.
+        optionalNumericComponent(
+          ouraCoding('high-activity-time', 'High Activity Time'),
+          minutesFromSeconds(activity.high_activity_time),
+          UCUM.MINUTE
+        ),
+        optionalNumericComponent(
+          ouraCoding('medium-activity-time', 'Medium Activity Time'),
+          minutesFromSeconds(activity.medium_activity_time),
+          UCUM.MINUTE
+        ),
+        optionalNumericComponent(
+          ouraCoding('low-activity-time', 'Low Activity Time'),
+          minutesFromSeconds(activity.low_activity_time),
+          UCUM.MINUTE
+        ),
+        optionalNumericComponent(
+          ouraCoding('sedentary-time', 'Sedentary Time'),
+          minutesFromSeconds(activity.sedentary_time),
+          UCUM.MINUTE
+        ),
+        optionalNumericComponent(
+          ouraCoding('resting-time', 'Resting Time'),
+          minutesFromSeconds(activity.resting_time),
+          UCUM.MINUTE
+        ),
+        optionalNumericComponent(
+          ouraCoding('non-wear-time', 'Non-wear Time'),
+          minutesFromSeconds(activity.non_wear_time),
+          UCUM.MINUTE
+        ),
 
-    addComponent(
-      activity.high_activity_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'high-activity-time',
-        display: 'High Activity Time'
-      },
-      's',
-      's'
-    );
-    addComponent(
-      activity.medium_activity_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'medium-activity-time',
-        display: 'Medium Activity Time'
-      },
-      's',
-      's'
-    );
-    addComponent(
-      activity.low_activity_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'low-activity-time',
-        display: 'Low Activity Time'
-      },
-      's',
-      's'
-    );
-    addComponent(
-      activity.sedentary_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'sedentary-time',
-        display: 'Sedentary Time'
-      },
-      's',
-      's'
-    );
-    addComponent(
-      activity.resting_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'resting-time',
-        display: 'Resting Time'
-      },
-      's',
-      's'
-    );
-    addComponent(
-      activity.non_wear_time,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'non-wear-time',
-        display: 'Non-wear Time'
-      },
-      's',
-      's'
-    );
-
-    addComponent(
-      activity.equivalent_walking_distance,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'equivalent-walking-distance',
-        display: 'Equivalent Walking Distance'
-      },
-      'm',
-      'm'
-    );
-    addComponent(
-      activity.meters_to_target,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'meters-to-target',
-        display: 'Meters to Target'
-      },
-      'm',
-      'm'
-    );
-    addComponent(
-      activity.target_meters,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'target-meters',
-        display: 'Target Meters'
-      },
-      'm',
-      'm'
-    );
-
-    addComponent(
-      activity.inactivity_alerts,
-      {
-        system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-        code: 'inactivity-alerts',
-        display: 'Inactivity Alerts'
-      },
-      'count',
-      '{count}'
-    );
-    addComponent(
-      activity.steps,
-      {
-        system: SYSTEMS.LOINC,
-        code: '41950-7',
-        display: 'Number of steps in 24 hours'
-      },
-      'steps',
-      'steps'
-    );
-
-    const observation: Observation = {
-      resourceType: 'Observation',
-      identifier: [
-        {
-          system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-          value: `oura-activity-${activity.id}`
-        }
-      ],
-      status: 'final',
-      category: [
-        {
-          coding: [
-            {
-              system: SYSTEMS.OBSERVATION_CATEGORY,
-              code: 'activity',
-              display: 'Activity'
-            }
-          ]
-        }
-      ],
-
-      code: {
-        coding: [
-          {
-            system: `${SYSTEMS.OURA_CUSTOM}#tag/Daily-Activity-Routes`,
-            code: 'activity-score',
-            display: 'Oura Activity Score'
-          }
-        ]
-      },
-      subject: {
-        reference: `Patient/${patientId}`
-      },
-      effectiveDateTime: new Date(activity.timestamp).toISOString(),
-      valueQuantity: {
-        value: activity.score ?? 0,
-        unit: 'score',
-        system: SYSTEMS.UCUM,
-        code: '{score}'
-      },
-      component: components.length > 0 ? components : undefined
-    };
-
-    return observation;
+        optionalNumericComponent(
+          ouraCoding('equivalent-walking-distance', 'Equivalent Walking Distance'),
+          activity.equivalent_walking_distance,
+          UCUM.METRE
+        ),
+        optionalNumericComponent(
+          ouraCoding('meters-to-target', 'Meters to Target'),
+          activity.meters_to_target,
+          UCUM.METRE
+        ),
+        optionalNumericComponent(ouraCoding('target-meters', 'Target Meters'), activity.target_meters, UCUM.METRE),
+        optionalNumericComponent(
+          ouraCoding('inactivity-alerts', 'Inactivity Alerts'),
+          activity.inactivity_alerts,
+          UCUM.COUNT
+        )
+      ]
+    });
   });
 }

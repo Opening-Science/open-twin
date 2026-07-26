@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { ResponseParams } from './client';
 
 export const ReadinessContributorsSchema = z.object({
@@ -15,7 +15,7 @@ export const ReadinessContributorsSchema = z.object({
 export const ReadinessItemSchema = z.object({
   id: z.string().nonempty(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  timestamp: z.string(), // ISO 8601 datetime string
+  timestamp: z.iso.datetime({ offset: true }), // local midnight, with the wearer's UTC offset
   score: z.number().int().min(0).max(100).optional().nullable(),
   contributors: ReadinessContributorsSchema,
   temperature_deviation: z.number().optional().nullable(),

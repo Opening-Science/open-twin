@@ -9,9 +9,11 @@ export const WorkoutSchema = z.object({
   start_datetime: z.iso.datetime({ offset: true }),
   end_datetime: z.iso.datetime({ offset: true }),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Format: YYYY-MM-DD
-  calories: z.number().nullable(),
-  distance: z.number().nullable(),
-  label: z.string().nullable()
+  // Nullable *and* optional: Oura's spec lists only id, activity, day,
+  // start_datetime, end_datetime, intensity and source as required.
+  calories: z.number().nullable().optional(),
+  distance: z.number().nullable().optional(),
+  label: z.string().nullable().optional()
 });
 
 export const WorkoutListSchema = ResponseParams.extend({
