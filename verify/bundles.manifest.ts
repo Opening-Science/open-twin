@@ -11,6 +11,7 @@ import {
   subjectReference,
   UCUM
 } from '@open-twin/fhir-core';
+import { fhirR4IngestBundle } from '@open-twin/fhir-r4';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
 
 /**
@@ -97,5 +98,6 @@ function exemplar(): Bundle {
 }
 
 export const BUNDLE_CASES: BundleCase[] = [
-  { name: 'fhir-core-exemplar', build: exemplar }
+  { name: 'fhir-core-exemplar', build: exemplar },
+  { name: 'fhir-r4-ingest', build: fhirR4IngestBundle }
 ];
