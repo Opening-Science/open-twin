@@ -64,6 +64,10 @@ export const UCUM = {
   METRE_PER_SECOND: { unit: 'meters per second', code: 'm/s' },
   ML_PER_KG_PER_MIN: { unit: 'mL/kg/min', code: 'mL/kg/min' },
 
+  // concentration
+  MG_PER_DL: { unit: 'mg/dL', code: 'mg/dL' },
+  MMOL_PER_L: { unit: 'mmol/L', code: 'mmol/L' },
+
   // energy
   KILOCALORIE: { unit: 'kcal', code: 'kcal' },
 
@@ -145,8 +149,14 @@ export const LOINC_UNITS: Readonly<Record<string, UcumUnit>> = {
   '55411-3': UCUM.MINUTE, // Exercise duration
   '94122-9': UCUM.ML_PER_KG_PER_MIN, // VO2/body weight, peak during exercise
   '41982-0': UCUM.PERCENT, // Percentage of body fat
-  '77196-4': UCUM.METRE_PER_SECOND // Pulse wave velocity (LOINC example is cm/s;
-  //                                  m/s is commensurable and is what Oura sends)
+  // Pulse wave velocity. LOINC's example unit is cm/s; m/s is commensurable and is
+  // what the vendor sends, so the value is not rescaled.
+  '77196-4': UCUM.METRE_PER_SECOND,
+
+  // Glucose is chosen by `glucoseCodeFor`, which derives the code from the unit
+  // rather than the reverse. Both entries exist so the gate can check either.
+  '2339-0': UCUM.MG_PER_DL,
+  '15074-8': UCUM.MMOL_PER_L
 };
 
 /**
@@ -155,3 +165,26 @@ export const LOINC_UNITS: Readonly<Record<string, UcumUnit>> = {
  * daily total with unit `kcal/(24.h)`; for one workout the code is 41981-2.
  */
 export const DAILY_TOTAL_ONLY = new Set(['41979-6', '41950-7']);
+
+/**
+ * Glucose: the unit selects the code, not the other way round.
+ *
+ * LOINC 2339-0 is *mass* concentration (MCnc, mg/dL). 15074-8 is *substance*
+ * concentration (SCnc, mmol/L). Both carry UNITSREQUIRED = Y, and consumer health
+ * platforms report glucose in either — so a connector that hardcodes one code and
+ * passes the vendor's unit through will eventually publish mmol/L under a mass
+ * concentration code. That is the same property mismatch that put a weight-indexed
+ * VO2max under absolute-VO2 LOINC 60842-2, and it is invisible in the output:
+ * a plausible number under a code that means something else.
+ */
+export const GLUCOSE_CODES = {
+  MASS: { code: '2339-0', display: 'Glucose [Mass/volume] in Blood', unit: UCUM.MG_PER_DL },
+  SUBSTANCE: { code: '15074-8', display: 'Glucose [Moles/volume] in Blood', unit: UCUM.MMOL_PER_L }
+} as const;
+
+/** Returns undefined for a unit neither code covers, rather than guessing one. */
+export function glucoseCodeFor(unit: UcumUnit): (typeof GLUCOSE_CODES)[keyof typeof GLUCOSE_CODES] | undefined {
+  if (unit.code === UCUM.MG_PER_DL.code) return GLUCOSE_CODES.MASS;
+  if (unit.code === UCUM.MMOL_PER_L.code) return GLUCOSE_CODES.SUBSTANCE;
+  return undefined;
+}

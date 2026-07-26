@@ -1,6 +1,6 @@
 import ucum from '@lhncbc/ucum-lhc';
 import { describe, expect, it } from 'vitest';
-import { LOINC_UNITS, quantity, UCUM } from '../units';
+import { glucoseCodeFor, LOINC_UNITS, quantity, UCUM } from '../units';
 
 /**
  * These assert against an external authority — the real UCUM grammar — rather than
@@ -99,5 +99,29 @@ describe('quantity()', () => {
     // A Quantity carrying unit and code but no value is structurally invalid
     // FHIR, and NaN previously serialised as the literal string "null".
     expect(quantity(value as number | null | undefined, UCUM.METRE)).toBeUndefined();
+  });
+});
+
+describe('glucoseCodeFor', () => {
+  it('picks the mass-concentration code for mg/dL', () => {
+    expect(glucoseCodeFor(UCUM.MG_PER_DL)?.code).toBe('2339-0');
+  });
+
+  it('picks the substance-concentration code for mmol/L', () => {
+    // Consumer platforms report glucose in either unit. A connector that hardcodes
+    // 2339-0 and passes the vendor's unit through will eventually publish mmol/L
+    // under a mass-concentration code — the same property mismatch that put a
+    // weight-indexed VO2max under absolute-VO2 LOINC 60842-2.
+    expect(glucoseCodeFor(UCUM.MMOL_PER_L)?.code).toBe('15074-8');
+  });
+
+  it('returns undefined for a unit neither code covers, rather than guessing', () => {
+    expect(glucoseCodeFor(UCUM.PERCENT)).toBeUndefined();
+    expect(glucoseCodeFor(UCUM.MINUTE)).toBeUndefined();
+  });
+
+  it('binds each glucose code to its own unit in the shared policy', () => {
+    expect(LOINC_UNITS['2339-0']).toBe(UCUM.MG_PER_DL);
+    expect(LOINC_UNITS['15074-8']).toBe(UCUM.MMOL_PER_L);
   });
 });
