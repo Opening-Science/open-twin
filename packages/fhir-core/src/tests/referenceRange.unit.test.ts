@@ -55,6 +55,24 @@ describe('parseGermanDecimal', () => {
       expect(() => parseGermanDecimal(bad)).toThrow(TypeError);
     }
   });
+
+  it('rejects a German date, which otherwise parses to a plausible number', () => {
+    // The failure the original expression allowed: '12.02.2025' matched, the points
+    // were stripped as thousands separators, and the result was 12022025 — no throw,
+    // no NaN, just a large number in a reference range. The catalogues print dates in
+    // exactly this form ('Stand 12.02.2025') on the same page as the intervals, so a
+    // mis-scraped cell had a silent path all the way through.
+    for (const date of ['12.02.2025', '1.2.3', '28.09.2015', '...5', '.5']) {
+      expect(() => parseGermanDecimal(date)).toThrow(TypeError);
+    }
+  });
+
+  it('still accepts ungrouped integers, which the fix must not exclude', () => {
+    // Guarding the guard: requiring three-digit groups everywhere would reject '12345',
+    // and platelet or enzyme counts are written without separators.
+    expect(parseGermanDecimal('12345')).toBe(12345);
+    expect(parseGermanDecimal('150000')).toBe(150000);
+  });
 });
 
 describe('parseGermanInterval', () => {
@@ -108,6 +126,22 @@ describe('referenceInterval', () => {
     expect(() => referenceInterval({ unit: UCUM.PERCENT, type: RANGE_TYPE.NORMAL, source: IMD_2025 })).toThrow(
       TypeError
     );
+  });
+
+  it('refuses an inverted interval', () => {
+    // FHIR has no invariant against low > high, so this would have validated cleanly
+    // and then judged every value — including correct ones — as out of range. Two
+    // swapped columns in a spreadsheet is the obvious way to produce it.
+    expect(() =>
+      referenceInterval({ low: 6.2, high: 4.7, unit: UCUM.PERCENT, type: RANGE_TYPE.NORMAL, source: IMD_2015 })
+    ).toThrow(TypeError);
+  });
+
+  it('allows a degenerate interval where low equals high', () => {
+    // Not inverted, just narrow. A source is entitled to publish a single point.
+    expect(() =>
+      referenceInterval({ low: 5, high: 5, unit: UCUM.PERCENT, type: RANGE_TYPE.NORMAL, source: IMD_2015 })
+    ).not.toThrow();
   });
 
   it('keeps the laboratory’s own wording alongside the parsed bounds', () => {

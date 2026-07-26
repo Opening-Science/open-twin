@@ -86,12 +86,18 @@ export function referenceInterval(input: ReferenceIntervalInput): ObservationRef
   if (input.low === undefined && input.high === undefined) {
     throw new TypeError('referenceInterval: an interval needs a low, a high, or both');
   }
+  // FHIR has no invariant forbidding low > high, so an inverted interval would validate
+  // and then judge every value as out of range. Two swapped columns in a catalogue is a
+  // plausible transcription error, and this is the only place it can be caught.
+  if (input.low !== undefined && input.high !== undefined && input.low > input.high) {
+    throw new TypeError(`referenceInterval: low ${input.low} is above high ${input.high}`);
+  }
 
   const range: ObservationReferenceRange = {
     type: {
       coding: [
         {
-          system: 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+          system: SYSTEMS.REFERENCE_RANGE_MEANING,
           code: input.type.code,
           display: input.type.display
         }
@@ -132,7 +138,11 @@ export function referenceInterval(input: ReferenceIntervalInput): ObservationRef
  */
 export function parseGermanDecimal(value: string): number {
   const trimmed = value.trim();
-  if (!/^-?[\d.]*\d(,\d+)?$/.test(trimmed)) {
+  // Either ungrouped digits, or groups of exactly three after the first point. Anything
+  // looser accepts a German date: '12.02.2025' would otherwise strip to 12022025, a
+  // large but entirely plausible number. The catalogues carry dates in that form on the
+  // same page as the intervals ('Stand 12.02.2025'), so this is a live failure mode.
+  if (!/^-?(\d+|\d{1,3}(\.\d{3})+)(,\d+)?$/.test(trimmed)) {
     throw new TypeError(`parseGermanDecimal: ${JSON.stringify(value)} is not a German-formatted number`);
   }
   // Points are thousands separators and carry no value; the comma is the decimal point.
@@ -166,7 +176,5 @@ export function parseGermanInterval(text: string): { low?: number; high?: number
   return undefined;
 }
 
-/** The category every Anchor-layer observation carries. */
-export const LABORATORY_CATEGORY = { code: 'laboratory', display: 'Laboratory' } as const;
-
-export { SYSTEMS };
+// The Anchor-layer category lives in systems.ts as CATEGORY.LABORATORY. A second copy
+// here had no consumers and could only ever drift out of step with the first.

@@ -15,16 +15,29 @@
  * Usage:  node verify/build-conformance.mjs [outDir]
  */
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DECLARATIONS = JSON.parse(readFileSync(join(HERE, 'conformance', 'declarations.json'), 'utf8'));
-const OUT = process.argv[2] ?? join(HERE, 'conformance', 'generated');
+const OUT = resolve(process.argv[2] ?? join(HERE, 'conformance', 'generated'));
 const BASE = DECLARATIONS.canonicalBase;
 
-rmSync(OUT, { recursive: true, force: true });
+// The output directory gets cleaned before every run, so it is taken from argv and then
+// deleted from. Two guards, because `build-conformance.mjs ~/Documents` must not be one
+// keystroke away from destroying a directory: the path has to sit under verify/, and
+// only the .json files this script writes are removed — never the directory itself, and
+// never anything it did not put there.
+const ROOT = join(HERE, 'conformance');
+if (OUT !== ROOT && !OUT.startsWith(ROOT + sep)) {
+  throw new Error(`build-conformance: refusing to write outside ${ROOT} (got ${OUT})`);
+}
+if (existsSync(OUT)) {
+  for (const name of readdirSync(OUT)) {
+    if (name.endsWith('.json')) unlinkSync(join(OUT, name));
+  }
+}
 mkdirSync(OUT, { recursive: true });
 
 const write = (name, resource) => {

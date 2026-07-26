@@ -17,6 +17,8 @@ export const SYSTEMS = {
   UCUM: 'http://unitsofmeasure.org',
   OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
   DATA_ABSENT_REASON: 'http://terminology.hl7.org/CodeSystem/data-absent-reason',
+  /** What question a reference interval answers — normal, recommended, treatment. */
+  REFERENCE_RANGE_MEANING: 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
 
   /** Foundation-controlled. One namespace per connector (D3). */
   OURA: 'http://opentwin.ch/fhir/CodeSystem/oura',

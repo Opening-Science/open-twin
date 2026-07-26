@@ -245,9 +245,25 @@ for (const { rel, text } of sources) {
 const shared = readSharedUnits(ROOT);
 if (shared) {
   const masked = maskLiterals(shared.text);
+  // Only the UCUM table itself. Matching every two-space-indented UPPERCASE key in the
+  // file swept up any other table that happens to use `code:` — GLUCOSE_CODES maps LOINC
+  // codes to units, so its entries were harvested as if '2339-0' were a UCUM code and
+  // reported as fatally invalid, with the gate advising the annotation '{2339-0}'.
+  // A LOINC code is not a UCUM code; the table it lives in decides which it is.
+  const tableStart = masked.indexOf('{', masked.search(/export const UCUM\b/));
+  const tableEnd = tableStart === -1 ? -1 : objectEnd(masked, tableStart);
+  if (tableEnd === -1) {
+    console.error(
+      'FAIL: could not locate the `export const UCUM` table in fhir-core/src/units.ts.\n' +
+        'The shared unit table has moved or been renamed. Refusing to scan a file this\n' +
+        'gate no longer understands.'
+    );
+    process.exit(1);
+  }
   // Entries look like:  MINUTE: { unit: 'minutes', code: 'min' },
   for (const match of masked.matchAll(/^\s{2}([A-Z][A-Z0-9_]*)\s*:\s*\{/gm)) {
     const start = match.index + match[0].length - 1;
+    if (start < tableStart || start > tableEnd) continue;
     const end = objectEnd(masked, start);
     if (end === -1) continue;
     const props = topLevelProps(shared.text, masked, start, end);
