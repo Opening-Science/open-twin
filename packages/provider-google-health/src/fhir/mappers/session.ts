@@ -1,187 +1,318 @@
-import type { Observation } from 'fhir/r4';
+import type { Observation, Period } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
+  applyOffset,
+  bundleReference,
   CATEGORY,
+  codeableConcept,
   compact,
-  createObservation,
+  createGoogleObservation,
+  type DataPointMeta,
+  GH_UCUM,
+  ghOptionalNumericComponent,
+  ghQuantity,
   intervalToPeriod,
-  numericComponent,
+  loincComponent,
+  millimetresToMetres,
+  periodMinutes,
   SYSTEMS,
   stringComponent,
-  toNumber
+  toNumber,
+  UCUM
 } from './shared';
 
-export function mapElectrocardiogramToFHIR(data: health_v4.Schema$Electrocardiogram): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: { system: SYSTEMS.LOINC, code: '11524-6', display: 'EKG study' },
-    effectivePeriod: intervalToPeriod(data.interval),
-    components: compact([
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
-        toNumber(data.beatsPerMinuteAvg),
-        { unit: 'beats/minute', system: SYSTEMS.UCUM, code: '/min' }
-      ),
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'result-classification', display: 'ECG result classification' },
-        data.resultClassification
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'sampling-frequency-hertz', display: 'Sampling frequency' },
-        toNumber(data.samplingFrequencyHertz),
-        { unit: 'Hz', system: SYSTEMS.UCUM, code: 'Hz' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'lead-number', display: 'Number of leads' },
-        toNumber(data.leadNumber)
-      )
-    ])
-  });
+/**
+ * Intake and sleep have no code in the HL7 `observation-category` value set — it runs
+ * social-history, vital-signs, imaging, laboratory, procedure, survey, exam, therapy,
+ * activity and nothing else. Rather than invent a code in HL7's namespace, these are
+ * published under the Foundation's own.
+ *
+ * TODO(clinical-review): confirm these vendor categories, or agree a mapping onto an
+ * existing HL7 category, before the implementation guide publishes.
+ */
+const NUTRITION_CATEGORY = { system: SYSTEMS.GOOGLE_HEALTH, code: 'nutrition', display: 'Nutrition' };
+const SLEEP_CATEGORY = { system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep', display: 'Sleep' };
 
-  if (data.medicalDeviceInfo?.deviceModel) {
-    observation.device = { display: data.medicalDeviceInfo.deviceModel };
-  }
-
-  return observation;
-}
-
-export function mapExerciseToFHIR(data: health_v4.Schema$Exercise): Observation {
-  const summary = data.metricsSummary;
-  const observation = createObservation({
-    category: CATEGORY.ACTIVITY,
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'exercise', display: data.displayName ?? 'Exercise' },
-    effectivePeriod: intervalToPeriod(data.interval),
-    components: compact([
-      stringComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'exercise-type', display: 'Exercise type' },
-        data.exerciseType
-      ),
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '41981-2', display: 'Calories burned' },
-        summary?.caloriesKcal ?? undefined,
-        { unit: 'kcal', system: SYSTEMS.UCUM, code: 'kcal' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'distance', display: 'Distance' },
-        summary?.distanceMillimeters ?? undefined,
-        { unit: 'mm', system: SYSTEMS.UCUM, code: 'mm' }
-      ),
-      numericComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'steps', display: 'Steps' }, toNumber(summary?.steps), {
-        unit: 'steps'
-      }),
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
-        toNumber(summary?.averageHeartRateBeatsPerMinute),
-        { unit: 'beats/minute', system: SYSTEMS.UCUM, code: '/min' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'elevation-gain', display: 'Elevation gain' },
-        summary?.elevationGainMillimeters ?? undefined,
-        { unit: 'mm', system: SYSTEMS.UCUM, code: 'mm' }
-      )
-    ])
-  });
-
-  if (data.notes) {
-    observation.note = [{ text: data.notes }];
-  }
-
-  return observation;
-}
-
-export function mapHydrationLogToFHIR(data: health_v4.Schema$HydrationLog): Observation {
-  return createObservation({
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'hydration-log', display: 'Hydration log' },
-    effectivePeriod: intervalToPeriod(data.interval),
-    valueQuantity:
-      data.amountConsumed?.milliliters !== undefined && data.amountConsumed?.milliliters !== null
-        ? { value: data.amountConsumed.milliliters, unit: 'mL', system: SYSTEMS.UCUM, code: 'mL' }
-        : undefined
-  });
-}
-
-export function mapIrregularRhythmNotificationToFHIR(data: health_v4.Schema$IrregularRhythmNotification): Observation {
-  const observation = createObservation({
-    category: CATEGORY.VITAL_SIGNS,
-    code: {
-      system: SYSTEMS.GOOGLE_HEALTH,
-      code: 'irregular-rhythm-notification',
-      display: 'Irregular rhythm notification'
+export function mapElectrocardiogramToFHIR(data: health_v4.Schema$Electrocardiogram, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'electrocardiogram',
+      category: CATEGORY.VITAL_SIGNS,
+      // TODO(clinical-review): LOINC 11524-6 "EKG study" has SCALE = Doc — it is a
+      // *document* code and belongs on a DiagnosticReport, not on an Observation
+      // carrying numbers. A vendor-local code stands until a reviewer either supplies a
+      // quantitative ECG code or the connector emits a DiagnosticReport.
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'electrocardiogram', display: 'Electrocardiogram' },
+      effectivePeriod: intervalToPeriod(data.interval),
+      components: [
+        // TODO(clinical-review): this is a mean over the recording, not an instantaneous
+        // rate, so bare LOINC 8867-4 would overstate it. 55425-3 ("Heart rate
+        // unspecified time mean") is the candidate but its METHOD axis is Pedometer.
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'average-heart-rate', display: 'Average heart rate' },
+          toNumber(data.beatsPerMinuteAvg),
+          UCUM.PER_MINUTE
+        ),
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'result-classification', display: 'ECG result classification' },
+          data.resultClassification
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'sampling-frequency-hertz', display: 'Sampling frequency' },
+          toNumber(data.samplingFrequencyHertz),
+          GH_UCUM.HERTZ
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'lead-number', display: 'Number of leads' },
+          toNumber(data.leadNumber),
+          GH_UCUM.LEADS
+        )
+      ],
+      device: data.medicalDeviceInfo?.deviceModel ? { display: data.medicalDeviceInfo.deviceModel } : undefined
     },
-    effectivePeriod: intervalToPeriod(data.interval),
-    components: compact([
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'alert-window-count', display: 'Alert window count' },
-        data.alertWindows?.length
-      )
-    ])
-  });
-
-  if (data.medicalDeviceInfo?.deviceModel) {
-    observation.device = { display: data.medicalDeviceInfo.deviceModel };
-  }
-
-  return observation;
+    meta
+  );
 }
 
-export function mapNutritionLogToFHIR(data: health_v4.Schema$NutritionLog): Observation {
-  return createObservation({
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'nutrition-log', display: data.foodDisplayName ?? 'Nutrition log' },
-    effectivePeriod: intervalToPeriod(data.interval),
-    components: compact([
-      stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'meal-type', display: 'Meal type' }, data.mealType),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'energy', display: 'Energy intake' },
-        data.energy?.kcal ?? undefined,
-        { unit: 'kcal', system: SYSTEMS.UCUM, code: 'kcal' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'total-carbohydrate', display: 'Total carbohydrate' },
-        data.totalCarbohydrate?.grams ?? undefined,
-        { unit: 'g', system: SYSTEMS.UCUM, code: 'g' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'total-fat', display: 'Total fat' },
-        data.totalFat?.grams ?? undefined,
-        { unit: 'g', system: SYSTEMS.UCUM, code: 'g' }
-      )
-    ])
-  });
+export function mapExerciseToFHIR(data: health_v4.Schema$Exercise, meta: DataPointMeta): Observation {
+  const summary = data.metricsSummary;
+
+  return createGoogleObservation(
+    {
+      measure: 'exercise',
+      category: CATEGORY.ACTIVITY,
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'exercise', display: 'Exercise' },
+      // The vendor's own label for the session belongs in `code.text`, not in the
+      // display of a code whose meaning is fixed.
+      codeText: data.displayName ?? undefined,
+      effectivePeriod: intervalToPeriod(data.interval),
+      components: [
+        stringComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'exercise-type', display: 'Exercise type' },
+          data.exerciseType
+        ),
+        loincComponent('41981-2', 'Calories burned', toNumber(summary?.caloriesKcal)),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'distance', display: 'Distance' },
+          millimetresToMetres(summary?.distanceMillimeters),
+          UCUM.METRE
+        ),
+        loincComponent('55423-8', 'Number of steps in unspecified time Pedometer', toNumber(summary?.steps)),
+        // TODO(clinical-review): a session mean, not an instantaneous heart rate. See
+        // the note on the ECG mapper — 55425-3 is the candidate standard code.
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'average-heart-rate', display: 'Average heart rate' },
+          toNumber(summary?.averageHeartRateBeatsPerMinute),
+          UCUM.PER_MINUTE
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'elevation-gain', display: 'Elevation gain' },
+          millimetresToMetres(summary?.elevationGainMillimeters),
+          UCUM.METRE
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'active-zone-minutes', display: 'Active zone minutes' },
+          toNumber(summary?.activeZoneMinutes),
+          UCUM.MINUTE
+        )
+      ],
+      note: data.notes ?? undefined
+    },
+    meta
+  );
 }
 
-export function mapSleepToFHIR(data: health_v4.Schema$Sleep): Observation {
+export function mapHydrationLogToFHIR(data: health_v4.Schema$HydrationLog, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'hydration-log',
+      vendorCategory: NUTRITION_CATEGORY,
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'hydration-log', display: 'Hydration log' },
+      effectivePeriod: intervalToPeriod(data.interval),
+      expectsValue: true,
+      valueQuantity: ghQuantity(toNumber(data.amountConsumed?.milliliters), GH_UCUM.MILLILITRE)
+    },
+    meta
+  );
+}
+
+export function mapIrregularRhythmNotificationToFHIR(
+  data: health_v4.Schema$IrregularRhythmNotification,
+  meta: DataPointMeta
+): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'irregular-rhythm-notification',
+      category: CATEGORY.VITAL_SIGNS,
+      code: {
+        system: SYSTEMS.GOOGLE_HEALTH,
+        code: 'irregular-rhythm-notification',
+        display: 'Irregular rhythm notification'
+      },
+      effectivePeriod: intervalToPeriod(data.interval),
+      components: [
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'alert-window-count', display: 'Alert window count' },
+          data.alertWindows?.length,
+          GH_UCUM.WINDOWS
+        )
+      ],
+      device: data.medicalDeviceInfo?.deviceModel ? { display: data.medicalDeviceInfo.deviceModel } : undefined
+    },
+    meta
+  );
+}
+
+export function mapNutritionLogToFHIR(data: health_v4.Schema$NutritionLog, meta: DataPointMeta): Observation {
+  return createGoogleObservation(
+    {
+      measure: 'nutrition-log',
+      vendorCategory: NUTRITION_CATEGORY,
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'nutrition-log', display: 'Nutrition log' },
+      codeText: data.foodDisplayName ?? undefined,
+      effectivePeriod: intervalToPeriod(data.interval),
+      components: [
+        stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'meal-type', display: 'Meal type' }, data.mealType),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'energy', display: 'Energy intake' },
+          toNumber(data.energy?.kcal),
+          UCUM.KILOCALORIE
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'energy-from-fat', display: 'Energy from fat' },
+          toNumber(data.energyFromFat?.kcal),
+          UCUM.KILOCALORIE
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'total-carbohydrate', display: 'Total carbohydrate' },
+          toNumber(data.totalCarbohydrate?.grams),
+          UCUM.GRAM
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'total-fat', display: 'Total fat' },
+          toNumber(data.totalFat?.grams),
+          UCUM.GRAM
+        )
+      ]
+    },
+    meta
+  );
+}
+
+function segmentPeriod(segment: {
+  startTime?: string | null;
+  startUtcOffset?: string | null;
+  endTime?: string | null;
+  endUtcOffset?: string | null;
+}): Period | undefined {
+  const start = applyOffset(segment.startTime, segment.startUtcOffset);
+  const end = applyOffset(segment.endTime, segment.endUtcOffset);
+  if (!start && !end) return undefined;
+  return { ...(start ? { start } : {}), ...(end ? { end } : {}) };
+}
+
+/**
+ * A sleep record's substance is the hypnogram, and the four aggregate minute counts
+ * cannot be reconstructed back into it. Each stage segment and each out-of-bed segment
+ * therefore becomes its own Observation, linked from the session by `hasMember`, so
+ * nothing is lost on the way out.
+ */
+export function mapSleepToFHIR(data: health_v4.Schema$Sleep, meta: DataPointMeta): Observation[] {
   const summary = data.summary;
-  const observation = createObservation({
-    code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep', display: 'Sleep session' },
-    effectivePeriod: intervalToPeriod(data.interval),
-    components: compact([
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '93832-4', display: 'Sleep duration' },
-        toNumber(summary?.minutesAsleep),
-        { unit: 'min', system: SYSTEMS.UCUM, code: 'min' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.GOOGLE_HEALTH, code: 'minutes-awake', display: 'Minutes awake' },
-        toNumber(summary?.minutesAwake),
-        { unit: 'min', system: SYSTEMS.UCUM, code: 'min' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '103213-5', display: 'Time in bed' },
-        toNumber(summary?.minutesInSleepPeriod),
-        { unit: 'min', system: SYSTEMS.UCUM, code: 'min' }
-      ),
-      numericComponent(
-        { system: SYSTEMS.LOINC, code: '103212-7', display: 'Sleep latency' },
-        toNumber(summary?.minutesToFallAsleep),
-        { unit: 'min', system: SYSTEMS.UCUM, code: 'min' }
-      ),
-      stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep-type', display: 'Sleep type' }, data.type)
-    ])
-  });
+  const period = intervalToPeriod(data.interval);
 
-  if (data.metadata?.externalId) {
-    observation.identifier = [{ system: SYSTEMS.GOOGLE_HEALTH, value: data.metadata.externalId }];
-  }
+  const children: Observation[] = [
+    ...(data.stages ?? []).map((stage, index) =>
+      createGoogleObservation(
+        {
+          measure: `sleep-stage-${index}`,
+          vendorCategory: SLEEP_CATEGORY,
+          code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep-stage', display: 'Sleep stage' },
+          effectivePeriod: segmentPeriod(stage),
+          expectsValue: true,
+          valueCodeableConcept: stage.type
+            ? codeableConcept({ system: SYSTEMS.GOOGLE_HEALTH, code: stage.type, display: stage.type })
+            : undefined,
+          components: [
+            ghOptionalNumericComponent(
+              { system: SYSTEMS.GOOGLE_HEALTH, code: 'duration', display: 'Stage duration' },
+              periodMinutes(segmentPeriod(stage)),
+              UCUM.MINUTE
+            )
+          ]
+        },
+        meta
+      )
+    ),
+    ...(data.outOfBedSegments ?? []).map((segment, index) =>
+      createGoogleObservation(
+        {
+          measure: `out-of-bed-segment-${index}`,
+          vendorCategory: SLEEP_CATEGORY,
+          code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'out-of-bed-segment', display: 'Out of bed segment' },
+          effectivePeriod: segmentPeriod(segment),
+          expectsValue: true,
+          valueQuantity: ghQuantity(periodMinutes(segmentPeriod(segment)), UCUM.MINUTE)
+        },
+        meta
+      )
+    )
+  ];
 
-  return observation;
+  const stageSummaries = compact(
+    (summary?.stagesSummary ?? []).map((stage) =>
+      stage.type
+        ? ghOptionalNumericComponent(
+            {
+              system: SYSTEMS.GOOGLE_HEALTH,
+              code: `stage-minutes-${stage.type.toLowerCase()}`,
+              display: `Minutes in ${stage.type}`
+            },
+            toNumber(stage.minutes),
+            UCUM.MINUTE
+          )
+        : undefined
+    )
+  );
+
+  const session = createGoogleObservation(
+    {
+      measure: 'sleep',
+      vendorCategory: SLEEP_CATEGORY,
+      code: { system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep', display: 'Sleep session' },
+      effectivePeriod: period,
+      components: [
+        loincComponent('93832-4', 'Sleep duration', toNumber(summary?.minutesAsleep)),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'minutes-awake', display: 'Minutes awake' },
+          toNumber(summary?.minutesAwake),
+          UCUM.MINUTE
+        ),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'minutes-after-wake-up', display: 'Minutes after wake up' },
+          toNumber(summary?.minutesAfterWakeUp),
+          UCUM.MINUTE
+        ),
+        // LOINC 103213-5 "Duration in bed" is a modelling anomaly: the component says
+        // duration, the property is NRat and the example unit is `/h`. `min` is emitted
+        // pending a term-change request to Regenstrief. See DECISIONS.md.
+        loincComponent('103213-5', 'Duration in bed', toNumber(summary?.minutesInSleepPeriod)),
+        loincComponent('103212-7', 'Duration of falling asleep', toNumber(summary?.minutesToFallAsleep)),
+        ...stageSummaries,
+        stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep-type', display: 'Sleep type' }, data.type),
+        ghOptionalNumericComponent(
+          { system: SYSTEMS.GOOGLE_HEALTH, code: 'out-of-bed-segment-count', display: 'Out of bed segment count' },
+          data.outOfBedSegments?.length,
+          GH_UCUM.SEGMENTS
+        )
+      ],
+      identifier: data.metadata?.externalId
+        ? [{ system: SYSTEMS.GOOGLE_HEALTH_IDENTIFIER, value: data.metadata.externalId }]
+        : undefined,
+      hasMember: children.map((child) => bundleReference(child.id as string))
+    },
+    meta
+  );
+
+  return [session, ...children];
 }

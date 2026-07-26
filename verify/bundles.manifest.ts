@@ -15,6 +15,7 @@ import {
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
+import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -184,5 +185,6 @@ function anchorHbA1c(): Bundle {
 export const BUNDLE_CASES: BundleCase[] = [
   { name: 'anchor-hba1c', build: anchorHbA1c },
   { name: 'fhir-core-exemplar', build: exemplar },
-  { name: 'oura-sync', build: ouraBundle }
+  { name: 'oura-sync', build: ouraBundle },
+  { name: 'google-health-sync', build: googleHealthBundle }
 ];

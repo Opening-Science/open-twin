@@ -9,13 +9,13 @@ import {
   mapDailySleepTemperatureDerivationsToFHIR,
   mapDailyVo2MaxToFHIR
 } from '../../fhir/mappers/daily';
-
-const GOOGLE_HEALTH = 'https://developers.google.com/health/data-types';
-const LOINC = 'http://loinc.org';
-const UCUM = 'http://unitsofmeasure.org';
-const OBSERVATION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/observation-category';
+import { ABSENT, GOOGLE_HEALTH, LOINC, meta, OBSERVATION_CATEGORY, UCUM_SYSTEM } from '../support/context';
 
 const DATE: health_v4.Schema$Date = { year: 2026, month: 6, day: 20 };
+
+const DAILY_AVERAGE = {
+  coding: [{ system: GOOGLE_HEALTH, code: 'daily-average', display: 'Averaged over one civil day' }]
+};
 
 describe('mapDailyHeartRateVariabilityToFHIR', () => {
   const base: health_v4.Schema$DailyHeartRateVariability = {
@@ -26,17 +26,13 @@ describe('mapDailyHeartRateVariabilityToFHIR', () => {
     nonRemHeartRateBeatsPerMinute: '55'
   };
 
-  it('maps to a vital-signs Observation with the Google Health code', () => {
-    const observation = mapDailyHeartRateVariabilityToFHIR(base);
+  it('maps to a vital-signs Observation under the connector code system', () => {
+    const observation = mapDailyHeartRateVariabilityToFHIR(base, meta());
 
     expect(observation).toMatchObject({
       resourceType: 'Observation',
       status: 'final',
-      category: [
-        {
-          coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }]
-        }
-      ],
+      category: [{ coding: [{ system: OBSERVATION_CATEGORY, code: 'vital-signs', display: 'Vital Signs' }] }],
       code: {
         coding: [
           { system: GOOGLE_HEALTH, code: 'daily-heart-rate-variability', display: 'Daily heart rate variability' }
@@ -46,28 +42,28 @@ describe('mapDailyHeartRateVariabilityToFHIR', () => {
   });
 
   it('formats the date into a padded ISO effectiveDateTime', () => {
-    const observation = mapDailyHeartRateVariabilityToFHIR({ ...base, date: { year: 2026, month: 1, day: 5 } });
+    const observation = mapDailyHeartRateVariabilityToFHIR({ ...base, date: { year: 2026, month: 1, day: 5 } }, meta());
 
     expect(observation.effectiveDateTime).toBe('2026-01-05');
   });
 
-  it('maps populated metrics into components', () => {
-    const observation = mapDailyHeartRateVariabilityToFHIR(base);
+  it('gives the dimensionless entropy the UCUM unity rather than no unit at all', () => {
+    const observation = mapDailyHeartRateVariabilityToFHIR(base, meta());
 
     expect(observation.component).toContainEqual({
       code: {
         coding: [{ system: GOOGLE_HEALTH, code: 'average-heart-rate-variability', display: 'Average HRV (RMSSD)' }]
       },
-      valueQuantity: { value: 45, unit: 'ms', system: UCUM, code: 'ms' }
+      valueQuantity: { value: 45, unit: 'milliseconds', system: UCUM_SYSTEM, code: 'ms' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'entropy', display: 'Heartbeat entropy' }] },
-      valueQuantity: { value: 2.5 }
+      valueQuantity: { value: 2.5, unit: '1', system: UCUM_SYSTEM, code: '1' }
     });
   });
 
   it('omits components for missing metrics', () => {
-    const observation = mapDailyHeartRateVariabilityToFHIR({ date: DATE });
+    const observation = mapDailyHeartRateVariabilityToFHIR({ date: DATE }, meta());
 
     expect(observation.component).toBeUndefined();
   });
@@ -76,38 +72,54 @@ describe('mapDailyHeartRateVariabilityToFHIR', () => {
 describe('mapDailyHeartRateZonesToFHIR', () => {
   const base: health_v4.Schema$DailyHeartRateZones = {
     date: DATE,
-    heartRateZones: [{ heartRateZoneType: 'FAT_BURN', minBeatsPerMinute: '90', maxBeatsPerMinute: '120' }]
+    heartRateZones: [
+      { heartRateZoneType: 'FAT_BURN', minBeatsPerMinute: '100', maxBeatsPerMinute: '140' },
+      { heartRateZoneType: 'CARDIO', minBeatsPerMinute: '140', maxBeatsPerMinute: '160' }
+    ]
   };
 
-  it('maps each zone into min and max components', () => {
-    const observation = mapDailyHeartRateZonesToFHIR(base);
+  it('puts the zone in the component code so two zones never collide', () => {
+    // Repeating one code per zone and varying only the display leaves a consumer
+    // selecting component.code an unordered bag of numbers it cannot attribute.
+    const observation = mapDailyHeartRateZonesToFHIR(base, meta());
+    const codes = observation.component?.map((component) => component.code.coding?.[0]?.code);
+
+    expect(codes).toEqual([
+      'heart-rate-zone-fat_burn-min',
+      'heart-rate-zone-fat_burn-max',
+      'heart-rate-zone-cardio-min',
+      'heart-rate-zone-cardio-max'
+    ]);
+    expect(new Set(codes).size).toBe(4);
+  });
+
+  it('maps each zone bound with the per-minute unit', () => {
+    const observation = mapDailyHeartRateZonesToFHIR(base, meta());
 
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone-min', display: 'FAT_BURN min heart rate' }] },
-      valueQuantity: { value: 90, unit: 'beats/minute', system: UCUM, code: '/min' }
-    });
-    expect(observation.component).toContainEqual({
-      code: { coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone-max', display: 'FAT_BURN max heart rate' }] },
-      valueQuantity: { value: 120, unit: 'beats/minute', system: UCUM, code: '/min' }
+      code: {
+        coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone-cardio-min', display: 'CARDIO min heart rate' }]
+      },
+      valueQuantity: { value: 140, unit: 'per minute', system: UCUM_SYSTEM, code: '/min' }
     });
   });
 
-  it('falls back to a generic zone display when the type is missing', () => {
-    const observation = mapDailyHeartRateZonesToFHIR({
-      date: DATE,
-      heartRateZones: [{ minBeatsPerMinute: '100' }]
-    });
+  it('falls back to an unknown zone key when the type is missing', () => {
+    const observation = mapDailyHeartRateZonesToFHIR(
+      { date: DATE, heartRateZones: [{ minBeatsPerMinute: '100' }] },
+      meta()
+    );
 
     expect(observation.component).toContainEqual({
-      code: { coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone-min', display: 'zone min heart rate' }] },
-      valueQuantity: { value: 100, unit: 'beats/minute', system: UCUM, code: '/min' }
+      code: {
+        coding: [{ system: GOOGLE_HEALTH, code: 'heart-rate-zone-unknown-min', display: 'unknown min heart rate' }]
+      },
+      valueQuantity: { value: 100, unit: 'per minute', system: UCUM_SYSTEM, code: '/min' }
     });
   });
 
   it('produces no components when there are no zones', () => {
-    const observation = mapDailyHeartRateZonesToFHIR({ date: DATE });
-
-    expect(observation.component).toBeUndefined();
+    expect(mapDailyHeartRateZonesToFHIR({ date: DATE }, meta()).component).toBeUndefined();
   });
 });
 
@@ -120,77 +132,86 @@ describe('mapDailyOxygenSaturationToFHIR', () => {
     standardDeviationPercentage: 1.2
   };
 
-  it('uses the LOINC oxygen saturation code and root valueQuantity', () => {
-    const observation = mapDailyOxygenSaturationToFHIR(base);
+  it('carries a vendor coding and a daily-average method beside LOINC 59408-5', () => {
+    const observation = mapDailyOxygenSaturationToFHIR(base, meta());
 
     expect(observation.code).toEqual({
-      coding: [{ system: LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' }]
+      coding: [
+        { system: LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' },
+        { system: GOOGLE_HEALTH, code: 'daily-oxygen-saturation', display: 'Daily average oxygen saturation' }
+      ]
     });
-    expect(observation.valueQuantity).toEqual({ value: 97, unit: '%', system: UCUM, code: '%' });
+    expect(observation.method).toEqual(DAILY_AVERAGE);
+    expect(observation.valueQuantity).toEqual({ value: 97, unit: '%', system: UCUM_SYSTEM, code: '%' });
   });
 
-  it('omits the root valueQuantity when the average is missing', () => {
-    const { averagePercentage: _avg, ...withoutAverage } = base;
-    const observation = mapDailyOxygenSaturationToFHIR(withoutAverage);
+  it('records a dataAbsentReason when the average is missing', () => {
+    const { averagePercentage: _average, ...withoutAverage } = base;
+    const observation = mapDailyOxygenSaturationToFHIR(withoutAverage, meta());
 
     expect(observation.valueQuantity).toBeUndefined();
+    expect(observation.dataAbsentReason).toEqual(ABSENT);
   });
 
   it('maps the bound and deviation components', () => {
-    const observation = mapDailyOxygenSaturationToFHIR(base);
+    const observation = mapDailyOxygenSaturationToFHIR(base, meta());
 
     expect(observation.component).toContainEqual({
       code: {
         coding: [{ system: GOOGLE_HEALTH, code: 'lower-bound-percentage', display: 'Lower bound oxygen saturation' }]
       },
-      valueQuantity: { value: 95, unit: '%', system: UCUM, code: '%' }
+      valueQuantity: { value: 95, unit: '%', system: UCUM_SYSTEM, code: '%' }
     });
     expect(observation.component).toContainEqual({
       code: {
         coding: [{ system: GOOGLE_HEALTH, code: 'upper-bound-percentage', display: 'Upper bound oxygen saturation' }]
       },
-      valueQuantity: { value: 99, unit: '%', system: UCUM, code: '%' }
+      valueQuantity: { value: 99, unit: '%', system: UCUM_SYSTEM, code: '%' }
     });
   });
 });
 
 describe('mapDailyRespiratoryRateToFHIR', () => {
-  it('maps the breaths per minute into the root valueQuantity', () => {
-    const observation = mapDailyRespiratoryRateToFHIR({ date: DATE, breathsPerMinute: 14 });
+  it('carries a vendor coding and a daily-average method beside LOINC 9279-1', () => {
+    const observation = mapDailyRespiratoryRateToFHIR({ date: DATE, breathsPerMinute: 14 }, meta());
 
-    expect(observation.code).toEqual({ coding: [{ system: LOINC, code: '9279-1', display: 'Respiratory rate' }] });
-    expect(observation.valueQuantity).toEqual({ value: 14, unit: 'breaths/minute', system: UCUM, code: '/min' });
+    expect(observation.code).toEqual({
+      coding: [
+        { system: LOINC, code: '9279-1', display: 'Respiratory rate' },
+        { system: GOOGLE_HEALTH, code: 'daily-respiratory-rate', display: 'Daily average respiratory rate' }
+      ]
+    });
+    expect(observation.method).toEqual(DAILY_AVERAGE);
+    expect(observation.valueQuantity).toEqual({ value: 14, unit: 'per minute', system: UCUM_SYSTEM, code: '/min' });
   });
 
-  it('omits the valueQuantity when breaths per minute is missing', () => {
-    const observation = mapDailyRespiratoryRateToFHIR({ date: DATE });
+  it('records a dataAbsentReason when breaths per minute is missing', () => {
+    const observation = mapDailyRespiratoryRateToFHIR({ date: DATE }, meta());
 
     expect(observation.valueQuantity).toBeUndefined();
+    expect(observation.dataAbsentReason).toEqual(ABSENT);
   });
 });
 
 describe('mapDailyRestingHeartRateToFHIR', () => {
-  it('maps the resting heart rate into the root valueQuantity', () => {
-    const observation = mapDailyRestingHeartRateToFHIR({ date: DATE, beatsPerMinute: '58' });
+  it('maps the resting heart rate with the profile-fixed /min unit', () => {
+    const observation = mapDailyRestingHeartRateToFHIR({ date: DATE, beatsPerMinute: '58' }, meta());
 
     expect(observation.code).toEqual({ coding: [{ system: LOINC, code: '40443-4', display: 'Heart rate --resting' }] });
-    expect(observation.valueQuantity).toEqual({ value: 58, unit: 'beats/minute', system: UCUM, code: '/min' });
+    expect(observation.valueQuantity).toEqual({ value: 58, unit: 'per minute', system: UCUM_SYSTEM, code: '/min' });
   });
 
-  it('adds the calculation method when present in metadata', () => {
-    const observation = mapDailyRestingHeartRateToFHIR({
-      date: DATE,
-      beatsPerMinute: '58',
-      dailyRestingHeartRateMetadata: { calculationMethod: 'SLEEP' }
-    });
+  it('maps the calculation method into a coded Observation.method', () => {
+    const observation = mapDailyRestingHeartRateToFHIR(
+      { date: DATE, beatsPerMinute: '58', dailyRestingHeartRateMetadata: { calculationMethod: 'SLEEP' } },
+      meta()
+    );
 
-    expect(observation.method).toEqual({ text: 'SLEEP' });
+    expect(observation.method).toEqual({ coding: [{ system: GOOGLE_HEALTH, code: 'SLEEP', display: 'SLEEP' }] });
   });
 
   it('omits the method when metadata has no calculation method', () => {
-    const observation = mapDailyRestingHeartRateToFHIR({ date: DATE, beatsPerMinute: '58' });
-
-    expect(observation.method).toBeUndefined();
+    expect(mapDailyRestingHeartRateToFHIR({ date: DATE, beatsPerMinute: '58' }, meta()).method).toBeUndefined();
   });
 });
 
@@ -202,23 +223,40 @@ describe('mapDailySleepTemperatureDerivationsToFHIR', () => {
     relativeNightlyStddev30dCelsius: 0.3
   };
 
-  it('maps the temperature metrics into Celsius components', () => {
-    const observation = mapDailySleepTemperatureDerivationsToFHIR(base);
+  it('keeps Cel for the absolute temperatures', () => {
+    const observation = mapDailySleepTemperatureDerivationsToFHIR(base, meta());
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'nightly-temperature', display: 'Nightly skin temperature' }] },
-      valueQuantity: { value: 36.5, unit: 'Cel', system: UCUM, code: 'Cel' }
+      valueQuantity: { value: 36.5, unit: 'degrees Celsius', system: UCUM_SYSTEM, code: 'Cel' }
     });
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'baseline-temperature', display: 'Baseline skin temperature' }] },
-      valueQuantity: { value: 36.2, unit: 'Cel', system: UCUM, code: 'Cel' }
+      valueQuantity: { value: 36.2, unit: 'degrees Celsius', system: UCUM_SYSTEM, code: 'Cel' }
+    });
+  });
+
+  it('emits the standard deviation in K, because a dispersion is a difference not a point', () => {
+    // UCUM sections 21-22: 'Cel' is a special unit on an interval scale. The magnitude
+    // is unchanged — a Celsius interval equals a Kelvin interval — only the code moves.
+    const observation = mapDailySleepTemperatureDerivationsToFHIR(base, meta());
+
+    expect(observation.component).toContainEqual({
+      code: {
+        coding: [
+          {
+            system: GOOGLE_HEALTH,
+            code: 'relative-nightly-stddev-30d',
+            display: 'Relative nightly temperature standard deviation (30d)'
+          }
+        ]
+      },
+      valueQuantity: { value: 0.3, unit: 'Kelvin', system: UCUM_SYSTEM, code: 'K' }
     });
   });
 
   it('omits components when temperatures are missing', () => {
-    const observation = mapDailySleepTemperatureDerivationsToFHIR({ date: DATE });
-
-    expect(observation.component).toBeUndefined();
+    expect(mapDailySleepTemperatureDerivationsToFHIR({ date: DATE }, meta()).component).toBeUndefined();
   });
 });
 
@@ -230,27 +268,40 @@ describe('mapDailyVo2MaxToFHIR', () => {
     vo2MaxCovariance: 0.05
   };
 
-  it('maps the VO2 max into the root valueQuantity', () => {
-    const observation = mapDailyVo2MaxToFHIR(base);
+  it('stays on a vendor code, because LOINC 94122-9 is a peak during exercise', () => {
+    const observation = mapDailyVo2MaxToFHIR(base, meta());
 
     expect(observation.code).toEqual({
       coding: [{ system: GOOGLE_HEALTH, code: 'daily-vo2-max', display: 'Daily VO2 max' }]
     });
-    expect(observation.valueQuantity).toEqual({ value: 42, unit: 'mL/kg/min', system: UCUM, code: 'mL/kg/min' });
+    expect(observation.valueQuantity).toEqual({
+      value: 42,
+      unit: 'mL/kg/min',
+      system: UCUM_SYSTEM,
+      code: 'mL/kg/min'
+    });
+    expect(observation.method).toEqual({
+      coding: [{ system: GOOGLE_HEALTH, code: 'device-estimate', display: 'Device-estimated' }]
+    });
   });
 
-  it('maps the cardio fitness level into a string component', () => {
-    const observation = mapDailyVo2MaxToFHIR(base);
+  it('gives the dimensionless covariance the UCUM unity', () => {
+    const observation = mapDailyVo2MaxToFHIR(base, meta());
 
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: GOOGLE_HEALTH, code: 'cardio-fitness-level', display: 'Cardio fitness level' }] },
       valueString: 'GOOD'
     });
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: GOOGLE_HEALTH, code: 'vo2-max-covariance', display: 'VO2 max covariance' }] },
+      valueQuantity: { value: 0.05, unit: '1', system: UCUM_SYSTEM, code: '1' }
+    });
   });
 
-  it('omits the valueQuantity when VO2 max is missing', () => {
-    const observation = mapDailyVo2MaxToFHIR({ date: DATE });
+  it('records a dataAbsentReason when VO2 max is missing', () => {
+    const observation = mapDailyVo2MaxToFHIR({ date: DATE }, meta());
 
     expect(observation.valueQuantity).toBeUndefined();
+    expect(observation.dataAbsentReason).toEqual(ABSENT);
   });
 });

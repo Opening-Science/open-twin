@@ -6,6 +6,9 @@ export const SUPPORTED_SCOPES = [
   'https://www.googleapis.com/auth/googlehealth.settings.readonly',
   'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
   'https://www.googleapis.com/auth/googlehealth.nutrition.readonly'
-];
+  // `as const` is load-bearing: without it the inferred type is `string[]`, so
+  // `SupportedScope` resolves to `string` and `config.scopes` accepts any arbitrary
+  // string with no compile-time check at all.
+] as const;
 
 export type SupportedScope = (typeof SUPPORTED_SCOPES)[number];
