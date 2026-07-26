@@ -1,4 +1,12 @@
-import type { CodeableConcept, Coding, Observation, Period, Quantity, Reference } from 'fhir/r4';
+import type {
+  CodeableConcept,
+  Coding,
+  Observation,
+  ObservationReferenceRange,
+  Period,
+  Quantity,
+  Reference
+} from 'fhir/r4';
 import { CATEGORY, SYSTEMS } from './systems';
 import { quantity, type UcumUnit } from './units';
 
@@ -106,6 +114,13 @@ export interface CreateObservationInput {
   /** Set when no value resolved. Mutually exclusive with value[x] per FHIR obs-6. */
   dataAbsentReason?: CodeableConcept;
   components?: Array<Component | undefined>;
+  /**
+   * The interval(s) this result was measured against. Several may coexist and
+   * contradict each other — a diagnostic cutoff and a population range answer
+   * different questions. Absent means no interval arrived, which a consumer must
+   * treat as grounds to abstain rather than as an interval of zero width.
+   */
+  referenceRange?: ObservationReferenceRange[];
   method?: CodeableConcept;
   device?: Reference;
   note?: string;
@@ -150,6 +165,8 @@ export function createObservation(input: CreateObservationInput): Observation {
   const components = input.components ? compact(input.components) : [];
   if (components.length > 0) observation.component = components;
 
+  // Only when the source supplied one. An absent interval is never synthesised.
+  if (input.referenceRange?.length) observation.referenceRange = input.referenceRange;
   if (input.method) observation.method = input.method;
   if (input.device) observation.device = input.device;
   if (input.note) observation.note = [{ text: input.note }];

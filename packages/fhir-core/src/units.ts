@@ -66,6 +66,8 @@ export const UCUM = {
 
   // concentration
   MG_PER_DL: { unit: 'mg/dL', code: 'mg/dL' },
+  MICROGRAM_PER_LITRE: { unit: 'µg/L', code: 'ug/L' },
+  NANOGRAM_PER_ML: { unit: 'ng/mL', code: 'ng/mL' },
   MMOL_PER_L: { unit: 'mmol/L', code: 'mmol/L' },
 
   // energy
@@ -156,7 +158,11 @@ export const LOINC_UNITS: Readonly<Record<string, UcumUnit>> = {
   // Glucose is chosen by `glucoseCodeFor`, which derives the code from the unit
   // rather than the reverse. Both entries exist so the gate can check either.
   '2339-0': UCUM.MG_PER_DL,
-  '15074-8': UCUM.MMOL_PER_L
+  '15074-8': UCUM.MMOL_PER_L,
+
+  // Anchor layer.
+  '4548-4': UCUM.PERCENT, // Hemoglobin A1c/Hemoglobin.total in Blood
+  '2276-4': UCUM.MICROGRAM_PER_LITRE // Ferritin [Mass/volume] in Serum or Plasma
 };
 
 /**

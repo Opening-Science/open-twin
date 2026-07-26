@@ -7,6 +7,8 @@ import {
   PROFILES,
   patientUuid,
   quantity,
+  RANGE_TYPE,
+  referenceInterval,
   SYSTEMS,
   subjectReference,
   UCUM
@@ -96,4 +98,89 @@ function exemplar(): Bundle {
   return buildBundle({ connector: CONNECTOR, resources, timestamp: TIMESTAMP, bundleKey: 'fhir-core-exemplar' });
 }
 
-export const BUNDLE_CASES: BundleCase[] = [{ name: 'fhir-core-exemplar', build: exemplar }];
+/**
+ * The Anchor layer's central finding, put in front of the validator.
+ *
+ * One HbA1c result carrying two intervals from the same laboratory that disagree:
+ * a 2025 diagnostic cutoff and a 2015 population range. If FHIR could not express
+ * this, the Anchor design would need a custom model. It can, so it does not.
+ */
+function anchorHbA1c(): Bundle {
+  const subject = subjectReference({ connector: 'anchor', subjectKey: 'exemplar-subject' });
+  const source2025 = {
+    url: 'https://www.imd-berlin.de/fileadmin/user_upload/leistungsverzeichnis_druck/imd_leistungsverzeichnis_2025-03-06.pdf',
+    publisher: 'IMD Berlin, Leistungsverzeichnis',
+    retrieved: '2026-07-12',
+    version: '2025-02-12'
+  };
+  const source2015 = {
+    url: 'https://www.imd-berlin.de/fileadmin/user_upload/leistungsverzeichnis_druck/09a_Referenzbereiche_Standort_Potsdam.pdf',
+    publisher: 'IMD Labor Berlin-Potsdam, Referenzbereiche',
+    retrieved: '2026-07-12',
+    version: '2015-09-28'
+  };
+
+  const hba1c = createObservation({
+    id: deterministicId({
+      connector: 'anchor',
+      subjectKey: 'exemplar-subject',
+      recordId: 'imd-2026-07-12',
+      measure: 'hba1c'
+    }),
+    code: { system: SYSTEMS.LOINC, code: '4548-4', display: 'Hemoglobin A1c/Hemoglobin.total in Blood' },
+    category: CATEGORY.LABORATORY,
+    subject,
+    effectiveDateTime: '2026-07-12T09:00:00+02:00',
+    valueQuantity: quantity(5.9, UCUM.PERCENT),
+    referenceRange: [
+      referenceInterval({
+        high: 5.7,
+        unit: UCUM.PERCENT,
+        type: RANGE_TYPE.RECOMMENDED,
+        source: source2025,
+        text: '< 5,7 %'
+      }),
+      referenceInterval({
+        low: 4.7,
+        high: 6.2,
+        unit: UCUM.PERCENT,
+        type: RANGE_TYPE.NORMAL,
+        source: source2015,
+        text: '4,7 - 6,2 %'
+      })
+    ]
+  });
+
+  // The abstain case, in the same bundle: a result whose interval never arrived.
+  const ferritin = createObservation({
+    id: deterministicId({
+      connector: 'anchor',
+      subjectKey: 'exemplar-subject',
+      recordId: 'imd-2026-07-12',
+      measure: 'ferritin'
+    }),
+    code: { system: SYSTEMS.LOINC, code: '2276-4', display: 'Ferritin [Mass/volume] in Serum or Plasma' },
+    category: CATEGORY.LABORATORY,
+    subject,
+    effectiveDateTime: '2026-07-12T09:00:00+02:00',
+    valueQuantity: quantity(38, UCUM.MICROGRAM_PER_LITRE)
+  });
+
+  const patient: Patient = {
+    resourceType: 'Patient',
+    id: patientUuid('anchor', 'exemplar-subject'),
+    identifier: [{ system: SYSTEMS.OURA_IDENTIFIER, value: 'exemplar-subject' }]
+  };
+
+  return buildBundle({
+    connector: { connector: 'anchor', version: '0.1.0' },
+    resources: [patient, hba1c, ferritin],
+    timestamp: TIMESTAMP,
+    bundleKey: 'anchor-hba1c'
+  });
+}
+
+export const BUNDLE_CASES: BundleCase[] = [
+  { name: 'anchor-hba1c', build: anchorHbA1c },
+  { name: 'fhir-core-exemplar', build: exemplar }
+];

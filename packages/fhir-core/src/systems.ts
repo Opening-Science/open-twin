@@ -58,6 +58,8 @@ export const CATEGORY = {
   VITAL_SIGNS: { code: 'vital-signs', display: 'Vital Signs' },
   ACTIVITY: { code: 'activity', display: 'Activity' },
   EXAM: { code: 'exam', display: 'Exam' },
+  /** Anchor layer: clinical biomarkers from a laboratory. */
+  LABORATORY: { code: 'laboratory', display: 'Laboratory' },
   SURVEY: { code: 'survey', display: 'Survey' }
 } as const;
 

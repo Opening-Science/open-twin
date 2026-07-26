@@ -18,7 +18,7 @@
     "The 45 genomic codes were initially approved on HL7 Genomics Reporting IG",
     "provenance alone. That was later found to be much weaker evidence than it looked:",
     "only 5 of the 38 answer codes appear in the emitted sample bundle, so the",
-    "validator — even against a live terminology server — had ever checked 5 of them.",
+    "validator \u2014 even against a live terminology server \u2014 had ever checked 5 of them.",
     "All 45 were then individually validated against tx.fhir.org and all 45 passed.",
     "",
     "The general lesson, which applies to every connector: a validator only checks what",
@@ -43,7 +43,7 @@
       "system": "LOINC",
       "official_name": "Cardio-ankle vascular index (CAVI), calculated",
       "used_for": "Oura vascular_age, in years",
-      "reason": "Was used for Oura vascular_age in years. CAVI is a dimensionless ratio with a normal value near 8, so vascular_age 45 reads as CAVI 45 — anything above 9 indicates arteriosclerosis.",
+      "reason": "Was used for Oura vascular_age in years. CAVI is a dimensionless ratio with a normal value near 8, so vascular_age 45 reads as CAVI 45 \u2014 anything above 9 indicates arteriosclerosis.",
       "suggested": "No LOINC concept for 'vascular age' was found. Emit a vendor-local code, or omit, until a clinical reviewer identifies a correct one.",
       "found_at": "packages/provider-oura/src/fhir/mappers/cardiovascular.ts:24",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
@@ -116,7 +116,7 @@
       "system": "LOINC",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
       "official_name": "EKG study:Find:Pt:Heart:Doc:EKG",
-      "reason": "Scale is Doc — a document code, not a numeric observation.",
+      "reason": "Scale is Doc \u2014 a document code, not a numeric observation.",
       "resolved_on": "Fixed on the connector branches: this code is no longer emitted once those merge. It stays rejected so that any branch still emitting it fails, which is the point.",
       "verified_display": "EKG study",
       "verified_on": "2026-07-26"
@@ -125,7 +125,7 @@
       "status": "approved",
       "system": "LOINC",
       "official_name": "Recorded during the July 2026 assessment.",
-      "open_question": "OPEN QUESTION, approved anyway. This is MASS concentration (mg/dL). If any deployment receives mmol/L the CODE must change to 15074-8, not just the unit — the same class of property mismatch that produced the original VO2max defect. Nobody has confirmed the source units against Google's documentation.",
+      "open_question": "OPEN QUESTION, approved anyway. This is MASS concentration (mg/dL). If any deployment receives mmol/L the CODE must change to 15074-8, not just the unit \u2014 the same class of property mismatch that produced the original VO2max defect. Nobody has confirmed the source units against Google's documentation.",
       "found_at": "packages/provider-google-health/src/fhir/mappers/sample.ts:40",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
       "verified_display": "Glucose [Mass/volume] in Blood",
@@ -328,8 +328,8 @@
     "48000-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified — see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:99",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -353,8 +353,8 @@
     "62374-4": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified — see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:93",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -369,8 +369,8 @@
     "69548-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified — see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:64",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -401,8 +401,8 @@
     "81258-6": {
       "status": "approved",
       "system": "LOINC",
-      "official_name": "Not independently verified — see provenance.",
-      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off — approved on the strength of IG provenance.",
+      "official_name": "Not independently verified \u2014 see provenance.",
+      "provenance": "Taken from the HL7 Genomics Reporting Implementation Guide. The HL7 validator loaded that IG and enforced its Variant profile against our output with zero errors, so the code is used in the shape the IG intends. NOT independently verified against LOINC at sign-off \u2014 approved on the strength of IG provenance.",
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:85",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
@@ -734,6 +734,26 @@
       "found_at": "packages/genomics-vcf/src/fhir/terminology.ts:112",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26",
       "verification": "Verified 2026-07-26 against tx.fhir.org $validate-code: LOINC accepts 'Absent' as a display for this code."
+    },
+    "4548-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "verified_display": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "used_for": "Anchor layer HbA1c, in %",
+      "verification": "Confirmed by the HL7 validator against tx.fhir.org, which accepted both the code and this display.",
+      "verified_on": "2026-07-26",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    },
+    "2276-4": {
+      "status": "approved",
+      "system": "LOINC",
+      "official_name": "Ferritin [Mass/volume] in Serum or Plasma",
+      "verified_display": "Ferritin [Mass/volume] in Serum or Plasma",
+      "used_for": "Anchor layer ferritin, in ug/L",
+      "verification": "Confirmed by the HL7 validator against tx.fhir.org, which accepted both the code and this display.",
+      "verified_on": "2026-07-26",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     }
   }
 }

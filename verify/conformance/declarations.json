@@ -168,6 +168,39 @@
           "description": "How the value was recorded: measured, manually entered, or automatically recorded."
         }
       ]
+    },
+    {
+      "id": "reference-range-source",
+      "type": "complex",
+      "context": ["Observation.referenceRange"],
+      "title": "Where a reference interval came from",
+      "description": "The catalogue or guideline that published this interval, and when it was retrieved. A reference interval is not a fact about an analyte \u2014 it is a property of a specific assay at a specific laboratory answering a specific question, and IMD Berlin's own two catalogues disagree on ten analytes. FHIR has no field for the provenance of a referenceRange, so it travels here. The Anchor rule is that an interval without a source URL and a retrieval date is not usable, which makes this extension the thing that distinguishes a cited interval from a remembered one.",
+      "subExtensions": [
+        {
+          "id": "url",
+          "type": "url",
+          "title": "Source URL",
+          "description": "The published catalogue or guideline the interval was read from."
+        },
+        {
+          "id": "publisher",
+          "type": "string",
+          "title": "Publisher",
+          "description": "The laboratory or guideline body that published it."
+        },
+        {
+          "id": "retrieved",
+          "type": "date",
+          "title": "Retrieved on",
+          "description": "When the source was fetched. A catalogue is a moving target."
+        },
+        {
+          "id": "version",
+          "type": "string",
+          "title": "Source version",
+          "description": "The catalogue's own version or status date, where it states one. This is what tells the 2025 IMD catalogue apart from the 2015 one."
+        }
+      ]
     }
   ]
 }
