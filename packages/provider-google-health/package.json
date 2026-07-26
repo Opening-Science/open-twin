@@ -1,6 +1,6 @@
 {
-  "name": "provider-google-health",
-  "version": "1.0.0",
+  "name": "@open-twin/provider-google-health",
+  "version": "0.1.0",
   "description": "Google Health API to FHIR mapper",
   "type": "module",
   "main": "./dist/index.js",
@@ -10,10 +10,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    },
-    "./api/schemas/*": {
-      "types": "./dist/api/schemas/*.d.ts",
-      "import": "./dist/api/schemas/*.js"
     }
   },
   "files": [
@@ -26,27 +22,46 @@
     "lint": "biome ci",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
-    "test": "vitest --output-file=test.junit.xml"
+    "test": "vitest run"
   },
   "keywords": [
     "google-health",
     "fhir",
     "connector"
   ],
-  "author": "Vuse XR",
+  "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
-    "@rollup/plugin-swc": "^0.4.1",
+    "@googleapis/health": "^2.0.0",
+    "@open-twin/fhir-core": "workspace:*",
     "@types/fhir": "^0.0.44",
-    "axios": "^1.18.1",
-    "jest-extended": "^7.0.0",
-    "reflect-metadata": "^0.2.2",
-    "vitest": "^4.1.9",
+    "googleapis": "^173.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@lhncbc/ucum-lhc": "^7.1.9",
+    "@rollup/plugin-swc": "^0.4.1",
     "@types/node": "^20.19.43",
+    "jest-extended": "^7.0.0",
+    "reflect-metadata": "^0.2.2",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
-  }
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Opening-Science/open-twin.git",
+    "directory": "packages/provider-google-health"
+  },
+  "homepage": "https://github.com/Opening-Science/open-twin#readme",
+  "bugs": {
+    "url": "https://github.com/Opening-Science/open-twin/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
 }

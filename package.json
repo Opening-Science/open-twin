@@ -1,22 +1,22 @@
 {
   "name": "open-twin",
-  "pnpm": {
-    "onlyBuiltDependencies": []
+  "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
+    "build": "pnpm -r build",
     "format": "biome check --write",
     "lint": "biome ci",
-    "test": "vitest --output-file=test.junit.xml"
-  },
-  "dependencies": {
-    "@googleapis/health": "^2.0.0",
-    "axios": "^1.18.1",
-    "googleapis": "^173.0.0",
-    "gts": "^7.0.0",
-    "provider-oura": "link:packages/provider-oura",
-    "zod": "^4.4.3"
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r exec tsc --noEmit",
+    "verify": "node verify/check-terminology.mjs && node verify/check-units.mjs",
+    "emit-bundles": "tsx verify/emit-bundles.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15"
+    "@biomejs/biome": "2.4.15",
+    "@lhncbc/ucum-lhc": "^7.1.9",
+    "tsx": "^4.20.6"
   }
 }

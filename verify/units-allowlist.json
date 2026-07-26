@@ -1,0 +1,70 @@
+{
+  "_readme": [
+    "Reviewed (unit, code) pairs for Quantities emitted against the UCUM system.",
+    "Key format is \"<unit>|<code>\", where unit is the human-readable Quantity.unit",
+    "and code is the machine-readable Quantity.code. '(none)' means Quantity.unit",
+    "was absent, which is itself usually a defect.",
+    "",
+    "status 'approved' -> a human confirmed the unit and the code describe the same",
+    "                     quantity, and that this is what the source API actually sends.",
+    "status 'rejected' -> the pair is wrong. Fails the gate with the recorded reason.",
+    "Anything absent  -> unreviewed. Fails the gate.",
+    "",
+    "The rejected entries below were verified during the July 2026 assessment.",
+    "The rest of the repository's pairs are deliberately absent so the gate fails",
+    "until each one is signed off. Do not bulk-approve.",
+    "",
+    "\"unitless\" records Quantities that carry a value and deliberately no unit, keyed",
+    "by file. A missing unit is normally a defect, so an entry here needs a reason and",
+    "an occurrence count. The count is the guard: it is checked exactly, so adding a",
+    "new bare Quantity to a waived file fails the gate rather than inheriting the",
+    "sign-off written for a different one. Keying by line was rejected \u2014 a line number",
+    "drifts under any edit above it and the waiver would quietly move to another",
+    "Quantity. A waiver that matches nothing is stale and also fails."
+  ],
+  "pairs": {
+    "steps|steps": {
+      "status": "rejected",
+      "reason": "'steps' is not a UCUM code. UCUM expresses countable things as annotations.",
+      "suggested": "unit 'steps', code '{steps}'. The same file already uses {score} and {count} correctly.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/daily.ts:287",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "MET-min|min": {
+      "status": "rejected",
+      "reason": "MET-minutes is not minutes. A receiver reading code 'min' interprets 300 MET-minutes as 300 minutes of activity.",
+      "suggested": "There is no UCUM code for MET-min. Use an annotation such as '{MET-min}', or emit the value under a vendor-local system.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/daily.ts:144,154,164,174",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "degree|deg": {
+      "status": "approved",
+      "reason": "UCUM Table 5 defines deg as [pi].rad/360, so 'degree'/'deg' is a correct pair. This entry was previously 'rejected', but what it actually flagged was a DATA defect, not a unit defect: VITRONIC emitted radian values under it. That conversion now happens in provider-vitronic (radiansToDegrees), so the pair itself is sound.",
+      "guarded_by": "A unit gate cannot detect a value in the wrong scale \u2014 1.48 deg is structurally perfect. The guard against a regression is numeric: provider-vitronic asserts a known angle reads ~84.89 degrees, and fhir-core asserts 1 rad converts to 57.2957795 deg via @lhncbc/ucum-lhc. If those tests are ever deleted, this pair loses its protection.",
+      "reviewed": "2026-07-26, verified against the UCUM specification Table 5"
+    },
+    "\u00b0C|Cel": {
+      "status": "rejected",
+      "reason": "Used for a temperature deviation, not an absolute temperature. UCUM 'Cel' denotes a point on the Celsius scale; a difference is 'K'.",
+      "suggested": "unit 'Kelvin', code 'K' for deviations.",
+      "found_at": "packages/provider-oura/src/fhir/mappers/readiness.ts:106",
+      "reviewed": "2026-07-25 assessment"
+    },
+    "meter|m": {
+      "status": "rejected",
+      "reason": "Applied to cross-section AREA values, which are emitted as 'm2' at the top level of the same resource. The same number appears twice, once as an area and once as a length.",
+      "suggested": "Areas are 'm2' throughout. Remove the length-coded duplicates.",
+      "found_at": "packages/provider-vitronic/src/fhir/mappers/crosssection.ts:25-35",
+      "reviewed": "2026-07-25 assessment"
+    }
+  },
+  "unitless": {
+    "packages/provider-vitronic/src/fhir/mappers/properties.ts": {
+      "status": "approved",
+      "occurrences": 1,
+      "reason": "VITRONIC BodyLoop scan properties are untyped key/value pairs and the API states no unit for them anywhere in the payload. The mapper emits the number with no unit rather than asserting a UCUM unit nobody has verified, which ground rule 1 forbids and which would be the worse error: a wrong unit is silently interpretable, a missing one is visibly incomplete. FHIR permits a Quantity with only a value, and the HL7 validator reports no error on the emitted bundle.",
+      "resolved_by": "A reviewed property_path -> unit table, tracked as TODO(clinical-review) in the mapper. Once it exists the paths with a known unit carry one and this waiver shrinks or goes away.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+    }
+  }
+}
