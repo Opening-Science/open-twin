@@ -61,10 +61,19 @@ jobs:
   review-status:
     name: Terminology review outstanding
     runs-on: ubuntu-latest
-    # Visible, not blocking. Goes green only when a named reviewer has signed off
-    # on every code and unit pair. Do not make this pass by bulk-approving the
-    # allowlist: the entire value of the gate is that approval costs a lookup,
-    # which is exactly the step that was skipped when five wrong codes shipped.
+    # Reports how much terminology review is outstanding. It fails, honestly, until
+    # a named reviewer has signed off on every code and unit pair — which is weeks
+    # of a person's attention, not a code change.
+    #
+    # This job is NOT meant to block a merge, but a workflow cannot express that:
+    # `continue-on-error` keeps the run from failing yet the check still renders as
+    # a red cross, which was verified here rather than assumed. Whether an
+    # unreviewed code blocks a merge is a branch-protection decision — list
+    # `No known-wrong codes or units` as a required check and leave this one out.
+    #
+    # Do not make this pass by bulk-approving the allowlist. The entire value of
+    # the gate is that approval costs a lookup, which is exactly the step that was
+    # skipped when five wrong codes shipped.
     continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -75,8 +84,19 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
-      - run: node verify/check-terminology.mjs
-      - run: node verify/check-units.mjs
+
+      # Surfaced in the run summary so the outstanding count is legible without
+      # opening logs, while the step still exits non-zero.
+      - name: Outstanding review
+        run: |
+          {
+            echo '## Terminology and unit review outstanding'
+            echo '```'
+            node verify/check-terminology.mjs || true
+            node verify/check-units.mjs || true
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          node verify/check-terminology.mjs > /dev/null && node verify/check-units.mjs > /dev/null
 
   tests:
     name: Type check, lint and test
