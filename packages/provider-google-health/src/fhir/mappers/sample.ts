@@ -1,8 +1,7 @@
+import { CATEGORY, codeableConcept, PROFILES, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
-  CATEGORY,
-  codeableConcept,
   createGoogleObservation,
   type DataPointMeta,
   ghOptionalNumericComponent,
@@ -10,12 +9,8 @@ import {
   gramsToKilograms,
   loincQuantity,
   millimetresToCentimetres,
-  PROFILES,
-  SYSTEMS,
   sampleTimeToDateTime,
-  stringComponent,
-  toNumber,
-  UCUM
+  toNumber
 } from './shared';
 
 /**

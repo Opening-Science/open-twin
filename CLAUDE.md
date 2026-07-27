@@ -10,17 +10,26 @@ reference only — it is not kept in sync, and pushing to it is deliberately
 disabled. See `PROVENANCE.md` before assuming anything about the other repo, or
 before acting on a pull request that lives there.
 
-A pnpm monorepo of health-data connectors that translate vendor APIs into FHIR R4
-bundles.
+A pnpm monorepo of health-data connectors that translate vendor APIs and clinical
+formats into FHIR R4 bundles, plus a reconciliation layer over them.
 
 | Package | Source |
 |---|---|
 | `@open-twin/fhir-core` | Shared FHIR building blocks, terminology systems, unit policy |
+| `@open-twin/aggregate` | Cross-source reconciliation; abstains without evidence |
 | `@open-twin/provider-oura` | Oura Ring v2 API |
 | `@open-twin/provider-google-health` | **Google Health API v4** — see the warning below |
 | `@open-twin/provider-vitronic` | VITRONIC BodyLoop body scanner |
+| `@open-twin/provider-open-wearables` | OpenWearables normalised schema (never verified against a running instance) |
+| `@open-twin/fhir-r4` | Foreign FHIR R4 bundles: validation + normalisation |
+| `@open-twin/hl7v2` | HL7 v2.x ORU/ADT messages |
+| `@open-twin/genomics-vcf` | VCF variant calls via the Genomics Reporting IG |
 
-Owned by Opening-Science, MIT licensed, developed under the Open Science Foundation.
+MIT licensed, developed under the Open Science Foundation.
+
+Documentation map: `README.md` (front door + docs table), `ONBOARDING.md` (first-day
+path and the traps), `DECISIONS.md` (before touching any mapper), `BUILD-SUMMARY.md`
+(measured state), `PROVENANCE.md` (the other repo), `Contributing.md` (PR workflow).
 
 **`provider-google-health` does not talk to Google Health Connect.** It calls
 `health.googleapis.com/v4`, which Google documents as the next generation of the
@@ -95,9 +104,6 @@ perfect — that class needs a fixture with an independently computed expected v
 
 - Biome for format and lint.
 - Branch per issue, named `<issue-number>-<slug>`, merged by PR. Keep this.
-- `Contributing.md` is boilerplate for a *Fitbit* connector, lists every setup step as
-  `t.b.d.`, and gives a security contact at a domain there is no evidence the
-  Foundation controls. It is not authoritative for anything. Rewriting it is tracked
-  work.
-- It also claims only signed commits are accepted. 61 of 146 commits are unsigned, so
-  the claim is not enforced. Either enforce it through branch protection or drop it.
+- `Contributing.md` is authoritative for the PR workflow and gate procedure. Commit
+  signing is deliberately not claimed and not enforced; if that changes it goes
+  through branch protection, not prose.

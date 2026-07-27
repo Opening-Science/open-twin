@@ -1,179 +1,95 @@
 # Contributing
 
-Thank you for your interest in contributing to `open-twin` ❤️
+This document is the working agreement for changes to `open-twin`. It is short
+because the load-bearing rules live where they are enforced: the verification
+gates under `verify/`, the decisions in [DECISIONS.md](DECISIONS.md), and the
+standing brief in [CLAUDE.md](CLAUDE.md). Nothing here is aspirational — every
+command runs, every claim is enforced or explicitly marked as convention.
 
-This project aims to provide an open and interoperable provider for Fitbit APIs and devices within the Open Twin ecosystem.
+## Setup
 
-We welcome:
-
-- Bug reports
-- Feature requests
-- Documentation improvements
-- Test coverage improvements
-- Provider extensions
-- Performance optimizations
-
----
-
-# Development Setup
-
-## Requirements
-
-- t.b.d.
-
----
-
-## Install dependencies
+Node ≥ 20 and pnpm 11 (pinned via `packageManager` — `corepack enable`, or
+`npm i -g pnpm@11.17.0`).
 
 ```bash
-t.b.d.
+pnpm install --frozen-lockfile
 ```
 
----
-
-## Start development
+## Before every PR
 
 ```bash
-t.b.d.
+pnpm lint          # biome — format and lint
+pnpm typecheck     # tsc --noEmit, every package
+pnpm test          # every package
+pnpm verify        # terminology + UCUM gates — fail closed
 ```
 
----
+CI runs the same, plus the HL7 validator (structure, blocking) and a terminology
+tier against `tx.fhir.org` (non-blocking, because that server carries no SLA).
+A PR is mergeable when the blocking checks are green — but read the next section
+before trusting green.
 
-## Run tests
+## The one thing to understand before changing anything
 
-```bash
-t.b.d.
-```
+**A green test run is not evidence that a change is correct.** The tests assert
+what the code produces, not what FHIR requires — this repository once had 270
+passing tests over output with radians labelled as degrees and five wrong
+clinical codes, several of them asserted as intended behaviour.
 
----
+Consequences:
 
-## Build the project
+- When you fix a mapper, expect to change its test **in the same commit**, and
+  say in the message that the previous assertion was wrong.
+- Do not leave a test asserting old behaviour with a skip on it.
+- A defect class no gate catches needs a fixture with an **independently
+  computed** expected value, not a snapshot of what the code currently emits.
 
-```bash
-t.b.d.
-```
+## Terminology and units
 
----
+- **Never invent a terminology code.** If you cannot verify a code against a
+  primary source, use the connector's own code system under `SYSTEMS.*` and
+  leave a `TODO(clinical-review)` naming what needs sign-off.
+- New codes and unit pairs land on the allowlists under `verify/` as
+  unreviewed, and the gate fails until each is looked up **once**, recorded
+  with the official name and the reviewer, and flipped to `approved`. Do not
+  bulk-approve — the entire value of the gate is that approval costs a lookup.
+- Units must match the data, not just the code. Check what the API actually
+  sends. Missing data is `dataAbsentReason`, never `0`.
 
-# Project Goals
+## Error hygiene
 
-The provider should:
+Never put an API response body into an error message or a log line — these are
+health payloads. Use `ConnectorError` from `@open-twin/fhir-core`, which carries
+a status, an operation and a code, and no payload. The same discipline applies
+to validation reports: findings locate elements by FHIRPath expression and never
+quote input values.
 
-- Maintain a clean and stable public API
-- Normalize specific health data into open formats
-- Avoid vendor lock-in assumptions
-- Be easy to extend for additional data categories
-- Remain framework-agnostic where possible
+## Branches, commits, PRs
 
----
+- Branch per issue, named `<issue-number>-<slug>`; merged by PR into `main`.
+- Conventional-commit subjects (`fix(provider-oura): …`) are the norm in the
+  history; keep to them.
+- Commit signing is not required and not enforced. If that ever changes, it
+  will be enforced through branch protection, not requested in prose.
+- A PR should say what changed, why, and how it was verified — including which
+  gate or fixture would have caught the defect it fixes.
 
-# Coding Guidelines
+## Adding a mapper or a connector
 
-## TypeScript
+Read [DECISIONS.md](DECISIONS.md) first. Subject linkage (D1), ids (D2), code
+systems (D3) and units (D4) are decided once and shared — a connector that
+decides these for itself is wrong even when each choice is individually
+defensible. The checklist form lives in [ONBOARDING.md](ONBOARDING.md).
 
-- Prefer strict typing
-- Avoid `any` whenever possible
-- Export explicit interfaces for public models
+## Security
 
----
+Do not open a public issue for a vulnerability. Use GitHub's private
+vulnerability reporting on this repository, or contact the maintainer directly.
 
-## Code Style
+## Legal
 
-- Keep functions small and composable
-- Prefer descriptive naming
-- Avoid deeply nested logic
-- Write self-documenting code where possible
-
----
-
-## Formatting & Linting
-
-Before submitting a PR, run:
-
-```bash
-t.b.d.
-npm run lint
-npm run format
-```
-
----
-
-# Testing
-
-New features and bug fixes should include tests whenever practical.
-
-Recommended test coverage areas:
-
-- API response parsing
-- Data normalization
-- OAuth/token handling
-- Edge cases and missing data
-- Error handling
-
----
-
-# Commit Guidelines
-
-We recommend using conventional commits.
-
-Examples:
-
-```text
-feat: add sleep data normalization
-fix: handle expired access tokens
-docs: improve setup instructions
-refactor: simplify activity mapper
-```
-
-Furthermore only signed commits are accepted.
-
----
-
-# Pull Requests
-
-Before opening a pull request:
-
-- Ensure tests pass
-- Ensure linting passes
-- Update documentation if necessary
-- Keep pull requests focused and reasonably scoped
-
-Please include:
-
-- What changed
-- Why it changed
-- Any relevant screenshots or logs
-- Breaking changes (if any)
-
----
-
-# Security
-
-Please do not open public GitHub issues for security vulnerabilities.
-
-Instead, report vulnerabilities privately to:
-
-```text
-t.b.d.
-security@open-twin.dev
-```
-
----
-
-# Legal & Trademark Notice
-
-This project is an independent and unofficial integration for Fitbit services and devices.
-
-Contributors must not:
-
-- Use official Fitbit branding assets without permission
-- Misrepresent the project as official
-- Commit proprietary or confidential Fitbit materials
-
-“Fitbit” is a trademark of Google LLC.
-
----
-
-# License
-
-By contributing to this project, you agree that your contributions will be licensed under the repository’s MIT License.
+This project is an independent, unofficial integration for the vendors it
+connects to. Do not use vendor branding beyond naming compatibility, do not
+misrepresent the project as official, and do not commit proprietary material
+from any vendor. All contributions are licensed under the repository's
+[MIT License](LICENSE).

@@ -1,14 +1,16 @@
 # open-twin — build summary
 
-State of `etzm/open-twin` as of **2026-07-27**, and how it differs from
+State of `etzm/open-twin` as of **2026-07-28**, and how it differs from
 `Opening-Science/open-twin`.
 
 Every number below was measured, not recalled. Where a claim comes from running a tool,
 the tool is named so it can be re-run.
 
-> **Scope.** Describes `main` at `d62ab5c`, which carries every connector PR plus the
-> unit rule, the real-payload fixtures and the aggregation layer. Verified against that
-> tree: 9 packages, 11 validated bundles, both gates strict, 35 unit pairs approved.
+> **Scope.** Describes `main` after the connector PRs, the unit rule, the real-payload
+> fixtures, the aggregation layer, the conditional-reference fix in `fhir-r4`
+> (transaction bundles may carry `Type?query` references — R4 http.html), and the
+> repo-hygiene and documentation pass. Verified against that tree: 9 packages, 11
+> validated bundles, both gates strict, 35 unit pairs approved.
 
 ---
 
@@ -175,7 +177,7 @@ PRs (#68–#75), which are the same work now merged here.
 |---|---|---|
 | packages | 3 | **9** |
 | test files | 30 | **72** |
-| tests | — | **1047** |
+| tests | — | **1051** |
 | source LOC | 10,207 | **36,637** |
 | shared FHIR core | ✗ absent | ✓ `@open-twin/fhir-core` |
 | verification gates | ✗ absent | ✓ 2, both strict |
@@ -276,7 +278,7 @@ Open questions carried forward:
 ```bash
 pnpm install --frozen-lockfile
 pnpm lint && pnpm -r build
-pnpm -r test                          # 1047
+pnpm -r test                          # 1051
 node verify/check-terminology.mjs     # strict
 node verify/check-units.mjs           # strict
 node verify/build-conformance.mjs

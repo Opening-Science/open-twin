@@ -1,11 +1,9 @@
+import { CATEGORY, codeableConcept, compact, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
 import type { Observation, Period } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
   applyOffset,
   bundleReference,
-  CATEGORY,
-  codeableConcept,
-  compact,
   createGoogleObservation,
   type DataPointMeta,
   GH_UCUM,
@@ -15,10 +13,7 @@ import {
   loincComponent,
   millimetresToMetres,
   periodMinutes,
-  SYSTEMS,
-  stringComponent,
-  toNumber,
-  UCUM
+  toNumber
 } from './shared';
 
 /**
