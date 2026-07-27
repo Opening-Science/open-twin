@@ -194,6 +194,88 @@ describe('validateFhir', () => {
         }).issues.map((issue) => issue.rule)
       ).toContain('ot-reference-external');
     });
+
+    /**
+     * A conditional reference: a search URI standing where a reference would stand.
+     *
+     * R4 http.html, *Conditional References* — in a transaction, and only in a
+     * transaction, a reference may be replaced by a search URI describing how to find
+     * the target, which the server substitutes when it executes the transaction. The
+     * reference rules matched no branch for it and fell through to malformed, so a
+     * Synthea transaction bundle produced hundreds of errors and validated as not ok
+     * while being conformant FHIR throughout. Decision D2 lets open-twin emit
+     * `transaction` bundles, so this was the validator being wrong about a bundle
+     * shape the repository itself can produce.
+     *
+     * Which bundle it sits in is the entire rule, so both halves are asserted here.
+     */
+    const conditional = (type: string) => ({
+      resourceType: 'Bundle',
+      type,
+      entry: [
+        {
+          fullUrl: 'urn:uuid:7f5c1a0e-4d63-4a2b-9c18-8e3b6f4a1d92',
+          // The reference form verbatim from a Synthea R4 transaction bundle.
+          resource: observation({
+            performer: [{ reference: 'Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|9999994897' }]
+          }),
+          request: { method: 'POST', url: 'Observation' }
+        }
+      ]
+    });
+
+    it('accepts a conditional reference in a transaction', () => {
+      const result = validateFhir(conditional('transaction'));
+
+      expect(result.issues.map((issue) => issue.rule)).not.toContain('ot-reference-malformed');
+      expect(result.issues.filter((issue) => issue.rule === 'ot-reference-conditional')).toEqual([
+        expect.objectContaining({
+          severity: 'information',
+          expression: 'Bundle.entry[0].resource.performer[0].reference'
+        })
+      ]);
+      expect(result.ok).toBe(true);
+    });
+
+    it('still reports a conditional reference outside a transaction as malformed', () => {
+      // Nothing resolves a search URI in a collection: there is no transaction being
+      // executed, so the reference points nowhere and never will.
+      const result = validateFhir(conditional('collection'));
+
+      expect(result.issues.filter((issue) => issue.rule === 'ot-reference-malformed')).toEqual([
+        expect.objectContaining({
+          severity: 'error',
+          expression: 'Bundle.entry[0].resource.performer[0].reference'
+        })
+      ]);
+      expect(result.issues.map((issue) => issue.rule)).not.toContain('ot-reference-conditional');
+      expect(result.ok).toBe(false);
+    });
+
+    it('does not resolve a conditional reference against the bundle, even when it could', () => {
+      // The Practitioner the search describes is right there in the bundle. Matching
+      // it is still a FHIR search, and this package has no server and does no search
+      // — so the finding stays informational rather than becoming a resolution
+      // nobody asked for and only the server can make.
+      const result = validateFhir({
+        ...conditional('transaction'),
+        entry: [
+          ...conditional('transaction').entry,
+          {
+            fullUrl: 'urn:uuid:2b90dd2b-1a3f-4c5e-9a71-6d0a1f2e3b40',
+            resource: {
+              resourceType: 'Practitioner',
+              id: '2b90dd2b-1a3f-4c5e-9a71-6d0a1f2e3b40',
+              identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '9999994897' }]
+            },
+            request: { method: 'POST', url: 'Practitioner' }
+          }
+        ]
+      });
+
+      expect(result.issues.filter((issue) => issue.rule === 'ot-reference-conditional')).toHaveLength(1);
+      expect(result.ok).toBe(true);
+    });
   });
 
   it('turns unit checking off when asked, and leaves structure checking on', () => {

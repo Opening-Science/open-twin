@@ -47,6 +47,7 @@ is a FHIR `OperationOutcome`.
 | `ot-choice-type` | two spellings of `value[x]` at once |
 | `ot-component-data-absent-reason` | the same contradiction on a component (warning — see below) |
 | `ot-reference-malformed`, `ot-reference-unresolved-urn`, `ot-reference-unresolved-contained`, `ot-reference-external` | reference resolution inside the bundle |
+| `ot-reference-conditional` | a `Type?query` search URI, which R4 permits in a transaction and only there |
 | `ot-quantity-no-code`, `ot-quantity-no-system`, `ot-ucum-invalid` | UCUM |
 | `ot-unit-policy`, `ot-unit-dimension` | decision D4, one unit per LOINC concept |
 

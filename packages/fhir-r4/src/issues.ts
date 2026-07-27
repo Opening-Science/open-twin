@@ -59,6 +59,7 @@ export const FHIR_ISSUE_RULES = [
   'ot-reference-unresolved-urn',
   'ot-reference-unresolved-contained',
   'ot-reference-external',
+  'ot-reference-conditional',
   'ot-choice-type',
   'ot-component-data-absent-reason',
   'ot-quantity-no-code',
