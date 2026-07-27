@@ -1,6 +1,21 @@
 # Mac system files
 .DS_Store
 
+# Editor, agent and patch backup files. `fullurl.ts.b` was committed next to the
+# file it copied and sat there identical until someone noticed; the next edit to
+# the original would have made the two silently disagree with no way to tell
+# which was live. These patterns stop the accidental `git add .` that does it.
+*.b
+*.bak
+*.old
+*.orig
+*.rej
+*.save
+*.copy
+*~
+*.swp
+*.swo
+
 # Logs
 logs
 *.log
