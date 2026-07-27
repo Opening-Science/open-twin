@@ -6,6 +6,19 @@ import { isObject, type JsonObject, walkObjects } from './walk';
 const RELATIVE_REFERENCE = /^([A-Za-z]+)\/([A-Za-z0-9\-.]{1,64})(?:\/_history\/([A-Za-z0-9\-.]{1,64}))?$/;
 const ABSOLUTE_URI = /^[a-z][a-z0-9+.-]*:/i;
 
+/**
+ * `Type?query` — a conditional reference: a search URI standing in for a reference.
+ *
+ * The type segment is matched as loosely as `RELATIVE_REFERENCE` matches it, on
+ * purpose. Checking one form against `R4_RESOURCE_TYPES` and not the other would be a
+ * difference somebody has to explain later, and an unknown type is caught where all
+ * unknown types are caught.
+ *
+ * The query must be non-empty. A bare `Type?` is a search with no parameters, which
+ * cannot describe *which* resource is meant, and falls through to malformed.
+ */
+const CONDITIONAL_REFERENCE = /^[A-Za-z]+\?.+$/;
+
 export interface ReferenceIndex {
   /** Every `entry.fullUrl` in the bundle. */
   fullUrls: Set<string>;
@@ -74,8 +87,25 @@ export function collectReferences(root: JsonObject, path: string): ReferenceSite
  * blocking, because it rewrites the entire reference graph and cannot rewrite a
  * reference that points nowhere — a stricter local rule, applied where it belongs
  * and not smuggled into a conformance report.
+ *
+ * `bundleType` carries `Bundle.type` because one reference form is legal in exactly
+ * one kind of bundle. R4 http.html, *Conditional References*: in a transaction, and
+ * only in a transaction, a reference may be replaced by a search URI describing how
+ * to find the target. The server executing the transaction runs the search and
+ * substitutes the result; zero matches or more than one fails the transaction. So a
+ * `Type?query` outside a transaction is genuinely malformed — there is nothing there
+ * to execute it — and inside one it is conformant and unresolvable here, which is the
+ * same shape as an external reference and gets the same severity.
+ *
+ * Omitting `bundleType` means "not inside a bundle at all", which is not a
+ * transaction either — that is the standalone-resource call in `validate.ts`, the
+ * one that also passes an empty index.
  */
-export function checkReferences(sites: readonly ReferenceSite[], index: ReferenceIndex): FhirIssue[] {
+export function checkReferences(
+  sites: readonly ReferenceSite[],
+  index: ReferenceIndex,
+  bundleType?: string
+): FhirIssue[] {
   const issues: FhirIssue[] = [];
 
   for (const site of sites) {
@@ -129,6 +159,36 @@ export function checkReferences(sites: readonly ReferenceSite[], index: Referenc
       continue;
     }
 
+    if (CONDITIONAL_REFERENCE.test(value)) {
+      if (bundleType !== 'transaction') {
+        issues.push(
+          issue(
+            'error',
+            'value',
+            'ot-reference-malformed',
+            site.path,
+            'A search URI may stand in for a reference only inside a transaction bundle, where a server resolves it. Anywhere else nothing executes the search.'
+          )
+        );
+        continue;
+      }
+
+      // Deliberately not resolved against the index. A conditional reference is a
+      // FHIR search, and this package has no server and does no search; matching it
+      // against the entries here would answer a different question and answer it
+      // wrongly, because the target is normally a resource the receiver already holds.
+      issues.push(
+        issue(
+          'information',
+          'informational',
+          'ot-reference-conditional',
+          site.path,
+          'This conditional reference is resolved by the server executing the transaction. The transaction fails unless the search matches exactly one resource.'
+        )
+      );
+      continue;
+    }
+
     if (ABSOLUTE_URI.test(value)) {
       const tail = /\/([A-Za-z]+\/[A-Za-z0-9\-.]{1,64})$/.exec(value)?.[1];
       if (!index.fullUrls.has(value) && !(tail && index.relative.has(tail))) {
@@ -151,7 +211,7 @@ export function checkReferences(sites: readonly ReferenceSite[], index: Referenc
         'value',
         'ot-reference-malformed',
         site.path,
-        'Reference.reference must be a fragment (#id), a relative Type/id, or an absolute URI.'
+        'Reference.reference must be a fragment (#id), a relative Type/id, an absolute URI, or — in a transaction — a conditional Type?query.'
       )
     );
   }

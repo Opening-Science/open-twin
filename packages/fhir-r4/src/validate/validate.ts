@@ -78,7 +78,7 @@ function validateBundle(root: JsonObject, path: string, checkUnits: boolean): Fh
     if (view.resource) sites.push(...collectReferences(view.resource, `${view.path}.resource`));
   }
 
-  issues.push(...checkReferences(sites, index));
+  issues.push(...checkReferences(sites, index, parsed.bundle.type));
   return issues;
 }
 

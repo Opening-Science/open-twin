@@ -143,6 +143,17 @@ const CASES: readonly RuleCase[] = [
     'a relative reference the bundle does not carry',
     inBundle([{ fullUrl: OBSERVATION_URN, resource: observation({ subject: { reference: 'Patient/elsewhere' } }) }])
   ),
+  validating('ot-reference-conditional', 'a search URI, which only a transaction may carry', {
+    resourceType: 'Bundle',
+    type: 'transaction',
+    entry: [
+      {
+        fullUrl: OBSERVATION_URN,
+        resource: observation({ subject: { reference: 'Patient?identifier=https://example.org/mrn|12345' } }),
+        request: { method: 'POST', url: 'Observation' }
+      }
+    ]
+  }),
   validating('obs-6', 'a value and a reason there is no value', observation({ dataAbsentReason: { coding: [] } })),
   validating('ot-choice-type', 'two spellings of value[x]', observation({ valueString: 'sixty two' })),
   validating(
