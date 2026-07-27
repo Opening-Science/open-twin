@@ -1,9 +1,7 @@
+import { CATEGORY, codeableConcept, compact, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
-  CATEGORY,
-  codeableConcept,
-  compact,
   createGoogleObservation,
   type DataPointMeta,
   GH_UCUM,
@@ -13,10 +11,7 @@ import {
   loincQuantity,
   millimetresToMetres,
   periodMinutes,
-  SYSTEMS,
-  stringComponent,
-  toNumber,
-  UCUM
+  toNumber
 } from './shared';
 
 export function mapActiveEnergyBurnedToFHIR(

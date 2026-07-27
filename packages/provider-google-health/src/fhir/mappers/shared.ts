@@ -1,25 +1,24 @@
 import {
-  CATEGORY,
   type CodingInput,
   codeableConcept,
-  compact,
   createObservation,
   dataAbsentReason,
   deterministicId,
   LOINC_UNITS,
   optionalNumericComponent,
-  PROFILES,
   quantity,
   SYSTEMS,
-  stringComponent,
-  UCUM,
   type UcumUnit
 } from '@open-twin/fhir-core';
 import type { CodeableConcept, Extension, Identifier, Observation, Period, Quantity, Reference } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 
-export type { CodingInput };
-export { CATEGORY, codeableConcept, compact, PROFILES, SYSTEMS, stringComponent, UCUM };
+// This file used to re-export part of `@open-twin/fhir-core` so mappers could import
+// everything from one place. That re-export could not be written cleanly: biome's
+// `noBarrelFile` rejects `export ... from`, and the import-then-export workaround made
+// tsup warn "imported but never used" on every build. The mappers now import shared
+// names straight from `@open-twin/fhir-core`, as the other connectors already do —
+// this file exports only what is genuinely local to Google Health.
 
 /** Tags every emitted resource so a bundle is traceable to the release that produced it. */
 export const CONNECTOR = { connector: 'google-health', version: '0.1.0' } as const;

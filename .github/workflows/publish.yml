@@ -24,11 +24,20 @@ on:
         description: 'Package to publish'
         type: choice
         required: true
+        # A dispatch input cannot be derived from the workspace the way the build
+        # matrix is, so this list is the one place a new package must be added by
+        # hand. It had already gone stale once: five packages existed that this
+        # list did not offer, which silently made them unpublishable.
         options:
           - '@open-twin/fhir-core'
+          - '@open-twin/aggregate'
+          - '@open-twin/fhir-r4'
+          - '@open-twin/hl7v2'
+          - '@open-twin/genomics-vcf'
           - '@open-twin/provider-oura'
           - '@open-twin/provider-google-health'
           - '@open-twin/provider-vitronic'
+          - '@open-twin/provider-open-wearables'
       publish:
         description: 'Publish package to npm?'
         type: boolean
