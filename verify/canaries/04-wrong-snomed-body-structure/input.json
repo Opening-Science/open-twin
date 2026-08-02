@@ -1,0 +1,39 @@
+{
+  "description": "Real SNOMED body-structure codes, wrong anatomy for the claimed system. Liver SCTID attached to a cardiovascular state.",
+  "document": {
+    "schema_version": "interpretation-contract.v0.2",
+    "intended_use": "research_hypothesis_generation_n_of_1",
+    "not_for_diagnostic_use": true,
+    "subject_ref": "urn:uuid:canary-04-wrong-snomed",
+    "as_of": "2026-07-28T00:00:00.000Z",
+    "states": [
+      {
+        "system_id": "cardiovascular",
+        "severity": "mild",
+        "confidence": 0.5,
+        "sufficient_data": true,
+        "contributing": [
+          {
+            "biomarker_id": "BM-072",
+            "status": "present",
+            "observed_at": "2026-07-01T00:00:00.000Z"
+          }
+        ],
+        "interpretive_anatomy_source": "curated_table",
+        "geometry": {
+          "fma_id": "FMA:7088",
+          "uberon_id": "UBERON:0000948"
+        },
+        "_internal_not_for_publication": {
+          "body_structure_snomed": {
+            "system": "http://snomed.info/sct",
+            "code": "10200004",
+            "display": "Liver structure (body structure)"
+          },
+          "note": "10200004 is liver — wrong for cardiovascular/heart. A semantic gate should reject this binding."
+        }
+      }
+    ],
+    "unrenderable": []
+  }
+}

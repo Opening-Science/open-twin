@@ -1,0 +1,14 @@
+{
+  "description": "Planted under a published-artefact path by the canary harness. Must trip scripts/check-snomed-boundary.ts.",
+  "resourceType": "Basic",
+  "id": "canary-09-sctid",
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "80891009",
+        "display": "Heart structure (body structure)"
+      }
+    ]
+  }
+}

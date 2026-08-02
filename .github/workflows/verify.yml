@@ -75,6 +75,9 @@ jobs:
         continue-on-error: true
         run: pnpm exec tsx verify/check-terminology.ts
 
+      - name: Canary suite
+        run: pnpm exec tsx verify/check-canaries.ts
+
       - name: Local/CI verify gate equivalence
         run: pnpm exec tsx verify/check-verify-equivalence.ts
 

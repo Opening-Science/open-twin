@@ -1,0 +1,33 @@
+{
+  "description": "Interpretation treats a >180-day-old observation as status=present. Per confidence.md that age is past the freshness window (r=0.1 at best; status should be stale, not present).",
+  "document": {
+    "schema_version": "interpretation-contract.v0.2",
+    "intended_use": "research_hypothesis_generation_n_of_1",
+    "not_for_diagnostic_use": true,
+    "subject_ref": "urn:uuid:canary-06-stale",
+    "as_of": "2026-07-28T00:00:00.000Z",
+    "states": [
+      {
+        "system_id": "metabolic",
+        "severity": "mild",
+        "confidence": 0.8,
+        "sufficient_data": true,
+        "contributing": [
+          {
+            "biomarker_id": "BM-156",
+            "status": "present",
+            "observed_at": "2025-01-01T00:00:00.000Z",
+            "reference_interval_id": "RI-canary"
+          }
+        ],
+        "interpretive_anatomy_source": "curated_table",
+        "geometry": {
+          "fma_id": "FMA:7197"
+        }
+      }
+    ],
+    "unrenderable": []
+  },
+  "freshness_window_days": 180,
+  "age_days": 573
+}

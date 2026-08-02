@@ -1,0 +1,8 @@
+/**
+ * CANARY — planted temporarily by scripts/check-canaries.ts.
+ * Well-formed but non-existent LOINC 99999-9 must fail scripts/check-terminology.ts.
+ */
+export const CANARY_FABRICATED_LOINC = {
+  system: 'http://loinc.org',
+  code: '99999-9',
+};

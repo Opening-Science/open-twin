@@ -1,0 +1,37 @@
+{
+  "description": "Declares a reverse join (UBERON→FMA). Geometry alone is schema-valid; the defect is the join direction (D-l).",
+  "join_declaration": {
+    "direction": "uberon_to_fma",
+    "from": "UBERON:0002107",
+    "to": "FMA:7197",
+    "note": "Wrong direction per D-l — FMA→UBERON only"
+  },
+  "document": {
+    "schema_version": "interpretation-contract.v0.2",
+    "intended_use": "research_hypothesis_generation_n_of_1",
+    "not_for_diagnostic_use": true,
+    "subject_ref": "urn:uuid:canary-11-reverse-join",
+    "as_of": "2026-07-28T00:00:00.000Z",
+    "states": [
+      {
+        "system_id": "digestive",
+        "severity": "mild",
+        "confidence": 0.5,
+        "sufficient_data": true,
+        "contributing": [
+          {
+            "biomarker_id": "BM-130",
+            "status": "present",
+            "observed_at": "2026-07-01T00:00:00.000Z"
+          }
+        ],
+        "interpretive_anatomy_source": "curated_table",
+        "geometry": {
+          "fma_id": "FMA:7197",
+          "uberon_id": "UBERON:0002107"
+        }
+      }
+    ],
+    "unrenderable": []
+  }
+}
