@@ -93,6 +93,16 @@ export const UCUM = {
   MG_PER_DL: { unit: 'milligram per deciliter', code: 'mg/dL' },
   MICROGRAM_PER_LITRE: { unit: 'microgram per liter', code: 'ug/L' },
   MMOL_PER_L: { unit: 'millimole per liter', code: 'mmol/L' },
+  // Anchor laboratory units. `unit` strings are UCUM's own published names
+  // (including the library's "millliiter" spelling for ng/mL) — check-units.mjs
+  // requires Quantity.unit === UCUM name for Quantity.code.
+  NG_PER_ML: { unit: 'nanogram per millliiter', code: 'ng/mL' },
+  PMOL_PER_L: { unit: 'picomole per liter', code: 'pmol/L' },
+  ENZYME_UNIT_PER_L: { unit: 'enzyme unit per liter', code: 'U/L' },
+  TEN_9_PER_L: { unit: 'billion per liter', code: '10*9/L' },
+  UG_PER_G: { unit: 'microgram per gram', code: 'ug/g' },
+  NMOL_PER_MMOL: { unit: 'nanomole per millimole', code: 'nmol/mmol' },
+  MIU_PER_L: { unit: 'milli international unit per liter', code: 'm[IU]/L' },
 
   // energy
   KILOCALORIE: { unit: 'kilocalorie', code: 'kcal' },
@@ -181,9 +191,16 @@ export const LOINC_UNITS: Readonly<Record<string, UcumUnit>> = {
   '2339-0': UCUM.MG_PER_DL,
   '15074-8': UCUM.MMOL_PER_L,
 
-  // Anchor layer.
-  '4548-4': UCUM.PERCENT, // Hemoglobin A1c/Hemoglobin.total in Blood
-  '2276-4': UCUM.MICROGRAM_PER_LITRE // Ferritin [Mass/volume] in Serum or Plasma
+  // Anchor laboratory biomarkers (provider-anchor). One unit per LOINC (D4).
+  '2276-4': UCUM.NG_PER_ML, // Ferritin [Mass/volume] — Anchor unit_ucum ng/mL
+  '2000-8': UCUM.MMOL_PER_L, // Calcium [Moles/volume]
+  '1742-6': UCUM.ENZYME_UNIT_PER_L, // Alanine aminotransferase [Enzymatic activity/volume]
+  '4548-4': UCUM.PERCENT, // Hemoglobin A1c/Hemoglobin.total in Blood (mass fraction as %)
+  '6690-2': UCUM.TEN_9_PER_L, // Leukocytes [#/volume]
+  '38445-3': UCUM.UG_PER_G, // Calprotectin [Mass/mass] in Stool
+  '25095-1': UCUM.NMOL_PER_MMOL, // Deoxypyridinoline/Creatinine [Molar ratio]
+  '14715-7': UCUM.PMOL_PER_L, // Estradiol [Moles/volume]
+  '3016-3': UCUM.MIU_PER_L // Thyrotropin [Units/volume]
 };
 
 /**

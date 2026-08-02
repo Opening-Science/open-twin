@@ -18,6 +18,7 @@ export const SYSTEMS = {
   OURA: 'http://opentwin.ch/fhir/CodeSystem/oura',
   GOOGLE_HEALTH: 'http://opentwin.ch/fhir/CodeSystem/google-health',
   VITRONIC: 'http://opentwin.ch/fhir/CodeSystem/vitronic',
+  ANCHOR: 'http://opentwin.ch/fhir/CodeSystem/anchor',
 
   /**
    * How a value was arrived at — measured, device-estimated, derived from sleep, or
@@ -29,7 +30,8 @@ export const SYSTEMS = {
   /** Foundation-controlled identifier namespaces, reused as `Identifier.system` (D2). */
   OURA_IDENTIFIER: 'http://opentwin.ch/fhir/sid/oura',
   GOOGLE_HEALTH_IDENTIFIER: 'http://opentwin.ch/fhir/sid/google-health',
-  VITRONIC_IDENTIFIER: 'http://opentwin.ch/fhir/sid/vitronic'
+  VITRONIC_IDENTIFIER: 'http://opentwin.ch/fhir/sid/vitronic',
+  ANCHOR_IDENTIFIER: 'http://opentwin.ch/fhir/sid/anchor'
 } as const;
 
 /**

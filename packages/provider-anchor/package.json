@@ -1,0 +1,38 @@
+{
+  "name": "@open-twin/provider-anchor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ingests Anchor-layer biomarker measurements into FHIR R4 Observations",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "test": "vitest run",
+    "lint": "biome ci src",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@open-twin/anchor-layer": "workspace:*",
+    "@open-twin/fhir-core": "workspace:*",
+    "@types/fhir": "^0.0.44"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false
+}
