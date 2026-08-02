@@ -68,6 +68,16 @@ jobs:
       - name: Docs integrity gate
         run: pnpm exec tsx verify/check-docs.ts
 
+      - name: SNOMED publication boundary
+        run: pnpm exec tsx verify/check-snomed-boundary.ts
+
+      - name: Terminology review-records (advisory)
+        continue-on-error: true
+        run: pnpm exec tsx verify/check-terminology.ts
+
+      - name: Local/CI verify gate equivalence
+        run: pnpm exec tsx verify/check-verify-equivalence.ts
+
   review-status:
     name: Terminology review outstanding
     runs-on: ubuntu-latest

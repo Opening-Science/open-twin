@@ -14,9 +14,11 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/no-external-authority.md](findings/no-external-authority.md) | architect | Module gains or loses external authority |
 | [findings/verify-baseline.md](findings/verify-baseline.md) | architect | Verify gate picture / dual terminology / intentional reds |
 | [findings/parked-for-24-fhir-core-anchor-content.md](findings/parked-for-24-fhir-core-anchor-content.md) | engineer | Consumed when branch 24 lands fhir-core Anchor/lab UCUM bodies |
+| [terminology/](terminology/) | clinical reviewer + engineer | Allowlist or review procedure change |
+| [runbooks/verify-a-code.md](runbooks/verify-a-code.md) | engineer | How to sign a review record |
+| [findings/missing-non-anchor-review-records.md](findings/missing-non-anchor-review-records.md) | engineer | G2b debt after allowlist reconciliation |
 
-Later branches land `contracts/`, `terminology/`, `strategy/`, and `runbooks/`
-and extend this map when those trees exist.
+Later branches land `contracts/` and `strategy/`. This branch lands `terminology/` and `runbooks/verify-a-code.md`.
 
 ## Layout
 

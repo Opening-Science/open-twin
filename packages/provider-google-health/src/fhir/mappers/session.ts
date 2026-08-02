@@ -1,7 +1,7 @@
 /**
  * WHAT: Maps one vendor record type into FHIR Observation(s).
  * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
-GOVERNED BY: DECISIONS.md#d4
+ * GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
  */

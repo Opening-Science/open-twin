@@ -17,11 +17,11 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Current | Typically **PASS** — “APPROVED (72)” after 2026-07-26 bulk sign-off by Martin Etzrodt (see allowlist `_readme`) |
 | Intentional red? | No (unless a rejected code reappears) |
 
-### G2 — Terminology review-records (`verify/check-terminology.ts`, when registered)
+### G2 — Terminology review-records (`verify/check-terminology.ts`, advisory until Anchor 67 signed)
 
 | Field | Value |
 |---|---|
-| Home | `verify/check-terminology.ts` (when registered) + `docs/terminology/review-records/` |
+| Home | `verify/check-terminology.ts` + `docs/terminology/review-records/` + G1 allowlist |
 | What it answers | Does every LOINC/UCUM/SNOMED/FMA/UBERON literal in `src/` have a markdown review record with signed verification fields (not the literal `UNVERIFIED`)? |
 | Current | **FAIL** — see G2a and G2b separately |
 | Intentional red? | Partially — see sub-rows |
