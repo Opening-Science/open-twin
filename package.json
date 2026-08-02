@@ -19,6 +19,7 @@
     "@lhncbc/ucum-lhc": "^7.1.9",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "exceljs": "^4.4.0"
   }
 }

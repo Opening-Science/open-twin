@@ -215,13 +215,22 @@ non-zero. It does **not** auto-fix.
 2. Replace the LOINC with a `[Mass/volume]` code that matches the mass unit, or
 3. Split into two observations (molar vs mass) with explicit provenance.
 
-**How the artefact is produced today (despite exit 1).** The compiler still
-writes `packages/anchor-layer/data/anchor-layer.v1.json` and its `.sha256`
-companion **before** exiting non-zero. Consumers and round-trip tests read that
-committed JSON; regenerating it is `pnpm --filter @open-twin/anchor-layer compile`
-(or `tsx scripts/compile-anchor-layer.ts`), which refreshes the files and then
-fails closed on D-e so CI cannot green-wash the mismatch. Until this decision is
-accepted, the published artefact and the red compile gate coexist on purpose.
+**How the artefact is produced today (despite exit 1).** There is **no**
+compile override flag. The compiler always writes
+`packages/anchor-layer/data/anchor-layer.v1.json` and its `.sha256` companion
+**before** exiting non-zero on D-e. Consumers and package tests read that
+**committed** JSON. Regenerating it is
+`pnpm --filter @open-twin/anchor-layer compile` (or
+`tsx scripts/compile-anchor-layer.ts`), which refreshes the files and then fails
+closed so CI cannot green-wash the mismatch.
+
+**CI before Martin decides.** Package `build` is `tsup` of the loader only — it
+does **not** run the compiler and does **not** require exit 0 from D-e. Package
+`test` *does* invoke the compiler and asserts exit 1 plus the three mismatch IDs
+(and a meta-test that module-resolution failure does not satisfy that assertion).
+So CI stays green on `build`/`test` while `compile` remains intentionally red
+until D11 is accepted. The published artefact on the branch is the committed
+JSON, not a successful compile.
 
 **Consequences.** Terminology review-records for these three codes stay blocked
 on this decision. No silent rewrite of `unit_ucum` or `loinc_code` in the
