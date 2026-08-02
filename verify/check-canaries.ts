@@ -1,7 +1,7 @@
 /**
  * WHAT: Runs the deliberately-wrong canary suite; fails CI if any canary is accepted by existing gates.
  * NOT:  Does not invent new clinical gates or special-case checks to paper over gaps — gaps are FINDINGS.
- * GOVERNED BY: docs/findings/canary-suite.md; docs/contracts/ADR-0002.md; docs/strategy/06_ADDENDUM_SYSTEMID_AND_TERMINOLOGY.md
+ * GOVERNED BY: docs/findings/canary-suite.md; DECISIONS.md#d12; docs/findings/canary-suite.md
  * CORRECTNESS: verify/canaries/manifest.json — every canary either rejected by its named gate or reported as FINDING:UNCAUGHT
  */
 import { execFileSync } from 'node:child_process';
