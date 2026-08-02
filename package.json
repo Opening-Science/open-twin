@@ -11,7 +11,7 @@
     "lint": "biome ci",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r exec tsc --noEmit",
-    "verify": "node verify/check-terminology.mjs && node verify/check-units.mjs",
+    "verify": "tsx verify/run-verify.ts",
     "emit-bundles": "tsx verify/emit-bundles.ts"
   },
   "devDependencies": {

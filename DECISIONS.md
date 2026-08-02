@@ -10,6 +10,7 @@ see what was decided and why, and argue with it.
 
 ---
 
+<a id="d1"></a>
 ## D1 — Subject linkage
 
 **Decision.** Public entry points accept an optional `subject: Reference`. When the
@@ -31,6 +32,7 @@ an identity the connector cannot vouch for.
 
 Implemented by `subjectReference` in `@open-twin/fhir-core`.
 
+<a id="d2"></a>
 ## D2 — Identifier and id strategy
 
 **Decision.** `Observation.id` is `uuidv5(connector | vendor user id | vendor record
@@ -51,6 +53,7 @@ found by running the validator, not by reading the specification.
 makes the bundle non-inert. `collection` plus a stable identifier leaves
 de-duplication to the receiver. Both are supported; `collection` is the default.
 
+<a id="d3"></a>
 ## D3 — Code system URIs for vendor concepts
 
 **Decision.** One Foundation-controlled namespace per connector:
@@ -76,6 +79,7 @@ A code system URI you do not control is not a code system.
 resolved. That warning is correct and stays until the IG publishes them. Publishing
 the IG is tracked as connector-completion work, not as a defect.
 
+<a id="d4"></a>
 ## D4 — One unit per concept
 
 **Decision.** `LOINC_UNITS` in `@open-twin/fhir-core` binds each LOINC code to
@@ -96,6 +100,7 @@ vital-signs Observation carrying either is a conformance failure.
 **Trade-off.** A shared workspace package and a build-order dependency, rather than a
 lint rule that would be cheaper and weaker.
 
+<a id="d5"></a>
 ## D5 — Dispatch on the requested type, not on the response shape
 
 **Decision.** Response parsing selects a schema by the type that was requested.
@@ -113,6 +118,7 @@ intact: `daily_readiness`, keyed on `temperature_trend_deviation`, is next.
 
 **Trade-off.** A public API change, which is one of the reasons for D9.
 
+<a id="d6"></a>
 ## D6 — Partial failure
 
 **Decision.** Absence of data is never an exception. Fan-out uses
@@ -124,6 +130,7 @@ used `Promise.all`, so one rejection discarded every sibling result. A caller ha
 way to distinguish "no data in this window" from "rate-limited" from "library bug".
 `OperationOutcome` is the FHIR-native way to say four types succeeded and one did not.
 
+<a id="d7"></a>
 ## D7 — Time and timezone
 
 **Decision.** `effective[x]` carries the subject's local UTC offset as supplied by the
@@ -137,6 +144,7 @@ recomputed `end` inside the per-type loop, so a single sync had a different end
 boundary for each data type. VITRONIC carried no time at all, although
 `Viatar.meta.crtime` was available and already being fetched.
 
+<a id="d8"></a>
 ## D8 — The connectors stay stateless
 
 **Decision.** The packages remain libraries. State that syncing requires — token
@@ -150,6 +158,7 @@ project's own premise that data stays where it is generated.
 **Trade-off.** The host carries real responsibility and the connectors stop being
 drop-in.
 
+<a id="d9"></a>
 ## D9 — Package names and versions
 
 **Decision.** Packages are scoped `@open-twin/*` and versioned from `0.1.0`.
@@ -160,6 +169,7 @@ README instructed users to install `@open-twin/provider-fitbit`. Doing the renam
 the version drop first means the remediation executes as pre-1.0 iteration rather than
 as a series of breaking changes to a released 1.0.
 
+<a id="d10"></a>
 ## D10 — VITRONIC angles are converted to degrees
 
 **Decision.** `angle.ts` and `axes.ts` convert radians to degrees and emit UCUM `deg`.
@@ -180,6 +190,102 @@ direction cosines in [−1, 1]. There is no π relationship anywhere in the mark
 Converting those values from radians to degrees would multiply a dimensionless number
 by 57.3 and make the output worse than it is today; emitting `rad` would be equally
 wrong. They are UCUM `1`.
+
+---
+
+<a id="d11"></a>
+## D11 — Anchor LOINC property / unit mismatches (pending)
+
+**Status.** Proposed — human decision required.
+
+**Context.** Three Anchor-core markers bind molar LOINC FSNs to mass source units:
+
+| biomarker_id | name_de | LOINC | unit_source |
+|---|---|---|---|
+| BM-060 | Bor | 52914-9 Boron [Moles/volume] in Serum or Plasma | µg/l |
+| BM-186 | Kupfer | 14665-4 Copper [Moles/volume] in Serum or Plasma | µg/l |
+| BM-405 | Vitamin K | 58793-1 Phytonadione [Moles/volume] in Serum or Plasma | ng/l |
+
+`scripts/compile-anchor-layer.ts` detects exactly these three (D-e) and exits
+non-zero. It does **not** auto-fix.
+
+**Decision.** Pending. A human must choose, for each marker, whether to:
+
+1. Keep the molar LOINC and convert / restate the unit as molar, or
+2. Replace the LOINC with a `[Mass/volume]` code that matches the mass unit, or
+3. Split into two observations (molar vs mass) with explicit provenance.
+
+**How the artefact is produced today (despite exit 1).** The compiler still
+writes `packages/anchor-layer/data/anchor-layer.v1.json` and its `.sha256`
+companion **before** exiting non-zero. Consumers and round-trip tests read that
+committed JSON; regenerating it is `pnpm --filter @open-twin/anchor-layer compile`
+(or `tsx scripts/compile-anchor-layer.ts`), which refreshes the files and then
+fails closed on D-e so CI cannot green-wash the mismatch. Until this decision is
+accepted, the published artefact and the red compile gate coexist on purpose.
+
+**Consequences.** Terminology review-records for these three codes stay blocked
+on this decision. No silent rewrite of `unit_ucum` or `loinc_code` in the
+compiler. No `(low, high)` on Biomarker; ReferenceInterval stays first-class.
+
+<a id="d12"></a>
+## D12 — Interpretation region key is openXR SystemId
+
+**Decision.** The interpretation document addresses anatomy for visualisation with
+the field `system_id`, whose value set is **exactly** the nine `SystemId` values
+owned by open-twin-openXR:
+
+`musculoskeletal | cardiovascular | nervous | respiratory | metabolic |
+digestive | endocrine | integumentary | reproductive`
+
+This repository **consumes** that enum. It does not extend it, rename values, or
+add a tenth. Markers with no home (CBC block, immunoglobulins, Kreatinin,
+Harnsäure, hsCRP — 14 of 67) are emitted under top-level `unrenderable[]` with an
+explicit reason, never dropped and never rerouted to a neighbour.
+
+Interpretive anatomy is assigned only from the curated organ mapping in the
+Anchor workbook. The LOINC System axis is a specimen, not a pathology site.
+Severity is ordinal (`none | borderline | mild | moderate | marked |
+indeterminate`). Confidence is rule-support
+(`completeness × recency × rule_strength`), not disease probability.
+
+**Why.** Shipping FHIR reference-range flags alone is not an interpretation
+layer: the XR viewer would not know which system moved. A single risk score
+destroys which-system-moved signal and invites MDR-shaped recommendation misuse.
+A parallel 25-value region enum was withdrawn — openXR geometry keys `SystemId`
+only, so a parallel enum is unrenderable there.
+
+**Consequences.** Conformance rejects unknown `system_id` values and any
+reroute of `unrenderable[]` into `states[]`. Types are generated from the JSON
+Schema; open-twin-openXR consumes `@open-twin/interpretation-contract` and does
+not re-declare the enum.
+
+<a id="d13"></a>
+## D13 — MDR intended-use line on every interpretation document
+
+**Context.** EU MDR Annex VIII Rule 11 distinguishes software that merely presents
+a person’s own data from software that generates clinical recommendations.
+Visualising measurements on a research twin can sit outside Rule 11’s
+recommendation limb; emitting advice cannot. The interpretation document is the
+sole interface to the XR visualisation layer — if it grows a recommendation
+field, the whole twin inherits a medical-device purpose it is not authorised to
+carry.
+
+**Decision.** Every interpretation document **must** carry:
+
+| Field | Value |
+|---|---|
+| `intended_use` | `research_hypothesis_generation_n_of_1` |
+| `not_for_diagnostic_use` | `true` |
+
+These are schema constants. Any other value is non-conformant. A recommendation
+engine — if built — is a **separate component** with its own intended-purpose
+statement and regulatory file. It is never a feature of the twin document.
+
+**Consequences.** Conformance rejects documents that omit or alter these fields.
+XR and research UIs may show the constants as a fixed research disclaimer; they
+must not offer “diagnose” or “treat” affordances fed by this document. Changing
+intended use requires a new decision and a new contract version — not a silent
+field flip.
 
 ---
 

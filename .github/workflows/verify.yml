@@ -62,6 +62,12 @@ jobs:
       - name: UCUM unit gate
         run: node verify/check-units.mjs
 
+      - name: Module header gate
+        run: pnpm exec tsx verify/check-headers.ts
+
+      - name: Docs integrity gate
+        run: pnpm exec tsx verify/check-docs.ts
+
   review-status:
     name: Terminology review outstanding
     runs-on: ubuntu-latest

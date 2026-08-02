@@ -42,6 +42,26 @@ pnpm build && pnpm emit-bundles out/
 `out/` now holds the 11 bundles CI feeds to the HL7 validator. Open one; that is
 the product. Everything in this repo exists to make those files correct.
 
+## Verify baseline (read before trusting a red cross)
+
+Upstream’s day-one line still stands for lint, typecheck, and test. **`pnpm verify`
+is different after the interpretation work lands:** it runs every registered gate
+to completion (no `&&` short-circuit) and the aggregate may be red for *documented*
+reasons. That is intentional, not a broken clone.
+
+| Gate | Role | Typical |
+|---|---|---|
+| `verify/check-terminology.mjs` (allowlist) | Merge-blocking | PASS when no rejected/unknown FHIR codes |
+| `verify/check-units.mjs` | Merge-blocking | PASS |
+| Module headers / docs integrity | Merge-blocking once landed | PASS when headers/docs intact |
+| Review-record gate (G2, when landed) | **Advisory** until Anchor stubs are signed | May FAIL — see `docs/findings/verify-baseline.md` |
+| Canary suite (when landed) | Fails while FINDING:UNCAUGHT remains | May FAIL — four known gaps are findings, not silent defects |
+
+Do not “fix” intentional red by bulk-approving allowlists or deleting canaries.
+See `docs/findings/verify-baseline.md` for G1 vs G2a (67 UNVERIFIED Anchor stubs)
+vs G2b (non-Anchor debt). Changing this front-door promise needs architect
+agreement — it is not an implementation detail.
+
 ## Reading order
 
 | # | read | to learn |
