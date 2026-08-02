@@ -1,10 +1,8 @@
 /**
- * BodyLoop height measurements.
- *
- * A BodyLoop height is the height of one anatomical landmark above the standing
- * surface, not necessarily the subject's stature, so no LOINC body-height code
- * is asserted: 8302-2 would claim a vital sign the API never promised, and its
- * R4 profile fixes the unit to `cm`.
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import type { Observation } from 'fhir/r4';
 import type { Height, HeightList } from '../../api/schemas/height';

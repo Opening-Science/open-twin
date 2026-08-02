@@ -1,3 +1,9 @@
+/**
+ * WHAT: Builds a fixture Bundle used by emit-bundles / local verification.
+ * NOT:  Must not be treated as production PHI; must not skip validator assumptions.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 validator (CI fhir-validate); Oura sandbox path additionally uses recorded vendor sandbox responses where applicable.
+ */
 import { ConnectorError } from '@open-twin/fhir-core';
 import type { Bundle } from 'fhir/r4';
 import { normaliseBundle } from '../normalise/normalise';

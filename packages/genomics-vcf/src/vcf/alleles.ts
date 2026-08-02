@@ -1,11 +1,8 @@
 /**
- * What kind of thing an ALT entry is (hts-specs §1.4.1, the ALT field and §5 on
- * symbolic and breakend alleles).
- *
- * Only `sequence` is in scope. The rest are named individually rather than lumped
- * into "unsupported" so the OperationOutcome can say *which* out-of-scope construct
- * a file leans on — the difference between "this caller sends structural variants"
- * and "this caller sends gVCF" changes what would have to be built next.
+ * WHAT: Parses VCF structures (header, records, genotype, coordinates).
+ * NOT:  Must not emit FHIR resources; fhir/ owns mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: VCF specification parsing; fixtures from public htsjdk/dbSNP where applicable.
  */
 export type AltKind = 'sequence' | 'symbolic' | 'breakend' | 'spanning-deletion' | 'invalid';
 

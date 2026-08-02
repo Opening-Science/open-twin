@@ -1,3 +1,9 @@
+/**
+ * WHAT: Parses VCF structures (header, records, genotype, coordinates).
+ * NOT:  Must not emit FHIR resources; fhir/ owns mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: VCF specification parsing; fixtures from public htsjdk/dbSNP where applicable.
+ */
 import type { IssueLog } from '../issues';
 import type { VcfFieldDeclaration, VcfGenotype, VcfHeader, VcfNumber, VcfRecord, VcfScalar } from './types';
 

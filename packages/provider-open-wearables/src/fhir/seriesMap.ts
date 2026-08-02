@@ -1,3 +1,9 @@
+/**
+ * WHAT: Declares which Open Wearables series map to which FHIR codings or refusals.
+ * NOT:  Must not invent LOINC; unresolved series must refuse rather than guess.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for mapped codes; refusals are explicit gaps.
+ */
 import {
   type CategoryKey,
   type CodingInput,

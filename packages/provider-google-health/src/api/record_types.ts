@@ -1,3 +1,9 @@
+/**
+ * WHAT: Google Health type enumerations and query-window helpers.
+ * NOT:  Must not map to FHIR; mappers own Observation coding.
+GOVERNED BY: DECISIONS.md#d5
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { ConnectorError } from '@open-twin/fhir-core';
 import type { health_v4 } from 'googleapis';
 

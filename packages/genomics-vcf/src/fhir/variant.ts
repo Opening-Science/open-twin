@@ -1,3 +1,9 @@
+/**
+ * WHAT: VCF→FHIR mapping for genomics reporting.
+ * NOT:  Must not invent terminology; privacy rules for identifiable genomic data remain host responsibility.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json); HL7 validator on emitted genomics bundles.
+ */
 import {
   codeableComponent,
   codeableConcept,

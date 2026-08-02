@@ -1,3 +1,9 @@
+/**
+ * WHAT: UCUM helpers and the shared LOINC→unit policy table.
+ * NOT:  Must not accept a Quantity without a unit at the shared builder; mappers must not diverge per connector.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: UCUM grammar via @lhncbc/ucum-lhc (verify/check-units.mjs); LOINC example units constrained by vital-signs profiles.
+ */
 import type { Quantity } from 'fhir/r4';
 import { SYSTEMS } from './systems';
 

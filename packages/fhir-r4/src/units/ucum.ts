@@ -1,3 +1,9 @@
+/**
+ * WHAT: UCUM validation / quantity helpers for this package.
+ * NOT:  Must not invent unit codes; invalid UCUM fails closed.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: UCUM grammar via @lhncbc/ucum-lhc.
+ */
 import { UcumLhcUtils, type UcumLhcUtilsInstance } from '@lhncbc/ucum-lhc';
 import { ConnectorError } from '@open-twin/fhir-core';
 

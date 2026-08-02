@@ -1,3 +1,9 @@
+/**
+ * WHAT: Package public barrel: re-exports the supported API surface.
+ * NOT:  Must not contain mapping or clinical logic; implementation lives in sibling modules.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { ConnectorError, toOperationOutcome } from '@open-twin/fhir-core';
 import type { Bundle, OperationOutcome, Reference } from 'fhir/r4';
 import { Auth, type health_v4 } from 'googleapis';

@@ -1,3 +1,9 @@
+/**
+ * WHAT: Subject references, deterministic ids, and minimal Patient helpers.
+ * NOT:  Must not invent clinical identity beyond vendor user ids; host supplies real Patient references when known.
+GOVERNED BY: DECISIONS.md#d1
+ * CORRECTNESS: HL7 validator requirement that Bundle.entry.fullUrl urn:uuid values are UUIDs.
+ */
 import { createHash } from 'node:crypto';
 import type { Patient, Reference } from 'fhir/r4';
 

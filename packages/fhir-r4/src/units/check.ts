@@ -1,3 +1,9 @@
+/**
+ * WHAT: UCUM validation / quantity helpers for this package.
+ * NOT:  Must not invent unit codes; invalid UCUM fails closed.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: UCUM grammar via @lhncbc/ucum-lhc.
+ */
 import { LOINC_UNITS, SYSTEMS, type UcumUnit } from '@open-twin/fhir-core';
 import { type FhirIssue, issue } from '../issues';
 import { isObject, type JsonObject, walkObjects } from '../validate/walk';

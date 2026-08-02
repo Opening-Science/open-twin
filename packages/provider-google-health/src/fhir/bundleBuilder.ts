@@ -1,3 +1,9 @@
+/**
+ * WHAT: Orchestrates fetch/parse/map (or map-only) into a FHIR Bundle result.
+ * NOT:  Must not swallow partial failures; issues go to OperationOutcome (ADR 0006).
+GOVERNED BY: DECISIONS.md#d5; DECISIONS.md#d6
+ * CORRECTNESS: HL7 validator on emitted bundles in CI; terminology/unit gates on source codings.
+ */
 import { buildBundle, patientUuid, SYSTEMS, subjectReference } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Observation, Patient, Reference } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';

@@ -1,3 +1,9 @@
+/**
+ * WHAT: Package public barrel: re-exports the supported API surface.
+ * NOT:  Must not contain mapping or clinical logic; implementation lives in sibling modules.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { BodyLoopClient, type ScopeResult } from './api/client';
 import type { ProbandRequest, ProbandResponse } from './api/schemas/proband';
 import type { Viatar, ViatarList, ViatarRequest } from './api/schemas/viatars';

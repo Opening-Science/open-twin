@@ -1,3 +1,9 @@
+/**
+ * WHAT: ConnectorError type that carries status/operation/code without payload bodies.
+ * NOT:  Must not embed API response bodies or PHI in messages or logs.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import type { OperationOutcome, OperationOutcomeIssue } from 'fhir/r4';
 
 /**

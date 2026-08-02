@@ -1,3 +1,10 @@
+/**
+ * WHAT: Cross-source reconciliation / measure keys / source selection for overlapping Observations.
+ * NOT:  Must not fetch vendor data or invent scores for openXR HealthTwinData.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ * GOTCHA: When evidence ties or energy MAPE is too high, abstain — do not break ties on array order.
+ */
 import { type ReliabilityFinding, type ReliabilityGrade, reliabilityFor } from '@open-twin/fhir-core';
 import type { Measure } from './measure';
 

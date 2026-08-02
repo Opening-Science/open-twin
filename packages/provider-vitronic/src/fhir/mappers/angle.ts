@@ -1,11 +1,8 @@
 /**
- * BodyLoop angle measurements.
- *
- * Every angle is reported three ways: the `primary` angle at the vertex, its
- * `supplementary` angle (π − primary) and its `conjugate` angle (2π − primary).
- * All three are kept as components; the one named by `preference` is promoted to
- * `value[x]` so that a consumer reading only the value gets the angle the
- * operator selected rather than whichever one the mapper happened to prefer.
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d10
+ * CORRECTNESS: recorded API response (BodyLoop radians; π identities in ADR 0010); UCUM deg.
  */
 import type { Observation } from 'fhir/r4';
 import type { Angle, AngleList } from '../../api/schemas/angle';

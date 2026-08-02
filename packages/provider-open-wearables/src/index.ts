@@ -1,17 +1,8 @@
 /**
- * `@open-twin/open-wearables` — Open Wearables unified data model to FHIR R4.
- *
- * Open Wearables (https://openwearables.io, https://github.com/the-momentum/open-wearables)
- * is a self-hosted MIT-licensed platform that already ingests Apple Health, Fitbit,
- * Garmin, Google Health Connect, Oura, Polar, Samsung Health, Sensorbio, Strava,
- * Suunto, Ultrahuman and Whoop, and normalises all of them onto one schema.
- *
- * This package maps that one schema. It is therefore not a vendor integration: it
- * is a single mapper that covers every provider the platform supports, including
- * Apple HealthKit and Google Health Connect, which are on-device sources a
- * server-side Node connector cannot reach on its own.
- *
- * This package is a mapper. It has no HTTP client — see README for why.
+ * WHAT: Package public barrel: re-exports the supported API surface.
+ * NOT:  Must not contain mapping or clinical logic; implementation lives in sibling modules.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 export { parseOrThrow } from './api/parse';
 export {

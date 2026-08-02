@@ -1,8 +1,8 @@
 /**
- * `as const` is load-bearing. Without it `SupportedScope` widens to `string`, so
- * `scopes: ['nonsense_scope']` compiled cleanly, `z.enum(SUPPORTED_SCOPES)` inferred
- * `string[]`, and the switch over request types had no exhaustiveness checking —
- * a missing case was a runtime throw rather than a compile error.
+ * WHAT: Connector configuration constants and construction helpers.
+ * NOT:  Must not hard-code clinical codes for Observations; mappers + allowlists own codes.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 const SUPPORTED_SCOPES = [
   'daily_activity',

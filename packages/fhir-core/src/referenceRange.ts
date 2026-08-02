@@ -1,3 +1,9 @@
+/**
+ * WHAT: Attaches typed reference intervals with mandatory source URL/publisher.
+ * NOT:  Must not invent intervals without a source; must not put ranges on the Biomarker entity.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import type { ObservationReferenceRange } from 'fhir/r4';
 import { SYSTEMS } from './systems';
 import { quantity, type UcumUnit } from './units';

@@ -1,16 +1,8 @@
 /**
- * BodyLoop markers — anatomical landmarks.
- *
- * A marker is a point in the scanner's coordinate system, optionally with the
- * surface normal at that point. Being a vector rather than a scalar it has no
- * single `value[x]`; the coordinates are carried as components.
- *
- * The normal is NOT an angle. It sits beside `position` and is a direction
- * vector, so its components are direction cosines in [−1, 1]: dimensionless,
- * UCUM `1`. They were previously published as `deg`, which asserts a plane angle
- * where none exists — a receiver doing UCUM-aware arithmetic reads a normal
- * component of 0.7071 as 0.7071 degrees. Converting them from radians would be
- * worse still, and `rad` would be equally wrong (D10).
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d10
+ * CORRECTNESS: recorded API response (marker normals are direction cosines); UCUM 1 per ADR 0010.
  */
 import type { Observation } from 'fhir/r4';
 import type { Marker, MarkerList } from '../../api/schemas/marker';

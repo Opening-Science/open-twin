@@ -1,17 +1,8 @@
 /**
- * Shared mapping layer for VITRONIC BodyLoop measurements.
- *
- * Everything terminology-, unit- and identity-related comes from
- * `@open-twin/fhir-core` so that a VITRONIC bundle and an Oura bundle for the
- * same person agree on code systems (D3), units (D4), subject linkage (D1) and
- * resource identity (D2). What stays here is the part that is genuinely
- * BodyLoop-specific: the measurement path taxonomy and the unit conventions of
- * the BodyLoop payload.
- *
- * BodyLoop reports lengths in metres, areas in square metres, angles in radians
- * and surface normals as dimensionless direction cosines. Nothing in the payload
- * states a unit; see `radiansToDegrees` and D10 for how the radian conclusion
- * was reached.
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import {
   CATEGORY,
