@@ -1,0 +1,405 @@
+# OpenTwin rule pack v0.1
+# Clinical knowledge lives HERE. The engine is a pure evaluator.
+# All clinical_basis values are heuristic_no_guideline — docs/evidence/guidelines/ is empty.
+schema_version: rule-pack.v0.1
+pack_id: open-twin.v0.1
+description: >
+  Declarative rules for Anchor-core interpretation. system_id assignments follow
+  D-f (nine openXR values) and the family map in the interpreter task — not LOINC System.
+
+rules:
+  # ── hepatic → digestive ─────────────────────────────────────────────
+  - id: hepatic_hepatocellular
+    family: hepatic
+    description: Hepatocellular pattern from ALT/AST vs their measured intervals.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.7
+    emit: state
+    system_id: digestive
+    geometry:
+      fma_id: "FMA:7197"
+      uberon_id: "UBERON:0002107"
+    inputs:
+      - biomarker_id: BM-132
+        role: required
+      - biomarker_id: BM-130
+        role: optional
+    severity_ladder:
+      - severity: marked
+        when: { predicate: ratio_to_high_at_least, input: BM-132, factor: 5 }
+      - severity: moderate
+        when: { predicate: ratio_to_high_at_least, input: BM-132, factor: 3 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-132 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-130 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-132, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  - id: hepatic_cholestatic
+    family: hepatic
+    description: >
+      Cholestatic pattern. Alkaline phosphatase is NOT in the Anchor core set, so
+      this rule is capped at severity=indeterminate and confidence<=0.4. GGT alone
+      cannot complete the pattern. Do not substitute another marker for ALP.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.55
+    emit: state
+    system_id: digestive
+    geometry:
+      fma_id: "FMA:7197"
+      uberon_id: "UBERON:0002107"
+    gap_notes: ALP absent from Anchor core set — rule capped.
+    caps:
+      max_severity: indeterminate
+      max_confidence: 0.4
+    inputs:
+      - biomarker_id: BM-123
+        role: required
+    severity_ladder:
+      - severity: indeterminate
+        when: { predicate: above_high, input: BM-123 }
+      - severity: indeterminate
+        when: { predicate: within_interval, input: BM-123, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── glycemic → metabolic ────────────────────────────────────────────
+  - id: glycemic_dysregulation
+    family: glycemic
+    description: Glycemic regulation from fasting glucose and HbA1c (metabolic, not pancreas).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.8
+    emit: state
+    system_id: metabolic
+    geometry:
+      fma_id: "FMA:9637"
+    inputs:
+      - biomarker_id: BM-128
+        role: required
+      - biomarker_id: BM-139
+        role: optional
+    severity_ladder:
+      - severity: marked
+        when: { predicate: ratio_to_high_at_least, input: BM-139, factor: 1.3 }
+      - severity: moderate
+        when: { predicate: ratio_to_high_at_least, input: BM-128, factor: 1.5 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-139 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-128 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-128, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── lipid transport → metabolic ─────────────────────────────────────
+  - id: lipid_transport
+    family: lipid
+    description: Lipid transport panel vs measured intervals.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.7
+    emit: state
+    system_id: metabolic
+    geometry:
+      fma_id: "FMA:8640"
+    inputs:
+      - biomarker_id: BM-072
+        role: required
+      - biomarker_id: BM-140
+        role: optional
+      - biomarker_id: BM-190
+        role: optional
+      - biomarker_id: BM-383
+        role: optional
+      - biomarker_id: BM-200
+        role: optional
+    severity_ladder:
+      - severity: moderate
+        when: { predicate: ratio_to_high_at_least, input: BM-072, factor: 1.5 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-072 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-383 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-190 }
+      - severity: borderline
+        when: { predicate: below_low, input: BM-140 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-072, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── micronutrient status → metabolic ────────────────────────────────
+  - id: micronutrient_status
+    family: micronutrient
+    description: Selected micronutrients vs measured intervals.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.55
+    emit: state
+    system_id: metabolic
+    geometry:
+      fma_id: "FMA:9637"
+    inputs:
+      - biomarker_id: BM-107
+        role: required
+      - biomarker_id: BM-111
+        role: optional
+      - biomarker_id: BM-394
+        role: optional
+      - biomarker_id: BM-401
+        role: optional
+      - biomarker_id: BM-411
+        role: optional
+      - biomarker_id: BM-341
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: below_low, input: BM-107 }
+      - severity: mild
+        when: { predicate: below_low, input: BM-111 }
+      - severity: mild
+        when: { predicate: below_low, input: BM-394 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-107 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-107, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── electrolyte balance → metabolic ─────────────────────────────────
+  - id: electrolyte_balance
+    family: electrolyte
+    description: Electrolytes vs measured intervals.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.75
+    emit: state
+    system_id: metabolic
+    geometry:
+      fma_id: "FMA:7203"
+    inputs:
+      - biomarker_id: BM-177
+        role: required
+      - biomarker_id: BM-286
+        role: required
+      - biomarker_id: BM-063
+        role: optional
+      - biomarker_id: BM-258
+        role: optional
+    severity_ladder:
+      - severity: marked
+        when: { predicate: ratio_to_high_at_least, input: BM-177, factor: 1.2 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-177 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-286 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-063 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-177, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── thyroid axis → endocrine ────────────────────────────────────────
+  - id: thyroid_axis
+    family: thyroid
+    description: TSH ± free T4/T3 vs measured intervals.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.8
+    emit: state
+    system_id: endocrine
+    geometry:
+      fma_id: "FMA:9600"
+      uberon_id: "UBERON:0002046"
+    inputs:
+      - biomarker_id: BM-386
+        role: required
+      - biomarker_id: BM-115
+        role: optional
+      - biomarker_id: BM-114
+        role: optional
+    severity_ladder:
+      - severity: moderate
+        when: { predicate: ratio_to_high_at_least, input: BM-386, factor: 3 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-386 }
+      - severity: mild
+        when: { predicate: below_low, input: BM-386 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-115 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-386, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── bone turnover → musculoskeletal ─────────────────────────────────
+  - id: bone_turnover
+    family: bone
+    description: Bone turnover markers. Several have no interval on file → abstain path.
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.5
+    emit: state
+    system_id: musculoskeletal
+    geometry:
+      fma_id: "FMA:30317"
+    inputs:
+      - biomarker_id: BM-434
+        role: required
+      - biomarker_id: BM-435
+        role: optional
+      - biomarker_id: BM-299
+        role: optional
+      - biomarker_id: BM-401
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: above_high, input: BM-434 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-435 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-434, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── gonadal axis → reproductive ─────────────────────────────────────
+  - id: gonadal_axis
+    family: gonadal
+    description: Gonadal steroids / gonadotropins vs measured intervals (phase selection is upstream).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.65
+    emit: state
+    system_id: reproductive
+    geometry:
+      fma_id: "FMA:45656"
+    inputs:
+      - biomarker_id: BM-001
+        role: optional
+      - biomarker_id: BM-358
+        role: optional
+      - biomarker_id: BM-119
+        role: optional
+      - biomarker_id: BM-197
+        role: optional
+      - biomarker_id: BM-346
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-001 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-358 }
+      - severity: mild
+        when: { predicate: outside_interval, input: BM-119 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-358 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-001 }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── renal → unrenderable ────────────────────────────────────────────
+  - id: renal_function
+    family: renal
+    description: Renal markers — no SystemId home (D-g).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.7
+    emit: unrenderable
+    unrenderable_id: renal_function
+    unrenderable_reason: no_system_id_upstream
+    inputs:
+      - biomarker_id: BM-436
+        role: required
+      - biomarker_id: BM-136
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: above_high, input: BM-436 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-136 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-436, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── haematologic → unrenderable ─────────────────────────────────────
+  - id: haematologic_cbc
+    family: haematologic
+    description: CBC block — no SystemId home (D-g).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.6
+    emit: unrenderable
+    unrenderable_id: cbc_block
+    unrenderable_reason: no_system_id_upstream
+    inputs:
+      - biomarker_id: BM-423
+        role: required
+      - biomarker_id: BM-424
+        role: optional
+      - biomarker_id: BM-425
+        role: optional
+      - biomarker_id: BM-426
+        role: optional
+      - biomarker_id: BM-427
+        role: optional
+      - biomarker_id: BM-428
+        role: optional
+      - biomarker_id: BM-429
+        role: optional
+      - biomarker_id: BM-430
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: below_low, input: BM-423 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-426 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-423, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── immune → unrenderable ───────────────────────────────────────────
+  - id: immune_immunoglobulins
+    family: immune
+    description: Immunoglobulins — excluded upstream from SystemId (D-g).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.5
+    emit: unrenderable
+    unrenderable_id: immunoglobulins
+    unrenderable_reason: system_excluded_upstream
+    inputs:
+      - biomarker_id: BM-431
+        role: required
+      - biomarker_id: BM-432
+        role: optional
+      - biomarker_id: BM-433
+        role: optional
+    severity_ladder:
+      - severity: mild
+        when: { predicate: below_low, input: BM-431 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-431, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
+
+  # ── systemic inflammation → unrenderable ────────────────────────────
+  - id: systemic_inflammation
+    family: inflammation
+    description: hsCRP — not anatomical (D-g).
+    clinical_basis: heuristic_no_guideline
+    rule_strength: 0.6
+    emit: unrenderable
+    unrenderable_id: systemic_inflammation
+    unrenderable_reason: not_anatomical
+    inputs:
+      - biomarker_id: BM-079
+        role: required
+    severity_ladder:
+      - severity: moderate
+        when: { predicate: ratio_to_high_at_least, input: BM-079, factor: 3 }
+      - severity: mild
+        when: { predicate: above_high, input: BM-079 }
+      - severity: none
+        when: { predicate: within_interval, input: BM-079, require_all_required_present: true }
+      - severity: indeterminate
+        when: { predicate: any_present_outside }
