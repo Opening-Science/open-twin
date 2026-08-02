@@ -232,7 +232,8 @@ compiler. No `(low, high)` on Biomarker; ReferenceInterval stays first-class.
 
 **Decision.** The interpretation document addresses anatomy for visualisation with
 the field `system_id`, whose value set is **exactly** the nine `SystemId` values
-owned by open-twin-openXR:
+owned by open-twin-openXR (`openXR#D8` — that repo renders anatomy and does not
+interpret health data; scoring and code→system assignment stay upstream):
 
 `musculoskeletal | cardiovascular | nervous | respiratory | metabolic |
 digestive | endocrine | integumentary | reproductive`
@@ -252,7 +253,7 @@ indeterminate`). Confidence is rule-support
 layer: the XR viewer would not know which system moved. A single risk score
 destroys which-system-moved signal and invites MDR-shaped recommendation misuse.
 A parallel 25-value region enum was withdrawn — openXR geometry keys `SystemId`
-only, so a parallel enum is unrenderable there.
+only (`openXR#D8`), so a parallel enum is unrenderable there.
 
 **Consequences.** Conformance rejects unknown `system_id` values and any
 reroute of `unrenderable[]` into `states[]`. Types are generated from the JSON
@@ -288,6 +289,36 @@ intended use requires a new decision and a new contract version — not a silent
 field flip.
 
 ---
+
+<a id="d14"></a>
+## D14 — Four-layer model and interface ownership
+
+**Decision.** OpenTwin is four layers. Each layer owns one interface and must not
+reach into another layer’s vocabulary to do that layer’s job:
+
+| Layer | Owns | Must not |
+|---|---|---|
+| **Terminology** | Code systems, UCUM, allowlists, review records | Invent codes; publish SNOMED in artefacts |
+| **Ingestion** | Connectors and shared FHIR builders → R4 Bundles | Score, interpret, or assign anatomy systems |
+| **Interpretation** | Anchor artefact, rules, interpretation document | Emit recommendations; extend `SystemId` |
+| **Geometry / XR** | Anatomy, materials, XR rendering (`open-twin-openXR`) | Score, map terminology, or invent `SystemId` values |
+
+Cross-repo: visualisation consumes an already-shaped interpretation /
+`HealthTwinData` surface. Scoring and code→system assignment are **out of scope**
+in openXR per `openXR#D8` and belong here (ingestion + interpretation). This
+repository’s open-twin `D8` (connectors stay libraries) is a different decision —
+never write bare `D8` when the other repo’s scope decision is meant.
+
+**Why.** ADR stubs never recorded this; the layer split was assumed in prompts and
+package layout. Without a numbered decision, “fix it in the viewer” and “add a
+tenth SystemId” keep recurring. Interface ownership is what makes stacked
+branches reviewable: a headers branch does not land Anchor URIs; a connector
+branch does not redefine `SystemId`.
+
+**Consequences.** Headers’ `GOVERNED BY` points at the decision or contract for
+the layer the module implements. New packages declare a layer in their README.
+Crossing a layer boundary requires an explicit decision, not a convenience import.
+
 
 ## Still open — needs a named clinical reviewer
 
