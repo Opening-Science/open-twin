@@ -1,7 +1,7 @@
 /**
  * WHAT: Collection-event context that must reach the interpreter (sex, age, cycle, TOD, fasting).
  * NOT:  Does not select reference-interval populations — that is interpretation, not lookup.
- * GOVERNED BY: docs/contracts/interpretation-contract.v0.2.schema.json; docs/contracts/ADR-0002.md
+ * GOVERNED BY: docs/contracts/interpretation-contract.v0.2.schema.json; DECISIONS.md#d12
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: Cortisol cannot be flagged without collection time; Östradiol cannot without cycle phase. Carry both here.
  */

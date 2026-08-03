@@ -1,7 +1,7 @@
 /**
  * WHAT: LOINC-property ↔ UCUM commensurability checks for Anchor biomarker ingest.
  * NOT:  Does not convert between mass and molar; incommensurable units fail closed.
- * GOVERNED BY: docs/adr/0004-one-unit-per-concept.md; DECISIONS.md#d11
+ * GOVERNED BY: DECISIONS.md#d4; DECISIONS.md#d11
  * CORRECTNESS: UCUM grammar via LOINC_UNITS table; LOINC FSN property text from Anchor artefact
  */
 import { LOINC_UNITS, type UcumUnit } from '@open-twin/fhir-core';
