@@ -62,6 +62,15 @@ jobs:
       - name: UCUM unit gate
         run: node verify/check-units.mjs
 
+      # Advisory until open-twin/module-headers lands the Method-B header edits.
+      # Same pattern as review-status: signal without blocking the gates job.
+      - name: Module header gate
+        continue-on-error: true
+        run: pnpm exec tsx verify/check-headers.ts
+
+      - name: Docs integrity gate
+        run: pnpm exec tsx verify/check-docs.ts
+
   review-status:
     name: Terminology review outstanding
     runs-on: ubuntu-latest
