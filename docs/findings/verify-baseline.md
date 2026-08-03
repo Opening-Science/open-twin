@@ -53,12 +53,20 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Intentional findings | 04, 05, 06, 11 (no existing semantic gate) — do not paper over |
 | Caught (incl. wrong-kind band) | 01, 02, 03, 07, 08, 09, 10, 12 |
 
+### Module headers (`verify/check-headers.ts`)
+
+| Field | Value |
+|---|---|
+| Home | `verify/check-headers.ts` + CI step in `gates` / `run-verify` |
+| On this tip (gate registered, headers not applied) | **FAIL(advisory)** — hundreds of exporting modules lack the convention block |
+| After `open-twin/module-headers` | **PASS**, gate promoted to blocking |
+| Intentional red? | Yes, until that branch lands |
+
 ### Other gates
 
 | Gate | Script | Typical |
 |---|---|---|
 | UCUM units | `verify/check-units.mjs` | PASS |
-| Module headers | `verify/check-headers.ts` | PASS |
 | Docs integrity | `verify/check-docs.ts` | PASS |
 | SNOMED publication boundary | `verify/check-snomed-boundary.ts` (when registered) | PASS |
 

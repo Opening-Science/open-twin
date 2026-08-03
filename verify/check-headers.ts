@@ -13,7 +13,7 @@ const ROOT = join(import.meta.dirname, '..');
 const MANDATORY = ['WHAT', 'NOT', 'GOVERNED BY', 'CORRECTNESS'] as const;
 
 function walk(dir: string, out: string[]): void {
-  let entries;
+  let entries: string[] = [];
   try {
     entries = readdirSync(dir);
   } catch {
@@ -62,14 +62,11 @@ function collectsExports(src: string): boolean {
 function firstBlockComment(src: string): string | null {
   const stripped = src.replace(/^\uFEFF/, '').replace(/^#![^\n]*\n/, '');
   const m = stripped.match(/^\s*\/\*\*([\s\S]*?)\*\//);
-  return m ? m[1] : null;
+  return m ? (m[1] ?? null) : null;
 }
 
 function fieldValue(block: string, label: string): string | null {
-  const re = new RegExp(
-    String.raw`^\s*\*?\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\s*(.*)$`,
-    'im',
-  );
+  const re = new RegExp(String.raw`^\s*\*?\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\s*(.*)$`, 'im');
   const lines = block.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? '';
