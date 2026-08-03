@@ -21,6 +21,7 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/missing-non-anchor-review-records.md](findings/missing-non-anchor-review-records.md) | engineer | G2b debt after allowlist reconciliation |
 | [findings/anchor-layer-audit.md](findings/anchor-layer-audit.md) | engineer | Anchor compile counts / D-e mismatches |
 | [findings/canary-suite.md](findings/canary-suite.md) | architect | Deliberately-wrong canaries and uncaught findings |
+| [findings/synthea-coverage.md](findings/synthea-coverage.md) | engineer | Anchor×Synthea inventory; P7 consumer intersection |
 
 Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks landed on 21.
 
