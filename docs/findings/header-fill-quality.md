@@ -47,6 +47,15 @@ citing `ADR 0010` and `fhir-core/observation.ts` citing `ADR 0004`, all
 pointing at a `docs/adr/` tree that does not exist on this tip. Fixed in
 `8c299f7` (retargeted to `DECISIONS.md#d10` / `#d4`). **The gap is not.**
 
+## Pattern 4 — allowlistCovers matched only LOINC and SNOMED
+
+`allowlistCovers` matched only LOINC and SNOMED, so an APPROVED UCUM, FMA or
+UBERON entry would have been reported missing. Found by review, not by any
+gate. The counts did not change because no such entry exists yet, so the
+defect was invisible to CI and would have surfaced later as a code
+mysteriously reported missing. Third instance this week of a gate running
+green over something incorrect. Fixed in #20 (`a136c96`).
+
 ## Follow-up scope
 
 1. Audit / rewrite the 68 identical `d1;d2;d6` GOVERNED BY lines module-by-module.
