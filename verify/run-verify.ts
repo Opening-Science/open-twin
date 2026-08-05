@@ -3,8 +3,8 @@
  * NOT:  Does not short-circuit after the first failure — the baseline needs the full picture.
  * GOVERNED BY: docs/findings/verify-baseline.md; package.json verify script
  * CORRECTNESS: NONE — orchestrator only; each gate names its own authority
- * GOTCHA: module-headers is advisory until the headers branch lands and promotes it.
- *         Later branches append gates here — forgetting to register is visible in the diff.
+ * GOTCHA: Later branches append gates here (often as advisory first) — forgetting
+ *         to register is visible in the diff. module-headers is blocking on this tip.
  */
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
@@ -33,10 +33,9 @@ const GATES: Gate[] = [
     args: ['verify/check-units.mjs']
   },
   {
-    id: 'module-headers (verify/check-headers.ts) [ADVISORY]',
+    id: 'module-headers (verify/check-headers.ts)',
     command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-headers.ts'],
-    advisory: true
+    args: ['exec', 'tsx', 'verify/check-headers.ts']
   },
   {
     id: 'docs-integrity (verify/check-docs.ts)',
