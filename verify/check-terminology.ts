@@ -17,6 +17,23 @@ interface AllowlistEntry {
   system?: string;
 }
 
+type Vocab = 'LOINC' | 'UCUM' | 'SNOMED' | 'FMA' | 'UBERON';
+
+/** Map an allowlist entry's declared system URL to a Vocab, or null if unknown. */
+function vocabFromSystem(system: string): Vocab | null {
+  const s = system.toLowerCase();
+  if (s.includes('loinc')) return 'LOINC';
+  if (s.includes('snomed')) return 'SNOMED';
+  if (s.includes('unitsofmeasure') || s.includes('ucum')) return 'UCUM';
+  if (s.includes('uberon')) return 'UBERON';
+  if (s.includes('fma') || s.includes('sig.biostr')) return 'FMA';
+  return null;
+}
+
+function systemMatchesVocab(system: string, vocabulary: Vocab): boolean {
+  return vocabFromSystem(system) === vocabulary;
+}
+
 function loadAllowlistApproved(): Map<string, AllowlistEntry> {
   const map = new Map<string, AllowlistEntry>();
   if (!existsSync(ALLOWLIST_PATH)) return map;
@@ -25,27 +42,20 @@ function loadAllowlistApproved(): Map<string, AllowlistEntry> {
   };
   for (const [code, entry] of Object.entries(raw.codes ?? {})) {
     if ((entry.status ?? '').toLowerCase() !== 'approved') continue;
-    const system = (entry.system ?? '').toLowerCase();
-    // Key by vocabulary::code for LOINC / SNOMED; also bare code for lookup flexibility
-    if (system.includes('loinc')) map.set(`LOINC::${code}`, entry);
-    else if (system.includes('snomed')) map.set(`SNOMED::${code}`, entry);
-    map.set(code, entry); // fallback
+    const vocab = vocabFromSystem(entry.system ?? '');
+    // Qualified key for every known vocab; bare code as fallback (LOINC LA… / shared keyspace)
+    if (vocab) map.set(`${vocab}::${code}`, entry);
+    map.set(code, entry);
   }
   return map;
 }
 
 function allowlistCovers(approved: Map<string, AllowlistEntry>, vocabulary: Vocab, code: string): boolean {
   if (approved.has(`${vocabulary}::${code}`)) return true;
-  // LOINC answer codes (LA…) and numeric codes share the allowlist keyspace
   const e = approved.get(code);
   if (!e) return false;
-  const system = (e.system ?? '').toLowerCase();
-  if (vocabulary === 'LOINC' && system.includes('loinc')) return true;
-  if (vocabulary === 'SNOMED' && system.includes('snomed')) return true;
-  return false;
+  return systemMatchesVocab(e.system ?? '', vocabulary);
 }
-
-type Vocab = 'LOINC' | 'UCUM' | 'SNOMED' | 'FMA' | 'UBERON';
 
 interface FoundCode {
   vocabulary: Vocab;
