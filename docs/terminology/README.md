@@ -39,7 +39,12 @@ pnpm verify
 Terminology-related scripts (subset; full set is whatever `run-verify` registers):
 
 ```bash
-pnpm exec tsx verify/check-terminology.ts      # review records (UNVERIFIED = fail)
+pnpm exec tsx verify/check-terminology.ts      # UNVERIFIED records fail this
+                                               # gate, but it is registered
+                                               # ADVISORY: it does not fail
+                                               # pnpm verify. Promotes to
+                                               # blocking when the 67 anchor
+                                               # records are signed.
 pnpm exec tsx verify/check-snomed-boundary.ts # no SCTIDs in published paths
 node verify/check-terminology.mjs              # G1 allowlist
 node verify/check-units.mjs
