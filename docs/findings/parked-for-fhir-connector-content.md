@@ -1,9 +1,9 @@
-# Parked for branch 24 — fhir-core Anchor / lab UCUM body content
+# Parked for open-twin/fhir-connector — fhir-core Anchor / lab UCUM body content
 
-**Status.** Explicit input to branch `24-fhir-connector` (or whichever branch lands
+**Status.** Explicit input to branch `open-twin/fhir-connector` (or whichever branch lands
 provider-anchor / Anchor `SYSTEMS` + lab UCUM in `@open-twin/fhir-core`).
 
-**Why this file exists.** On `20b-module-headers`, `packages/fhir-core/src/systems.ts`
+**Why this file exists.** On `open-twin/module-headers`, `packages/fhir-core/src/systems.ts`
 and `packages/fhir-core/src/units.ts` were Method-B *upstream-untouched*, so a
 wholesale snapshot checkout looked safe. Snapshot bodies also carried **P6 content
 beyond the header**: Anchor code-system / identifier URIs and lab UCUM table
@@ -11,10 +11,10 @@ entries (including known ugly UCUM display names from the library). That content
 does **not** belong on a headers branch, so bodies were restored to `main`.
 
 Without this park, that content exists nowhere in the reconstruction stack and
-branch 24 will either fail to build or silently lose lab units — with the cause
+`open-twin/fhir-connector` will either fail to build or silently lose lab units — with the cause
 four branches upstream.
 
-**Apply on 24:** take `main` (or tip) bodies of the two files, apply the hunks
+**Apply on `open-twin/fhir-connector`:** take `main` (or tip) bodies of the two files, apply the hunks
 below (or re-checkout these two paths from `wip/snapshot-2026-08-02` and keep
 headers pointing at `DECISIONS.md#d3` / `#d4`), then run fhir-core + consumer tests.
 
@@ -22,7 +22,7 @@ headers pointing at `DECISIONS.md#d3` / `#d4`), then run fhir-core + consumer te
 
 ```diff
 --- a/packages/fhir-core/src/systems.ts (main body)
-+++ b/packages/fhir-core/src/systems.ts (snapshot body — park for branch 24)
++++ b/packages/fhir-core/src/systems.ts (snapshot body — park for open-twin/fhir-connector)
 @@ -12,6 +12,7 @@
    OURA: 'http://opentwin.ch/fhir/CodeSystem/oura',
    GOOGLE_HEALTH: 'http://opentwin.ch/fhir/CodeSystem/google-health',
@@ -43,7 +43,7 @@ headers pointing at `DECISIONS.md#d3` / `#d4`), then run fhir-core + consumer te
  /**
 
 --- a/packages/fhir-core/src/units.ts (main body)
-+++ b/packages/fhir-core/src/units.ts (snapshot body — park for branch 24)
++++ b/packages/fhir-core/src/units.ts (snapshot body — park for open-twin/fhir-connector)
 @@ -87,6 +87,16 @@
    MG_PER_DL: { unit: 'milligram per deciliter', code: 'mg/dL' },
    MICROGRAM_PER_LITRE: { unit: 'microgram per liter', code: 'ug/L' },
