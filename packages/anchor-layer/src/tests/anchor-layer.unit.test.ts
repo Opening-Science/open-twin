@@ -2,7 +2,7 @@
  * WHAT: Round-trip and D-e / determinism gates for the compiled Anchor-layer artefact.
  * NOT:  Does not invent LOINC codes or auto-fix property mismatches.
  * GOVERNED BY: DECISIONS.md#d11; D-a–D-e
- * CORRECTNESS: 67 markers; exactly BM-060/BM-186/BM-405 mismatches; byte-identical sha256 across recompiles
+ * CORRECTNESS: 67 markers; 44 core-owned RIs + 5 bands; exactly BM-060/BM-186/BM-405 mismatches; byte-identical sha256 across recompiles
  * GOTCHA: An integration test asserting only on exit code cannot distinguish the failure it wants from a failure to run at all (module-resolution / syntax errors also exit non-zero).
  */
 import { execFileSync } from 'node:child_process';
@@ -65,7 +65,7 @@ describe('anchor-layer artefact', () => {
     const layer = loadAnchorLayer();
     expect(layer.schema_version).toBe('anchor-layer.v1');
     expect(layer.biomarkers).toHaveLength(67);
-    expect(layer.reference_intervals).toHaveLength(93);
+    expect(layer.reference_intervals).toHaveLength(44);
     expect(layer.interpretive_bands).toHaveLength(5);
     expect(layer.counts.markers_with_reference_interval).toBe(30);
     expect(layer.counts.markers_with_interpretive_band_only).toBe(1);
@@ -73,6 +73,16 @@ describe('anchor-layer artefact', () => {
 
     const ids = layer.biomarkers.map((b) => b.biomarker_id);
     expect(new Set(ids).size).toBe(67);
+
+    const core = new Set(ids);
+    for (const ri of layer.reference_intervals) {
+      expect(core.has(ri.biomarker_id), `orphan RI ${ri.interval_id}`).toBe(true);
+      expect(ri.unit_ucum).not.toBe('UNMAPPED');
+      expect(ri.unit_ucum).toBeTruthy();
+    }
+    for (const band of layer.interpretive_bands) {
+      expect(core.has(band.biomarker_id), `orphan band ${band.interval_id}`).toBe(true);
+    }
 
     for (const b of layer.biomarkers) {
       expect(b).toMatchObject({
@@ -109,6 +119,19 @@ describe('anchor-layer artefact', () => {
     const mismatches = detectPropertyMismatches(layer);
     expect(mismatches.map((m) => m.biomarker_id).sort()).toEqual([...PROPERTY_MISMATCH_IDS].sort());
     expect(mismatches).toHaveLength(3);
+  });
+
+  it('normalises German blood-count notation to UCUM (D-d)', () => {
+    const layer = loadAnchorLayer();
+    const byId = new Map(layer.biomarkers.map((b) => [b.biomarker_id, b]));
+    // G/l is 10^9 per litre; T/l is 10^12 per litre — not gauss / tesla.
+    expect(byId.get('BM-426')?.unit_source).toBe('G/l');
+    expect(byId.get('BM-426')?.unit_ucum).toBe('10*9/L');
+    expect(byId.get('BM-425')?.unit_source).toBe('T/l');
+    expect(byId.get('BM-425')?.unit_ucum).toBe('10*12/L');
+    // Lowercase g/l stays grams per litre (proteins / Igs).
+    expect(byId.get('BM-431')?.unit_source).toBe('g/l');
+    expect(byId.get('BM-431')?.unit_ucum).toBe('g/L');
   });
 
   it('compiler exits non-zero listing the three mismatches and writes a stable artefact', () => {

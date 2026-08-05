@@ -118,19 +118,23 @@ export function readSidecarSha256(path: string = ARTEFACT_SHA256_PATH): string {
   return line.split(/\s+/)[0] ?? '';
 }
 
-function loincProperty(loincDisplay: string): 'moles' | 'mass' | 'other' {
+/** LOINC FSN property axis used by D-e. Shared with scripts/compile-anchor-layer.ts. */
+export function loincProperty(loincDisplay: string): 'moles' | 'mass' | 'other' {
   if (/\[Moles\/volume\]/i.test(loincDisplay)) return 'moles';
   if (/\[Mass\/volume\]/i.test(loincDisplay)) return 'mass';
   return 'other';
 }
 
-function unitLooksMass(unit: string): boolean {
+/** True when a source/reporting unit is a mass concentration (µg, ng, mg, g, pg). */
+export function unitLooksMass(unit: string): boolean {
   const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
-  return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u);
+  return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u) || (/\/(l|ml|dl)$/i.test(u) && /^(ug|ng|mg|g|pg)/i.test(u));
 }
 
-function unitLooksMolar(unit: string): boolean {
-  return /(mol|mmol|umol|nmol|pmol)/i.test(unit);
+/** True when a source/reporting unit is a molar concentration. */
+export function unitLooksMolar(unit: string): boolean {
+  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
+  return /(mol|mmol|umol|nmol|pmol)/i.test(u);
 }
 
 /**

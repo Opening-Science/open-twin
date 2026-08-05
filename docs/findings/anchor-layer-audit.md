@@ -3,7 +3,7 @@
 Source: `docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx`  
 Source sha256: `4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d`  
 Artefact: `packages/anchor-layer/data/anchor-layer.v1.json`  
-Artefact sha256: `f5024b68b182ab285d937462aef780d7dc6d1dbe1dd6aac1fad2af27b7890a26`
+Artefact sha256: `9b7307e28564f9acf713720dfca6d3753f0f6e963645583fafb1c590b5dea940`
 
 ## Counts (D-c — do not merge)
 
@@ -14,7 +14,7 @@ wrong for abstention purposes and is corrected here rather than quietly reused.
 | Metric | Value | Notes |
 |---|---:|---|
 | Biomarkers | 67 | expected 67 |
-| Reference intervals (`record_kind=reference_interval`) | 93 | expected 93 |
+| Reference intervals (`record_kind=reference_interval`) | 44 | core-owned only (workbook RI rows for non-core ids skipped: 49) |
 | Interpretive bands (`record_kind=interpretive_band`) | 5 | expected 5 |
 | `counts.markers_with_reference_interval` | 30 | measured assay intervals only |
 | `counts.markers_with_interpretive_band_only` | 1 | band(s), no reference interval |
@@ -22,6 +22,7 @@ wrong for abstention purposes and is corrected here rather than quietly reused.
 | Property mismatches (molar LOINC + mass unit) | 3 | expected 3 |
 
 Superseded conflated headline (do not use): "31 with interval / 36 without" mixed RI∨band.
+Prior artefact revision published 93 RI rows including non-core orphan ids; this tip publishes core-owned intervals only.
 
 ### By tier
 
@@ -96,3 +97,4 @@ _none_
 - Biomarker records do **not** carry `(low, high)` (D-b).
 - Interpretive bands are a separate array from reference intervals (D-c).
 - `system_id` comes from `docs/contracts/anchor-organ-to-system.md` (curated_table).
+- Interval rows are emitted only when `biomarker_id` is in the 67-marker core; D-e classifier is shared with `@open-twin/anchor-layer`.
