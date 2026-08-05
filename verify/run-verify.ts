@@ -7,12 +7,13 @@
  *         to register is visible in the diff. module-headers is blocking on this tip.
  */
 import { spawnSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const THIS_FILE = fileURLToPath(import.meta.url);
 
-interface Gate {
+export interface Gate {
   id: string;
   command: string;
   args: string[];
@@ -21,7 +22,7 @@ interface Gate {
 }
 
 /** Only gates owned by the current branch stack tip. Later branches append. */
-const GATES: Gate[] = [
+export const GATES: Gate[] = [
   {
     id: 'terminology-allowlist (verify/check-terminology.mjs)',
     command: 'node',
@@ -41,6 +42,22 @@ const GATES: Gate[] = [
     id: 'docs-integrity (verify/check-docs.ts)',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-docs.ts']
+  },
+  {
+    id: 'snomed-boundary (verify/check-snomed-boundary.ts)',
+    command: 'pnpm',
+    args: ['exec', 'tsx', 'verify/check-snomed-boundary.ts']
+  },
+  {
+    id: 'terminology-review-records (verify/check-terminology.ts) [ADVISORY]',
+    command: 'pnpm',
+    args: ['exec', 'tsx', 'verify/check-terminology.ts'],
+    advisory: true
+  },
+  {
+    id: 'verify-ci-equivalence (verify/check-verify-equivalence.ts)',
+    command: 'pnpm',
+    args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts']
   }
 ];
 
@@ -77,4 +94,7 @@ function main(): void {
   if (blockingFailed.length) process.exit(1);
 }
 
-main();
+const invokedDirectly = typeof process.argv[1] === 'string' && resolve(process.argv[1]) === resolve(THIS_FILE);
+if (invokedDirectly) {
+  main();
+}
