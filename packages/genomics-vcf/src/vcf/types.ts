@@ -1,11 +1,9 @@
 /**
- * Types for the subset of VCF this connector reads.
- *
- * Reference: The Variant Call Format Specification, VCFv4.3 and VCFv4.4 (samtools
- * hts-specs). Section 1.2 defines the header, section 1.4 the eight fixed fields
- * and the genotype fields.
+ * WHAT: Parses VCF structures (header, records, genotype, coordinates).
+ * NOT:  Must not emit FHIR resources; fhir/ owns mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: VCF specification parsing; fixtures from public htsjdk/dbSNP where applicable.
  */
-
 /**
  * The `Number` attribute of an INFO or FORMAT declaration (hts-specs §1.4.2).
  *

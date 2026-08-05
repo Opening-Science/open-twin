@@ -1,3 +1,9 @@
+/**
+ * WHAT: Connector configuration constants and construction helpers.
+ * NOT:  Must not hard-code clinical codes for Observations; mappers + allowlists own codes.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 // `as const` is load-bearing: without it `SystemScope` widens to `string`, and
 // `BodyLoopClientConfig.scope` — the package's public entry point — accepts any
 // string and posts it straight into the OAuth token request.

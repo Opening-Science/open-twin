@@ -1,3 +1,9 @@
+/**
+ * WHAT: Builds FHIR Bundles with lowercase urn:uuid fullUrls and connector provenance tags.
+ * NOT:  Must not perform clinical selection across sources; aggregate owns reconciliation.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 validator (CI fhir-validate over emitted bundles).
+ */
 import type { Bundle, BundleEntry, FhirResource, Meta } from 'fhir/r4';
 import { uuidv5 } from './identity';
 

@@ -1,12 +1,9 @@
 /**
- * Traversal helpers shared by the validators.
- *
- * FHIR JSON is a tree of plain objects and arrays with no discriminator other than
- * the element name, so every check here works structurally. Nothing in this file
- * reads a value for any purpose other than deciding whether an element is present
- * and what shape it has.
+ * WHAT: Validates or normalises foreign FHIR R4 Bundles structurally.
+ * NOT:  Must not rewrite clinical codes or units to pass gates.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 FHIR R4 structure rules (local checks); CI also runs official validator on emitted exemplars.
  */
-
 export type JsonObject = Record<string, unknown>;
 
 export function isObject(value: unknown): value is JsonObject {

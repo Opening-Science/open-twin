@@ -1,3 +1,9 @@
+/**
+ * WHAT: Observation constructors including numericComponent with required unit and dataAbsentReason.
+ * NOT:  Must not zero-fill missing values; must not attach canonical reference ranges to the Biomarker concept.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: HL7 FHIR R4 Observation / data-absent-reason; unit policy DECISIONS.md#d4.
+ */
 import type {
   CodeableConcept,
   Coding,

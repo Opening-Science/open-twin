@@ -1,26 +1,9 @@
 /**
- * HL7 v2 DTM to FHIR `dateTime` / `date` / `instant`.
- *
- * v2 DTM is `YYYY[MM[DD[HH[MM[SS[.S[S[S[S]]]]]]]]][+/-ZZZZ]` (v2.5.1 §2.A.22). Every
- * component after the year is optional, and so is the offset.
- *
- * Two rules from the FHIR R4 `dateTime` definition drive everything here:
- *
- *   "If hours and minutes are specified, a time zone SHALL be populated."
- *   "Seconds must be provided due to schema type constraints but may be zero-filled
- *    and may be ignored at receiver discretion."
- *
- * So a v2 timestamp that carries a time but no offset **cannot** be expressed as a
- * FHIR dateTime at all. The tempting move is to append `Z`. That is a lie: it
- * asserts UTC for a local wall-clock time and shifts every result by the sender's
- * offset — up to fourteen hours, across a date boundary, which is exactly the class
- * of defect DECISIONS.md D7 records. This module narrows to the date instead and
- * reports that it did so. Precision is lost; no fact is invented.
- *
- * Zero-filling seconds is different: the FHIR specification explicitly sanctions it,
- * and the bounded error is under a minute rather than under a day.
+ * WHAT: HL7 v2 parse/datatype/encoding helpers.
+ * NOT:  Must not invent FHIR codings; fhir/ and tables own clinical mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 v2 encoding rules; golden fixtures from HL7 v2-to-FHIR IG where used.
  */
-
 const DTM =
   /^(\d{4})(?:(\d{2})(?:(\d{2})(?:(\d{2})(?:(\d{2})(?:(\d{2}))?)?)?)?)?(\.\d{1,4})?(?:([+-])(\d{2})(\d{2}))?$/;
 

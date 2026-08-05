@@ -1,3 +1,9 @@
+/**
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
+ */
 import { CATEGORY, createObservation, dataAbsentReason, deterministicId, quantity } from '@open-twin/fhir-core';
 import type { Observation, Reference } from 'fhir/r4';
 import type { TimeSeriesSample } from '../../api/schemas/timeseries';

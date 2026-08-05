@@ -1,3 +1,9 @@
+/**
+ * WHAT: Issue log helpers for conversion diagnostics without payload dumps.
+ * NOT:  Must not log raw message bodies containing PHI.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { ConnectorError, type ConnectorErrorCode } from '@open-twin/fhir-core';
 
 export const CONNECTOR = 'hl7v2';

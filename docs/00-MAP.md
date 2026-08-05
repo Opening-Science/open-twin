@@ -13,6 +13,8 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/](findings/) | whoever discovers the defect | New known-wrong or authority gap |
 | [findings/no-external-authority.md](findings/no-external-authority.md) | architect | Module gains or loses external authority |
 | [findings/verify-baseline.md](findings/verify-baseline.md) | architect | Verify gate picture / dual terminology / intentional reds |
+| [findings/parked-for-fhir-connector-content.md](findings/parked-for-fhir-connector-content.md) | engineer | Consumed when open-twin/fhir-connector lands fhir-core Anchor/lab UCUM bodies |
+| [findings/header-fill-quality.md](findings/header-fill-quality.md) | architect | Header paste / shape debt; gate cannot verify CORRECTNESS truth |
 
 Later branches land `contracts/`, `terminology/`, `strategy/`, and `runbooks/`
 and extend this map when those trees exist.

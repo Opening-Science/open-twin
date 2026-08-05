@@ -1,3 +1,10 @@
+/**
+ * WHAT: Shared Google Health FHIR helpers — observation factory, quantities, time/period.
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+ * GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d4
+ * CORRECTNESS: UCUM gate for quantities; signed allowlist (verify/terminology-allowlist.json) for LOINC/SNOMED emitted via helpers.
+ * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
+ */
 import {
   type CodingInput,
   codeableConcept,

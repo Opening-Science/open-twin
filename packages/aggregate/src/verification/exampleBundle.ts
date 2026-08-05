@@ -1,3 +1,9 @@
+/**
+ * WHAT: Cross-source reconciliation / measure keys / source selection for overlapping Observations.
+ * NOT:  Must not fetch vendor data or invent scores for openXR HealthTwinData.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 validator (CI emit-bundles).
+ */
 import {
   buildBundle,
   createObservation,

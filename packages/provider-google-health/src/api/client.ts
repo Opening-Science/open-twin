@@ -1,3 +1,10 @@
+/**
+ * WHAT: HTTP client for a vendor API, including auth token handling in-process.
+ * NOT:  Must not emit FHIR or log response bodies; mapping and ConnectorError own those duties.
+GOVERNED BY: DECISIONS.md#d8
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ * GOTCHA: Hosts still need durable token persistence; TokenStore interfaces are not implemented in-tree.
+ */
 import { health } from '@googleapis/health';
 import { ConnectorError, fromHttpStatus, parseRetryAfter } from '@open-twin/fhir-core';
 import { type Auth, google, type health_v4 } from 'googleapis';

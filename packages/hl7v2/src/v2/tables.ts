@@ -1,3 +1,9 @@
+/**
+ * WHAT: HL7 v2 parse/datatype/encoding helpers.
+ * NOT:  Must not invent FHIR codings; fhir/ and tables own clinical mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 v2 encoding rules; golden fixtures from HL7 v2-to-FHIR IG where used.
+ */
 import { SYSTEMS } from '@open-twin/fhir-core';
 
 /**

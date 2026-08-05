@@ -1,16 +1,8 @@
 /**
- * BodyLoop scan properties.
- *
- * A property is an untyped key/value pair — `value` is `unknown` in the API
- * schema — so the FHIR `value[x]` type is chosen from the runtime type of the
- * value. A number becomes a Quantity carrying only a value: the API states no
- * unit for properties anywhere in the payload, and asserting a UCUM unit nobody
- * has verified would be worse than asserting none.
- *
- * TODO(clinical-review): a reviewed `property_path` -> unit table would let the
- * paths that do have a known unit carry one. Until that table exists the
- * unitless Quantity is the honest encoding, and it is what the reference
- * implementation independently arrived at.
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record for unitless waiver (verify/units-allowlist.json); not a UCUM invention.
  */
 import type { CodeableConcept, Observation, Quantity } from 'fhir/r4';
 import type { Property, PropertyList } from '../../api/schemas/properties';

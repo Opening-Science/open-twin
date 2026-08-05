@@ -1,3 +1,9 @@
+/**
+ * WHAT: LOINC and answer codings for Genomics Reporting variant Observations.
+ * NOT:  Must not invent codes; every LOINC/SNOMED used must be allowlisted.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json).
+ */
 import { SYSTEMS } from '@open-twin/fhir-core';
 
 /**

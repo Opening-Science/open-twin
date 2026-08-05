@@ -1,16 +1,8 @@
 /**
- * BodyLoop cross-section measurements.
- *
- * A cross-section yields two circumferences: `perimeter` follows the true skin
- * contour and `convex` follows its convex hull, which is what a tape measure
- * pulled taut reports. `preference` names the contour the operator chose, and
- * the corresponding circumference becomes `value[x]` — the clinical measure of a
- * body cross-section is its circumference, not its enclosed area, and promoting
- * the area published 0.08 m² where a consumer reading `value[x]` expects 1.04 m.
- *
- * The raw 2D/3D contour polylines are deliberately not mapped: they are geometry
- * rather than a clinical result and would add thousands of coordinates to every
- * resource.
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import type { Observation } from 'fhir/r4';
 import type { CrossSection, CrossSectionList } from '../../api/schemas/crosssection';

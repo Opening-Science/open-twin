@@ -1,3 +1,9 @@
+/**
+ * WHAT: Device, METHOD vocabulary, and derivedObservation helpers.
+ * NOT:  Must not delete source Observations when deriving; aggregate keeps sources.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import type { CodeableConcept, Device, Observation, Reference } from 'fhir/r4';
 import { deterministicId, uuidv5 } from './identity';
 import { codeableConcept } from './observation';

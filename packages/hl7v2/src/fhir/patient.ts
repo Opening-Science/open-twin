@@ -1,3 +1,9 @@
+/**
+ * WHAT: Maps HL7 v2 segments into FHIR resources.
+ * NOT:  Must not invent LOINC/SNOMED beyond allowlisted/table-driven mappings.
+GOVERNED BY: DECISIONS.md#d4
+ * CORRECTNESS: HL7 v2-to-FHIR IG expectations; signed review record for coded Observations; HL7 validator on emitted bundles.
+ */
 import { patientUuid } from '@open-twin/fhir-core';
 import type { Patient } from 'fhir/r4';
 import type { IssueLog } from '../issues';

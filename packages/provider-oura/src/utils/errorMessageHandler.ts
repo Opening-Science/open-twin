@@ -1,3 +1,9 @@
+/**
+ * WHAT: Shared non-clinical utilities for the connector package.
+ * NOT:  Must not choose terminology or units.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { type ConnectorError, fromHttpStatus, parseRetryAfter } from '@open-twin/fhir-core';
 import { CONNECTOR } from '../fhir/mappers/shared';
 

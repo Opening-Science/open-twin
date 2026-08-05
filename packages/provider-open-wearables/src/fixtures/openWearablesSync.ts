@@ -1,27 +1,9 @@
 /**
- * Fixtures for the Open Wearables connector.
- *
- * **These were not recorded from a running Open Wearables instance.** Docker was not
- * available on the machine this connector was written on, so there was no server to
- * record against. Every record below is instead reproduced from a primary source in
- * the Open Wearables repository, and each carries the file and construct it came
- * from. Where a record was constructed rather than reproduced — to exercise a code
- * path the platform's own samples do not cover — it says so.
- *
- * The distinction matters: a reproduced record proves this connector agrees with
- * what the platform's authors wrote down, which is not the same as proving it
- * agrees with what their server sends. See README, "What has not been verified".
- *
- * Primary source for the reproduced records:
- * https://github.com/the-momentum/open-wearables/blob/main/backend/app/constants/webhooks/test_payloads.py
- * — `EXAMPLE_PAYLOADS`, built by `_ts_payload(event_type, series_type, provider, unit, sample_value)`
- * at lines 21-45, which emits exactly the `TimeSeriesSample` shape.
- *
- * Typed `unknown` on purpose. A fixture typed as the parsed shape would bypass the
- * zod schemas, and then the tests would prove the mappers work on data the parser
- * has never seen.
+ * WHAT: Exported fixture payload for tests and verification.
+ * NOT:  Must not be mistaken for a live recorded vendor capture unless documented as such.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-
 const OW_USER_ID = '00000000-0000-0000-0000-000000000002';
 
 /** `_SOURCE_GARMIN`, `_SOURCE_OURA`, `_SOURCE_APPLE` — test_payloads.py:16-18. */

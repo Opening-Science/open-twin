@@ -1,3 +1,9 @@
+/**
+ * WHAT: Embeds an HL7-published example Bundle for ingest tests.
+ * NOT:  Must not rewrite clinical codes to suit our mappers; normalisation repairs addressing only.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: golden fixture (HL7 published R4 examples).
+ */
 import type { Bundle, FhirResource } from 'fhir/r4';
 
 /**

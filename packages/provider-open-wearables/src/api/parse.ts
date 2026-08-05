@@ -1,3 +1,9 @@
+/**
+ * WHAT: Exports symbols for `packages/provider-open-wearables/src/api/parse.ts`.
+ * NOT:  Must not invent terminology codes or units; that responsibility is clinical review + verify/ gates.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ */
 import { ConnectorError } from '@open-twin/fhir-core';
 import type { z } from 'zod/v4';
 import { CONNECTOR } from '../config/constants';

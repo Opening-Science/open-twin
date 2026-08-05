@@ -1,13 +1,8 @@
 /**
- * Identity and namespaces for the Open Wearables connector.
- *
- * Open Wearables (https://github.com/the-momentum/open-wearables) is a self-hosted
- * MIT-licensed platform that ingests Apple Health, Fitbit, Garmin, Google Health
- * Connect, Oura, Polar, Samsung Health, Sensorbio, Strava, Suunto, Ultrahuman and
- * Whoop and normalises them onto one schema. This connector maps that one schema —
- * not any individual vendor — so a single mapper covers every provider the platform
- * supports, including the two on-device sources a server-side Node connector cannot
- * reach on its own.
+ * WHAT: Connector configuration constants and construction helpers.
+ * NOT:  Must not hard-code clinical codes for Observations; mappers + allowlists own codes.
+GOVERNED BY: DECISIONS.md#d9
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 export const CONNECTOR = {
   connector: 'open-wearables',

@@ -1,14 +1,8 @@
 /**
- * BodyLoop axis measurements.
- *
- * An axis is the line fitted through two or more landmarks, and what is measured
- * is its rotation in each of the three scanner planes. There is no single "the"
- * value, so the Observation carries no `value[x]` and groups the three rotations
- * as components — the pattern FHIR prescribes for multi-component results.
- *
- * The rotations are radians, like the angle payload: for `leg.trochanterion` the
- * triple reproduces `atan2` of the direction components of the distance built
- * from the same two markers, to double precision (D10).
+ * WHAT: Maps one vendor record type into FHIR Observation(s).
+ * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
+GOVERNED BY: DECISIONS.md#d10
+ * CORRECTNESS: recorded API response (BodyLoop radians; π identities per DECISIONS.md#d10); UCUM deg.
  */
 import type { Observation } from 'fhir/r4';
 import type { AxesList, Axis } from '../../api/schemas/axes';

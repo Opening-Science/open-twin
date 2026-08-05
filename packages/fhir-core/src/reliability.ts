@@ -1,28 +1,10 @@
 /**
- * How well each source measures each thing, from the validation literature.
- *
- * This exists so that source selection is an evidence lookup rather than folklore.
- * The received wisdom — "Oura is best at sleep, Fitbit at exercise" — is directionally
- * right in places and actively misleading in others, and the difference matters when
- * a downstream layer is deciding which of three overlapping Observations to trust.
- *
- * Two findings from the literature reshape the problem:
- *
- *   1. Accuracy is per-MEASURE, not per-device. Every consumer wearable detects
- *      sleep-versus-wake well (>90% sensitivity) and classifies four sleep stages
- *      poorly (60-75%). "Good at sleep" is therefore not a claim you can act on:
- *      total sleep time and sleep staging have different answers.
- *
- *   2. Some measures have no good source at all. Energy expenditure has a mean
- *      absolute percentage error above 30% on every brand tested. Ranking sources
- *      for calories is choosing between unreliable options, and a selection layer
- *      that presents a winner implies a confidence nobody has earned.
- *
- * Nothing here is a substitute for reading the citation. `grade` is a summary of the
- * evidence for a purpose, not a measurement, and it should be revisited as devices
- * and firmware change — a validation of Oura Gen3 says nothing about Gen5.
+ * WHAT: Graded validation evidence table per (source, measure) with citations.
+ * NOT:  Must not invent grades without a cited finding; selection policy lives in aggregate.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ * GOTCHA: Grades are literature-backed claims — treat CORRECTNESS of each row as the cited paper, not this module alone.
  */
-
 /**
  * `good`      — validated against a clinical reference with small, characterised error.
  * `fair`      — usable for trends; error large enough to matter for a single reading.

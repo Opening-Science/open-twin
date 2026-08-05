@@ -1,14 +1,8 @@
 /**
- * Canonical system URIs used across every open-twin connector.
- *
- * Decision D3: vendor-specific concepts are published under Foundation-controlled
- * code systems. Before this change each connector appended URL *fragments* to a
- * vendor documentation page (`https://cloud.ouraring.com/v2/docs#tag/Sleep-Routes`)
- * to manufacture distinct systems, so one connector claimed four "code systems",
- * none of which the Foundation controls and none of which any resource defines.
- *
- * A code system URI you do not control is not a code system. Each URI below is
- * backed by a real CodeSystem resource in the implementation guide.
+ * WHAT: Canonical FHIR and Foundation code-system URIs, profiles, and categories.
+ * NOT:  Must not invent LOINC/SNOMED codes; only system URIs and shared category codings.
+GOVERNED BY: DECISIONS.md#d3
+ * CORRECTNESS: HL7 FHIR R4 published system URIs and Foundation-controlled opentwin.ch namespaces (D3).
  */
 export const SYSTEMS = {
   /** HL7-maintained. */

@@ -1,13 +1,8 @@
 /**
- * The delimiters an HL7 v2 message declares about itself.
- *
- * MSH-1 is the field separator and MSH-2 the remaining encoding characters, in the
- * fixed order component, repetition, escape, subcomponent, and — from v2.7 — an
- * optional truncation character. They are *data*, not constants: `|^~\&` is
- * overwhelmingly common but a sender may declare anything, and the v2-to-FHIR IG's
- * own ORU_R01 example declares five characters, `^~\&#`. A parser that hardcodes
- * the usual set silently mis-splits any message that does not use it, which turns
- * one patient's fields into another's.
+ * WHAT: HL7 v2 parse/datatype/encoding helpers.
+ * NOT:  Must not invent FHIR codings; fhir/ and tables own clinical mapping.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: HL7 v2 encoding rules; golden fixtures from HL7 v2-to-FHIR IG where used.
  */
 export interface EncodingCharacters {
   readonly field: string;

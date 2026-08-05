@@ -1,3 +1,10 @@
+/**
+ * WHAT: Open Wearables → FHIR mapping helpers.
+ * NOT:  Must not perform HTTP; caller supplies normalised payloads.
+GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * CORRECTNESS: signed review record where codes are emitted; package fixtures are project-published (unverified against a live instance).
+ * GOTCHA: Marked unverified against a running Open Wearables instance in BUILD-SUMMARY.
+ */
 import { ConnectorError } from '@open-twin/fhir-core';
 import { CONNECTOR } from '../config/constants';
 
