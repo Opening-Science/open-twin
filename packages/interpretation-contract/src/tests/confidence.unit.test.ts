@@ -23,7 +23,6 @@ describe('confidence elapsed-day procedure', () => {
   });
 
   it('floors fractional SI days (30.5 → 30, not 31)', () => {
-    // 30 days + 12 hours = 30.5 SI days
     const observed = new Date(Date.parse(asOf) - (30 * 86_400_000 + 12 * 3_600_000)).toISOString();
     expect(ageDaysUtc(asOf, observed)).toBe(30);
     expect(recencyFromAgeDays(30)).toBe(1.0);
@@ -36,6 +35,15 @@ describe('confidence elapsed-day procedure', () => {
     expect(recencyFromAgeDays(91)).toBe(0.4);
     expect(recencyFromAgeDays(180)).toBe(0.4);
     expect(recencyFromAgeDays(181)).toBe(0.1);
+  });
+
+  it('rejects timezone-less date-time strings', () => {
+    expect(() => ageDaysUtc('2026-07-28T00:00:00', '2026-07-01T00:00:00Z')).toThrow(/timezone-less/);
+    expect(() => ageDaysUtc('2026-07-28T00:00:00Z', '2026-07-01T00:00:00')).toThrow(/timezone-less/);
+  });
+
+  it('accepts numeric offsets', () => {
+    expect(ageDaysUtc('2026-07-28T00:00:00+00:00', '2026-07-27T00:00:00+00:00')).toBe(1);
   });
 });
 
@@ -63,5 +71,27 @@ describe('confidence half-up rational rounding', () => {
   it('serializes with exactly four fractional digits', () => {
     expect(rationalToFixed4(roundHalfUp4(decimalStringToRational('1')))).toBe('1.0000');
     expect(rationalToFixed4(roundHalfUp4(decimalStringToRational('0.5')))).toBe('0.5000');
+  });
+
+  it('rejects empty contributing', () => {
+    expect(() =>
+      computeConfidence({ presentCount: 0, contributingCount: 0, R: '0', S: '0' })
+    ).toThrow(/non-empty/);
+  });
+
+  it('bounds R and S to [0, 1]', () => {
+    expect(() =>
+      computeConfidence({ presentCount: 1, contributingCount: 1, R: '2', S: '0.5' })
+    ).toThrow(/R must be in/);
+    expect(() =>
+      computeConfidence({ presentCount: 1, contributingCount: 1, R: '0.5', S: '2' })
+    ).toThrow(/S must be in/);
+    expect(() =>
+      computeConfidence({ presentCount: 1, contributingCount: 1, R: '-0.1', S: '0.5' })
+    ).toThrow(/R must be in/);
+    const lo = computeConfidence({ presentCount: 1, contributingCount: 1, R: '0', S: '0' });
+    expect(lo.fixed4).toBe('0.0000');
+    const hi = computeConfidence({ presentCount: 1, contributingCount: 1, R: '1', S: '1' });
+    expect(hi.fixed4).toBe('1.0000');
   });
 });

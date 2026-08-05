@@ -18,15 +18,23 @@ $$
 
 where each factor is in $[0, 1]$ and the product is in $[0, 1]$.
 
+**Precondition.** `contributing` must be non-empty (`n_{\mathrm{contributing}} \ge 1`).
+An empty contributing list makes the state **invalid** (see reject fixture
+`empty-contributing`); confidence is **not computed** for that state. Division
+by zero is therefore outside the contract.
+
 | Factor | Symbol | Definition |
 |---|---|---|
-| Completeness | $C$ | Exact rational $\dfrac{n_{\mathrm{present}}}{n_{\mathrm{contributing}}}$ where $n_{\mathrm{present}}$ counts contributors with `status = present` and $n_{\mathrm{contributing}} = \|\texttt{contributing}\|$. Never approximate $C$ in binary float before the product. |
-| Recency | $R$ | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. |
-| Rule strength | $S$ | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. Treat $S$ as an exact decimal (or rational); do not re-encode it through IEEE-754 before the product. |
+| Completeness | $C$ | Exact rational $\dfrac{n_{\mathrm{present}}}{n_{\mathrm{contributing}}}$ where $n_{\mathrm{present}}$ counts contributors with `status = present` and $n_{\mathrm{contributing}} = \|\texttt{contributing}\| \ge 1$. Never approximate $C$ in binary float before the product. |
+| Recency | $R$ | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. Exact decimal / rational in $[0, 1]$. |
+| Rule strength | $S$ | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. **API boundary:** $S$ (and $R$) must be supplied as exact decimal strings or rationals — never as IEEE-754 binary floats (`0.1 + 0.2` is non-conformant input). |
 
 ### Elapsed-day procedure $\Delta t$
 
-Both `as_of` and `observed_at` are UTC instants (ISO-8601 with `Z` or numeric offset; normalize to UTC).
+Both `as_of` and `observed_at` are UTC instants. The string **must** include
+`Z` or an explicit numeric offset (`+00:00`, `-05:00`, …). A timezone-less
+local datetime is rejected — `Date.parse` would otherwise use the host zone
+and change $\Delta t$.
 
 1. Let $m = t_{\texttt{as\_of}} - t_{\texttt{observed\_at}}$ in **milliseconds** (Unix epoch ms).
 2. **Clamp before flooring:** if $m < 0$ (observation after `as_of`, clock skew), set $\Delta t = 0$ and stop.

@@ -7,13 +7,26 @@
 
 const MS_PER_DAY = 86_400_000;
 
-/** Exact non-negative rational a/b in lowest terms is not required; callers keep integers. */
+/** Instant must carry Z or a numeric offset (±HH:MM / ±HHMM / ±HH). */
+const INSTANT_TZ_RE = /(Z|[+-]\d{2}(:?\d{2})?)$/i;
+
+/** Exact non-negative rational a/b; callers keep integers. */
 export interface Rational {
   num: bigint;
   den: bigint;
 }
 
+function assertInstantWithZone(label: string, iso: string): void {
+  if (!INSTANT_TZ_RE.test(iso.trim())) {
+    throw new Error(
+      `${label} must include Z or a numeric UTC offset (got timezone-less ${JSON.stringify(iso)})`
+    );
+  }
+}
+
 export function ageDaysUtc(asOfIso: string, observedAtIso: string): number {
+  assertInstantWithZone('as_of', asOfIso);
+  assertInstantWithZone('observed_at', observedAtIso);
   const asOf = Date.parse(asOfIso);
   const observed = Date.parse(observedAtIso);
   if (Number.isNaN(asOf) || Number.isNaN(observed)) {
@@ -39,10 +52,19 @@ export function decimalStringToRational(s: string): Rational {
   }
   const neg = t.startsWith('-');
   const body = neg ? t.slice(1) : t;
-  const [whole, frac = ''] = body.split('.');
+  const parts = body.split('.');
+  const whole = parts[0] ?? '0';
+  const frac = parts[1] ?? '';
   const den = 10n ** BigInt(frac.length);
   const num = BigInt(whole) * den + BigInt(frac === '' ? 0 : frac);
   return { num: neg ? -num : num, den };
+}
+
+function assertUnitInterval(name: string, r: Rational): void {
+  // r < 0  or  r > 1  ⇒  num*1 < 0*den  or  num*1 > 1*den
+  if (r.num < 0n || r.num * 1n > r.den * 1n) {
+    throw new Error(`${name} must be in [0, 1] (exact decimal)`);
+  }
 }
 
 export function mul(a: Rational, b: Rational): Rational {
@@ -67,16 +89,23 @@ export function rationalToFixed4(p: Rational): string {
   return `${whole}.${frac.toString().padStart(4, '0')}`;
 }
 
+/**
+ * Compute confidence from exact decimal strings for R and S.
+ * Numbers are rejected at the type boundary so IEEE-754 artifacts cannot enter.
+ * Empty contributing is invalid — confidence is not defined (contributingCount must be > 0).
+ */
 export function computeConfidence(args: {
   presentCount: number;
   contributingCount: number;
-  /** Minimum r(Δt) over present contributors, or 0 if none present. */
-  R: number | string;
-  /** Rule strength as decimal string preferred (exact). */
-  S: number | string;
+  /** Minimum r(Δt) over present contributors, or "0" if none present. Exact decimal string. */
+  R: string;
+  /** Rule strength. Exact decimal string in [0, 1]. */
+  S: string;
 }): { rational: Rational; fixed4: string } {
   if (args.contributingCount <= 0) {
-    throw new Error('contributingCount must be > 0');
+    throw new Error(
+      'contributing must be non-empty; empty contributing makes the state invalid and confidence is not computed'
+    );
   }
   if (args.presentCount < 0 || args.presentCount > args.contributingCount) {
     throw new Error('presentCount out of range');
@@ -85,8 +114,10 @@ export function computeConfidence(args: {
     num: BigInt(args.presentCount),
     den: BigInt(args.contributingCount)
   };
-  const R = typeof args.R === 'string' ? decimalStringToRational(args.R) : decimalStringToRational(String(args.R));
-  const S = typeof args.S === 'string' ? decimalStringToRational(args.S) : decimalStringToRational(String(args.S));
+  const R = decimalStringToRational(args.R);
+  const S = decimalStringToRational(args.S);
+  assertUnitInterval('R', R);
+  assertUnitInterval('S', S);
   const product = mul(mul(C, R), S);
   const rounded = roundHalfUp4(product);
   return { rational: rounded, fixed4: rationalToFixed4(product) };
