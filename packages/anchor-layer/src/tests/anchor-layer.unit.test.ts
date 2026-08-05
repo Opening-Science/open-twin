@@ -18,7 +18,9 @@ import {
   loadAnchorLayer,
   PROPERTY_MISMATCH_IDS,
   readSidecarSha256,
-  sha256OfFile
+  sha256OfFile,
+  unitLooksMass,
+  unitLooksMolar
 } from '../index.js';
 
 /** packages/anchor-layer → repo root (not packages/). */
@@ -132,6 +134,21 @@ describe('anchor-layer artefact', () => {
     // Lowercase g/l stays grams per litre (proteins / Igs).
     expect(byId.get('BM-431')?.unit_source).toBe('g/l');
     expect(byId.get('BM-431')?.unit_ucum).toBe('g/L');
+  });
+
+  it('preserves unit semantics in D-e classifiers', () => {
+    // Capital G/l and T/l are blood-count multipliers, not mass.
+    expect(unitLooksMass('G/l')).toBe(false);
+    expect(unitLooksMass('T/l')).toBe(false);
+    expect(unitLooksMass('g/l')).toBe(true);
+    expect(unitLooksMass('µg/l')).toBe(true);
+    // Molar concentrations need a volume denominator.
+    expect(unitLooksMolar('mmol/L')).toBe(true);
+    expect(unitLooksMolar('mmol/l')).toBe(true);
+    expect(unitLooksMolar('µmol/l')).toBe(true);
+    expect(unitLooksMolar('mg/mol')).toBe(false);
+    expect(unitLooksMolar('mol')).toBe(false);
+    expect(unitLooksMolar('nmol/mmol')).toBe(false);
   });
 
   it('compiler exits non-zero listing the three mismatches and writes a stable artefact', () => {

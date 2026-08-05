@@ -127,14 +127,17 @@ export function loincProperty(loincDisplay: string): 'moles' | 'mass' | 'other' 
 
 /** True when a source/reporting unit is a mass concentration (µg, ng, mg, g, pg). */
 export function unitLooksMass(unit: string): boolean {
-  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
+  // Preserve German blood-count multipliers before case-folding: G/l ≠ g/l (D-d).
+  const normalized = unit.replace('µ', 'u').replace('μ', 'u');
+  if (/^[GT]\/l$/.test(normalized)) return false;
+  const u = normalized.toLowerCase();
   return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u) || (/\/(l|ml|dl)$/i.test(u) && /^(ug|ng|mg|g|pg)/i.test(u));
 }
 
-/** True when a source/reporting unit is a molar concentration. */
+/** True when a source/reporting unit is a molar concentration (requires a volume denominator). */
 export function unitLooksMolar(unit: string): boolean {
   const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
-  return /(mol|mmol|umol|nmol|pmol)/i.test(u);
+  return /^(?:mol|mmol|umol|nmol|pmol)\/(?:l|ml|dl)$/i.test(u);
 }
 
 /**
