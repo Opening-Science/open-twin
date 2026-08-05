@@ -1,8 +1,7 @@
 # Finding: header fill quality
 
-**Status.** Pre-existing from the headers introduced under #18 / this stack.
-Recorded here so it is not mistaken for a #19 regression. Own PR(s) to fix —
-do not mix into the Oura CORRECTNESS repair.
+**Status.** Pre-existing from the headers landed via #18 / #19. Own PR(s) to
+fix — do not bury inside product branches.
 
 ## Thesis, applied to this convention
 
@@ -38,10 +37,27 @@ optional (`*?`). The gate is therefore more permissive than its own published
 spec. A future tighten (require the starred shape) would be a deliberate
 breaking change to the gate, not a silent expectation.
 
-## Out of scope here
+## Pattern 3 — CORRECTNESS is invisible to path checks (sharpest)
 
-- Wrong-package Oura `CORRECTNESS` lines — fixed on this PR tip when present.
-- Dangling `ADR 0004` / `ADR 0010` prose inside `CORRECTNESS` — retargeted to
-  `DECISIONS.md#d4` / `#d10` on this tip. Note: `check-docs` only inspects
-  `GOVERNED BY`, not `CORRECTNESS`, so dead ADR wording in CORRECTNESS would
-  not have failed the docs gate.
+`check-docs` scans **GOVERNED BY only**. Dead ADR references written as prose
+in `CORRECTNESS` are invisible to both gates.
+
+Four such references were found by review, not by CI: three Vitronic mappers
+citing `ADR 0010` and `fhir-core/observation.ts` citing `ADR 0004`, all
+pointing at a `docs/adr/` tree that does not exist on this tip. Fixed in
+`8c299f7` (retargeted to `DECISIONS.md#d10` / `#d4`). **The gap is not.**
+
+## Follow-up scope
+
+1. Audit / rewrite the 68 identical `d1;d2;d6` GOVERNED BY lines module-by-module.
+2. Decide whether `check-headers` should require the starred `GOVERNED BY` shape
+   matching CONVENTIONS.md.
+3. **`check-docs` should scan every header field for dead path references, not
+   just GOVERNED BY** — including bare `ADR NNNN` / `docs/adr/…` /
+   `docs/contracts/ADR-*` prose inside CORRECTNESS (and GOTCHA if present).
+
+## Already fixed elsewhere (not this finding's job)
+
+- Wrong-package Oura `CORRECTNESS` on five non-Oura `exampleBundle.ts` files
+  (`8c299f7`).
+- The four dangling ADR prose cites above (`8c299f7`).
