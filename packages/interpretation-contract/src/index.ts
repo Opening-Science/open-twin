@@ -1,10 +1,19 @@
 /**
- * WHAT: Publishes the interpretation-contract.v0.2 schema, generated types, and conformance validator for openXR.
- * NOT:  Does not implement interpretation rules or scoring.
- * GOVERNED BY: DECISIONS.md#d12; DECISIONS.md#d13; docs/contracts/interpretation-contract.v0.2.schema.json
- * CORRECTNESS: Conformance via validateInterpretationDocument; reject fixtures under fixtures/reject/
+ * WHAT: Publishes the interpretation-contract.v0.2 schema, generated types, conformance validator, and confidence arithmetic.
+ * NOT:  Does not invent interpretation rules or SystemId values.
+ * GOVERNED BY: DECISIONS.md#d12; DECISIONS.md#d13; docs/contracts/interpretation-contract.v0.2.schema.json; docs/contracts/confidence.md
+ * CORRECTNESS: Conformance via validateInterpretationDocument; confidence via docs/contracts/confidence.md
  */
 
+export {
+  ageDaysUtc,
+  computeConfidence,
+  decimalStringToRational,
+  type Rational,
+  rationalToFixed4,
+  recencyFromAgeDays,
+  roundHalfUp4
+} from './confidence.js';
 export type {
   Contributor,
   ContributorStatus,
@@ -17,7 +26,6 @@ export type {
   UnrenderableReason,
   UnrenderableState
 } from './generated/interpretation-contract.v0.2.js';
-
 export {
   type ConformanceError,
   type ConformanceErrorCode,
