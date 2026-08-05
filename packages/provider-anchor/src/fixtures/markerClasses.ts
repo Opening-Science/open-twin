@@ -30,7 +30,7 @@ export interface MarkerClassFixture {
 const BASE_DEVICE = {
   deviceKey: 'imd-potsdam',
   deviceManufacturer: 'IMD Labor Berlin-Potsdam',
-  deviceModel: 'catalogue-fixture',
+  deviceModel: 'catalogue-fixture'
 } as const;
 
 /** a. mass concentration — Ferritin ng/mL, male adult interval */
@@ -46,14 +46,14 @@ export const FIXTURE_MASS_CONCENTRATION: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T09:15:00+02:00',
     collectionEventId: 'draw-ferritin-2026-07-12',
     fasting: true,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-107',
     value: 120,
     unit_ucum: 'ng/mL',
-    reference_interval_id: 'RI-044',
-  },
+    reference_interval_id: 'RI-044'
+  }
 };
 
 /** b. molar concentration — Calcium mmol/L */
@@ -69,14 +69,14 @@ export const FIXTURE_MOLAR_CONCENTRATION: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T08:40:00+02:00',
     collectionEventId: 'draw-calcium-2026-07-12',
     fasting: true,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-063',
     value: 2.35,
     unit_ucum: 'mmol/L',
-    reference_interval_id: 'RI-019',
-  },
+    reference_interval_id: 'RI-019'
+  }
 };
 
 /** c. enzymatic activity — GPT U/L */
@@ -92,14 +92,14 @@ export const FIXTURE_ENZYMATIC_ACTIVITY: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T09:00:00+02:00',
     collectionEventId: 'draw-gpt-2026-07-12',
     fasting: false,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-132',
     value: 28,
     unit_ucum: 'U/L',
-    reference_interval_id: 'RI-064',
-  },
+    reference_interval_id: 'RI-064'
+  }
 };
 
 /** d. ratio / percent — HbA1c % (LOINC property: mass fraction) */
@@ -115,14 +115,14 @@ export const FIXTURE_RATIO_PERCENT: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T09:05:00+02:00',
     collectionEventId: 'draw-hba1c-2026-07-12',
     fasting: false,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-139',
     value: 5.4,
     unit_ucum: '%',
-    reference_interval_id: 'RI-070',
-  },
+    reference_interval_id: 'RI-070'
+  }
 };
 
 /**
@@ -141,14 +141,14 @@ export const FIXTURE_CELL_COUNT: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T08:55:00+02:00',
     collectionEventId: 'draw-leu-2026-07-12',
     fasting: false,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-426',
     value: 6.2,
     unit_ucum: '10*9/L',
-    reference_interval_id: null,
-  },
+    reference_interval_id: null
+  }
 };
 
 /** f. stool mass/mass — Calprotectin ug/g */
@@ -164,14 +164,14 @@ export const FIXTURE_STOOL_MASS_MASS: MarkerClassFixture = {
     effectiveDateTime: '2026-07-11T18:00:00+02:00',
     collectionEventId: 'draw-calprotectin-2026-07-11',
     fasting: null,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-064',
     value: 32,
     unit_ucum: 'ug/g',
-    reference_interval_id: 'RI-020',
-  },
+    reference_interval_id: 'RI-020'
+  }
 };
 
 /**
@@ -190,14 +190,14 @@ export const FIXTURE_CREATININE_NORMALISED: MarkerClassFixture = {
     effectiveDateTime: '2026-07-12T07:30:00+02:00',
     collectionEventId: 'draw-dpd-2026-07-12',
     fasting: true,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-435',
     value: 5.1,
     unit_ucum: 'nmol/mmol',
-    reference_interval_id: null,
-  },
+    reference_interval_id: null
+  }
 };
 
 /**
@@ -217,15 +217,15 @@ export const FIXTURE_CYCLE_PHASE: MarkerClassFixture = {
     collectionEventId: 'draw-estradiol-2026-07-12',
     menstrualCyclePhase: 'follicular',
     fasting: false,
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-001',
     value: 250,
     unit_ucum: 'pmol/L',
     // Caller already chose the follicular interval — not a lookup from phase.
-    reference_interval_id: 'RI-002',
-  },
+    reference_interval_id: 'RI-002'
+  }
 };
 
 /** i. arbitrary / IU — TSH m[IU]/L */
@@ -243,14 +243,14 @@ export const FIXTURE_ARBITRARY_IU: MarkerClassFixture = {
     fasting: true,
     // TOD window carried for cortisol-class questions on the same draw pattern.
     timeOfDayWindow: 'vor_10h',
-    ...BASE_DEVICE,
+    ...BASE_DEVICE
   },
   measurement: {
     biomarker_id: 'BM-386',
     value: 1.8,
     unit_ucum: 'm[IU]/L',
-    reference_interval_id: 'RI-097',
-  },
+    reference_interval_id: 'RI-097'
+  }
 };
 
 export const ALL_MARKER_CLASS_FIXTURES: MarkerClassFixture[] = [
@@ -262,5 +262,5 @@ export const ALL_MARKER_CLASS_FIXTURES: MarkerClassFixture[] = [
   FIXTURE_STOOL_MASS_MASS,
   FIXTURE_CREATININE_NORMALISED,
   FIXTURE_CYCLE_PHASE,
-  FIXTURE_ARBITRARY_IU,
+  FIXTURE_ARBITRARY_IU
 ];

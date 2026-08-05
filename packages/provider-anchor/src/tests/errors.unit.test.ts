@@ -5,16 +5,16 @@
  * CORRECTNESS: LOINC_UNITS / Anchor artefact; NONE for physiological envelopes — see docs/findings/no-external-authority.md
  */
 import { describe, expect, it } from 'vitest';
+import type { CollectionContext } from '../context.js';
 import { AnchorIngestError } from '../errors.js';
 import { mapBiomarkerToObservation } from '../fhir/mapObservation.js';
-import type { CollectionContext } from '../context.js';
 
 const CTX: CollectionContext = {
   subjectKey: 'error-subject',
   sex: 'male',
   birthDate: '1980-01-01',
   effectiveDateTime: '2026-07-12T09:00:00+02:00',
-  collectionEventId: 'error-draw',
+  collectionEventId: 'error-draw'
 };
 
 describe('AnchorIngestError', () => {
@@ -25,10 +25,10 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-NOPE',
           value: 1,
           unit_ucum: 'ng/mL',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
-        CTX,
-      ),
+        CTX
+      )
     ).toThrow(AnchorIngestError);
     try {
       mapBiomarkerToObservation(
@@ -36,9 +36,9 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-NOPE',
           value: 1,
           unit_ucum: 'ng/mL',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
-        CTX,
+        CTX
       );
     } catch (e) {
       expect(e).toBeInstanceOf(AnchorIngestError);
@@ -53,10 +53,10 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-063',
           value: 2.3,
           unit_ucum: 'mg/dL',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
-        CTX,
-      ),
+        CTX
+      )
     ).toThrow(/incommensurable/);
     try {
       mapBiomarkerToObservation(
@@ -64,9 +64,9 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-063',
           value: 2.3,
           unit_ucum: 'mg/dL',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
-        CTX,
+        CTX
       );
     } catch (e) {
       expect((e as AnchorIngestError).code).toBe('unit_incommensurable');
@@ -80,9 +80,9 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-139',
           value: 80,
           unit_ucum: '%',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
-        CTX,
+        CTX
       );
       expect.fail('should throw');
     } catch (e) {
@@ -96,9 +96,9 @@ describe('AnchorIngestError', () => {
         biomarker_id: 'BM-426',
         value: 6.2,
         unit_ucum: '10*9/L',
-        reference_interval_id: null,
+        reference_interval_id: null
       },
-      CTX,
+      CTX
     );
     expect(obs.referenceRange).toBeUndefined();
     expect(obs.valueQuantity?.value).toBe(6.2);
@@ -111,9 +111,9 @@ describe('AnchorIngestError', () => {
           biomarker_id: 'BM-190',
           value: 140,
           unit_ucum: 'mg/dL',
-          reference_interval_id: 'RI-079',
+          reference_interval_id: 'RI-079'
         },
-        CTX,
+        CTX
       );
       expect.fail('should throw');
     } catch (e) {

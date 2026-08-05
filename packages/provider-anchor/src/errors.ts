@@ -17,11 +17,7 @@ export class AnchorIngestError extends Error {
   readonly biomarker_id?: string;
   readonly loinc_code?: string;
 
-  constructor(
-    code: AnchorIngestErrorCode,
-    message: string,
-    meta: { biomarker_id?: string; loinc_code?: string } = {},
-  ) {
+  constructor(code: AnchorIngestErrorCode, message: string, meta: { biomarker_id?: string; loinc_code?: string } = {}) {
     super(message);
     this.name = 'AnchorIngestError';
     this.code = code;

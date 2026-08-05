@@ -35,71 +35,66 @@ describe('marker-class fixtures', () => {
         'mass_concentration',
         'molar_concentration',
         'ratio_percent',
-        'stool_mass_mass',
-      ].sort(),
+        'stool_mass_mass'
+      ].sort()
     );
   });
 
-  it.each(ALL_MARKER_CLASS_FIXTURES)(
-    '$label emits LOINC + UCUM Observation with collection context',
-    (fixture) => {
-      const bundle = bundleFromMarkerClassFixture(fixture);
-      expect(bundle.resourceType).toBe('Bundle');
-      expect(bundle.type).toBe('collection');
+  it.each(ALL_MARKER_CLASS_FIXTURES)('$label emits LOINC + UCUM Observation with collection context', (fixture) => {
+    const bundle = bundleFromMarkerClassFixture(fixture);
+    expect(bundle.resourceType).toBe('Bundle');
+    expect(bundle.type).toBe('collection');
 
-      const patient = bundle.entry?.find((e) => isPatient(e.resource))?.resource;
-      expect(isPatient(patient)).toBe(true);
-      if (!isPatient(patient)) throw new Error('missing Patient');
-      expect(patient).toMatchObject({
-        resourceType: 'Patient',
-        gender: fixture.context.sex,
-        birthDate: fixture.context.birthDate,
-      });
+    const patient = bundle.entry?.find((e) => isPatient(e.resource))?.resource;
+    expect(isPatient(patient)).toBe(true);
+    if (!isPatient(patient)) throw new Error('missing Patient');
+    expect(patient).toMatchObject({
+      resourceType: 'Patient',
+      gender: fixture.context.sex,
+      birthDate: fixture.context.birthDate
+    });
 
-      const device = bundle.entry?.find((e) => isDevice(e.resource))?.resource;
-      expect(isDevice(device)).toBe(true);
+    const device = bundle.entry?.find((e) => isDevice(e.resource))?.resource;
+    expect(isDevice(device)).toBe(true);
 
-      const obs = bundle.entry?.find((e) => isObservation(e.resource))?.resource;
-      expect(isObservation(obs)).toBe(true);
-      if (!isObservation(obs)) throw new Error('missing Observation');
+    const obs = bundle.entry?.find((e) => isObservation(e.resource))?.resource;
+    expect(isObservation(obs)).toBe(true);
+    if (!isObservation(obs)) throw new Error('missing Observation');
 
-      expect(obs.code?.coding?.[0]).toMatchObject({ system: SYSTEMS.LOINC });
-      expect(obs.valueQuantity).toMatchObject({
-        value: fixture.measurement.value,
-        system: SYSTEMS.UCUM,
-        code: fixture.measurement.unit_ucum,
-      });
-      expect(obs.effectiveDateTime).toBe(fixture.context.effectiveDateTime);
-      expect(obs.device?.reference).toMatch(/^urn:uuid:/);
-      expect(obs.category?.[0]?.coding?.[0]?.code).toBe('laboratory');
+    expect(obs.code?.coding?.[0]).toMatchObject({ system: SYSTEMS.LOINC });
+    expect(obs.valueQuantity).toMatchObject({
+      value: fixture.measurement.value,
+      system: SYSTEMS.UCUM,
+      code: fixture.measurement.unit_ucum
+    });
+    expect(obs.effectiveDateTime).toBe(fixture.context.effectiveDateTime);
+    expect(obs.device?.reference).toMatch(/^urn:uuid:/);
+    expect(obs.category?.[0]?.coding?.[0]?.code).toBe('laboratory');
 
-      if (fixture.measurement.reference_interval_id == null) {
-        expect(obs.referenceRange).toBeUndefined();
-      } else {
-        expect(obs.referenceRange?.length).toBeGreaterThanOrEqual(1);
-        expect(obs.referenceRange?.[0]?.appliesTo?.[0]?.text).toBeTruthy();
-      }
-    },
-  );
+    if (fixture.measurement.reference_interval_id == null) {
+      expect(obs.referenceRange).toBeUndefined();
+    } else {
+      expect(obs.referenceRange?.length).toBeGreaterThanOrEqual(1);
+      expect(obs.referenceRange?.[0]?.appliesTo?.[0]?.text).toBeTruthy();
+    }
+  });
 
   it('cycle-phase fixture carries menstrual phase to the interpreter', () => {
-    const fixture = ALL_MARKER_CLASS_FIXTURES.find((f) => f.classId === 'cycle_phase_dependent')!;
+    const fixture = ALL_MARKER_CLASS_FIXTURES.find((f) => f.classId === 'cycle_phase_dependent');
+    if (!fixture) throw new Error('missing cycle_phase_dependent fixture');
     const bundle = bundleFromMarkerClassFixture(fixture);
     const obs = bundle.entry?.find((e) => isObservation(e.resource))?.resource;
     if (!isObservation(obs)) throw new Error('missing Observation');
-    expect(obs.extension?.some((e) => e.url === EXT_CYCLE_PHASE && e.valueCode === 'follicular')).toBe(
-      true,
-    );
+    expect(obs.extension?.some((e) => e.url === EXT_CYCLE_PHASE && e.valueCode === 'follicular')).toBe(true);
     expect(obs.referenceRange?.[0]?.appliesTo?.[0]?.text).toBe('female_Follikelphase');
   });
 
   it('IU fixture carries time-of-day window for cortisol-class questions', () => {
-    const fixture = ALL_MARKER_CLASS_FIXTURES.find((f) => f.classId === 'arbitrary_iu')!;
+    const fixture = ALL_MARKER_CLASS_FIXTURES.find((f) => f.classId === 'arbitrary_iu');
+    if (!fixture) throw new Error('missing arbitrary_iu fixture');
     const bundle = bundleFromMarkerClassFixture(fixture);
     const obs = bundle.entry?.find((e) => isObservation(e.resource))?.resource;
     if (!isObservation(obs)) throw new Error('missing Observation');
-    expect(obs.extension?.some((e) => e.url === EXT_TOD_WINDOW && e.valueCode === 'vor_10h')).toBe(
-      true,
-    );
+    expect(obs.extension?.some((e) => e.url === EXT_TOD_WINDOW && e.valueCode === 'vor_10h')).toBe(true);
   });
 });

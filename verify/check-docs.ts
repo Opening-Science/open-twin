@@ -100,7 +100,7 @@ for (const file of tsFiles) {
     if (!p) continue;
     if (p.startsWith('docs/adr/') || /^docs\/contracts\/ADR-/i.test(p)) {
       offenders.push(
-        `${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ or docs/contracts/ADR-* (${p})`,
+        `${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ or docs/contracts/ADR-* (${p})`
       );
       continue;
     }

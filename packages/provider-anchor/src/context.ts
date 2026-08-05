@@ -8,12 +8,7 @@
 import type { Reference } from 'fhir/r4';
 
 /** Menstrual cycle phase as used in Anchor interval populations (e.g. female_Follikelphase). */
-export type MenstrualCyclePhase =
-  | 'follicular'
-  | 'midcycle'
-  | 'luteal'
-  | 'postmenopausal'
-  | 'unknown';
+export type MenstrualCyclePhase = 'follicular' | 'midcycle' | 'luteal' | 'postmenopausal' | 'unknown';
 
 /**
  * Laboratory time-of-day windows from German catalogues (cortisol: vor_10h / nach_17h).
@@ -59,8 +54,7 @@ export interface CollectionContext {
 }
 
 /** Foundation extensions so cycle / fasting / TOD travel with the Observation. */
-export const COLLECTION_CONTEXT_EXTENSION =
-  'http://opentwin.ch/fhir/StructureDefinition/collection-context';
+export const COLLECTION_CONTEXT_EXTENSION = 'http://opentwin.ch/fhir/StructureDefinition/collection-context';
 
 export const EXT_CYCLE_PHASE = `${COLLECTION_CONTEXT_EXTENSION}/menstrual-cycle-phase`;
 export const EXT_FASTING = `${COLLECTION_CONTEXT_EXTENSION}/fasting`;
