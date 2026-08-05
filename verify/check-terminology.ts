@@ -70,7 +70,7 @@ const VERIFICATION_FIELDS = [
   'source_url',
   'retrieval_date',
   'human_reviewer_name',
-  'date_signed',
+  'date_signed'
 ] as const;
 
 function walkSrc(dir: string, out: string[]): void {
@@ -119,10 +119,7 @@ function parseFrontmatter(text: string): Record<string, string> {
     const kv = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
     if (!kv) continue;
     let v = (kv[2] ?? '').trim();
-    if (
-      (v.startsWith('"') && v.endsWith('"')) ||
-      (v.startsWith("'") && v.endsWith("'"))
-    ) {
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
       v = v.slice(1, -1);
     }
     out[kv[1] ?? ''] = v;
@@ -150,18 +147,13 @@ function loadRecords(): Map<string, ReviewRecord> {
       source_url: fm.source_url ?? '',
       retrieval_date: fm.retrieval_date ?? '',
       human_reviewer_name: fm.human_reviewer_name ?? '',
-      date_signed: fm.date_signed ?? '',
+      date_signed: fm.date_signed ?? ''
     });
   }
   return map;
 }
 
-function add(
-  found: Map<string, FoundCode>,
-  vocabulary: Vocab,
-  code: string,
-  site: string,
-): void {
+function add(found: Map<string, FoundCode>, vocabulary: Vocab, code: string, site: string): void {
   const key = `${vocabulary}::${code}`;
   const cur = found.get(key);
   if (cur) {
@@ -201,10 +193,7 @@ function collectCodes(files: string[]): Map<string, FoundCode> {
         // Avoid dates like 2026-07 by requiring LOINC-like nearby or map key context
         const start = Math.max(0, (m.index ?? 0) - 120);
         const window = src.slice(start, (m.index ?? 0) + code.length + 80);
-        if (
-          /LOINC|loinc\.org|LOINC_UNITS|coding/i.test(window) ||
-          /^\d{2,5}-\d$/.test(code)
-        ) {
+        if (/LOINC|loinc\.org|LOINC_UNITS|coding/i.test(window) || /^\d{2,5}-\d$/.test(code)) {
           // Filter obvious non-LOINC: year-month 20xx-xx with month > 12 already excluded by \d single
           if (/^20\d{2}-\d{1,2}$/.test(code)) continue;
           add(found, 'LOINC', code, `${rel}:${lineOf(src, m.index ?? 0)}`);
@@ -213,9 +202,7 @@ function collectCodes(files: string[]): Map<string, FoundCode> {
     }
 
     // SNOMED: digit strings beside SNOMED system markers
-    for (const m of src.matchAll(
-      /SYSTEMS\.SNOMED|snomed\.info\/sct|snomed\.info/gi,
-    )) {
+    for (const m of src.matchAll(/SYSTEMS\.SNOMED|snomed\.info\/sct|snomed\.info/gi)) {
       const from = m.index ?? 0;
       const window = src.slice(from, from + 400);
       for (const c of window.matchAll(/code:\s*['"`](\d{6,18})['"`]/g)) {
@@ -233,19 +220,15 @@ function collectCodes(files: string[]): Map<string, FoundCode> {
     // UCUM: codes beside UCUM system or UCUM table
     if (/SYSTEMS\.UCUM|unitsofmeasure\.org|\bUCUM\b/.test(src)) {
       for (const m of src.matchAll(
-        /(?:SYSTEMS\.UCUM|unitsofmeasure\.org)[\s\S]{0,200}?code:\s*['"`]([^'"`]+)['"`]/gi,
+        /(?:SYSTEMS\.UCUM|unitsofmeasure\.org)[\s\S]{0,200}?code:\s*['"`]([^'"`]+)['"`]/gi
       )) {
         add(found, 'UCUM', m[1] ?? '', `${rel}:${lineOf(src, m.index ?? 0)}`);
       }
       // Common pattern in units.ts: code: 'mg/dL' within UCUM const objects
-      for (const m of src.matchAll(
-        /code:\s*['"`]([^'"`]+)['"`][\s\S]{0,80}?system:\s*SYSTEMS\.UCUM/g,
-      )) {
+      for (const m of src.matchAll(/code:\s*['"`]([^'"`]+)['"`][\s\S]{0,80}?system:\s*SYSTEMS\.UCUM/g)) {
         add(found, 'UCUM', m[1] ?? '', `${rel}:${lineOf(src, m.index ?? 0)}`);
       }
-      for (const m of src.matchAll(
-        /system:\s*SYSTEMS\.UCUM[\s\S]{0,80}?code:\s*['"`]([^'"`]+)['"`]/g,
-      )) {
+      for (const m of src.matchAll(/system:\s*SYSTEMS\.UCUM[\s\S]{0,80}?code:\s*['"`]([^'"`]+)['"`]/g)) {
         add(found, 'UCUM', m[1] ?? '', `${rel}:${lineOf(src, m.index ?? 0)}`);
       }
     }
@@ -266,7 +249,7 @@ function missingFields(record: ReviewRecord): string[] {
     'source_url',
     'retrieval_date',
     'human_reviewer_name',
-    'date_signed',
+    'date_signed'
   ] as const;
   return required.filter((f) => !record[f] || !String(record[f]).trim());
 }
@@ -313,12 +296,10 @@ const missingLoinc = missingRecord.filter((m) => m.vocabulary === 'LOINC');
 const missingOther = missingRecord.filter((m) => m.vocabulary !== 'LOINC');
 
 console.log(
-  `check-terminology (G2): ${found.size} distinct code(s) in source; ${records.size} review record(s) on disk`,
+  `check-terminology (G2): ${found.size} distinct code(s) in source; ${records.size} review record(s) on disk`
 );
 console.log(`UNVERIFIED review records on disk (G2a Anchor stubs / work queue): ${unverifiedRecordCount}`);
-console.log(
-  `COVERED BY G1 ALLOWLIST (approved, no markdown record needed): ${coveredByAllowlist.length}`,
-);
+console.log(`COVERED BY G1 ALLOWLIST (approved, no markdown record needed): ${coveredByAllowlist.length}`);
 console.log(`MISSING review record (not on allowlist as approved): ${missingRecord.length}`);
 console.log(`  of which LOINC: ${missingLoinc.length}; other vocabs: ${missingOther.length}`);
 
@@ -328,7 +309,7 @@ if (coveredByAllowlist.length) {
   console.log(`\nCOVERED BY ALLOWLIST (${coveredByAllowlist.length}) — not counted as MISSING:`);
   for (const item of coveredByAllowlist) {
     console.log(
-      `  ${item.vocabulary} ${item.code}  ${item.sites[0]}${item.sites.length > 1 ? ` (+${item.sites.length - 1})` : ''}`,
+      `  ${item.vocabulary} ${item.code}  ${item.sites[0]}${item.sites.length > 1 ? ` (+${item.sites.length - 1})` : ''}`
     );
   }
 }
@@ -338,11 +319,9 @@ if (missingRecord.length) {
   console.error(`\nMISSING REVIEW RECORD (${missingRecord.length}):`);
   for (const item of missingRecord) {
     console.error(
-      `  ${item.vocabulary} ${item.code}  ${item.sites[0]}${item.sites.length > 1 ? ` (+${item.sites.length - 1})` : ''}`,
+      `  ${item.vocabulary} ${item.code}  ${item.sites[0]}${item.sites.length > 1 ? ` (+${item.sites.length - 1})` : ''}`
     );
-    console.error(
-      `      expected file: docs/terminology/review-records/${recordFileName(item.vocabulary, item.code)}`,
-    );
+    console.error(`      expected file: docs/terminology/review-records/${recordFileName(item.vocabulary, item.code)}`);
   }
 }
 
@@ -351,7 +330,7 @@ if (incomplete.length) {
   console.error(`\nINCOMPLETE REVIEW RECORD (${incomplete.length}):`);
   for (const row of incomplete) {
     console.error(
-      `  ${row.found.vocabulary} ${row.found.code}  missing fields: ${row.fields.join(', ')}  (${row.record.file})`,
+      `  ${row.found.vocabulary} ${row.found.code}  missing fields: ${row.fields.join(', ')}  (${row.record.file})`
     );
   }
 }
@@ -360,20 +339,16 @@ if (unverified.length) {
   failed = true;
   console.error(`\nUNVERIFIED (signed fields still UNVERIFIED) (${unverified.length} in source):`);
   for (const row of unverified) {
-    console.error(
-      `  ${row.found.vocabulary} ${row.found.code}  binds_to=${row.record.binds_to}  (${row.record.file})`,
-    );
+    console.error(`  ${row.found.vocabulary} ${row.found.code}  binds_to=${row.record.binds_to}  (${row.record.file})`);
   }
 }
 
 const unverifiedNotInSource = [...records.values()].filter(
-  (r) => isUnverified(r) && !found.has(`${r.vocabulary}::${r.code}`),
+  (r) => isUnverified(r) && !found.has(`${r.vocabulary}::${r.code}`)
 );
 if (unverifiedNotInSource.length) {
   failed = true;
-  console.error(
-    `\nUNVERIFIED RECORDS NOT YET REFERENCED IN SOURCE (${unverifiedNotInSource.length}):`,
-  );
+  console.error(`\nUNVERIFIED RECORDS NOT YET REFERENCED IN SOURCE (${unverifiedNotInSource.length}):`);
   for (const r of unverifiedNotInSource) {
     console.error(`  ${r.vocabulary} ${r.code}  binds_to=${r.binds_to}  (${r.file})`);
   }
@@ -381,11 +356,9 @@ if (unverifiedNotInSource.length) {
 
 if (failed) {
   console.error(
-    `\nFAIL: terminology review gate (G2). UNVERIFIED on disk: ${unverifiedRecordCount}; true MISSING: ${missingRecord.length}. See docs/runbooks/verify-a-code.md`,
+    `\nFAIL: terminology review gate (G2). UNVERIFIED on disk: ${unverifiedRecordCount}; true MISSING: ${missingRecord.length}. See docs/runbooks/verify-a-code.md`
   );
-  console.error(
-    'Note: this gate is registered as ADVISORY in verify/run-verify.ts until Anchor stubs are signed.',
-  );
+  console.error('Note: this gate is registered as ADVISORY in verify/run-verify.ts until Anchor stubs are signed.');
   process.exit(1);
 }
 

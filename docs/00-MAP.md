@@ -13,7 +13,8 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/](findings/) | whoever discovers the defect | New known-wrong or authority gap |
 | [findings/no-external-authority.md](findings/no-external-authority.md) | architect | Module gains or loses external authority |
 | [findings/verify-baseline.md](findings/verify-baseline.md) | architect | Verify gate picture / dual terminology / intentional reds |
-| [findings/parked-for-24-fhir-core-anchor-content.md](findings/parked-for-24-fhir-core-anchor-content.md) | engineer | Consumed when branch 24 lands fhir-core Anchor/lab UCUM bodies |
+| [findings/parked-for-fhir-connector-content.md](findings/parked-for-fhir-connector-content.md) | engineer | Consumed when open-twin/fhir-connector lands fhir-core Anchor/lab UCUM bodies |
+| [findings/header-fill-quality.md](findings/header-fill-quality.md) | architect | Header paste / shape debt; gate cannot verify CORRECTNESS truth |
 | [terminology/](terminology/) | clinical reviewer + engineer | Allowlist or review procedure change |
 | [runbooks/verify-a-code.md](runbooks/verify-a-code.md) | engineer | How to sign a review record |
 | [findings/missing-non-anchor-review-records.md](findings/missing-non-anchor-review-records.md) | engineer | G2b debt after allowlist reconciliation |

@@ -3,8 +3,8 @@
  * NOT:  Does not short-circuit after the first failure — the baseline needs the full picture.
  * GOVERNED BY: docs/findings/verify-baseline.md; package.json verify script
  * CORRECTNESS: NONE — orchestrator only; each gate names its own authority
- * GOTCHA: Advisory gates print FAIL but do not fail the aggregate. Later branches
- *         append their own gates here — forgetting to register is visible in the diff.
+ * GOTCHA: Later branches append gates here (often as advisory first) — forgetting
+ *         to register is visible in the diff. module-headers is blocking on this tip.
  */
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
@@ -21,44 +21,44 @@ export interface Gate {
   advisory?: boolean;
 }
 
-/** Gates owned by the current stack tip. Later branches append. */
+/** Only gates owned by the current branch stack tip. Later branches append. */
 export const GATES: Gate[] = [
   {
     id: 'terminology-allowlist (verify/check-terminology.mjs)',
     command: 'node',
-    args: ['verify/check-terminology.mjs'],
+    args: ['verify/check-terminology.mjs']
   },
   {
     id: 'ucum-units (verify/check-units.mjs)',
     command: 'node',
-    args: ['verify/check-units.mjs'],
+    args: ['verify/check-units.mjs']
   },
   {
     id: 'module-headers (verify/check-headers.ts)',
     command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-headers.ts'],
+    args: ['exec', 'tsx', 'verify/check-headers.ts']
   },
   {
     id: 'docs-integrity (verify/check-docs.ts)',
     command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-docs.ts'],
+    args: ['exec', 'tsx', 'verify/check-docs.ts']
   },
   {
     id: 'snomed-boundary (verify/check-snomed-boundary.ts)',
     command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-snomed-boundary.ts'],
+    args: ['exec', 'tsx', 'verify/check-snomed-boundary.ts']
   },
   {
     id: 'terminology-review-records (verify/check-terminology.ts) [ADVISORY]',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-terminology.ts'],
-    advisory: true,
+    advisory: true
   },
   {
     id: 'verify-ci-equivalence (verify/check-verify-equivalence.ts)',
     command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts'],
-  },
+    args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts']
+  }
 ];
 
 function main(): void {
@@ -72,13 +72,11 @@ function main(): void {
       cwd: ROOT,
       encoding: 'utf8',
       stdio: 'inherit',
-      shell: process.platform === 'win32',
+      shell: process.platform === 'win32'
     });
     const code = r.status ?? 1;
     results.push({ id: gate.id, exitCode: code, advisory: gate.advisory });
-    console.log(
-      `── end ${gate.id} (exit ${code}${gate.advisory ? ', advisory' : ''}) ──\n`,
-    );
+    console.log(`── end ${gate.id} (exit ${code}${gate.advisory ? ', advisory' : ''}) ──\n`);
   }
 
   console.log('════════════════════════════════════════');
@@ -91,13 +89,12 @@ function main(): void {
   const blockingFailed = results.filter((r) => r.exitCode !== 0 && !r.advisory);
   const advisoryFailed = results.filter((r) => r.exitCode !== 0 && r.advisory);
   console.log(
-    `\nsummary: ${results.length - blockingFailed.length - advisoryFailed.length} passed / ${blockingFailed.length} blocking-failed / ${advisoryFailed.length} advisory-failed / ${results.length} total`,
+    `\nsummary: ${results.length - blockingFailed.length - advisoryFailed.length} passed / ${blockingFailed.length} blocking-failed / ${advisoryFailed.length} advisory-failed / ${results.length} total`
   );
   if (blockingFailed.length) process.exit(1);
 }
 
-const invokedDirectly =
-  typeof process.argv[1] === 'string' && resolve(process.argv[1]) === resolve(THIS_FILE);
+const invokedDirectly = typeof process.argv[1] === 'string' && resolve(process.argv[1]) === resolve(THIS_FILE);
 if (invokedDirectly) {
   main();
 }
