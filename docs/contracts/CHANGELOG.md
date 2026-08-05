@@ -7,8 +7,8 @@ visualisation. Schema:
 [`interpretation-contract.v0.2.schema.json`](./interpretation-contract.v0.2.schema.json).
 
 Binding decisions landed: **D-f … D-m**. See
-[D12](../DECISIONS.md#d12) (region key, rejected alternatives) and
-[D13](../DECISIONS.md#d13) (MDR intended-use line).
+[D12](../../DECISIONS.md#d12) (region key, rejected alternatives) and
+[D13](../../DECISIONS.md#d13) (MDR intended-use line).
 
 Notable constraints:
 

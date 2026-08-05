@@ -67,25 +67,12 @@
     "Severity": {
       "type": "string",
       "description": "Ordinal severity (D-i). Not a float — a float implies a calibration the rules do not have.",
-      "enum": [
-        "none",
-        "borderline",
-        "mild",
-        "moderate",
-        "marked",
-        "indeterminate"
-      ]
+      "enum": ["none", "borderline", "mild", "moderate", "marked", "indeterminate"]
     },
     "ContributorStatus": {
       "type": "string",
       "description": "Status of a marker the rule read, including absences (D-k).",
-      "enum": [
-        "present",
-        "missing",
-        "stale",
-        "no_reference_interval",
-        "unit_incommensurable"
-      ]
+      "enum": ["present", "missing", "stale", "no_reference_interval", "unit_incommensurable"]
     },
     "InterpretiveAnatomySource": {
       "type": "string",
@@ -94,11 +81,7 @@
     },
     "UnrenderableReason": {
       "type": "string",
-      "enum": [
-        "no_system_id_upstream",
-        "not_anatomical",
-        "system_excluded_upstream"
-      ]
+      "enum": ["no_system_id_upstream", "not_anatomical", "system_excluded_upstream"]
     },
     "Contributor": {
       "type": "object",
@@ -171,6 +154,7 @@
         },
         "insufficient_reason": {
           "type": "string",
+          "minLength": 1,
           "description": "Required by conformance when sufficient_data is false."
         },
         "contributing": {
@@ -183,6 +167,13 @@
           "$ref": "#/$defs/InterpretiveAnatomySource"
         },
         "geometry": { "$ref": "#/$defs/Geometry" }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
       }
     },
     "UnrenderableState": {
@@ -208,12 +199,23 @@
           "description": "RULE-SUPPORT in [0,1] — completeness × recency × rule_strength; NOT probability of disease (D-j)."
         },
         "sufficient_data": { "type": "boolean" },
-        "insufficient_reason": { "type": "string" },
+        "insufficient_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required by conformance when sufficient_data is false."
+        },
         "contributing": {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/Contributor" }
         }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
       }
     }
   }

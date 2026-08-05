@@ -8,10 +8,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import {
-  validateInterpretationDocument,
-  type ConformanceErrorCode,
-} from '../validate.js';
+import { type ConformanceErrorCode, validateInterpretationDocument } from '../validate.js';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '../../fixtures');
 
@@ -26,7 +23,7 @@ const REJECT_EXPECTATIONS: Record<string, ConformanceErrorCode> = {
   'insufficient-empty-contributing.json': 'INSUFFICIENT_EMPTY_CONTRIBUTING',
   'loinc-system-axis.json': 'LOINC_SYSTEM_AXIS_ANATOMY',
   'sctid-in-published.json': 'SCTID_IN_PUBLISHED',
-  'unrenderable-rerouted.json': 'UNRENDERABLE_REROUTED',
+  'unrenderable-rerouted.json': 'UNRENDERABLE_REROUTED'
 };
 
 describe('interpretation-contract conformance', () => {
@@ -39,13 +36,24 @@ describe('interpretation-contract conformance', () => {
     expect(result.document?.not_for_diagnostic_use).toBe(true);
   });
 
+  it('rejects undefined without throwing on stringify', () => {
+    const result = validateInterpretationDocument(undefined);
+    expect(result.ok).toBe(false);
+    expect(result.errors.map((e) => e.code)).toContain('SCHEMA');
+  });
+
   it('rejects every fixture under fixtures/reject with the expected code', () => {
     const dir = join(FIXTURES, 'reject');
-    const files = readdirSync(dir).filter((f) => f.endsWith('.json')).sort();
+    const files = readdirSync(dir)
+      .filter((f) => f.endsWith('.json'))
+      .sort();
     expect(files).toEqual(Object.keys(REJECT_EXPECTATIONS).sort());
 
     for (const file of files) {
-      const expected = REJECT_EXPECTATIONS[file]!;
+      const expected = REJECT_EXPECTATIONS[file];
+      if (expected === undefined) {
+        throw new Error(`missing REJECT_EXPECTATIONS entry for ${file}`);
+      }
       const result = validateInterpretationDocument(loadJson(join(dir, file)));
       expect(result.ok, file).toBe(false);
       const codes = result.errors.map((e) => e.code);
