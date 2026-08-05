@@ -26,15 +26,18 @@ by zero is therefore outside the contract.
 | Factor | Symbol | Definition |
 |---|---|---|
 | Completeness | $C$ | Exact rational $\dfrac{n_{\mathrm{present}}}{n_{\mathrm{contributing}}}$ where $n_{\mathrm{present}}$ counts contributors with `status = present` and $n_{\mathrm{contributing}} = \|\texttt{contributing}\| \ge 1$. Never approximate $C$ in binary float before the product. |
-| Recency | $R$ | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. Exact decimal / rational in $[0, 1]$. |
-| Rule strength | $S$ | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. **API boundary:** $S$ (and $R$) must be supplied as exact decimal strings or rationals — never as IEEE-754 binary floats (`0.1 + 0.2` is non-conformant input). |
+| Recency | $R$ | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. Exact decimal string in $[0, 1]$. |
+| Rule strength | $S$ | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. **API boundary:** $R$ and $S$ are exact decimal strings only (e.g. `"0.8"`, `"0.00015"`) — never IEEE-754 numbers and never a pre-built rational object (`0.1 + 0.2` is non-conformant input). |
 
 ### Elapsed-day procedure $\Delta t$
 
-Both `as_of` and `observed_at` are UTC instants. The string **must** include
-`Z` or an explicit numeric offset (`+00:00`, `-05:00`, …). A timezone-less
-local datetime is rejected — `Date.parse` would otherwise use the host zone
-and change $\Delta t$.
+`as_of` is always required and must be a UTC instant with `Z` or an explicit
+numeric offset (`+00:00`, `-05:00`, `+0000`, …). The same timezone-bearing
+syntax is mandatory for every **supplied** `observed_at`. A missing
+`observed_at` on a `present` contributor is valid and maps to $r = 0$ (table
+below) — do not invent a timestamp for that case. A timezone-less local
+datetime on any supplied instant is rejected — `Date.parse` would otherwise
+use the host zone and change $\Delta t$.
 
 1. Let $m = t_{\texttt{as\_of}} - t_{\texttt{observed\_at}}$ in **milliseconds** (Unix epoch ms).
 2. **Clamp before flooring:** if $m < 0$ (observation after `as_of`, clock skew), set $\Delta t = 0$ and stop.

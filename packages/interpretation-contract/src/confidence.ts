@@ -7,8 +7,8 @@
 
 const MS_PER_DAY = 86_400_000;
 
-/** Instant must carry Z or a numeric offset (±HH:MM / ±HHMM / ±HH). */
-const INSTANT_TZ_RE = /(Z|[+-]\d{2}(:?\d{2})?)$/i;
+/** Instant must carry Z or a Date.parse-accepted offset (±HH:MM or ±HHMM). Bare ±HH is rejected. */
+const INSTANT_TZ_RE = /(Z|[+-]\d{2}:\d{2}|[+-]\d{4})$/i;
 
 /** Exact non-negative rational a/b; callers keep integers. */
 export interface Rational {
@@ -112,6 +112,9 @@ export function computeConfidence(args: {
     num: BigInt(args.presentCount),
     den: BigInt(args.contributingCount)
   };
+  if (typeof args.R !== 'string' || typeof args.S !== 'string') {
+    throw new Error('R and S must be exact decimal strings');
+  }
   const R = decimalStringToRational(args.R);
   const S = decimalStringToRational(args.S);
   assertUnitInterval('R', R);

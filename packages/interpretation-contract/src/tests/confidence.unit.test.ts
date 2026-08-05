@@ -42,8 +42,15 @@ describe('confidence elapsed-day procedure', () => {
     expect(() => ageDaysUtc('2026-07-28T00:00:00Z', '2026-07-01T00:00:00')).toThrow(/timezone-less/);
   });
 
-  it('accepts numeric offsets', () => {
+  it('accepts Z, ±HH:MM, and ±HHMM offsets', () => {
+    expect(ageDaysUtc('2026-07-28T00:00:00Z', '2026-07-27T00:00:00Z')).toBe(1);
     expect(ageDaysUtc('2026-07-28T00:00:00+00:00', '2026-07-27T00:00:00+00:00')).toBe(1);
+    expect(ageDaysUtc('2026-07-28T00:00:00+0000', '2026-07-27T00:00:00-0500')).toBe(0);
+  });
+
+  it('rejects bare ±HH offsets (not accepted by Date.parse)', () => {
+    expect(() => ageDaysUtc('2026-07-28T00:00:00+00', '2026-07-27T00:00:00Z')).toThrow(/timezone-less/);
+    expect(() => ageDaysUtc('2026-07-28T00:00:00Z', '2026-07-27T00:00:00-05')).toThrow(/timezone-less/);
   });
 });
 
@@ -91,5 +98,24 @@ describe('confidence half-up rational rounding', () => {
     expect(lo.fixed4).toBe('0.0000');
     const hi = computeConfidence({ presentCount: 1, contributingCount: 1, R: '1', S: '1' });
     expect(hi.fixed4).toBe('1.0000');
+  });
+
+  it('rejects non-string R and S at the API boundary', () => {
+    expect(() =>
+      computeConfidence({
+        presentCount: 1,
+        contributingCount: 1,
+        R: 0.4 as unknown as string,
+        S: '0.8'
+      })
+    ).toThrow(/exact decimal strings/);
+    expect(() =>
+      computeConfidence({
+        presentCount: 1,
+        contributingCount: 1,
+        R: '0.4',
+        S: { num: 4n, den: 5n } as unknown as string
+      })
+    ).toThrow(/exact decimal strings/);
   });
 });
