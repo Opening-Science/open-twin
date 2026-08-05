@@ -1,0 +1,23 @@
+{
+  "schema_version": "interpretation-contract.v0.2",
+  "intended_use": "research_hypothesis_generation_n_of_1",
+  "not_for_diagnostic_use": true,
+  "subject_ref": "urn:uuid:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "as_of": "2026-07-28T00:00:00.000Z",
+  "states": [
+    {
+      "system_id": "cardiovascular",
+      "severity": "mild",
+      "confidence": 0.5,
+      "sufficient_data": true,
+      "contributing": [{ "biomarker_id": "BM-072", "status": "present", "observed_at": "2026-07-01T00:00:00.000Z" }],
+      "interpretive_anatomy_source": "curated_table",
+      "geometry": {
+        "fma_id": "FMA:7088",
+        "uberon_id": "UBERON:0000948",
+        "body_structure_snomed": "80891009"
+      }
+    }
+  ],
+  "unrenderable": []
+}

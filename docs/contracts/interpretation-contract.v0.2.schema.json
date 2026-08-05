@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-twin.org/contracts/interpretation-contract.v0.2.schema.json",
+  "title": "OpenTwinInterpretationDocumentV02",
+  "description": "Sole interface between the open-twin interpretation layer and the open-twin-openXR visualisation layer. Schema is the source of truth; TypeScript types are generated from this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "intended_use",
+    "not_for_diagnostic_use",
+    "subject_ref",
+    "as_of",
+    "states",
+    "unrenderable"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "interpretation-contract.v0.2",
+      "description": "Contract version. Consumers must reject unknown versions."
+    },
+    "intended_use": {
+      "const": "research_hypothesis_generation_n_of_1",
+      "description": "MDR Annex VIII Rule 11 line (D-m). Visualising a person's own data can sit outside MDR; generating recommendations cannot. This document never carries recommendations."
+    },
+    "not_for_diagnostic_use": {
+      "const": true,
+      "description": "Always true. A false value is non-conformant (D-m)."
+    },
+    "subject_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque subject reference (e.g. Patient fullUrl or research pseudonym). Not a display name."
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant the interpretation document was produced (UTC)."
+    },
+    "states": {
+      "type": "array",
+      "description": "Per-SystemId interpretive states for systems the XR layer can colour. Markers with no SystemId home must appear only under unrenderable[] (D-g).",
+      "items": { "$ref": "#/$defs/SystemState" }
+    },
+    "unrenderable": {
+      "type": "array",
+      "description": "States that must not be painted onto anatomy. Never drop; never reroute into a neighbouring SystemId (D-g).",
+      "items": { "$ref": "#/$defs/UnrenderableState" }
+    }
+  },
+  "$defs": {
+    "SystemId": {
+      "type": "string",
+      "description": "Closed enum owned by open-twin-openXR (D8 / D-f). This repository CONSUMES it. No tenth value.",
+      "enum": [
+        "musculoskeletal",
+        "cardiovascular",
+        "nervous",
+        "respiratory",
+        "metabolic",
+        "digestive",
+        "endocrine",
+        "integumentary",
+        "reproductive"
+      ]
+    },
+    "Severity": {
+      "type": "string",
+      "description": "Ordinal severity (D-i). Not a float — a float implies a calibration the rules do not have.",
+      "enum": ["none", "borderline", "mild", "moderate", "marked", "indeterminate"]
+    },
+    "ContributorStatus": {
+      "type": "string",
+      "description": "Status of a marker the rule read, including absences (D-k).",
+      "enum": ["present", "missing", "stale", "no_reference_interval", "unit_incommensurable"]
+    },
+    "InterpretiveAnatomySource": {
+      "type": "string",
+      "description": "Provenance of the anatomy assignment (D-h). The LOINC System axis is a specimen, not a site of pathology — value \"loinc_system_axis\" is REJECTED by CI.",
+      "enum": ["curated_table"]
+    },
+    "UnrenderableReason": {
+      "type": "string",
+      "enum": ["no_system_id_upstream", "not_anatomical", "system_excluded_upstream"]
+    },
+    "Contributor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["biomarker_id", "status"],
+      "properties": {
+        "biomarker_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable marker id from the Anchor layer (e.g. BM-072)."
+        },
+        "loinc_code": {
+          "type": "string",
+          "description": "Optional LOINC code the rule bound for this contributor."
+        },
+        "status": { "$ref": "#/$defs/ContributorStatus" },
+        "observed_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Observation instant when status is present or stale; null when missing."
+        },
+        "reference_interval_id": {
+          "type": ["string", "null"],
+          "description": "Interval the observation was measured against, or null when the interpreter abstains (D-a)."
+        }
+      }
+    },
+    "Geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Geometry keys for XR join (D-l). Joins run FMA → UBERON, never the reverse. Prefer FMA when both bridges resolve. body_structure_snomed is INTERNAL ONLY and must not appear in published documents.",
+      "required": ["fma_id"],
+      "properties": {
+        "fma_id": {
+          "type": "string",
+          "pattern": "^FMA:[0-9]+$",
+          "description": "Primary geometry key (Foundational Model of Anatomy CURIE)."
+        },
+        "uberon_id": {
+          "type": "string",
+          "pattern": "^UBERON:[0-9]+$",
+          "description": "Secondary semantic / query key. Joined from FMA, never the reverse."
+        }
+      }
+    },
+    "SystemState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_id",
+        "severity",
+        "confidence",
+        "sufficient_data",
+        "contributing",
+        "interpretive_anatomy_source",
+        "geometry"
+      ],
+      "properties": {
+        "system_id": { "$ref": "#/$defs/SystemId" },
+        "severity": { "$ref": "#/$defs/Severity" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "RULE-SUPPORT in [0,1], defined as completeness × recency × rule_strength. This is NOT a probability of disease and must not be rendered as risk. See docs/contracts/confidence.md (D-j)."
+        },
+        "sufficient_data": {
+          "type": "boolean",
+          "description": "When false the state is still EMITTED with its reason. A region with no data must never be renderable as healthy (D-k)."
+        },
+        "insufficient_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required by conformance when sufficient_data is false."
+        },
+        "contributing": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Every marker the rule read, INCLUDING missing ones (D-k).",
+          "items": { "$ref": "#/$defs/Contributor" }
+        },
+        "interpretive_anatomy_source": {
+          "$ref": "#/$defs/InterpretiveAnatomySource"
+        },
+        "geometry": { "$ref": "#/$defs/Geometry" }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
+      }
+    },
+    "UnrenderableState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason", "contributing", "severity", "confidence", "sufficient_data"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable id for this unrenderable group (e.g. cbc_block)."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for research UI (not painted on anatomy)."
+        },
+        "reason": { "$ref": "#/$defs/UnrenderableReason" },
+        "severity": { "$ref": "#/$defs/Severity" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "RULE-SUPPORT in [0,1] — completeness × recency × rule_strength; NOT probability of disease (D-j)."
+        },
+        "sufficient_data": { "type": "boolean" },
+        "insufficient_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required by conformance when sufficient_data is false."
+        },
+        "contributing": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Contributor" }
+        }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
+      }
+    }
+  }
+}

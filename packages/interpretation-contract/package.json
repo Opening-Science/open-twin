@@ -1,0 +1,50 @@
+{
+  "name": "@open-twin/interpretation-contract",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Interpretation contract v0.2 — schema, generated types, and conformance validator for open-twin ↔ open-twin-openXR",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./schema.json": "./schema/interpretation-contract.v0.2.schema.json",
+    "./fixtures/*": "./fixtures/*"
+  },
+  "files": [
+    "dist",
+    "schema",
+    "fixtures"
+  ],
+  "scripts": {
+    "generate": "tsx ../../scripts/generate-interpretation-contract.ts",
+    "generate:check": "tsx ../../scripts/generate-interpretation-contract.ts --check",
+    "build": "pnpm run generate && tsup src/index.ts --format esm --dts",
+    "test": "pnpm run generate:check && vitest run",
+    "lint": "biome ci src",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "ajv": "^8.18.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "json-schema-to-typescript": "^15.0.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
+  },
+  "keywords": [
+    "open-twin",
+    "interpretation",
+    "system-id",
+    "conformance"
+  ],
+  "license": "MIT"
+}

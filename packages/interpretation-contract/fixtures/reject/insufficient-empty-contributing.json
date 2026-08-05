@@ -1,0 +1,20 @@
+{
+  "schema_version": "interpretation-contract.v0.2",
+  "intended_use": "research_hypothesis_generation_n_of_1",
+  "not_for_diagnostic_use": true,
+  "subject_ref": "urn:uuid:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "as_of": "2026-07-28T00:00:00.000Z",
+  "states": [
+    {
+      "system_id": "nervous",
+      "severity": "indeterminate",
+      "confidence": 0,
+      "sufficient_data": false,
+      "insufficient_reason": "no observations",
+      "contributing": [],
+      "interpretive_anatomy_source": "curated_table",
+      "geometry": { "fma_id": "FMA:50801" }
+    }
+  ],
+  "unrenderable": []
+}

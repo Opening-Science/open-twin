@@ -50,7 +50,7 @@ if (!existsSync(mapPath)) {
   process.exit(1);
 }
 const mapBody = readFileSync(mapPath, 'utf8');
-const required = ['CONVENTIONS.md', 'GLOSSARY.md', 'findings', 'terminology', 'runbooks'];
+const required = ['CONVENTIONS.md', 'GLOSSARY.md', 'findings', 'terminology', 'runbooks', 'contracts'];
 for (const rel of required) {
   const p = join(DOCS, rel);
   if (!existsSync(p)) offenders.push(`00-MAP required path missing: docs/${rel}`);

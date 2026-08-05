@@ -15,11 +15,13 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/verify-baseline.md](findings/verify-baseline.md) | architect | Verify gate picture / dual terminology / intentional reds |
 | [findings/parked-for-fhir-connector-content.md](findings/parked-for-fhir-connector-content.md) | engineer | Consumed when open-twin/fhir-connector lands fhir-core Anchor/lab UCUM bodies |
 | [findings/header-fill-quality.md](findings/header-fill-quality.md) | architect | Header paste / shape debt; gate cannot verify CORRECTNESS truth |
+| [contracts/](contracts/) | package owner | Interface / schema change |
+| [contracts/interpretation-contract.v0.2.schema.json](contracts/interpretation-contract.v0.2.schema.json) | interpretation | Sole open-twin ↔ openXR interpretation interface |
 | [terminology/](terminology/) | clinical reviewer + engineer | Allowlist or review procedure change |
 | [runbooks/verify-a-code.md](runbooks/verify-a-code.md) | engineer | How to sign a review record |
 | [findings/missing-non-anchor-review-records.md](findings/missing-non-anchor-review-records.md) | engineer | G2b debt after allowlist reconciliation |
 
-Later branches land `contracts/` and `strategy/`. This branch lands `terminology/` and `runbooks/verify-a-code.md`.
+Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks already on main.
 
 ## Layout
 
@@ -29,6 +31,9 @@ docs/
   CONVENTIONS.md
   GLOSSARY.md
   findings/      things that are wrong and known
+  contracts/     interpretation schema + confidence
+  terminology/   allowlist / review procedure
+  runbooks/      human procedures (e.g. verify-a-code)
 ```
 
 Root [`DECISIONS.md`](../DECISIONS.md) is the decision log. Do not treat root
