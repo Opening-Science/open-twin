@@ -18,9 +18,7 @@ export interface Rational {
 
 function assertInstantWithZone(label: string, iso: string): void {
   if (!INSTANT_TZ_RE.test(iso.trim())) {
-    throw new Error(
-      `${label} must include Z or a numeric UTC offset (got timezone-less ${JSON.stringify(iso)})`
-    );
+    throw new Error(`${label} must include Z or a numeric UTC offset (got timezone-less ${JSON.stringify(iso)})`);
   }
 }
 

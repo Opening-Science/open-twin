@@ -74,21 +74,19 @@ describe('confidence half-up rational rounding', () => {
   });
 
   it('rejects empty contributing', () => {
-    expect(() =>
-      computeConfidence({ presentCount: 0, contributingCount: 0, R: '0', S: '0' })
-    ).toThrow(/non-empty/);
+    expect(() => computeConfidence({ presentCount: 0, contributingCount: 0, R: '0', S: '0' })).toThrow(/non-empty/);
   });
 
   it('bounds R and S to [0, 1]', () => {
-    expect(() =>
-      computeConfidence({ presentCount: 1, contributingCount: 1, R: '2', S: '0.5' })
-    ).toThrow(/R must be in/);
-    expect(() =>
-      computeConfidence({ presentCount: 1, contributingCount: 1, R: '0.5', S: '2' })
-    ).toThrow(/S must be in/);
-    expect(() =>
-      computeConfidence({ presentCount: 1, contributingCount: 1, R: '-0.1', S: '0.5' })
-    ).toThrow(/R must be in/);
+    expect(() => computeConfidence({ presentCount: 1, contributingCount: 1, R: '2', S: '0.5' })).toThrow(
+      /R must be in/
+    );
+    expect(() => computeConfidence({ presentCount: 1, contributingCount: 1, R: '0.5', S: '2' })).toThrow(
+      /S must be in/
+    );
+    expect(() => computeConfidence({ presentCount: 1, contributingCount: 1, R: '-0.1', S: '0.5' })).toThrow(
+      /R must be in/
+    );
     const lo = computeConfidence({ presentCount: 1, contributingCount: 1, R: '0', S: '0' });
     expect(lo.fixed4).toBe('0.0000');
     const hi = computeConfidence({ presentCount: 1, contributingCount: 1, R: '1', S: '1' });
