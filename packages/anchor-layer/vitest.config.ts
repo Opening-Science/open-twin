@@ -8,6 +8,6 @@ export default defineConfig({
     environment: 'node',
     restoreMocks: true,
     mockReset: true,
-    reporters: process.env.CI ? ['junit'] : ['default'],
-  },
+    reporters: process.env.CI ? ['junit'] : ['default']
+  }
 });

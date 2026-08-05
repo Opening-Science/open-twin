@@ -18,7 +18,7 @@ import {
   loadAnchorLayer,
   PROPERTY_MISMATCH_IDS,
   readSidecarSha256,
-  sha256OfFile,
+  sha256OfFile
 } from '../index.js';
 
 /** packages/anchor-layer → repo root (not packages/). */
@@ -30,7 +30,7 @@ function runCompileAt(scriptPath: string): { exitCode: number; stdout: string; s
     const stdout = execFileSync('pnpm', ['exec', 'tsx', scriptPath], {
       cwd: ROOT,
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe']
     });
     return { exitCode: 0, stdout: String(stdout ?? ''), stderr: '' };
   } catch (err) {
@@ -38,7 +38,7 @@ function runCompileAt(scriptPath: string): { exitCode: number; stdout: string; s
     return {
       exitCode: e.status ?? 1,
       stdout: String(e.stdout ?? ''),
-      stderr: String(e.stderr ?? ''),
+      stderr: String(e.stderr ?? '')
     };
   }
 }
@@ -47,19 +47,13 @@ function runCompileAt(scriptPath: string): { exitCode: number; stdout: string; s
  * Assert the compiler failed for D-e property mismatches — not for failing to start.
  * Callable from the negative meta-test with a broken path; that call must throw.
  */
-export function assertPropertyMismatchCompilerFailure(result: {
-  exitCode: number;
-  stdout: string;
-  stderr: string;
-}): void {
+function assertPropertyMismatchCompilerFailure(result: { exitCode: number; stdout: string; stderr: string }): void {
   const combined = `${result.stdout}\n${result.stderr}`;
   expect(result.exitCode, `expected D-e exit 1; output:\n${combined}`).toBe(1);
   expect(combined, 'module-resolution failure must not satisfy D-e').not.toMatch(
-    /ERR_MODULE_NOT_FOUND|Cannot find module/,
+    /ERR_MODULE_NOT_FOUND|Cannot find module/
   );
-  expect(combined, 'syntax/parse failure must not satisfy D-e').not.toMatch(
-    /SyntaxError|Transform failed/,
-  );
+  expect(combined, 'syntax/parse failure must not satisfy D-e').not.toMatch(/SyntaxError|Transform failed/);
   for (const id of PROPERTY_MISMATCH_IDS) {
     expect(combined, `D-e output must name ${id}`).toContain(id);
   }
@@ -95,8 +89,8 @@ describe('anchor-layer artefact', () => {
           source_file: expect.stringContaining('AnchorLayer_v3_Consolidated.xlsx'),
           sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
           sheet: 'Anchor_Core_Set',
-          row: expect.any(Number),
-        },
+          row: expect.any(Number)
+        }
       });
       expect(b).not.toHaveProperty('low');
       expect(b).not.toHaveProperty('high');

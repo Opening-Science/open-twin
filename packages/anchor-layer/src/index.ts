@@ -139,11 +139,7 @@ function unitLooksMolar(unit: string): boolean {
  */
 export function detectPropertyMismatches(layer: AnchorLayerV1): Biomarker[] {
   return layer.biomarkers.filter((b) => {
-    return (
-      loincProperty(b.loinc_display) === 'moles' &&
-      unitLooksMass(b.unit_source) &&
-      !unitLooksMolar(b.unit_source)
-    );
+    return loincProperty(b.loinc_display) === 'moles' && unitLooksMass(b.unit_source) && !unitLooksMolar(b.unit_source);
   });
 }
 
