@@ -154,6 +154,7 @@
         },
         "insufficient_reason": {
           "type": "string",
+          "minLength": 1,
           "description": "Required by conformance when sufficient_data is false."
         },
         "contributing": {
@@ -166,6 +167,13 @@
           "$ref": "#/$defs/InterpretiveAnatomySource"
         },
         "geometry": { "$ref": "#/$defs/Geometry" }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
       }
     },
     "UnrenderableState": {
@@ -191,12 +199,23 @@
           "description": "RULE-SUPPORT in [0,1] — completeness × recency × rule_strength; NOT probability of disease (D-j)."
         },
         "sufficient_data": { "type": "boolean" },
-        "insufficient_reason": { "type": "string" },
+        "insufficient_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required by conformance when sufficient_data is false."
+        },
         "contributing": {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/Contributor" }
         }
+      },
+      "if": {
+        "properties": { "sufficient_data": { "const": false } },
+        "required": ["sufficient_data"]
+      },
+      "then": {
+        "required": ["insufficient_reason"]
       }
     }
   }

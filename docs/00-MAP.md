@@ -31,6 +31,9 @@ docs/
   CONVENTIONS.md
   GLOSSARY.md
   findings/      things that are wrong and known
+  contracts/     interpretation schema + confidence
+  terminology/   allowlist / review procedure
+  runbooks/      human procedures (e.g. verify-a-code)
 ```
 
 Root [`DECISIONS.md`](../DECISIONS.md) is the decision log. Do not treat root

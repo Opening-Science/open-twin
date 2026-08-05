@@ -36,6 +36,12 @@ describe('interpretation-contract conformance', () => {
     expect(result.document?.not_for_diagnostic_use).toBe(true);
   });
 
+  it('rejects undefined without throwing on stringify', () => {
+    const result = validateInterpretationDocument(undefined);
+    expect(result.ok).toBe(false);
+    expect(result.errors.map((e) => e.code)).toContain('SCHEMA');
+  });
+
   it('rejects every fixture under fixtures/reject with the expected code', () => {
     const dir = join(FIXTURES, 'reject');
     const files = readdirSync(dir)

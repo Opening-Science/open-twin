@@ -111,7 +111,7 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
   const errors: ConformanceError[] = [];
 
   // Raw-text SNOMED / internal-only field check on the published JSON shape
-  const raw = typeof input === 'string' ? input : JSON.stringify(input);
+  const raw = typeof input === 'string' ? input : (JSON.stringify(input) ?? '');
   if (SCTID_RE.test(raw) || raw.includes('body_structure_snomed')) {
     errors.push({
       code: 'SCTID_IN_PUBLISHED',
@@ -207,6 +207,15 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
         message: `confidence ${u.confidence} > 1 (D-j)`,
         path: `/unrenderable/${i}/confidence`
       });
+    }
+    if (u.sufficient_data === false) {
+      if (typeof u.insufficient_reason !== 'string' || !u.insufficient_reason) {
+        errors.push({
+          code: 'MISSING_INSUFFICIENT_REASON',
+          message: 'sufficient_data=false requires insufficient_reason',
+          path: `/unrenderable/${i}/insufficient_reason`
+        });
+      }
     }
     const ids = collectContributing(u.contributing, `/unrenderable/${i}/contributing`, errors);
     for (const id of ids) unrenderableMarkerIds.add(id);
