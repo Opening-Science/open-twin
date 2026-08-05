@@ -67,25 +67,12 @@
     "Severity": {
       "type": "string",
       "description": "Ordinal severity (D-i). Not a float — a float implies a calibration the rules do not have.",
-      "enum": [
-        "none",
-        "borderline",
-        "mild",
-        "moderate",
-        "marked",
-        "indeterminate"
-      ]
+      "enum": ["none", "borderline", "mild", "moderate", "marked", "indeterminate"]
     },
     "ContributorStatus": {
       "type": "string",
       "description": "Status of a marker the rule read, including absences (D-k).",
-      "enum": [
-        "present",
-        "missing",
-        "stale",
-        "no_reference_interval",
-        "unit_incommensurable"
-      ]
+      "enum": ["present", "missing", "stale", "no_reference_interval", "unit_incommensurable"]
     },
     "InterpretiveAnatomySource": {
       "type": "string",
@@ -94,11 +81,7 @@
     },
     "UnrenderableReason": {
       "type": "string",
-      "enum": [
-        "no_system_id_upstream",
-        "not_anatomical",
-        "system_excluded_upstream"
-      ]
+      "enum": ["no_system_id_upstream", "not_anatomical", "system_excluded_upstream"]
     },
     "Contributor": {
       "type": "object",

@@ -4,16 +4,13 @@
  * GOVERNED BY: DECISIONS.md#d12; docs/contracts/interpretation-contract.v0.2.schema.json
  * CORRECTNESS: NONE — generation only; conformance is packages/interpretation-contract
  */
-import { mkdirSync, copyFileSync, writeFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compileFromFile } from 'json-schema-to-typescript';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SCHEMA_SRC = join(
-  ROOT,
-  'docs/contracts/interpretation-contract.v0.2.schema.json',
-);
+const SCHEMA_SRC = join(ROOT, 'docs/contracts/interpretation-contract.v0.2.schema.json');
 const PKG = join(ROOT, 'packages/interpretation-contract');
 const SCHEMA_DST = join(PKG, 'schema/interpretation-contract.v0.2.schema.json');
 const TYPES_DST = join(PKG, 'src/generated/interpretation-contract.v0.2.ts');
@@ -33,7 +30,7 @@ async function main(): Promise<void> {
     bannerComment: banner,
     unreachableDefinitions: true,
     additionalProperties: false,
-    style: { singleQuote: true, semi: true },
+    style: { singleQuote: true, semi: true }
   });
   writeFileSync(TYPES_DST, types, 'utf8');
 

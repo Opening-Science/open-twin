@@ -6,23 +6,23 @@
  */
 
 export type {
-  OpenTwinInterpretationDocumentV02,
-  SystemId,
-  Severity,
-  ContributorStatus,
-  InterpretiveAnatomySource,
-  UnrenderableReason,
   Contributor,
+  ContributorStatus,
   Geometry,
+  InterpretiveAnatomySource,
+  OpenTwinInterpretationDocumentV02,
+  Severity,
+  SystemId,
   SystemState,
-  UnrenderableState,
+  UnrenderableReason,
+  UnrenderableState
 } from './generated/interpretation-contract.v0.2.js';
 
 export {
-  validateInterpretationDocument,
   type ConformanceError,
   type ConformanceErrorCode,
   type ConformanceResult,
+  validateInterpretationDocument
 } from './validate.js';
 
 /** Nine SystemId values consumed from open-twin-openXR (D-f). */
@@ -35,7 +35,7 @@ export const SYSTEM_IDS = [
   'digestive',
   'endocrine',
   'integumentary',
-  'reproductive',
+  'reproductive'
 ] as const;
 
 export const SCHEMA_VERSION = 'interpretation-contract.v0.2' as const;
