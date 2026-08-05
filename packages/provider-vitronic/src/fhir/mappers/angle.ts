@@ -2,7 +2,7 @@
  * WHAT: Maps one vendor record type into FHIR Observation(s).
  * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
 GOVERNED BY: DECISIONS.md#d10
- * CORRECTNESS: recorded API response (BodyLoop radians; π identities in ADR 0010); UCUM deg.
+ * CORRECTNESS: recorded API response (BodyLoop radians; π identities per DECISIONS.md#d10); UCUM deg.
  */
 import type { Observation } from 'fhir/r4';
 import type { Angle, AngleList } from '../../api/schemas/angle';

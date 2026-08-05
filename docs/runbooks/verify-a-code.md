@@ -11,7 +11,7 @@ clinical semantics vs mesh key vs query key).
 
 ## Steps
 
-1. Identify the code and vocabulary found by `scripts/check-terminology.ts`
+1. Identify the code and vocabulary found by `verify/check-terminology.ts`
    (or the stub under `docs/terminology/review-records/`).
 2. Look it up in the **authoritative** source:
    - LOINC: https://loinc.org/{code}
@@ -28,7 +28,7 @@ clinical semantics vs mesh key vs query key).
    - `human_reviewer_name` — your name
    - `date_signed` — ISO date you signed
 5. Replace any literal `UNVERIFIED` verification fields with real values.
-6. Run `pnpm exec tsx scripts/check-terminology.ts` and confirm this code is no
+6. Run `pnpm exec tsx verify/check-terminology.ts` and confirm this code is no
    longer listed.
 7. Commit the record with a message that names the code and the authority URL.
 
