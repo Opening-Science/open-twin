@@ -35,6 +35,18 @@ type Outcome =
   | { id: string; status: 'accepted'; detail: string }
   | { id: string; status: 'finding'; detail: string };
 
+/** Error code declared after `→` in expected_gate, when present. */
+function expectedErrorCode(meta: CanaryMeta): string | undefined {
+  const m = meta.expected_gate?.match(/→\s*([A-Z][A-Z0-9_]+)/);
+  return m?.[1];
+}
+
+/** LOINC / SCTID / similar literal named in expected_rejection, when present. */
+function expectedLiteral(meta: CanaryMeta, pattern: RegExp): string | undefined {
+  const m = meta.expected_rejection.match(pattern);
+  return m?.[1];
+}
+
 function loadJson(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -144,7 +156,7 @@ function runInterpretiveBandAsInterval(dir: string): Outcome {
   }
 }
 
-function runFabricatedLoinc(dir: string): Outcome {
+function runFabricatedLoinc(dir: string, expectedCode: string): Outcome {
   const plant = join(ROOT, 'packages/fhir-core/src/_canary_fabricated_loinc.ts');
   const src = readFileSync(join(dir, 'input.ts.txt'), 'utf8');
   writeFileSync(plant, src, 'utf8');
@@ -157,22 +169,22 @@ function runFabricatedLoinc(dir: string): Outcome {
     return {
       id: '03-fabricated-loinc',
       status: 'accepted',
-      detail: 'check-terminology.ts exited 0 despite LOINC 99999-9 plant'
+      detail: `check-terminology.ts exited 0 despite LOINC ${expectedCode} plant`
     };
   } catch (err) {
     const e = err as { stderr?: string; stdout?: string };
     const text = `${e.stderr ?? ''}\n${e.stdout ?? ''}`;
-    if (text.includes('99999-9')) {
+    if (text.includes(expectedCode)) {
       return {
         id: '03-fabricated-loinc',
         status: 'caught',
-        detail: 'check-terminology.ts rejected LOINC 99999-9'
+        detail: `check-terminology.ts rejected LOINC ${expectedCode}`
       };
     }
     return {
       id: '03-fabricated-loinc',
       status: 'accepted',
-      detail: `check-terminology.ts failed but did not mention 99999-9: ${text.slice(0, 400)}`
+      detail: `check-terminology.ts failed but did not mention ${expectedCode}: ${text.slice(0, 400)}`
     };
   } finally {
     rmSync(plant, { force: true });
@@ -294,7 +306,7 @@ function runGap(meta: CanaryMeta, dir: string): Outcome {
     return {
       id: meta.id,
       status: 'finding',
-      detail: `${meta.finding} Proof: document accepted while join_declaration.direction=${wrapped.join_declaration.direction}.`
+      detail: `${meta.finding} Proof: validateInterpretationDocument accepted the document; join_declaration.direction=${wrapped.join_declaration.direction} is never passed to any production join/bridge resolver (none exists).`
     };
   }
   return { id: meta.id, status: 'finding', detail: meta.finding ?? 'no gate' };
@@ -314,21 +326,13 @@ function main(): void {
       case 'anchor-property-mismatch':
         outcome = runBor(dir);
         break;
-      case 'check-terminology-review-records':
-        outcome = runFabricatedLoinc(dir);
+      case 'check-terminology-review-records': {
+        const code = expectedLiteral(meta, /\bLOINC\s+(\d{2,5}-\d)\b/i) ?? '99999-5';
+        outcome = runFabricatedLoinc(dir, code);
         break;
+      }
       case 'interpretation-validate':
-        outcome = runInterpretationValidate(
-          meta.id,
-          dir,
-          meta.id === '07-sufficient-empty-contributing'
-            ? 'EMPTY_CONTRIBUTING'
-            : meta.id === '08-loinc-system-axis-anatomy'
-              ? 'LOINC_SYSTEM_AXIS_ANATOMY'
-              : meta.id === '10-cbc-rerouted-to-cardiovascular'
-                ? 'UNRENDERABLE_REROUTED'
-                : undefined
-        );
+        outcome = runInterpretationValidate(meta.id, dir, expectedErrorCode(meta));
         break;
       case 'check-snomed-boundary-plant':
         outcome = runSnomedPlant(dir);
