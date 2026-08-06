@@ -35,7 +35,7 @@ function walkFiles(dir: string, out: string[]): void {
   for (const name of entries) {
     if (name === 'node_modules' || name === '.git') continue;
     const full = join(dir, name);
-    let st;
+    let st: ReturnType<typeof statSync>;
     try {
       st = statSync(full);
     } catch {
@@ -73,12 +73,12 @@ for (const file of files) {
 
   // system URL / SYSTEMS.SNOMED paired with a code
   for (const m of text.matchAll(
-    /(?:snomed\.info\/sct|snomed\.info\/[^'"{\s]+|SYSTEMS\.SNOMED)[^;]{0,220}?code\s*[:=]\s*['"`]?(\d{6,18})['"`]?/gi,
+    /(?:snomed\.info\/sct|snomed\.info\/[^'"{\s]+|SYSTEMS\.SNOMED)[^;]{0,220}?code\s*[:=]\s*['"`]?(\d{6,18})['"`]?/gi
   )) {
     offenders.push(`${rel}: SNOMED system + SCTID ${m[1]}`);
   }
   for (const m of text.matchAll(
-    /code\s*[:=]\s*['"`]?(\d{6,18})['"`]?[^;]{0,220}?(?:snomed\.info\/sct|SYSTEMS\.SNOMED)/gi,
+    /code\s*[:=]\s*['"`]?(\d{6,18})['"`]?[^;]{0,220}?(?:snomed\.info\/sct|SYSTEMS\.SNOMED)/gi
   )) {
     offenders.push(`${rel}: SCTID ${m[1]} + SNOMED system`);
   }
@@ -89,9 +89,7 @@ for (const file of files) {
   }
 
   // JSON-ish "system": "...snomed..." "code": "digits"
-  for (const m of text.matchAll(
-    /"system"\s*:\s*"[^"]*snomed[^"]*"\s*,\s*"code"\s*:\s*"(\d{6,18})"/gi,
-  )) {
+  for (const m of text.matchAll(/"system"\s*:\s*"[^"]*snomed[^"]*"\s*,\s*"code"\s*:\s*"(\d{6,18})"/gi)) {
     offenders.push(`${rel}: JSON SNOMED coding ${m[1]}`);
   }
 }
@@ -100,13 +98,11 @@ const unique = [...new Set(offenders)].sort();
 
 if (unique.length) {
   console.error(
-    `check-snomed-boundary: ${unique.length} offender(s) — SNOMED must not appear in published artefacts\n`,
+    `check-snomed-boundary: ${unique.length} offender(s) — SNOMED must not appear in published artefacts\n`
   );
   for (const o of unique) console.error(`  ${o}`);
   console.error('\nSee docs/strategy/06_ADDENDUM_SYSTEMID_AND_TERMINOLOGY.md §Finding 3');
   process.exit(1);
 }
 
-console.log(
-  `check-snomed-boundary: ok (scanned ${files.length} file(s) under published paths)`,
-);
+console.log(`check-snomed-boundary: ok (scanned ${files.length} file(s) under published paths)`);

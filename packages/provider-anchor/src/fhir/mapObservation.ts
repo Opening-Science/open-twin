@@ -13,15 +13,17 @@ import {
   RANGE_TYPE,
   referenceInterval,
   SYSTEMS,
-  subjectReference,
+  subjectReference
 } from '@open-twin/fhir-core';
 import type { Extension, Observation, ObservationReferenceRange, Reference } from 'fhir/r4';
 import { getBiomarker, getReferenceInterval, isInterpretiveBandId } from '../catalogue.js';
 import {
+  assertValidCollectionContext,
+  COLLECTION_CONTEXT_EXTENSION,
+  type CollectionContext,
   EXT_CYCLE_PHASE,
   EXT_FASTING,
-  EXT_TOD_WINDOW,
-  type CollectionContext,
+  EXT_TOD_WINDOW
 } from '../context.js';
 import { AnchorIngestError } from '../errors.js';
 import { isPhysiologicallyPossible } from '../physiology.js';
@@ -42,68 +44,73 @@ export interface BiomarkerMeasurement {
 }
 
 function collectionExtensions(ctx: CollectionContext): Extension[] {
-  const ext: Extension[] = [];
+  const parts: Extension[] = [];
   if (ctx.menstrualCyclePhase) {
-    ext.push({ url: EXT_CYCLE_PHASE, valueCode: ctx.menstrualCyclePhase });
+    parts.push({ url: EXT_CYCLE_PHASE, valueCode: ctx.menstrualCyclePhase });
   }
   if (ctx.fasting !== undefined && ctx.fasting !== null) {
-    ext.push({ url: EXT_FASTING, valueBoolean: ctx.fasting });
+    parts.push({ url: EXT_FASTING, valueBoolean: ctx.fasting });
   }
   if (ctx.timeOfDayWindow) {
-    ext.push({ url: EXT_TOD_WINDOW, valueCode: ctx.timeOfDayWindow });
+    parts.push({ url: EXT_TOD_WINDOW, valueCode: ctx.timeOfDayWindow });
   }
-  return ext;
+  return parts.length > 0 ? [{ url: COLLECTION_CONTEXT_EXTENSION, extension: parts }] : [];
 }
 
 function toFhirRange(
   intervalId: string,
+  expectedBiomarkerId: string,
   loincCode: string,
-  unitUcum: string,
+  unitUcum: string
 ): ObservationReferenceRange {
   // D-c: interpretive bands are already an interpretation — never attach as a measured range.
   if (isInterpretiveBandId(intervalId)) {
     throw new AnchorIngestError(
       'interpretive_band_not_reference_interval',
       `Interval ${intervalId} is an interpretive_band, not a measured reference_interval (D-c)`,
-      { loinc_code: loincCode },
+      { biomarker_id: expectedBiomarkerId, loinc_code: loincCode }
     );
   }
   const ri = getReferenceInterval(intervalId);
   if (!ri) {
+    throw new AnchorIngestError('unknown_code', `Unknown reference_interval_id ${intervalId}`, {
+      biomarker_id: expectedBiomarkerId,
+      loinc_code: loincCode
+    });
+  }
+  if (ri.biomarker_id !== expectedBiomarkerId) {
     throw new AnchorIngestError(
-      'unknown_code',
-      `Unknown reference_interval_id ${intervalId}`,
-      { loinc_code: loincCode },
+      'reference_interval_mismatch',
+      `Interval ${intervalId} belongs to ${ri.biomarker_id}, not ${expectedBiomarkerId}`,
+      { biomarker_id: expectedBiomarkerId, loinc_code: loincCode }
     );
   }
   const unit = resolveUcumUnit(loincCode, unitUcum);
   if (!unit) {
     throw new AnchorIngestError(
       'unit_incommensurable',
-      `Cannot attach interval ${intervalId}: unit ${unitUcum} not canonical for LOINC ${loincCode}`,
-      { loinc_code: loincCode, biomarker_id: ri.biomarker_id },
+      `Cannot attach interval ${intervalId}: unit not canonical for LOINC ${loincCode}`,
+      { loinc_code: loincCode, biomarker_id: ri.biomarker_id }
     );
   }
   if (ri.unit_ucum && ri.unit_ucum !== unitUcum) {
     throw new AnchorIngestError(
       'unit_incommensurable',
-      `Interval ${intervalId} unit_ucum ${ri.unit_ucum} ≠ measurement ${unitUcum}`,
-      { biomarker_id: ri.biomarker_id, loinc_code: loincCode },
+      `Interval ${intervalId} unit_ucum does not match measurement unit for LOINC ${loincCode}`,
+      { biomarker_id: ri.biomarker_id, loinc_code: loincCode }
     );
   }
   if (ri.low == null && ri.high == null) {
-    throw new AnchorIngestError(
-      'unknown_code',
-      `Interval ${intervalId} has neither low nor high`,
-      { biomarker_id: ri.biomarker_id, loinc_code: loincCode },
-    );
+    throw new AnchorIngestError('unknown_code', `Interval ${intervalId} has neither low nor high`, {
+      biomarker_id: ri.biomarker_id,
+      loinc_code: loincCode
+    });
   }
   if (!ri.source_url || !ri.issuer || !ri.retrieved_at) {
-    throw new AnchorIngestError(
-      'unknown_code',
-      `Interval ${intervalId} missing source provenance`,
-      { biomarker_id: ri.biomarker_id, loinc_code: loincCode },
-    );
+    throw new AnchorIngestError('unknown_code', `Interval ${intervalId} missing source provenance`, {
+      biomarker_id: ri.biomarker_id,
+      loinc_code: loincCode
+    });
   }
 
   return referenceInterval({
@@ -115,10 +122,10 @@ function toFhirRange(
       url: ri.source_url,
       publisher: ri.issuer,
       retrieved: ri.retrieved_at.slice(0, 10),
-      ...(ri.assay ? { version: ri.assay } : {}),
+      ...(ri.assay ? { version: ri.assay } : {})
     },
     appliesToText: ri.population ?? undefined,
-    text: ri.reference_range_text ?? undefined,
+    text: ri.reference_range_text ?? undefined
   });
 }
 
@@ -129,36 +136,39 @@ function toFhirRange(
 export function mapBiomarkerToObservation(
   measurement: BiomarkerMeasurement,
   ctx: CollectionContext,
-  device?: Reference,
+  device?: Reference
 ): Observation {
+  try {
+    assertValidCollectionContext(ctx);
+  } catch (e) {
+    throw new AnchorIngestError('invalid_context', e instanceof Error ? e.message : 'Invalid collection context', {
+      biomarker_id: measurement.biomarker_id
+    });
+  }
+
   const biomarker = getBiomarker(measurement.biomarker_id);
   if (!biomarker) {
-    throw new AnchorIngestError(
-      'unknown_code',
-      `Unknown biomarker_id ${measurement.biomarker_id}`,
-      { biomarker_id: measurement.biomarker_id },
-    );
+    throw new AnchorIngestError('unknown_code', `Unknown biomarker_id ${measurement.biomarker_id}`, {
+      biomarker_id: measurement.biomarker_id
+    });
   }
 
   const { loinc_code, loinc_display, unit_ucum: catalogueUnit } = biomarker;
 
   // D-c before unit checks: a band id must never be treated as a measured interval.
-  if (
-    measurement.reference_interval_id != null &&
-    isInterpretiveBandId(measurement.reference_interval_id)
-  ) {
+  if (measurement.reference_interval_id != null && isInterpretiveBandId(measurement.reference_interval_id)) {
     throw new AnchorIngestError(
       'interpretive_band_not_reference_interval',
       `Interval ${measurement.reference_interval_id} is an interpretive_band, not a measured reference_interval (D-c)`,
-      { biomarker_id: biomarker.biomarker_id, loinc_code },
+      { biomarker_id: biomarker.biomarker_id, loinc_code }
     );
   }
 
   if (!unitCommensurableWithLoinc(loinc_display, measurement.unit_ucum, loinc_code)) {
     throw new AnchorIngestError(
       'unit_incommensurable',
-      `Unit ${measurement.unit_ucum} incommensurable with LOINC ${loinc_code} (${loinc_display}); catalogue unit_ucum=${catalogueUnit}`,
-      { biomarker_id: biomarker.biomarker_id, loinc_code },
+      `Unit incommensurable with LOINC ${loinc_code}; catalogue unit_ucum=${catalogueUnit}`,
+      { biomarker_id: biomarker.biomarker_id, loinc_code }
     );
   }
 
@@ -166,8 +176,8 @@ export function mapBiomarkerToObservation(
   if (!unit) {
     throw new AnchorIngestError(
       'unit_incommensurable',
-      `No LOINC_UNITS entry matching ${loinc_code} + ${measurement.unit_ucum}`,
-      { biomarker_id: biomarker.biomarker_id, loinc_code },
+      `No LOINC_UNITS entry matching ${loinc_code} + measurement unit`,
+      { biomarker_id: biomarker.biomarker_id, loinc_code }
     );
   }
 
@@ -175,36 +185,33 @@ export function mapBiomarkerToObservation(
   if (!phys.ok) {
     throw new AnchorIngestError(
       'physiologically_impossible',
-      `Value ${measurement.value} ${measurement.unit_ucum} outside physiological envelope [${phys.envelope.min}, ${phys.envelope.max}] for ${measurement.biomarker_id}`,
-      { biomarker_id: biomarker.biomarker_id, loinc_code },
+      `Value outside physiological envelope for ${measurement.biomarker_id}`,
+      { biomarker_id: biomarker.biomarker_id, loinc_code }
     );
   }
 
   const valueQuantity = quantity(measurement.value, unit);
   if (!valueQuantity) {
-    throw new AnchorIngestError(
-      'physiologically_impossible',
-      `Non-finite value for ${measurement.biomarker_id}`,
-      { biomarker_id: biomarker.biomarker_id, loinc_code },
-    );
+    throw new AnchorIngestError('physiologically_impossible', `Non-finite value for ${measurement.biomarker_id}`, {
+      biomarker_id: biomarker.biomarker_id,
+      loinc_code
+    });
   }
 
   // D-a: only the interval it was measured against — or none.
   const referenceRange =
     measurement.reference_interval_id == null
       ? undefined
-      : [toFhirRange(measurement.reference_interval_id, loinc_code, measurement.unit_ucum)];
+      : [toFhirRange(measurement.reference_interval_id, measurement.biomarker_id, loinc_code, measurement.unit_ucum)];
 
-  const subject =
-    ctx.subject ??
-    subjectReference({ connector: CONNECTOR.connector, subjectKey: ctx.subjectKey });
+  const subject = subjectReference({ connector: CONNECTOR.connector, subjectKey: ctx.subjectKey });
 
   const observation = createObservation({
     id: deterministicId({
       connector: CONNECTOR.connector,
       subjectKey: ctx.subjectKey,
       recordId: ctx.collectionEventId,
-      measure: measurement.biomarker_id,
+      measure: measurement.biomarker_id
     }),
     code: { system: SYSTEMS.LOINC, code: loinc_code, display: loinc_display },
     category: CATEGORY.LABORATORY,
@@ -212,7 +219,7 @@ export function mapBiomarkerToObservation(
     effectiveDateTime: ctx.effectiveDateTime,
     valueQuantity,
     ...(referenceRange ? { referenceRange } : {}),
-    ...(device ? { device } : {}),
+    ...(device ? { device } : {})
   });
 
   const extensions = collectionExtensions(ctx);

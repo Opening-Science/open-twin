@@ -4,20 +4,10 @@
  * GOVERNED BY: docs/contracts/health-bundle.md; docs/contracts/fhir-core.md
  * CORRECTNESS: Round-trip / fixture tests for bundle shape; HL7 validator not yet run locally (no JRE) — external authority gap, not an oversight.
  */
-import {
-  buildBundle,
-  connectorDevice,
-  deviceReference,
-  patientUuid,
-  SYSTEMS,
-} from '@open-twin/fhir-core';
+import { buildBundle, connectorDevice, deviceReference, patientUuid, SYSTEMS } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4';
 import type { CollectionContext } from '../context.js';
-import {
-  CONNECTOR,
-  mapBiomarkerToObservation,
-  type BiomarkerMeasurement,
-} from './mapObservation.js';
+import { type BiomarkerMeasurement, CONNECTOR, mapBiomarkerToObservation } from './mapObservation.js';
 
 export interface CollectionEventInput {
   context: CollectionContext;
@@ -40,7 +30,7 @@ export function buildCollectionBundle(input: CollectionEventInput): Bundle {
     id: patientId,
     identifier: [{ system: SYSTEMS.ANCHOR_IDENTIFIER, value: context.subjectKey }],
     gender: context.sex,
-    birthDate: context.birthDate,
+    birthDate: context.birthDate
   };
 
   const device = connectorDevice({
@@ -48,13 +38,11 @@ export function buildCollectionBundle(input: CollectionEventInput): Bundle {
     deviceKey: context.deviceKey ?? 'imd-lab',
     manufacturer: context.deviceManufacturer ?? 'IMD Labor',
     model: context.deviceModel,
-    version: CONNECTOR.version,
+    version: CONNECTOR.version
   });
   const deviceRef = deviceReference(device);
 
-  const observations = measurements.map((m) =>
-    mapBiomarkerToObservation(m, context, deviceRef),
-  );
+  const observations = measurements.map((m) => mapBiomarkerToObservation(m, context, deviceRef));
 
   const resources: FhirResource[] = [patient, device, ...observations];
 
@@ -62,6 +50,6 @@ export function buildCollectionBundle(input: CollectionEventInput): Bundle {
     connector: CONNECTOR,
     resources,
     timestamp: bundleTimestamp,
-    bundleKey: `anchor|${context.collectionEventId}`,
+    bundleKey: `anchor|${context.collectionEventId}`
   });
 }

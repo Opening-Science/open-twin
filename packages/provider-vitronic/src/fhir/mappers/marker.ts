@@ -2,7 +2,7 @@
  * WHAT: Maps one vendor record type into FHIR Observation(s).
  * NOT:  Must not call vendor HTTP; must not invent LOINC/SNOMED — use allowlisted codes or vendor-local SYSTEMS.*.
 GOVERNED BY: DECISIONS.md#d10
- * CORRECTNESS: recorded API response (marker normals are direction cosines); UCUM 1 per ADR 0010.
+ * CORRECTNESS: recorded API response (marker normals are direction cosines); UCUM 1 per DECISIONS.md#d10.
  */
 import type { Observation } from 'fhir/r4';
 import type { Marker, MarkerList } from '../../api/schemas/marker';

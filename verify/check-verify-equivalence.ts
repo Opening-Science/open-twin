@@ -29,7 +29,7 @@ function ciGateInvocations(): string[] {
   const yaml = readFileSync(WORKFLOW, 'utf8');
   // Only the `gates:` job — other jobs may re-invoke allowlist/units for status
   // reporting and must not widen the required local set.
-  const job = yaml.match(/^  gates:\n([\s\S]*?)(?=^  [a-zA-Z0-9_-]+:|\Z)/m);
+  const job = yaml.match(/^ {2}gates:\n([\s\S]*?)(?=^ {2}[a-zA-Z0-9_-]+:|Z)/m);
   const body = job?.[1] ?? '';
   const found = new Set<string>();
   for (const m of body.matchAll(/^\s*run:\s*(.+)$/gm)) {
@@ -63,9 +63,7 @@ if (onlyLocal.length || onlyCi.length) {
   console.error('\nFAIL: local verify and CI gate sets diverge');
   for (const x of onlyLocal) console.error(`  only in run-verify.ts: ${x}`);
   for (const x of onlyCi) console.error(`  only in CI workflow: ${x}`);
-  console.error(
-    'Register every gate in both places (or drop it from both). This is what hid canary findings locally.',
-  );
+  console.error('Register every gate in both places (or drop it from both). This is what hid canary findings locally.');
   process.exit(1);
 }
 

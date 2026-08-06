@@ -43,15 +43,11 @@ const PROPERTY_UNITS: Record<LoincPropertyClass, ReadonlySet<string>> = {
   molar_ratio: new Set(['nmol/mmol', 'umol/mol', 'mmol/mol']),
   units_volume: new Set(['m[IU]/L', '[IU]/L', 'u[IU]/mL']),
   mass_fraction: new Set(['%']),
-  other: new Set(),
+  other: new Set()
 };
 
 /** True when unit_ucum is dimensionally compatible with the LOINC FSN property. */
-export function unitCommensurableWithLoinc(
-  loincDisplay: string,
-  unitUcum: string,
-  loincCode?: string,
-): boolean {
+export function unitCommensurableWithLoinc(loincDisplay: string, unitUcum: string, loincCode?: string): boolean {
   const canonical = loincCode ? LOINC_UNITS[loincCode] : undefined;
   if (canonical) {
     return canonical.code === unitUcum;
