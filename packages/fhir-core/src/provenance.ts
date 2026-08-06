@@ -96,6 +96,8 @@ export interface DerivedObservationInput {
   measure: string;
 }
 
+const FHIR_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 /**
  * A derived Observation that points at everything it came from.
  *
@@ -115,6 +117,14 @@ export function derivedObservation(input: DerivedObservationInput): Observation 
     throw new TypeError('derivedObservation: at least one source observation is required');
   }
 
+  const sourceIds = input.sources.map((source) => source.id);
+  if (sourceIds.some((id) => typeof id !== 'string' || !FHIR_UUID.test(id))) {
+    throw new TypeError(
+      'derivedObservation: every source must have a lowercase UUID id before provenance can be created'
+    );
+  }
+  const orderedSourceIds = (sourceIds as string[]).sort();
+
   // The derived resource is a new assertion, not a copy of the winner's identity, so
   // the source's business identifier is left out rather than deleted afterwards.
   const { identifier: _sourceIdentifier, ...withoutIdentifier } = template;
@@ -124,10 +134,10 @@ export function derivedObservation(input: DerivedObservationInput): Observation 
     id: deterministicId({
       connector: input.connector,
       subjectKey: input.subjectKey,
-      recordId: input.sources.map((source) => source.id ?? '').join('+'),
+      recordId: orderedSourceIds.join('+'),
       measure: `derived/${input.measure}`
     }),
-    derivedFrom: input.sources.map((source) => ({ reference: `urn:uuid:${source.id}` })),
+    derivedFrom: orderedSourceIds.map((id) => ({ reference: `urn:uuid:${id}` })),
     method: selectionMethod(input.policy)
   };
   return derived;

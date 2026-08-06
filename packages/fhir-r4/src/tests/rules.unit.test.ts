@@ -207,6 +207,30 @@ const CASES: readonly RuleCase[] = [
     inBundle([{ fullUrl: OBSERVATION_URN, resource: observation() }])
   ),
   normalising('ot-normalised-narrative-dropped', 'the narrative is stale by construction', HL7_LIPIDS_BUNDLE),
+  normalising('ot-reference-ambiguous', 'the same relative address on two servers without a resolvable entry base', {
+    resourceType: 'Bundle',
+    type: 'collection',
+    entry: [
+      {
+        fullUrl: 'https://a.example/fhir/Patient/p',
+        resource: { resourceType: 'Patient', id: 'p' }
+      },
+      {
+        fullUrl: 'urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        resource: {
+          resourceType: 'Observation',
+          id: 'o',
+          status: 'final',
+          code: {},
+          performer: [{ reference: 'Patient/p' }]
+        }
+      },
+      {
+        fullUrl: 'https://b.example/fhir/Patient/p',
+        resource: { resourceType: 'Patient', id: 'p' }
+      }
+    ]
+  }),
   normalising(
     'ot-normalised-patient-orphaned',
     'a Patient nothing points at any more',

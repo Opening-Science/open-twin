@@ -129,6 +129,58 @@ describe('aggregate', () => {
     expect(result.reconciliations).toEqual([]);
   });
 
+  it('abstains when the preferred connector has several readings for the same day', () => {
+    const googleReadings = [
+      { code: SLEEP, value: 402, unit: UCUM.MINUTE },
+      { code: SLEEP, value: 410, unit: UCUM.MINUTE }
+    ];
+    const oura = { bundle: bundleFrom('oura', [{ code: SLEEP, value: 415, unit: UCUM.MINUTE }]) };
+
+    const forwards = aggregate({
+      sources: [{ bundle: bundleFrom('google-health', googleReadings) }, oura],
+      subjectKey: SUBJECT_KEY,
+      timestamp: TIMESTAMP
+    });
+    const backwards = aggregate({
+      sources: [{ bundle: bundleFrom('google-health', [...googleReadings].reverse()) }, oura],
+      subjectKey: SUBJECT_KEY,
+      timestamp: TIMESTAMP
+    });
+
+    expect(forwards.reconciliations[0]?.selected).toBeUndefined();
+    expect(forwards.reconciliations[0]?.policy).toContain('No within-source selection rule');
+    expect(backwards.reconciliations).toEqual(forwards.reconciliations);
+    expect((forwards.bundle.entry ?? []).filter((entry) => (entry.resource as Observation).derivedFrom)).toHaveLength(
+      0
+    );
+  });
+
+  it('rejects id-less source provenance rather than emitting urn:uuid:undefined', () => {
+    const source = (connector: string, value: number): Bundle => ({
+      resourceType: 'Bundle',
+      type: 'collection',
+      meta: { tag: [{ system: 'http://opentwin.ch/fhir/CodeSystem/connector', code: connector }] },
+      entry: [
+        {
+          resource: createObservation({
+            code: { system: SYSTEMS.LOINC, code: SLEEP },
+            subject: SUBJECT,
+            effectiveDateTime: '2026-06-20T07:00:00+02:00',
+            valueQuantity: quantity(value, UCUM.MINUTE)
+          })
+        }
+      ]
+    });
+
+    expect(() =>
+      aggregate({
+        sources: [{ bundle: source('oura', 402) }, { bundle: source('google-health', 415) }],
+        subjectKey: SUBJECT_KEY,
+        timestamp: TIMESTAMP
+      })
+    ).toThrow(/every source must have a lowercase UUID id/);
+  });
+
   it('does not merge different days into one occasion', () => {
     const result = aggregate({
       sources: [

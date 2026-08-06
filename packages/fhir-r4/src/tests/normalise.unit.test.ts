@@ -203,6 +203,80 @@ describe('normaliseBundle', () => {
       expect(performers).toContain('Organization/1832473e-2fe0-452d-abe9-3cdb9879522f');
     });
 
+    it('resolves a relative reference against its own entry base when two servers reuse the same id', () => {
+      const input = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            fullUrl: 'https://a.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p', gender: 'female' }
+          },
+          {
+            fullUrl: 'https://a.example/fhir/Observation/o',
+            resource: {
+              resourceType: 'Observation',
+              id: 'o',
+              status: 'final',
+              code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
+              subject: { reference: 'Patient/external' },
+              performer: [{ reference: 'Patient/p' }]
+            }
+          },
+          {
+            fullUrl: 'https://b.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p', gender: 'male' }
+          }
+        ]
+      };
+
+      const bundle = normalised(input, { subject: { reference: 'Patient/external' } });
+      const entries = bundle.entry ?? [];
+      const expected = entries.find((entry) => {
+        const resource = entry.resource as { resourceType?: string; gender?: string } | undefined;
+        return resource?.resourceType === 'Patient' && resource.gender === 'female';
+      });
+      const observation = entries.find((entry) => entry.resource?.resourceType === 'Observation')
+        ?.resource as Observation;
+
+      expect(observation.performer?.[0]?.reference).toBe(expected?.fullUrl);
+    });
+
+    it('refuses an unbased relative reference that matches resources on two servers', () => {
+      const input = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            fullUrl: 'https://a.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p' }
+          },
+          {
+            fullUrl: 'urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            resource: {
+              resourceType: 'Observation',
+              id: 'o',
+              status: 'final',
+              code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
+              subject: { reference: 'Patient/external' },
+              performer: [{ reference: 'Patient/p' }]
+            }
+          },
+          {
+            fullUrl: 'https://b.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p' }
+          }
+        ]
+      };
+
+      const result = normaliseBundle(input, options({ subject: { reference: 'Patient/external' } }));
+
+      expect(result.bundle).toBeUndefined();
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({ severity: 'error', rule: 'ot-reference-ambiguous' })
+      );
+    });
+
     it('produces a bundle whose own references all resolve', () => {
       const result = validateFhir(normalised());
       expect(result.issues.filter((issue) => issue.rule === 'ot-reference-unresolved-urn')).toEqual([]);
