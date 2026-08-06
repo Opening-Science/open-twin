@@ -162,9 +162,11 @@ describe('AnchorIngestError', () => {
     const cases: Array<Partial<CollectionContext>> = [
       { birthDate: '2024-02-30' },
       { birthDate: '0000-01-01' },
+      { birthDate: '2024-02-29\n' },
       { effectiveDateTime: '2024-01-01T24:00:00Z' },
       { effectiveDateTime: '2024-01-01T12:00:00+15:00' },
-      { effectiveDateTime: '2024-01-01T12:00:00+14:01' }
+      { effectiveDateTime: '2024-01-01T12:00:00+14:01' },
+      { effectiveDateTime: '2024-01-01T12:00:00Z\n' }
     ];
     for (const patch of cases) {
       try {

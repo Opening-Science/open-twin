@@ -80,7 +80,7 @@ function isValidFhirCalendarDate(year: string, month: string, day: string): bool
   if (y < 1 || y > 9999) return false;
   if (m < 1 || m > 12) return false;
   if (d < 1) return false;
-  const maxDay = m === 2 && isLeapYear(y) ? 29 : DAYS_IN_MONTH[m];
+  const maxDay = m === 2 && isLeapYear(y) ? 29 : (DAYS_IN_MONTH[m] ?? 0);
   return d <= maxDay;
 }
 
@@ -99,14 +99,36 @@ function isRepresentableOffset(hours: string, minutes: string): boolean {
 
 export function isValidFhirDate(value: string): boolean {
   const match = FHIR_DATE_SHAPE.exec(value);
-  if (!match) return false;
-  return isValidFhirCalendarDate(match[1], match[2], match[3]);
+  // Require the full string — reject trailing junk even if $ ever matches early.
+  if (!match || match[0] !== value) return false;
+  const year = match[1];
+  const month = match[2];
+  const day = match[3];
+  if (year === undefined || month === undefined || day === undefined) return false;
+  return isValidFhirCalendarDate(year, month, day);
 }
 
 export function isValidFhirDateTimeWithOffset(value: string): boolean {
   const match = FHIR_DATETIME_SHAPE.exec(value);
-  if (!match) return false;
-  const [, year, month, day, hour, minute, second, , zone, , offsetHours, offsetMinutes] = match;
+  if (!match || match[0] !== value) return false;
+  const year = match[1];
+  const month = match[2];
+  const day = match[3];
+  const hour = match[4];
+  const minute = match[5];
+  const second = match[6];
+  const zone = match[8];
+  if (
+    year === undefined ||
+    month === undefined ||
+    day === undefined ||
+    hour === undefined ||
+    minute === undefined ||
+    second === undefined ||
+    zone === undefined
+  ) {
+    return false;
+  }
   if (!isValidFhirCalendarDate(year, month, day)) return false;
   const h = Number(hour);
   const min = Number(minute);
@@ -114,6 +136,9 @@ export function isValidFhirDateTimeWithOffset(value: string): boolean {
   // FHIR disallows 24:00; leap seconds may be 60.
   if (h > 23 || min > 59 || sec > 60) return false;
   if (zone === 'Z') return true;
+  const offsetHours = match[10];
+  const offsetMinutes = match[11];
+  if (offsetHours === undefined || offsetMinutes === undefined) return false;
   return isRepresentableOffset(offsetHours, offsetMinutes);
 }
 
