@@ -157,4 +157,47 @@ describe('AnchorIngestError', () => {
       expect((e as AnchorIngestError).code).toBe('invalid_context');
     }
   });
+
+  it('rejects impossible calendar dates and out-of-range offsets', () => {
+    const cases: Array<Partial<CollectionContext>> = [
+      { birthDate: '2024-02-30' },
+      { birthDate: '0000-01-01' },
+      { effectiveDateTime: '2024-01-01T24:00:00Z' },
+      { effectiveDateTime: '2024-01-01T12:00:00+15:00' },
+      { effectiveDateTime: '2024-01-01T12:00:00+14:01' }
+    ];
+    for (const patch of cases) {
+      try {
+        mapBiomarkerToObservation(
+          {
+            biomarker_id: 'BM-426',
+            value: 6.2,
+            unit_ucum: '10*9/L',
+            reference_interval_id: null
+          },
+          { ...CTX, ...patch }
+        );
+        expect.fail(`should reject ${JSON.stringify(patch)}`);
+      } catch (e) {
+        expect((e as AnchorIngestError).code).toBe('invalid_context');
+      }
+    }
+  });
+
+  it('accepts a leap-day birthDate and a ±14:00 offset', () => {
+    const obs = mapBiomarkerToObservation(
+      {
+        biomarker_id: 'BM-426',
+        value: 6.2,
+        unit_ucum: '10*9/L',
+        reference_interval_id: null
+      },
+      {
+        ...CTX,
+        birthDate: '1980-02-29',
+        effectiveDateTime: '2026-07-12T09:00:00+14:00'
+      }
+    );
+    expect(obs.effectiveDateTime).toBe('2026-07-12T09:00:00+14:00');
+  });
 });
