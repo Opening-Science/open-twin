@@ -60,17 +60,17 @@ Blocker kinds (still status=`cannot` — not P7 module work):
 
 | Kind | Markers | Unsupported *for OpenTwin honesty* |
 |---|---|---|
-| Cycle-phase coherence | BM-001, BM-119, BM-197, BM-311 | Anchor populations are phase-stratified; Generic Module Observation without a menstrual-phase attribute/physiology binding yields incoherent values for those intervals. Stock has no serum estradiol/FSH/LH; BM-311 stock path is tissue receptor IHC only, not serum `14890-8`. |
-| Time-of-day coherence | BM-077 | Anchor intervals are TOD-stratified (`vor_10h` / `nach_17h`); Observation without collection-time binding fabricates incoherent values. |
+| Cycle-phase coherence | BM-001, BM-119, BM-197, BM-311 | Anchor populations are phase-stratified; no validated Anchor-compatible menstrual-phase binding (attribute / physiology → collection context) exists for these markers. Emitting without that binding is incoherent for those intervals. Stock has no serum estradiol/FSH/LH; BM-311 stock path is tissue receptor IHC only, not serum `14890-8`. |
+| Time-of-day coherence | BM-077 | Anchor intervals are TOD-stratified (`vor_10h` / `nach_17h`); no validated Anchor-compatible collection-time binding exists. Emitting without that binding fabricates incoherent values. |
 | LOINC/unit undecided (D11 / D-e) | BM-060, BM-186, BM-405 | Molar LOINC + mass unit — same defect as compiler property mismatches; no honest quantity until a human picks mass vs molar. |
 
-- **BM-001** 17-Beta-Östradiol (`14715-7`): No stock estradiol Observation; cycle-phase populations (Follikelphase etc.) require a menstrual-phase state machine Synthea does not expose — unphased random pmol/L would be physiologically incoherent for Anchor intervals
+- **BM-001** 17-Beta-Östradiol (`14715-7`): No stock estradiol Observation; Anchor cycle-phase populations (Follikelphase etc.) have no validated Anchor-compatible phase binding — unphased random pmol/L would be physiologically incoherent for those intervals
 - **BM-060** Bor (`52914-9`): LOINC 52914-9 is [Moles/volume] but Anchor unit is mass (µg/l); D11 — no honest value until human decides mass vs molar code
-- **BM-077** Cortisol (`2143-6`): No stock cortisol; Anchor intervals are TOD-stratified (vor_10h / nach_17h). Emitting a single Gaussian without collection-time binding fabricates incoherent values for those populations
-- **BM-119** FSH (`15067-2`): No stock FSH; cycle-phase–dependent. Same phase-coherence problem as estradiol
+- **BM-077** Cortisol (`2143-6`): No stock cortisol; Anchor intervals are TOD-stratified (vor_10h / nach_17h) and no validated Anchor-compatible collection-time binding exists — emitting a single Gaussian fabricates incoherent values for those populations
+- **BM-119** FSH (`15067-2`): No stock FSH; cycle-phase–dependent. Same missing Anchor-compatible phase binding as estradiol
 - **BM-186** Kupfer (`14665-4`): LOINC 14665-4 is [Moles/volume] but Anchor unit is mass (µg/l); D11
-- **BM-197** LH (`10501-5`): No stock LH; cycle-phase–dependent
-- **BM-311** Progesteron (`14890-8`): No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without cycle-phase binding has the same honesty problem as estradiol/FSH/LH
+- **BM-197** LH (`10501-5`): No stock LH; cycle-phase–dependent. Same missing Anchor-compatible phase binding as estradiol
+- **BM-311** Progesteron (`14890-8`): No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without a validated Anchor-compatible phase binding has the same honesty problem as estradiol/FSH/LH
 - **BM-405** Phytonadione / Vitamin K (`58793-1`): LOINC 58793-1 is [Moles/volume] but Anchor unit is mass (ng/l); D11
 
 
@@ -107,8 +107,8 @@ custom markers wait until a rule references them.
 
 Pack also references stock markers (no custom module needed for LOINC presence)
 and three **cannot** markers (BM-001 estradiol, BM-119 FSH, BM-197 LH) that the
-rules mention but Synthea cannot honestly emit — those stay blocked on physiology,
-not on module writing.
+rules mention but OpenTwin cannot emit honestly without a validated phase
+binding — those stay blocked on Anchor compatibility, not on module writing.
 
 ## Overlap with D-e property mismatches
 
@@ -122,14 +122,14 @@ P7 consumer list because the rule pack does not reference them.
 
 | biomarker_id | name_de | LOINC | status | evidence |
 |---|---|---|---|---|
-| BM-001 | 17-Beta-Östradiol | `14715-7` | cannot | No stock estradiol Observation; cycle-phase populations (Follikelphase etc.) require a menstrual-phase state machine Synthea does not expose — unphased random pmol/L would be physiologically incoherent for Anchor intervals |
+| BM-001 | 17-Beta-Östradiol | `14715-7` | cannot | No stock estradiol Observation; Anchor cycle-phase populations (Follikelphase etc.) have no validated Anchor-compatible phase binding — unphased random pmol/L would be physiologically incoherent for those intervals |
 | BM-014 | Anti-Müller-Hormon (AMH) | `83104-0` | custom | No stock LOINC 83104-0 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-057 | Biotin (Vitamin B7) | `1980-2` | custom | No stock LOINC 1980-2 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-060 | Bor | `52914-9` | cannot | LOINC 52914-9 is [Moles/volume] but Anchor unit is mass (µg/l); D11 — no honest value until human decides mass vs molar code |
 | BM-063 | Calcium | `2000-8` | custom | stock has 17861-6 (Calcium [Mass/volume] — stock CMP uses mass not moles) in covid19/measurements_daily.json, encounter/hospital_basic_labs.json — needs custom module for Anchor LOINC 2000-8 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
 | BM-064 | Calprotectin | `38445-3` | custom | No stock LOINC 38445-3 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-072 | Cholesterin (gesamt) | `2093-3` | stock | exact LOINC 2093-3 in: heart/cabg/labs_common.json, heart/cardiac_labs.json, heart/chf_lab_work.json, hiv/hiv_baseline.json (+2 more) |
-| BM-077 | Cortisol | `2143-6` | cannot | No stock cortisol; Anchor intervals are TOD-stratified (vor_10h / nach_17h). Emitting a single Gaussian without collection-time binding fabricates incoherent values for those populations |
+| BM-077 | Cortisol | `2143-6` | cannot | No stock cortisol; Anchor intervals are TOD-stratified (vor_10h / nach_17h) and no validated Anchor-compatible collection-time binding exists — emitting a single Gaussian fabricates incoherent values for those populations |
 | BM-078 | Creatinkinase (CK) | `2157-6` | stock | exact LOINC 2157-6 in: covid19/measurements_frequent.json |
 | BM-079 | CRP (hochsensitiv) | `30522-7` | custom | stock has 1988-5 (CRP ordinary — not high-sensitivity method) in covid19/measurements_frequent.json — needs custom module for Anchor LOINC 30522-7 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
 | BM-087 | DHEA-S | `2191-5` | custom | No stock LOINC 2191-5 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
@@ -137,7 +137,7 @@ P7 consumer list because the rule pack does not reference them.
 | BM-111 | Folsäure (Vitamin B9) | `2284-8` | custom | No stock LOINC 2284-8 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-114 | freies T3 (FT3) | `3051-0` | custom | No stock LOINC 3051-0 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-115 | freies T4 (FT4) | `3024-7` | stock | exact LOINC 3024-7 in: hypothyroidism.json |
-| BM-119 | FSH | `15067-2` | cannot | No stock FSH; cycle-phase–dependent. Same phase-coherence problem as estradiol |
+| BM-119 | FSH | `15067-2` | cannot | No stock FSH; cycle-phase–dependent. Same missing Anchor-compatible phase binding as estradiol |
 | BM-123 | Gamma-GT (GGT) | `2324-2` | custom | No stock LOINC 2324-2 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-125 | Gesamteiweiß | `2885-2` | stock | exact LOINC 2885-2 in: colorectal_cancer.json, covid19/measurements_daily.json, dialysis.json, encounter/hospital_basic_labs.json (+9 more) |
 | BM-128 | Glukose | `1558-6` | custom | stock has 2345-7 (Glucose Ser/Plas (not fasting-specific)) in covid19/measurements_daily.json, encounter/hospital_basic_labs.json; stock has 2339-0 (Glucose [Mass/volume] in Blood) in colorectal_cancer.json, congestive_heart_failure.json — needs custom module for Anchor LOINC 1558-6 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
@@ -152,12 +152,12 @@ P7 consumer list because the rule pack does not reference them.
 | BM-177 | Kalium | `2823-3` | stock | exact LOINC 2823-3 in: covid19/measurements_daily.json, encounter/hospital_basic_labs.json, gallstones.json, heart/cabg/labs_common.json (+5 more) |
 | BM-186 | Kupfer | `14665-4` | cannot | LOINC 14665-4 is [Moles/volume] but Anchor unit is mass (µg/l); D11 |
 | BM-190 | LDL-Cholesterin | `2089-1` | custom | stock has 18262-6 (LDL by Direct assay — not 2089-1) in heart/cabg/labs_common.json, heart/cardiac_labs.json — needs custom module for Anchor LOINC 2089-1 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
-| BM-197 | LH | `10501-5` | cannot | No stock LH; cycle-phase–dependent |
+| BM-197 | LH | `10501-5` | cannot | No stock LH; cycle-phase–dependent. Same missing Anchor-compatible phase binding as estradiol |
 | BM-200 | Lipoprotein (a) | `10835-7` | custom | No stock LOINC 10835-7 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-258 | Magnesium | `2601-3` | custom | stock has 19123-9 (Magnesium [Mass/volume] Ser/Plas) in encounter/hospital_basic_labs.json, heart/cabg/labs_common.json; stock has 21377-7 (Magnesium [Mass/volume] in Blood) in heart/cardiac_labs.json — needs custom module for Anchor LOINC 2601-3 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
 | BM-286 | Natrium | `2951-2` | stock | exact LOINC 2951-2 in: covid19/measurements_daily.json, encounter/hospital_basic_labs.json, gallstones.json, heart/cabg/labs_common.json (+5 more) |
 | BM-299 | Parathormon (PTH) | `2731-8` | custom | No stock LOINC 2731-8 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
-| BM-311 | Progesteron | `14890-8` | cannot | No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without cycle-phase binding has the same honesty problem as estradiol/FSH/LH |
+| BM-311 | Progesteron | `14890-8` | cannot | No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without a validated Anchor-compatible phase binding has the same honesty problem as estradiol/FSH/LH |
 | BM-312 | Prolaktin | `2842-3` | custom | No stock LOINC 2842-3 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-315 | PSA | `2857-1` | stock | exact LOINC 2857-1 in: veteran_prostate_cancer.json |
 | BM-341 | Selen | `5724-0` | custom | No stock LOINC 5724-0 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
