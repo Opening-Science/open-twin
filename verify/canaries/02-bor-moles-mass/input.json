@@ -1,0 +1,23 @@
+{
+  "description": "Real current defect: Bor bound to molar LOINC with a mass unit.",
+  "biomarker": {
+    "biomarker_id": "BM-060",
+    "name_de": "Bor",
+    "loinc_code": "52914-9",
+    "loinc_display": "Boron [Moles/volume] in Serum or Plasma",
+    "tier": "core_tier1",
+    "unit_source": "µg/l",
+    "unit_ucum": "ug/L",
+    "system_id": "metabolic",
+    "interpretive_anatomy_source": "curated_table",
+    "region_ids": ["micronutrient_status"],
+    "organ_mapping_source": "Micronutrient, Systemic",
+    "blocking_flags": "BLOCKING: LOINC property is molar, unit is mass",
+    "provenance": {
+      "source_file": "verify/canaries/02-bor-moles-mass/input.json",
+      "sha256": "canary",
+      "sheet": "canary",
+      "row": 1
+    }
+  }
+}

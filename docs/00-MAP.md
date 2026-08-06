@@ -21,6 +21,7 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [runbooks/verify-a-code.md](runbooks/verify-a-code.md) | engineer | How to sign a review record |
 | [findings/missing-non-anchor-review-records.md](findings/missing-non-anchor-review-records.md) | engineer | G2b debt after allowlist reconciliation |
 | [findings/anchor-layer-audit.md](findings/anchor-layer-audit.md) | engineer | Anchor compile counts / D-e mismatches |
+| [findings/canary-suite.md](findings/canary-suite.md) | architect | Deliberately-wrong canaries and uncaught findings |
 
 Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks already on main.
 

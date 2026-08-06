@@ -1,0 +1,9 @@
+{
+  "description": "BM-190 LDL-Cholesterin has only interpretive bands (optimal/gut/grenzwertig/erhöht/pathologisch), no measured reference_interval. Using a band id as the measured interval and flagging against it is wrong-kind — distinct from canary 05 (null interval).",
+  "biomarker_id": "BM-190",
+  "value": 140,
+  "unit_ucum": "mg/dL",
+  "reference_interval_id": "RI-079",
+  "band_population": "interpretive_grenzwertig",
+  "wrong_if_accepted": "Attaching RI-079 (interpretive_band) as Observation.referenceRange / treating it as a measured interval"
+}

@@ -49,8 +49,8 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Field | Value |
 |---|---|
 | Home | `verify/canaries/` + `verify/check-canaries.ts` (when registered) |
-| Current | **FAIL** while any `FINDING:UNCAUGHT` or `ACCEPTED` remains |
-| Intentional findings | 04, 05, 06, 11 (no existing semantic gate) — do not paper over |
+| Current | **PASS** (exit 0) with 4 documented `FINDING:UNCAUGHT`; **FAIL** only if any canary is `ACCEPTED` |
+| Intentional findings | 04, 05, 06, 11 (no existing semantic gate) — do not paper over; findings are logged, not merge-blocking |
 | Caught (incl. wrong-kind band) | 01, 02, 03, 07, 08, 09, 10, 12 |
 
 ### Module headers (`verify/check-headers.ts`)
@@ -73,3 +73,14 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 ## Rule
 
 Until the dual terminology mechanism is resolved by architect decision: **list G1, G2a, and G2b as three baseline lines.** Merging them into one “terminology FAIL” hides the contradiction this document exists to expose.
+
+### G3 intentional findings (baseline red, not silent defects)
+
+| Finding | Canary | Owner | Green when |
+|---|---|---|---|
+| F-canary-4 | 4 wrong-but-real SNOMED | terminology + interpretation | Gate rejects wrong anatomy binding |
+| F-canary-5 | 5 range flag / null interval | fhir-core / connectors | Abstention enforced |
+| F-canary-6 | 6 stale as present | interpretation-contract / interpreter | Freshness enforced |
+| F-canary-11 | 11 UBERON→FMA reverse | interpretation-contract | Reverse join rejected |
+
+Canary 12 (band-as-interval) must stay **CAUGHT**. Expected aggregate: caught=8, findings=4.

@@ -1,0 +1,27 @@
+{
+  "description": "Historical BodyLoop shoulder primary angle in radians. Labelling this value as UCUM deg without conversion is the defect that survived 270 green tests.",
+  "vendor_payload": {
+    "angle_path": "angle/shoulder",
+    "angles": {
+      "primary": 1.4816501199902758,
+      "supplementary": 1.6599425335995173,
+      "conjugate": 4.801535187189311
+    }
+  },
+  "wrong_if_emitted": {
+    "valueQuantity": {
+      "value": 1.4817,
+      "unit": "degree",
+      "system": "http://unitsofmeasure.org",
+      "code": "deg"
+    }
+  },
+  "required_emission": {
+    "valueQuantity": {
+      "value": 84.8923,
+      "unit": "degree",
+      "system": "http://unitsofmeasure.org",
+      "code": "deg"
+    }
+  }
+}

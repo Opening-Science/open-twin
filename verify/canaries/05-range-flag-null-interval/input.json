@@ -1,0 +1,50 @@
+{
+  "description": "Observation carries an interpretation / reference-range flag while the interval is null (interpreter must abstain per D-a).",
+  "observation": {
+    "resourceType": "Observation",
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "4548-4",
+          "display": "Hemoglobin A1c/Hemoglobin.total in Blood"
+        }
+      ]
+    },
+    "valueQuantity": {
+      "value": 6.1,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    },
+    "interpretation": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+            "code": "H",
+            "display": "High"
+          }
+        ]
+      }
+    ],
+    "referenceRange": [
+      {
+        "text": "flagged high with no numeric interval",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/referencerange-meaning",
+              "code": "normal"
+            }
+          ]
+        }
+      }
+    ],
+    "_canary": {
+      "reference_interval_id": null,
+      "note": "Interval is null / abstain — emitting H / referenceRange text is the defect"
+    }
+  }
+}

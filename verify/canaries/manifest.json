@@ -1,0 +1,94 @@
+{
+  "title": "Deliberately wrong inputs the pipeline MUST reject",
+  "rule": "CI fails if any canary is accepted. Gaps (no existing gate) are FINDINGS — do not paper over with fixture-specific checks.",
+  "canaries": [
+    {
+      "id": "01-radians-as-degrees",
+      "dir": "01-radians-as-degrees",
+      "harness": "vitronic-radians-degrees",
+      "expected_gate": "packages/provider-vitronic/src/fhir/mappers/shared.ts#radiansToDegrees (ADR 0010); regression also in angle.unit.test.ts",
+      "expected_rejection": "BodyLoop radian 1.4816501199902758 must emit ~84.8923 under UCUM deg — never 1.48 deg"
+    },
+    {
+      "id": "02-bor-moles-mass",
+      "dir": "02-bor-moles-mass",
+      "harness": "anchor-property-mismatch",
+      "expected_gate": "packages/anchor-layer/src/index.ts#detectPropertyMismatches / scripts/compile-anchor-layer.ts (D-e)",
+      "expected_rejection": "BM-060 Bor LOINC 52914-9 [Moles/volume] with mass unit µg/l must FAIL; no auto-fix"
+    },
+    {
+      "id": "03-fabricated-loinc",
+      "dir": "03-fabricated-loinc",
+      "harness": "check-terminology-review-records",
+      "expected_gate": "verify/check-terminology.ts (LOINC literal without signed review record)",
+      "expected_rejection": "LOINC 99999-5 must appear as a missing/UNVERIFIED review-record failure"
+    },
+    {
+      "id": "04-wrong-snomed-body-structure",
+      "dir": "04-wrong-snomed-body-structure",
+      "harness": "none",
+      "expected_gate": null,
+      "expected_rejection": "Real SCTID bound to the wrong anatomy must be rejected",
+      "finding": "No existing gate checks semantic correctness of a SNOMED body-structure binding — only publication presence (check-snomed-boundary) and review-record existence."
+    },
+    {
+      "id": "05-range-flag-null-interval",
+      "dir": "05-range-flag-null-interval",
+      "harness": "none",
+      "expected_gate": null,
+      "expected_rejection": "Reference-range / interpretation flag must not be emitted when the observation has no interval (null / abstain)",
+      "finding": "fhir-core omits empty referenceRange on create but does not reject an Observation that already carries interpretation or referenceRange while interval is null. Interpretation-contract does not forbid severity with reference_interval_id null."
+    },
+    {
+      "id": "06-stale-observation-interpreted",
+      "dir": "06-stale-observation-interpreted",
+      "harness": "none",
+      "expected_gate": null,
+      "expected_rejection": "Observation older than the freshness window must not be status=present in an interpretation (must be stale or refused)",
+      "finding": "docs/contracts/confidence.md defines recency for the confidence product; validateInterpretationDocument does not enforce status vs as_of age."
+    },
+    {
+      "id": "07-sufficient-empty-contributing",
+      "dir": "07-sufficient-empty-contributing",
+      "harness": "interpretation-validate",
+      "expected_gate": "packages/interpretation-contract/src/validate.ts#validateInterpretationDocument → EMPTY_CONTRIBUTING",
+      "expected_rejection": "sufficient_data=true with contributing=[] must be non-conformant (D-k)"
+    },
+    {
+      "id": "08-loinc-system-axis-anatomy",
+      "dir": "08-loinc-system-axis-anatomy",
+      "harness": "interpretation-validate",
+      "expected_gate": "packages/interpretation-contract/src/validate.ts → LOINC_SYSTEM_AXIS_ANATOMY (D-h)",
+      "expected_rejection": "interpretive_anatomy_source=loinc_system_axis must be rejected"
+    },
+    {
+      "id": "09-sctid-in-published-path",
+      "dir": "09-sctid-in-published-path",
+      "harness": "check-snomed-boundary-plant",
+      "expected_gate": "verify/check-snomed-boundary.ts (published-artefact paths; Addendum 06 Finding 3)",
+      "expected_rejection": "SCTID under a published path must fail the SNOMED publication boundary"
+    },
+    {
+      "id": "10-cbc-rerouted-to-cardiovascular",
+      "dir": "10-cbc-rerouted-to-cardiovascular",
+      "harness": "interpretation-validate",
+      "expected_gate": "packages/interpretation-contract/src/validate.ts → UNRENDERABLE_REROUTED (D-g)",
+      "expected_rejection": "CBC marker in unrenderable[] must not also appear under states[].system_id=cardiovascular"
+    },
+    {
+      "id": "11-uberon-to-fma-wrong-direction",
+      "dir": "11-uberon-to-fma-wrong-direction",
+      "harness": "none",
+      "expected_gate": null,
+      "expected_rejection": "Join must run FMA→UBERON only; UBERON→FMA direction must be rejected (D-l)",
+      "finding": "Schema requires fma_id and documents direction; no bridge/direction validator exists. A mismatched or reverse-declared join still passes validateInterpretationDocument."
+    },
+    {
+      "id": "12-interpretive-band-as-interval",
+      "dir": "12-interpretive-band-as-interval",
+      "harness": "interpretive-band-as-interval",
+      "expected_gate": "packages/provider-anchor/src/fhir/mapObservation.ts → interpretive_band_not_reference_interval (D-c); interpreter treats interval_record_kind=interpretive_band as no_reference_interval",
+      "expected_rejection": "BM-190 band id (e.g. RI-079) must not be attachable as a measured reference_interval — wrong-kind, distinct from null-interval canary 05"
+    }
+  ]
+}
