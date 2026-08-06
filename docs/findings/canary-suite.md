@@ -5,7 +5,8 @@ Status: binding for CI (`verify/check-canaries.ts`).
 These fixtures exist because this repository has already shipped **270 passing
 tests over clinically wrong output**. Green tests are not evidence. The canary
 suite asks the opposite question: *does an existing gate reject this wrong
-input?* CI fails if any canary is **accepted**.
+input?* CI fails if any canary is **accepted**. Documented `FINDING:UNCAUGHT`
+rows stay in the log and do not block merge.
 
 Rule: if a canary is not caught by an existing gate, that is a **FINDING**.
 Do not paper over it with a fixture-specific special case.

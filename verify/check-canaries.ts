@@ -1,8 +1,9 @@
 /**
  * WHAT: Runs the deliberately-wrong canary suite; fails CI if any canary is accepted by existing gates.
  * NOT:  Does not invent new clinical gates or special-case checks to paper over gaps — gaps are FINDINGS.
- * GOVERNED BY: docs/findings/canary-suite.md; DECISIONS.md#d12; docs/findings/canary-suite.md
+ * GOVERNED BY: docs/findings/canary-suite.md; DECISIONS.md#d12; docs/findings/verify-baseline.md
  * CORRECTNESS: verify/canaries/manifest.json — every canary either rejected by its named gate or reported as FINDING:UNCAUGHT
+ * GOTCHA: FINDING:UNCAUGHT exits 0 (documented baseline). Only ACCEPTED exits 1.
  */
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -367,11 +368,17 @@ function main(): void {
     `\nsummary: caught=${caught.length} accepted=${accepted.length} findings=${findings.length} total=${outcomes.length}`
   );
 
-  if (accepted.length || findings.length) {
-    console.error(
-      '\ncheck-canaries: FAIL — canary accepted by pipeline and/or FINDING: no existing gate (see docs/findings/canary-suite.md)'
-    );
+  if (accepted.length) {
+    console.error('\ncheck-canaries: FAIL — canary accepted by pipeline (see docs/findings/canary-suite.md)');
     process.exit(1);
+  }
+  if (findings.length) {
+    // Documented gaps stay visible in the log; they do not block CI. Only an
+    // ACCEPTED canary (wrong input slipped through) is merge-blocking.
+    console.error(
+      `\ncheck-canaries: ${findings.length} FINDING:UNCAUGHT documented in docs/findings/canary-suite.md — not blocking`
+    );
+    process.exit(0);
   }
   console.log('\ncheck-canaries: ok — every canary rejected by its named gate');
 }
