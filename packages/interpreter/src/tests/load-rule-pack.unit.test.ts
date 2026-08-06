@@ -63,5 +63,42 @@ rules:
         when: { predicate: within_interval, input: BM-128 }
 `;
     expect(() => loadRulePackFromYaml(yaml)).toThrow(RulePackValidationError);
+    try {
+      loadRulePackFromYaml(yaml);
+      expect.unreachable('expected RulePackValidationError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(RulePackValidationError);
+      const issues = (err as RulePackValidationError).issues;
+      expect(issues.some((i) => i.includes('guideline:does-not-exist') && i.includes('no file'))).toBe(true);
+    }
+  });
+
+  it('rejects guideline ids that escape the guidelines directory', () => {
+    const yaml = `
+schema_version: rule-pack.v0.1
+pack_id: bad
+rules:
+  - id: x
+    family: glycemic
+    clinical_basis: guideline:../../../README
+    rule_strength: 0.5
+    emit: state
+    system_id: metabolic
+    geometry: { fma_id: "FMA:1" }
+    inputs:
+      - biomarker_id: BM-128
+        role: required
+    severity_ladder:
+      - severity: none
+        when: { predicate: within_interval, input: BM-128 }
+`;
+    try {
+      loadRulePackFromYaml(yaml);
+      expect.unreachable('expected RulePackValidationError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(RulePackValidationError);
+      const issues = (err as RulePackValidationError).issues;
+      expect(issues.some((i) => i.includes('guideline:../../../README'))).toBe(true);
+    }
   });
 });

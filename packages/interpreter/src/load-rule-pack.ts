@@ -7,7 +7,7 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
@@ -33,13 +33,19 @@ function loadSchema(schemaPath: string): object {
 }
 
 function guidelineFileExists(id: string, guidelinesDir: string): boolean {
+  const root = resolve(guidelinesDir);
   const candidates = [
     join(guidelinesDir, `${id}.md`),
     join(guidelinesDir, id, 'README.md'),
     join(guidelinesDir, `${id}.yaml`),
     join(guidelinesDir, `${id}.yml`)
   ];
-  return candidates.some((p) => existsSync(p));
+  return candidates.some((p) => {
+    const abs = resolve(p);
+    const rel = relative(root, abs);
+    if (rel.startsWith('..') || isAbsolute(rel)) return false;
+    return existsSync(abs);
+  });
 }
 
 export interface LoadRulePackOptions {
