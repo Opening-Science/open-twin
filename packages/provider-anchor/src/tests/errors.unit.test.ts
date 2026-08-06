@@ -57,7 +57,7 @@ describe('AnchorIngestError', () => {
         },
         CTX
       )
-    ).toThrow(/incommensurable/);
+    ).toThrow(AnchorIngestError);
     try {
       mapBiomarkerToObservation(
         {
@@ -73,7 +73,7 @@ describe('AnchorIngestError', () => {
     }
   });
 
-  it('rejects a physiologically impossible value', () => {
+  it('rejects a physiologically impossible value without echoing the numeric value', () => {
     try {
       mapBiomarkerToObservation(
         {
@@ -87,6 +87,7 @@ describe('AnchorIngestError', () => {
       expect.fail('should throw');
     } catch (e) {
       expect((e as AnchorIngestError).code).toBe('physiologically_impossible');
+      expect((e as AnchorIngestError).message).not.toMatch(/80/);
     }
   });
 
@@ -119,6 +120,41 @@ describe('AnchorIngestError', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(AnchorIngestError);
       expect((e as AnchorIngestError).code).toBe('interpretive_band_not_reference_interval');
+    }
+  });
+
+  it('rejects a reference interval that belongs to another biomarker', () => {
+    // RI-029 is Cortisol (BM-077), same ng/mL as Ferritin (BM-107).
+    try {
+      mapBiomarkerToObservation(
+        {
+          biomarker_id: 'BM-107',
+          value: 120,
+          unit_ucum: 'ng/mL',
+          reference_interval_id: 'RI-029'
+        },
+        CTX
+      );
+      expect.fail('should throw');
+    } catch (e) {
+      expect((e as AnchorIngestError).code).toBe('reference_interval_mismatch');
+    }
+  });
+
+  it('rejects effectiveDateTime without a timezone offset', () => {
+    try {
+      mapBiomarkerToObservation(
+        {
+          biomarker_id: 'BM-426',
+          value: 6.2,
+          unit_ucum: '10*9/L',
+          reference_interval_id: null
+        },
+        { ...CTX, effectiveDateTime: '2026-07-12T09:00:00' }
+      );
+      expect.fail('should throw');
+    } catch (e) {
+      expect((e as AnchorIngestError).code).toBe('invalid_context');
     }
   });
 });

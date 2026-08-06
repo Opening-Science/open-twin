@@ -5,8 +5,6 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: Cortisol cannot be flagged without collection time; Östradiol cannot without cycle phase. Carry both here.
  */
-import type { Reference } from 'fhir/r4';
-
 /** Menstrual cycle phase as used in Anchor interval populations (e.g. female_Follikelphase). */
 export type MenstrualCyclePhase = 'follicular' | 'midcycle' | 'luteal' | 'postmenopausal' | 'unknown';
 
@@ -21,12 +19,13 @@ export type AdministrativeGender = 'male' | 'female' | 'other' | 'unknown';
 /**
  * Everything about the draw that the interpreter needs to choose a population.
  * Population selection itself is NOT performed here.
+ *
+ * Subject identity is always derived from `subjectKey` (D1/D2). Do not pass an
+ * external Patient reference — the Bundle Patient and Observation.subject must agree.
  */
 export interface CollectionContext {
   /** Stable subject key for deterministic ids (D1/D2). */
   subjectKey: string;
-  /** Optional pre-built subject reference; otherwise derived from subjectKey. */
-  subject?: Reference;
   /** Administrative sex — required for sex-stratified intervals at interpretation time. */
   sex: AdministrativeGender;
   /** ISO date YYYY-MM-DD — required for age-band intervals at interpretation time. */
@@ -53,9 +52,23 @@ export interface CollectionContext {
   deviceModel?: string;
 }
 
-/** Foundation extensions so cycle / fasting / TOD travel with the Observation. */
+/** Foundation complex extension so cycle / fasting / TOD travel with the Observation. */
 export const COLLECTION_CONTEXT_EXTENSION = 'http://opentwin.ch/fhir/StructureDefinition/collection-context';
 
-export const EXT_CYCLE_PHASE = `${COLLECTION_CONTEXT_EXTENSION}/menstrual-cycle-phase`;
-export const EXT_FASTING = `${COLLECTION_CONTEXT_EXTENSION}/fasting`;
-export const EXT_TOD_WINDOW = `${COLLECTION_CONTEXT_EXTENSION}/time-of-day-window`;
+/** Short slice urls nested under COLLECTION_CONTEXT_EXTENSION (house IG pattern). */
+export const EXT_CYCLE_PHASE = 'menstrual-cycle-phase';
+export const EXT_FASTING = 'fasting';
+export const EXT_TOD_WINDOW = 'time-of-day-window';
+
+const FHIR_DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** FHIR dateTime with mandatory offset (Z or ±HH:MM) — collection time is timezone-sensitive. */
+const FHIR_DATETIME_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+
+export function assertValidCollectionContext(ctx: CollectionContext): void {
+  if (!FHIR_DATE.test(ctx.birthDate)) {
+    throw new Error('CollectionContext.birthDate must be a FHIR date (YYYY-MM-DD)');
+  }
+  if (!FHIR_DATETIME_WITH_OFFSET.test(ctx.effectiveDateTime)) {
+    throw new Error('CollectionContext.effectiveDateTime must be a FHIR dateTime with timezone offset');
+  }
+}
