@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-twin.org/contracts/rules/rule-pack.v0.1.schema.json",
+  "title": "OpenTwinRulePackV01",
+  "description": "Declarative clinical rule pack. Clinical cutoffs and biomarker roles live here; the engine evaluates predicates only (no BM-* ids or named analytes in evaluate.ts — purity test).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "pack_id", "rules"],
+  "properties": {
+    "schema_version": { "const": "rule-pack.v0.1" },
+    "pack_id": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Rule" }
+    }
+  },
+  "$defs": {
+    "SystemId": {
+      "type": "string",
+      "enum": [
+        "musculoskeletal",
+        "cardiovascular",
+        "nervous",
+        "respiratory",
+        "metabolic",
+        "digestive",
+        "endocrine",
+        "integumentary",
+        "reproductive"
+      ]
+    },
+    "Severity": {
+      "type": "string",
+      "enum": ["none", "borderline", "mild", "moderate", "marked", "indeterminate"]
+    },
+    "ClinicalBasis": {
+      "oneOf": [
+        {
+          "type": "string",
+          "const": "heuristic_no_guideline",
+          "description": "No guideline file in docs/evidence/guidelines/ backs this rule."
+        },
+        {
+          "type": "string",
+          "pattern": "^guideline:[A-Za-z0-9._/-]+$",
+          "description": "Points at docs/evidence/guidelines/<id> — file must exist."
+        }
+      ]
+    },
+    "InputRole": { "type": "string", "enum": ["required", "optional"] },
+    "Predicate": {
+      "type": "string",
+      "enum": [
+        "within_interval",
+        "below_low",
+        "above_high",
+        "outside_interval",
+        "ratio_to_high_at_least",
+        "ratio_to_low_at_most",
+        "any_present_outside"
+      ]
+    },
+    "RuleInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["biomarker_id", "role"],
+      "properties": {
+        "biomarker_id": {
+          "type": "string",
+          "pattern": "^BM-[0-9]+$"
+        },
+        "role": { "$ref": "#/$defs/InputRole" }
+      }
+    },
+    "LadderStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "when"],
+      "properties": {
+        "severity": { "$ref": "#/$defs/Severity" },
+        "when": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["predicate"],
+          "properties": {
+            "predicate": { "$ref": "#/$defs/Predicate" },
+            "input": { "type": "string", "pattern": "^BM-[0-9]+$" },
+            "factor": { "type": "number", "exclusiveMinimum": 0 },
+            "require_all_required_present": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "family", "clinical_basis", "rule_strength", "inputs", "severity_ladder", "emit"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "family": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "clinical_basis": { "$ref": "#/$defs/ClinicalBasis" },
+        "rule_strength": { "type": "number", "minimum": 0, "maximum": 1 },
+        "emit": {
+          "type": "string",
+          "enum": ["state", "unrenderable"],
+          "description": "state → states[] with system_id; unrenderable → unrenderable[] (D-g)."
+        },
+        "system_id": { "$ref": "#/$defs/SystemId" },
+        "unrenderable_reason": {
+          "type": "string",
+          "enum": ["no_system_id_upstream", "not_anatomical", "system_excluded_upstream"]
+        },
+        "unrenderable_id": { "type": "string" },
+        "geometry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fma_id"],
+          "properties": {
+            "fma_id": { "type": "string", "pattern": "^FMA:[0-9]+$" },
+            "uberon_id": { "type": "string", "pattern": "^UBERON:[0-9]+$" }
+          }
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/RuleInput" }
+        },
+        "severity_ladder": {
+          "type": "array",
+          "minItems": 1,
+          "description": "First matching step wins. Evaluated top to bottom.",
+          "items": { "$ref": "#/$defs/LadderStep" }
+        },
+        "caps": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_severity": { "$ref": "#/$defs/Severity" },
+            "max_confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "gap_notes": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "emit": { "const": "state" } } },
+          "then": { "required": ["system_id", "geometry"] }
+        },
+        {
+          "if": { "properties": { "emit": { "const": "unrenderable" } } },
+          "then": { "required": ["unrenderable_reason", "unrenderable_id"] }
+        }
+      ]
+    }
+  }
+}

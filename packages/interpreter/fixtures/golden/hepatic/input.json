@@ -1,0 +1,23 @@
+{
+  "subject_ref": "urn:uuid:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "as_of": "2026-07-28T00:00:00.000Z",
+  "families": ["hepatic"],
+  "observations": [
+    {
+      "biomarker_id": "BM-132",
+      "value": 120,
+      "observed_at": "2026-07-20T00:00:00.000Z",
+      "reference_interval_id": "RI-064",
+      "interval": { "low": null, "high": 50 },
+      "loinc_code": "1742-6"
+    },
+    {
+      "biomarker_id": "BM-123",
+      "value": 80,
+      "observed_at": "2026-07-20T00:00:00.000Z",
+      "reference_interval_id": "RI-057",
+      "interval": { "low": 11, "high": 59 },
+      "loinc_code": "2324-2"
+    }
+  ]
+}

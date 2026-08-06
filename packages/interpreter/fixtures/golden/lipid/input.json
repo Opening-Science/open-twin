@@ -1,0 +1,21 @@
+{
+  "subject_ref": "urn:uuid:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "as_of": "2026-07-28T00:00:00.000Z",
+  "families": ["lipid"],
+  "observations": [
+    {
+      "biomarker_id": "BM-072",
+      "value": 220,
+      "observed_at": "2026-07-10T00:00:00.000Z",
+      "reference_interval_id": "RI-026",
+      "interval": { "low": null, "high": 190 }
+    },
+    {
+      "biomarker_id": "BM-140",
+      "value": 40,
+      "observed_at": "2026-07-10T00:00:00.000Z",
+      "reference_interval_id": "RI-071",
+      "interval": { "low": 45, "high": null }
+    }
+  ]
+}

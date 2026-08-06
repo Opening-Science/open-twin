@@ -1,0 +1,46 @@
+{
+  "name": "@open-twin/interpreter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "YAML rule-pack evaluator — clinical cutoffs live in the pack; engine has no biomarker ids or named analytes (purity test on evaluate.ts)",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./rules/open-twin.v0.1.yaml": "./rules/open-twin.v0.1.yaml"
+  },
+  "files": [
+    "dist",
+    "rules",
+    "schema"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "test": "vitest run",
+    "lint": "biome ci src",
+    "clean": "rm -rf dist",
+    "regen-golden": "tsx scripts/regen-golden.ts"
+  },
+  "dependencies": {
+    "@open-twin/interpretation-contract": "workspace:*",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false
+}
