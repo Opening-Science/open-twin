@@ -1,9 +1,9 @@
 # Anchor layer audit
 
 Source: `docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx`  
-Source sha256: `4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d`  
+Source sha256: `42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e`  
 Artefact: `packages/anchor-layer/data/anchor-layer.v1.json`  
-Artefact sha256: `9b7307e28564f9acf713720dfca6d3753f0f6e963645583fafb1c590b5dea940`
+Artefact sha256: `7adc42afaa03ee568a9f8eea5b451a8b51c9851e116f90951009d1b31894682e`
 
 ## Counts (D-c — do not merge)
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "anchor-layer.v1",
-  "compiled_at_source_sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+  "compiled_at_source_sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
   "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
   "decisions": [
     "D-a",
@@ -14,7 +14,7 @@
       "biomarker_id": "BM-001",
       "name_de": "17-Beta-Östradiol",
       "loinc_code": "14715-7",
-      "loinc_display": "Estradiol [Moles/volume] in Serum or Plasma",
+      "loinc_display": "Estradiol (E2) [Moles/volume] in Serum or Plasma",
       "tier": "core_tier1",
       "unit_source": "pmol/l",
       "unit_ucum": "pmol/L",
@@ -27,7 +27,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 2
       }
@@ -49,7 +49,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 3
       }
@@ -71,7 +71,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 4
       }
@@ -93,7 +93,7 @@
       "blocking_flags": "BLOCKING: LOINC property is molar, unit is mass",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 5
       }
@@ -116,7 +116,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 6
       }
@@ -138,7 +138,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 7
       }
@@ -162,7 +162,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 8
       }
@@ -184,7 +184,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 9
       }
@@ -206,7 +206,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 10
       }
@@ -228,7 +228,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 11
       }
@@ -250,7 +250,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 12
       }
@@ -273,7 +273,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 13
       }
@@ -295,7 +295,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 14
       }
@@ -317,7 +317,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 15
       }
@@ -339,7 +339,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 16
       }
@@ -362,7 +362,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 17
       }
@@ -385,7 +385,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 18
       }
@@ -407,7 +407,7 @@
       "blocking_flags": "NOTE: region assigned by override, confirm",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 19
       }
@@ -429,7 +429,7 @@
       "blocking_flags": "NOTE: region assigned by override, confirm",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 20
       }
@@ -452,7 +452,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 21
       }
@@ -474,7 +474,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 22
       }
@@ -496,7 +496,7 @@
       "blocking_flags": "OPEN: region assignment needs a decision",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 23
       }
@@ -518,7 +518,7 @@
       "blocking_flags": "NOTE: region assigned by override, confirm",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 24
       }
@@ -542,7 +542,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 25
       }
@@ -565,7 +565,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 26
       }
@@ -587,7 +587,7 @@
       "blocking_flags": "NOTE: region assigned by override, confirm",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 27
       }
@@ -609,7 +609,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 28
       }
@@ -632,7 +632,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 29
       }
@@ -654,7 +654,7 @@
       "blocking_flags": "BLOCKING: LOINC property is molar, unit is mass",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 30
       }
@@ -678,7 +678,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 31
       }
@@ -701,7 +701,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 32
       }
@@ -725,7 +725,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 33
       }
@@ -747,7 +747,7 @@
       "blocking_flags": "NOTE: region assigned by override, confirm",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 34
       }
@@ -770,7 +770,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 35
       }
@@ -793,7 +793,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 36
       }
@@ -815,7 +815,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 37
       }
@@ -838,7 +838,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 38
       }
@@ -860,7 +860,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 39
       }
@@ -882,7 +882,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 40
       }
@@ -904,7 +904,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 41
       }
@@ -926,7 +926,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 42
       }
@@ -950,7 +950,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 43
       }
@@ -973,7 +973,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 44
       }
@@ -995,7 +995,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 45
       }
@@ -1017,7 +1017,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 46
       }
@@ -1039,7 +1039,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 47
       }
@@ -1061,7 +1061,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 48
       }
@@ -1083,7 +1083,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 49
       }
@@ -1105,7 +1105,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 50
       }
@@ -1127,7 +1127,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 51
       }
@@ -1149,7 +1149,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 52
       }
@@ -1171,7 +1171,7 @@
       "blocking_flags": "BLOCKING: LOINC property is molar, unit is mass",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 53
       }
@@ -1193,7 +1193,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 54
       }
@@ -1215,7 +1215,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 55
       }
@@ -1237,7 +1237,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 56
       }
@@ -1259,7 +1259,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 57
       }
@@ -1282,7 +1282,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 58
       }
@@ -1304,7 +1304,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 59
       }
@@ -1326,7 +1326,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 60
       }
@@ -1348,7 +1348,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 61
       }
@@ -1370,7 +1370,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 62
       }
@@ -1392,7 +1392,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 63
       }
@@ -1414,7 +1414,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 64
       }
@@ -1436,7 +1436,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 65
       }
@@ -1458,7 +1458,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 66
       }
@@ -1480,7 +1480,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 67
       }
@@ -1502,7 +1502,7 @@
       "blocking_flags": "none",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Anchor_Core_Set",
         "row": 68
       }
@@ -1525,7 +1525,7 @@
       "reference_range_text": "m 40-161 · w Follikelphase 77-921 · Zyklusmitte 139-2382 · Lutealphase 77-1145 · Postmenopause < 103",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 2
       },
@@ -1547,7 +1547,7 @@
       "reference_range_text": "m 40-161 · w Follikelphase 77-921 · Zyklusmitte 139-2382 · Lutealphase 77-1145 · Postmenopause < 103",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 3
       },
@@ -1569,7 +1569,7 @@
       "reference_range_text": "37,4-101",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 18
       },
@@ -1591,7 +1591,7 @@
       "reference_range_text": "12-60 J: 2,20-2,60 · m > 60 J: 2,20-2,55",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 20
       },
@@ -1613,7 +1613,7 @@
       "reference_range_text": "< 50",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 21
       },
@@ -1635,7 +1635,7 @@
       "reference_range_text": "> 18 J: < 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 27
       },
@@ -1657,7 +1657,7 @@
       "reference_range_text": "vor 10 Uhr 37-194 · nach 17 Uhr 29-173",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 30
       },
@@ -1679,7 +1679,7 @@
       "reference_range_text": "vor 10 Uhr 37-194 · nach 17 Uhr 29-173",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 31
       },
@@ -1701,7 +1701,7 @@
       "reference_range_text": "< 5",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 32
       },
@@ -1723,7 +1723,7 @@
       "reference_range_text": "24-34 J: m 1600-4490 · w 988-3400 · 34-44 J: m 889-4720 · w 609-3370 (altersgestaffelt)",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 37
       },
@@ -1745,7 +1745,7 @@
       "reference_range_text": "24-34 J: m 1600-4490 · w 988-3400 · 34-44 J: m 889-4720 · w 609-3370 (altersgestaffelt)",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 38
       },
@@ -1767,7 +1767,7 @@
       "reference_range_text": "24-34 J: m 1600-4490 · w 988-3400 · 34-44 J: m 889-4720 · w 609-3370 (altersgestaffelt)",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 39
       },
@@ -1789,7 +1789,7 @@
       "reference_range_text": "> 18 J: m 21,8-275 · w 4,63-204",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 45
       },
@@ -1811,7 +1811,7 @@
       "reference_range_text": "> 18 J: m 21,8-275 · w 4,63-204",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 46
       },
@@ -1833,7 +1833,7 @@
       "reference_range_text": "> 3,0",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 47
       },
@@ -1855,7 +1855,7 @@
       "reference_range_text": "> 19 J: 1,58-3,91",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 52
       },
@@ -1877,7 +1877,7 @@
       "reference_range_text": "> 19 J: 7,00-14,8",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 53
       },
@@ -1899,7 +1899,7 @@
       "reference_range_text": "m 0,95-11,95 · w Follikelphase 3,03-8,08 · Zyklusmitte 2,55-16,69 · Lutealphase 1,38-5,47 · Postmenopause 26,7-133,4",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 55
       },
@@ -1921,7 +1921,7 @@
       "reference_range_text": "m 0,95-11,95 · w Follikelphase 3,03-8,08 · Zyklusmitte 2,55-16,69 · Lutealphase 1,38-5,47 · Postmenopause 26,7-133,4",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 56
       },
@@ -1943,7 +1943,7 @@
       "reference_range_text": "> 18 J: m 11-59 · w 8-33",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 58
       },
@@ -1965,7 +1965,7 @@
       "reference_range_text": "> 18 J: m 11-59 · w 8-33",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 59
       },
@@ -1987,7 +1987,7 @@
       "reference_range_text": "18-60 J: 64,0-83,0 · > 60 J: 62,0-81,0",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 61
       },
@@ -2009,7 +2009,7 @@
       "reference_range_text": "18-60 J: 64,0-83,0 · > 60 J: 62,0-81,0",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 62
       },
@@ -2031,7 +2031,7 @@
       "reference_range_text": "nuechtern < 100",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 63
       },
@@ -2053,7 +2053,7 @@
       "reference_range_text": "> 18 J: m < 50 · w < 35",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 65
       },
@@ -2075,7 +2075,7 @@
       "reference_range_text": "> 18 J: m < 50 · w < 35",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 66
       },
@@ -2097,7 +2097,7 @@
       "reference_range_text": "> 18 J: m 3,6-8,2 · w 2,3-6,1",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 67
       },
@@ -2119,7 +2119,7 @@
       "reference_range_text": "> 18 J: m 3,6-8,2 · w 2,3-6,1",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 68
       },
@@ -2141,7 +2141,7 @@
       "reference_range_text": "< 5,7 (< 39 mmol/mol)",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 71
       },
@@ -2163,7 +2163,7 @@
       "reference_range_text": "> 18 J: w > 45 · m > 40",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 72
       },
@@ -2185,7 +2185,7 @@
       "reference_range_text": "> 18 J: w > 45 · m > 40",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 73
       },
@@ -2207,7 +2207,7 @@
       "reference_range_text": "3,6-5,5",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 76
       },
@@ -2229,7 +2229,7 @@
       "reference_range_text": "m 1,14-8,75 · w Follikelphase 2,39-6,60 · Zyklusmitte 9,06-74,24 · Lutealphase 0,90-9,33 · Postmenopause 10,39-64,57",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 83
       },
@@ -2251,7 +2251,7 @@
       "reference_range_text": "m 1,14-8,75 · w Follikelphase 2,39-6,60 · Zyklusmitte 9,06-74,24 · Lutealphase 0,90-9,33 · Postmenopause 10,39-64,57",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 84
       },
@@ -2273,7 +2273,7 @@
       "reference_range_text": "0,75-1,10",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 85
       },
@@ -2295,7 +2295,7 @@
       "reference_range_text": "135-145",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 86
       },
@@ -2317,7 +2317,7 @@
       "reference_range_text": "w Follikelphase < 0,96 · Zyklusmitte 0,0-70,1 · Lutealphase 3,8-50,6 · Postmenopause < 0,64",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 92
       },
@@ -2339,7 +2339,7 @@
       "reference_range_text": "m 3,46-19,4 · w 5,18-26,53",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 93
       },
@@ -2361,7 +2361,7 @@
       "reference_range_text": "m 3,46-19,4 · w 5,18-26,53",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 94
       },
@@ -2383,7 +2383,7 @@
       "reference_range_text": "m 7,09-32,9 · w 0,94-4,75",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 95
       },
@@ -2405,7 +2405,7 @@
       "reference_range_text": "m 7,09-32,9 · w 0,94-4,75",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 96
       },
@@ -2427,7 +2427,7 @@
       "reference_range_text": "44-150",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 97
       },
@@ -2449,7 +2449,7 @@
       "reference_range_text": "0,35-4,94 (Graubereich 2,5-4,94)",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 98
       },
@@ -2471,7 +2471,7 @@
       "reference_range_text": "> 18 J: 187-883",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 99
       },
@@ -2495,7 +2495,7 @@
       "reference_range_text": "optimal < 100 · gut 100-129 · grenzwertig 130-159 · erhoeht 160-189 · pathologisch > 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 78
       },
@@ -2517,7 +2517,7 @@
       "reference_range_text": "optimal < 100 · gut 100-129 · grenzwertig 130-159 · erhoeht 160-189 · pathologisch > 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 79
       },
@@ -2539,7 +2539,7 @@
       "reference_range_text": "optimal < 100 · gut 100-129 · grenzwertig 130-159 · erhoeht 160-189 · pathologisch > 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 80
       },
@@ -2561,7 +2561,7 @@
       "reference_range_text": "optimal < 100 · gut 100-129 · grenzwertig 130-159 · erhoeht 160-189 · pathologisch > 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 81
       },
@@ -2583,7 +2583,7 @@
       "reference_range_text": "optimal < 100 · gut 100-129 · grenzwertig 130-159 · erhoeht 160-189 · pathologisch > 190",
       "provenance": {
         "source_file": "docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx",
-        "sha256": "4f4eb4d70966a2d2bf653be1cfec02b5e35f6f0d7ad0eed661b3e80bd369976d",
+        "sha256": "42c027317bad0511ae3faed46f3ae49c2fb86f175fe8c58982d403c32d8f987e",
         "sheet": "Reference_Intervals",
         "row": 82
       },

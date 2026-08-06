@@ -98,8 +98,10 @@ for (const file of tsFiles) {
   for (const part of value.split(/[;,]/)) {
     const p = part.trim();
     if (!p) continue;
-    if (p.startsWith('docs/adr/')) {
-      offenders.push(`${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ (${p})`);
+    if (p.startsWith('docs/adr/') || /^docs\/contracts\/ADR-/i.test(p)) {
+      offenders.push(
+        `${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ or docs/contracts/ADR-* (${p})`
+      );
       continue;
     }
     const dec = p.match(/^DECISIONS\.md#(d\d+)\b/i);
