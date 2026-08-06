@@ -6,13 +6,30 @@ Source of stock scan: `synthetichealth/synthea` modules under
 `src/main/resources/modules` (242 JSON files), matching LOINC codes where
 `system` is `LOINC` or `http://loinc.org`.
 
+Provenance:
+- **Synthea revision:** `7e08387c68a7f0e21d13076609a159fd473fc902` (2026-07-22, `master` tip at scan)
+- **Scan date:** 2026-08-02
+- **Command:** sparse-clone modules, then walk every `*.json` under
+  `src/main/resources/modules` for coding objects whose `system` is `LOINC`
+  or `http://loinc.org`, intersected with the 67 Anchor LOINCs from
+  `packages/anchor-layer/data/anchor-layer.v1.json`:
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/synthetichealth/synthea.git
+cd synthea && git sparse-checkout set src/main/resources/modules
+git rev-parse HEAD   # → 7e08387c68a7…
+find src/main/resources/modules -name '*.json' | wc -l   # → 242
+# then: JSON walk for system∈{LOINC, http://loinc.org} × Anchor LOINC set
+```
+
 ## Summary
 
 | Status | Count | Meaning |
 |---|---:|---|
 | **stock** | 23 | Exact Anchor LOINC appears in a stock Synthea module |
 | **custom** | 36 | Not emitted under the Anchor LOINC; a Generic Module *could* emit it, or stock has a sibling LOINC only |
-| **cannot** | 8 | No honest emission — would require fabricating incoherent or undecided values |
+| **cannot** | 8 | No *honest* OpenTwin emission — fabricating a value would violate Anchor coherence or an unresolved LOINC/unit decision (not a claim that Synthea lacks Observation states) |
 | **total** | 67 | |
 
 ## Method notes
@@ -23,6 +40,13 @@ Source of stock scan: `synthetichealth/synthea` modules under
 - **CBC indices.** Stock modules list MCV/MCH/MCHC with *independent* `range`
   objects beside Hb/Hct/RBC. They are stock for LOINC presence, but **not**
   formula-coherent. Coherence is a later test obligation (task §4), not a stock guarantee.
+- **`cannot` is honesty policy, not missing Generic Module capability.** Synthea
+  Generic Modules can emit numeric Observations (exact / range / distribution /
+  attribute / expression) and support Delay, Guard, SetAttribute, and optional
+  Physiology states. That does **not** make an unphased random estradiol or a
+  molar-LOINC/mass-unit Bor an honest Anchor Observation. `cannot` rows stay
+  out of the P7 custom-module work list until the cited blocker is resolved;
+  reclassifying them as `custom` would schedule modules nobody should ship.
 - **v0.1 rule pack.** Present as `@open-twin/interpreter` /
   `packages/interpreter/rules/open-twin.v0.1.yaml` (every rule
   `heuristic_no_guideline`). Custom-module priority is the intersection below —
@@ -32,13 +56,21 @@ Source of stock scan: `synthetichealth/synthea` modules under
 
 ## Cannot (honest)
 
+Blocker kinds (still status=`cannot` — not P7 module work):
+
+| Kind | Markers | Unsupported *for OpenTwin honesty* |
+|---|---|---|
+| Cycle-phase coherence | BM-001, BM-119, BM-197, BM-311 | Anchor populations are phase-stratified; Generic Module Observation without a menstrual-phase attribute/physiology binding yields incoherent values for those intervals. Stock has no serum estradiol/FSH/LH; BM-311 stock path is tissue receptor IHC only, not serum `14890-8`. |
+| Time-of-day coherence | BM-077 | Anchor intervals are TOD-stratified (`vor_10h` / `nach_17h`); Observation without collection-time binding fabricates incoherent values. |
+| LOINC/unit undecided (D11 / D-e) | BM-060, BM-186, BM-405 | Molar LOINC + mass unit — same defect as compiler property mismatches; no honest quantity until a human picks mass vs molar. |
+
 - **BM-001** 17-Beta-Östradiol (`14715-7`): No stock estradiol Observation; cycle-phase populations (Follikelphase etc.) require a menstrual-phase state machine Synthea does not expose — unphased random pmol/L would be physiologically incoherent for Anchor intervals
 - **BM-060** Bor (`52914-9`): LOINC 52914-9 is [Moles/volume] but Anchor unit is mass (µg/l); D11 — no honest value until human decides mass vs molar code
 - **BM-077** Cortisol (`2143-6`): No stock cortisol; Anchor intervals are TOD-stratified (vor_10h / nach_17h). Emitting a single Gaussian without collection-time binding fabricates incoherent values for those populations
 - **BM-119** FSH (`15067-2`): No stock FSH; cycle-phase–dependent. Same phase-coherence problem as estradiol
 - **BM-186** Kupfer (`14665-4`): LOINC 14665-4 is [Moles/volume] but Anchor unit is mass (µg/l); D11
 - **BM-197** LH (`10501-5`): No stock LH; cycle-phase–dependent
-- **BM-311** Progesteron (`14890-8`): No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels)
+- **BM-311** Progesteron (`14890-8`): No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without cycle-phase binding has the same honesty problem as estradiol/FSH/LH
 - **BM-405** Phytonadione / Vitamin K (`58793-1`): LOINC 58793-1 is [Moles/volume] but Anchor unit is mass (ng/l); D11
 
 
@@ -125,7 +157,7 @@ P7 consumer list because the rule pack does not reference them.
 | BM-258 | Magnesium | `2601-3` | custom | stock has 19123-9 (Magnesium [Mass/volume] Ser/Plas) in encounter/hospital_basic_labs.json, heart/cabg/labs_common.json; stock has 21377-7 (Magnesium [Mass/volume] in Blood) in heart/cardiac_labs.json — needs custom module for Anchor LOINC 2601-3 · Same analyte, different LOINC/property; P6 connector keys Anchor codes |
 | BM-286 | Natrium | `2951-2` | stock | exact LOINC 2951-2 in: covid19/measurements_daily.json, encounter/hospital_basic_labs.json, gallstones.json, heart/cabg/labs_common.json (+5 more) |
 | BM-299 | Parathormon (PTH) | `2731-8` | custom | No stock LOINC 2731-8 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
-| BM-311 | Progesteron | `14890-8` | cannot | No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels) |
+| BM-311 | Progesteron | `14890-8` | cannot | No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without cycle-phase binding has the same honesty problem as estradiol/FSH/LH |
 | BM-312 | Prolaktin | `2842-3` | custom | No stock LOINC 2842-3 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
 | BM-315 | PSA | `2857-1` | stock | exact LOINC 2857-1 in: veteran_prostate_cancer.json |
 | BM-341 | Selen | `5724-0` | custom | No stock LOINC 5724-0 in Synthea modules (scanned system LOINC\|http://loinc.org across 242 module files) · Expressible as Generic Module numeric Observation; no stock physiology model |
