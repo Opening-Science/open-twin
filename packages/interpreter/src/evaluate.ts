@@ -7,23 +7,17 @@
  */
 
 import {
-  INTENDED_USE,
-  SCHEMA_VERSION,
   type Contributor,
   type ContributorStatus,
+  INTENDED_USE,
   type OpenTwinInterpretationDocumentV02,
+  SCHEMA_VERSION,
   type Severity,
   type SystemState,
-  type UnrenderableState,
+  type UnrenderableState
 } from '@open-twin/interpretation-contract';
 import { ageDays, computeConfidence, STALE_AFTER_DAYS } from './confidence.js';
-import type {
-  EvaluateInput,
-  InterpreterObservation,
-  LadderWhen,
-  Rule,
-  RulePack,
-} from './types.js';
+import type { EvaluateInput, InterpreterObservation, LadderWhen, Rule, RulePack } from './types.js';
 
 const SEVERITY_RANK: Record<Severity, number> = {
   none: 0,
@@ -31,7 +25,7 @@ const SEVERITY_RANK: Record<Severity, number> = {
   mild: 2,
   moderate: 3,
   marked: 4,
-  indeterminate: 5,
+  indeterminate: 5
 };
 
 function stableStringify(value: unknown): string {
@@ -47,9 +41,7 @@ function stableStringify(value: unknown): string {
   });
 }
 
-function observationMap(
-  observations: InterpreterObservation[],
-): Map<string, InterpreterObservation> {
+function observationMap(observations: InterpreterObservation[]): Map<string, InterpreterObservation> {
   const m = new Map<string, InterpreterObservation>();
   for (const o of observations) {
     const prev = m.get(o.biomarker_id);
@@ -68,7 +60,7 @@ function observationMap(
 
 function contributorStatus(
   obs: InterpreterObservation | undefined,
-  asOf: string,
+  asOf: string
 ): {
   status: ContributorStatus;
   observed_at: string | null;
@@ -79,7 +71,7 @@ function contributorStatus(
     return {
       status: 'missing',
       observed_at: null,
-      reference_interval_id: null,
+      reference_interval_id: null
     };
   }
   if (obs.unit_incommensurable) {
@@ -87,21 +79,16 @@ function contributorStatus(
       status: 'unit_incommensurable',
       observed_at: obs.observed_at,
       reference_interval_id: obs.reference_interval_id,
-      loinc_code: obs.loinc_code,
+      loinc_code: obs.loinc_code
     };
   }
   // D-c / D-a: an interpretive band is not a measured reference interval.
-  if (
-    obs.interval_record_kind === 'interpretive_band' ||
-    obs.reference_interval_id == null ||
-    obs.interval == null
-  ) {
+  if (obs.interval_record_kind === 'interpretive_band' || obs.reference_interval_id == null || obs.interval == null) {
     return {
       status: 'no_reference_interval',
       observed_at: obs.observed_at,
-      reference_interval_id:
-        obs.interval_record_kind === 'interpretive_band' ? null : obs.reference_interval_id,
-      loinc_code: obs.loinc_code,
+      reference_interval_id: obs.interval_record_kind === 'interpretive_band' ? null : obs.reference_interval_id,
+      loinc_code: obs.loinc_code
     };
   }
   if (obs.observed_at != null && ageDays(obs.observed_at, asOf) > STALE_AFTER_DAYS) {
@@ -109,22 +96,18 @@ function contributorStatus(
       status: 'stale',
       observed_at: obs.observed_at,
       reference_interval_id: obs.reference_interval_id,
-      loinc_code: obs.loinc_code,
+      loinc_code: obs.loinc_code
     };
   }
   return {
     status: 'present',
     observed_at: obs.observed_at,
     reference_interval_id: obs.reference_interval_id,
-    loinc_code: obs.loinc_code,
+    loinc_code: obs.loinc_code
   };
 }
 
-function buildContributors(
-  rule: Rule,
-  byId: Map<string, InterpreterObservation>,
-  asOf: string,
-): Contributor[] {
+function buildContributors(rule: Rule, byId: Map<string, InterpreterObservation>, asOf: string): Contributor[] {
   const out: Contributor[] = [];
   for (const input of rule.inputs) {
     const obs = byId.get(input.biomarker_id);
@@ -133,7 +116,7 @@ function buildContributors(
       biomarker_id: input.biomarker_id,
       status: meta.status,
       observed_at: meta.observed_at,
-      reference_interval_id: meta.reference_interval_id,
+      reference_interval_id: meta.reference_interval_id
     };
     if (meta.loinc_code !== undefined) c.loinc_code = meta.loinc_code;
     out.push(c);
@@ -145,7 +128,7 @@ function buildContributors(
 function presentObs(
   biomarkerId: string,
   byId: Map<string, InterpreterObservation>,
-  asOf: string,
+  asOf: string
 ): InterpreterObservation | null {
   const obs = byId.get(biomarkerId);
   const meta = contributorStatus(obs, asOf);
@@ -153,21 +136,15 @@ function presentObs(
   return obs;
 }
 
-function requiredPresent(
-  rule: Rule,
-  byId: Map<string, InterpreterObservation>,
-  asOf: string,
-): boolean {
-  return rule.inputs
-    .filter((i) => i.role === 'required')
-    .every((i) => presentObs(i.biomarker_id, byId, asOf) !== null);
+function requiredPresent(rule: Rule, byId: Map<string, InterpreterObservation>, asOf: string): boolean {
+  return rule.inputs.filter((i) => i.role === 'required').every((i) => presentObs(i.biomarker_id, byId, asOf) !== null);
 }
 
 function matchPredicate(
   when: LadderWhen,
   rule: Rule,
   byId: Map<string, InterpreterObservation>,
-  asOf: string,
+  asOf: string
 ): boolean {
   const { predicate } = when;
 
@@ -223,11 +200,7 @@ function matchPredicate(
   }
 }
 
-function resolveSeverity(
-  rule: Rule,
-  byId: Map<string, InterpreterObservation>,
-  asOf: string,
-): Severity {
+function resolveSeverity(rule: Rule, byId: Map<string, InterpreterObservation>, asOf: string): Severity {
   for (const step of rule.severity_ladder) {
     if (matchPredicate(step.when, rule, byId, asOf)) {
       return step.severity;
@@ -247,9 +220,7 @@ function applySeverityCap(severity: Severity, max?: Severity): Severity {
 }
 
 function insufficientReason(contributors: Contributor[], rule: Rule): string | undefined {
-  const requiredIds = new Set(
-    rule.inputs.filter((i) => i.role === 'required').map((i) => i.biomarker_id),
-  );
+  const requiredIds = new Set(rule.inputs.filter((i) => i.role === 'required').map((i) => i.biomarker_id));
 
   const noIntervalRequired = contributors
     .filter((c) => c.status === 'no_reference_interval' && requiredIds.has(c.biomarker_id))
@@ -258,9 +229,7 @@ function insufficientReason(contributors: Contributor[], rule: Rule): string | u
     return `reference_interval null for ${noIntervalRequired.sort().join(', ')} (D-k)`;
   }
 
-  const noIntervalAny = contributors
-    .filter((c) => c.status === 'no_reference_interval')
-    .map((c) => c.biomarker_id);
+  const noIntervalAny = contributors.filter((c) => c.status === 'no_reference_interval').map((c) => c.biomarker_id);
   if (noIntervalAny.length > 0) {
     return `reference_interval null for ${noIntervalAny.sort().join(', ')} (D-k)`;
   }
@@ -279,9 +248,7 @@ function insufficientReason(contributors: Contributor[], rule: Rule): string | u
     return `required markers stale: ${staleRequired.sort().join(', ')}`;
   }
 
-  const unitBad = contributors
-    .filter((c) => c.status === 'unit_incommensurable')
-    .map((c) => c.biomarker_id);
+  const unitBad = contributors.filter((c) => c.status === 'unit_incommensurable').map((c) => c.biomarker_id);
   if (unitBad.length > 0) {
     return `unit_incommensurable: ${unitBad.sort().join(', ')}`;
   }
@@ -327,7 +294,7 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
       confidence,
       sufficient_data: ok,
       ...(ok ? {} : { insufficient_reason: reason }),
-      contributing: contributing as [Contributor, ...Contributor[]],
+      contributing: contributing as [Contributor, ...Contributor[]]
     };
 
     if (rule.emit === 'state') {
@@ -340,8 +307,8 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
         interpretive_anatomy_source: 'curated_table',
         geometry: {
           fma_id: rule.geometry.fma_id,
-          ...(rule.geometry.uberon_id ? { uberon_id: rule.geometry.uberon_id } : {}),
-        },
+          ...(rule.geometry.uberon_id ? { uberon_id: rule.geometry.uberon_id } : {})
+        }
       });
     } else {
       if (!rule.unrenderable_id || !rule.unrenderable_reason) {
@@ -351,7 +318,7 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
         id: rule.unrenderable_id,
         ...(rule.description ? { label: rule.description } : {}),
         reason: rule.unrenderable_reason,
-        ...base,
+        ...base
       });
     }
   }
@@ -370,7 +337,7 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
     subject_ref: input.subject_ref,
     as_of: input.as_of,
     states,
-    unrenderable,
+    unrenderable
   };
 }
 

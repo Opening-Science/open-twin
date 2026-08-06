@@ -118,19 +118,26 @@ export function readSidecarSha256(path: string = ARTEFACT_SHA256_PATH): string {
   return line.split(/\s+/)[0] ?? '';
 }
 
-function loincProperty(loincDisplay: string): 'moles' | 'mass' | 'other' {
+/** LOINC FSN property axis used by D-e. Shared with scripts/compile-anchor-layer.ts. */
+export function loincProperty(loincDisplay: string): 'moles' | 'mass' | 'other' {
   if (/\[Moles\/volume\]/i.test(loincDisplay)) return 'moles';
   if (/\[Mass\/volume\]/i.test(loincDisplay)) return 'mass';
   return 'other';
 }
 
-function unitLooksMass(unit: string): boolean {
-  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
-  return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u);
+/** True when a source/reporting unit is a mass concentration (µg, ng, mg, g, pg). */
+export function unitLooksMass(unit: string): boolean {
+  // Preserve German blood-count multipliers before case-folding: G/l ≠ g/l (D-d).
+  const normalized = unit.replace('µ', 'u').replace('μ', 'u');
+  if (/^[GT]\/l$/.test(normalized)) return false;
+  const u = normalized.toLowerCase();
+  return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u) || (/\/(l|ml|dl)$/i.test(u) && /^(ug|ng|mg|g|pg)/i.test(u));
 }
 
-function unitLooksMolar(unit: string): boolean {
-  return /(mol|mmol|umol|nmol|pmol)/i.test(unit);
+/** True when a source/reporting unit is a molar concentration (requires a volume denominator). */
+export function unitLooksMolar(unit: string): boolean {
+  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
+  return /^(?:mol|mmol|umol|nmol|pmol)\/(?:l|ml|dl)$/i.test(u);
 }
 
 /**
@@ -139,11 +146,7 @@ function unitLooksMolar(unit: string): boolean {
  */
 export function detectPropertyMismatches(layer: AnchorLayerV1): Biomarker[] {
   return layer.biomarkers.filter((b) => {
-    return (
-      loincProperty(b.loinc_display) === 'moles' &&
-      unitLooksMass(b.unit_source) &&
-      !unitLooksMolar(b.unit_source)
-    );
+    return loincProperty(b.loinc_display) === 'moles' && unitLooksMass(b.unit_source) && !unitLooksMolar(b.unit_source);
   });
 }
 

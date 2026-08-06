@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Pure evaluator over declarative YAML rule packs — no clinical knowledge in the engine",
+  "description": "YAML rule-pack evaluator — clinical cutoffs live in the pack; engine has no biomarker ids or named analytes (purity test on evaluate.ts)",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

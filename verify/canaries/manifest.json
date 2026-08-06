@@ -20,8 +20,8 @@
       "id": "03-fabricated-loinc",
       "dir": "03-fabricated-loinc",
       "harness": "check-terminology-review-records",
-      "expected_gate": "scripts/check-terminology.ts (LOINC literal without signed review record)",
-      "expected_rejection": "LOINC 99999-9 must appear as a missing/UNVERIFIED review-record failure"
+      "expected_gate": "verify/check-terminology.ts (LOINC literal without signed review record)",
+      "expected_rejection": "LOINC 99999-5 must appear as a missing/UNVERIFIED review-record failure"
     },
     {
       "id": "04-wrong-snomed-body-structure",
@@ -65,7 +65,7 @@
       "id": "09-sctid-in-published-path",
       "dir": "09-sctid-in-published-path",
       "harness": "check-snomed-boundary-plant",
-      "expected_gate": "scripts/check-snomed-boundary.ts (published-artefact paths; Addendum 06 Finding 3)",
+      "expected_gate": "verify/check-snomed-boundary.ts (published-artefact paths; Addendum 06 Finding 3)",
       "expected_rejection": "SCTID under a published path must fail the SNOMED publication boundary"
     },
     {

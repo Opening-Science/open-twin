@@ -39,11 +39,7 @@ export function roundHalfUp4(n: number): number {
   return Math.round(n * 10_000 + Number.EPSILON) / 10_000;
 }
 
-export function computeConfidence(
-  contributing: Contributor[],
-  ruleStrength: number,
-  asOf: string,
-): number {
+export function computeConfidence(contributing: Contributor[], ruleStrength: number, asOf: string): number {
   if (contributing.length === 0) return 0;
   const present = contributing.filter((c) => c.status === 'present');
   const C = present.length / contributing.length;

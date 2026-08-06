@@ -1,5 +1,6 @@
 # OpenTwin rule pack v0.1
-# Clinical knowledge lives HERE. The engine is a pure evaluator.
+# Clinical cutoffs and biomarker roles live HERE. Engine evaluates predicates only
+# (purity test: no BM-* ids or named analytes in evaluate.ts; not "no thresholds" generally).
 # All clinical_basis values are heuristic_no_guideline — docs/evidence/guidelines/ is empty.
 schema_version: rule-pack.v0.1
 pack_id: open-twin.v0.1
@@ -104,7 +105,9 @@ rules:
     emit: state
     system_id: metabolic
     geometry:
-      fma_id: "FMA:8640"
+      # Same non-organ placeholder as other metabolic rules (glycemic/micronutrient).
+      # FMA:8640 was Inferior lingular artery — wrong placement for metabolic lipid.
+      fma_id: "FMA:9637"
     inputs:
       - biomarker_id: BM-072
         role: required
@@ -211,7 +214,8 @@ rules:
     emit: state
     system_id: endocrine
     geometry:
-      fma_id: "FMA:9600"
+      # FMA:9600 is Prostate; UBERON:0002046 (thyroid gland) cross-refs FMA:9603.
+      fma_id: "FMA:9603"
       uberon_id: "UBERON:0002046"
     inputs:
       - biomarker_id: BM-386

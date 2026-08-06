@@ -7,7 +7,7 @@
  * Usage: pnpm --filter @open-twin/interpreter regen-golden -- --reason "why"
  * Optional: --family hepatic (default: all)
  */
-import { readdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
+import { appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evaluate, serializeDocument } from '../src/evaluate.js';
@@ -50,14 +50,7 @@ if (families.length === 0) {
 }
 
 const stamp = new Date().toISOString();
-const lines: string[] = [
-  '',
-  `## ${stamp}`,
-  '',
-  `- reason: ${reason.trim()}`,
-  `- families: ${families.join(', ')}`,
-  '',
-];
+const lines: string[] = ['', `## ${stamp}`, '', `- reason: ${reason.trim()}`, `- families: ${families.join(', ')}`, ''];
 
 for (const fam of families) {
   const inputPath = join(GOLDEN, fam, 'input.json');

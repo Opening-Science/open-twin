@@ -3,19 +3,19 @@
   "as_of": "2026-07-28T00:00:00.000Z",
   "families": ["glycemic"],
   "observations": [
-  {
-    "biomarker_id": "BM-128",
-    "value": 110,
-    "observed_at": "2026-07-15T00:00:00.000Z",
-    "reference_interval_id": "RI-062",
-    "interval": { "low": null, "high": 100 }
-  },
-  {
-    "biomarker_id": "BM-139",
-    "value": 6.2,
-    "observed_at": "2026-07-15T00:00:00.000Z",
-    "reference_interval_id": "RI-070",
-    "interval": { "low": null, "high": 5.7 }
-  }
-]
+    {
+      "biomarker_id": "BM-128",
+      "value": 110,
+      "observed_at": "2026-07-15T00:00:00.000Z",
+      "reference_interval_id": "RI-062",
+      "interval": { "low": null, "high": 100 }
+    },
+    {
+      "biomarker_id": "BM-139",
+      "value": 6.2,
+      "observed_at": "2026-07-15T00:00:00.000Z",
+      "reference_interval_id": "RI-070",
+      "interval": { "low": null, "high": 5.7 }
+    }
+  ]
 }

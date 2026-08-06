@@ -7,23 +7,30 @@
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ExcelJS from 'exceljs';
-import { createRequire } from 'node:module';
+import {
+  loincProperty,
+  PROPERTY_MISMATCH_IDS,
+  unitLooksMass,
+  unitLooksMolar
+} from '../packages/anchor-layer/src/index.js';
 
 const require = createRequire(import.meta.url);
 // CJS package; named ESM import is unreliable under tsx
 const { UcumLhcUtils } = require('@lhncbc/ucum-lhc') as {
-  UcumLhcUtils: { getInstance: () => { validateUnitString: (code: string, sync?: boolean) => { status: string | number; msg?: string | string[] } } };
+  UcumLhcUtils: {
+    getInstance: () => {
+      validateUnitString: (code: string, sync?: boolean) => { status: string | number; msg?: string | string[] };
+    };
+  };
 };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
-const SOURCE = join(
-  ROOT,
-  'docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx',
-);
+const SOURCE = join(ROOT, 'docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx');
 const OUT_DIR = join(ROOT, 'packages/anchor-layer/data');
 const OUT_JSON = join(OUT_DIR, 'anchor-layer.v1.json');
 const OUT_SHA = join(OUT_DIR, 'anchor-layer.v1.json.sha256');
@@ -65,10 +72,10 @@ const REGION_TO_SYSTEM: Record<string, SystemId> = {
   metabolic_glycemic: 'metabolic',
   systemic_inflammation: 'metabolic',
   immune: 'metabolic',
-  bone_marrow_blood: 'metabolic',
+  bone_marrow_blood: 'metabolic'
 };
 
-const EXPECTED_MISMATCH_IDS = new Set(['BM-060', 'BM-186', 'BM-405']);
+const EXPECTED_MISMATCH_IDS = new Set<string>(PROPERTY_MISMATCH_IDS);
 
 interface BiomarkerRow {
   biomarker_id: string;
@@ -177,24 +184,9 @@ function systemIdForRegions(regionIds: string): SystemId {
   return sid;
 }
 
-function loincProperty(loincName: string): 'moles' | 'mass' | 'other' {
-  if (/\[Moles\/volume\]/i.test(loincName)) return 'moles';
-  if (/\[Mass\/volume\]/i.test(loincName)) return 'mass';
-  return 'other';
-}
-
-function unitLooksMass(unit: string): boolean {
-  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
-  return /^(ug|ng|mg|g|pg)(\/|$)/i.test(u) || /\/(l|ml|dl)$/i.test(u) && /^(ug|ng|mg|g|pg)/i.test(u);
-}
-
-function unitLooksMolar(unit: string): boolean {
-  const u = unit.toLowerCase().replace('µ', 'u').replace('μ', 'u');
-  return /(mol|mmol|umol|nmol|pmol)/i.test(u);
-}
-
 function validateUcum(code: string): { ok: boolean; message: string } {
   if (!code) return { ok: false, message: 'empty unit_ucum' };
+  if (code === 'UNMAPPED') return { ok: false, message: 'placeholder UNMAPPED is not a UCUM unit' };
   const utils = UcumLhcUtils.getInstance();
   const result = utils.validateUnitString(code, true);
   const ok = result.status === 'valid' || result.status === 0;
@@ -203,7 +195,7 @@ function validateUcum(code: string): { ok: boolean; message: string } {
 }
 
 function stableStringify(value: unknown): string {
-  return JSON.stringify(value, null, 2) + '\n';
+  return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 async function main(): Promise<void> {
@@ -212,8 +204,8 @@ async function main(): Promise<void> {
   const sourceFile = 'docs/evidence/source/2026_07_28_OpenTwin_AnchorLayer_v3_Consolidated.xlsx';
 
   const wb = new ExcelJS.Workbook();
-  // exceljs load prefers buffer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // exceljs Buffer typing for load() is incomplete across versions
+  // biome-ignore lint/suspicious/noExplicitAny: exceljs xlsx.load Buffer overload
   await (wb.xlsx as any).load(sourceBytes);
 
   const readmeWs = wb.getWorksheet('README');
@@ -223,7 +215,7 @@ async function main(): Promise<void> {
   const organWs = wb.getWorksheet('Organ_Mapping_Crosswalk');
   if (!readmeWs || !coreWs || !riWs || !loincWs || !organWs) {
     throw new Error(
-      'Missing required sheet (README, Anchor_Core_Set, Reference_Intervals, LOINC_Map, Organ_Mapping_Crosswalk)',
+      'Missing required sheet (README, Anchor_Core_Set, Reference_Intervals, LOINC_Map, Organ_Mapping_Crosswalk)'
     );
   }
 
@@ -240,7 +232,7 @@ async function main(): Promise<void> {
     if (Number(r.in_core_set) !== 1 && String(r.in_core_set) !== '1') continue;
     loincById.set(id, {
       loinc_code: String(r.loinc_code ?? ''),
-      loinc_name: String(r.loinc_name ?? ''),
+      loinc_name: String(r.loinc_name ?? '')
     });
   }
 
@@ -273,7 +265,7 @@ async function main(): Promise<void> {
     }
     if (mapped.loinc_code !== loinc_code || mapped.loinc_name !== loinc_display) {
       throw new Error(
-        `LOINC_Map disagrees with Anchor_Core_Set for ${biomarker_id}: core ${loinc_code}/${loinc_display} vs map ${mapped.loinc_code}/${mapped.loinc_name}`,
+        `LOINC_Map disagrees with Anchor_Core_Set for ${biomarker_id}: core ${loinc_code}/${loinc_display} vs map ${mapped.loinc_code}/${mapped.loinc_name}`
       );
     }
     const tier = String(r.tier ?? '');
@@ -290,7 +282,7 @@ async function main(): Promise<void> {
         biomarker_id,
         unit_source,
         unit_ucum,
-        note: 'German G/l means 10^9/L; expected unit_ucum 10*9/L',
+        note: 'German G/l means 10^9/L; expected unit_ucum 10*9/L'
       });
     }
     if (unit_source === 'T/l' && unit_ucum !== '10*12/L') {
@@ -298,7 +290,7 @@ async function main(): Promise<void> {
         biomarker_id,
         unit_source,
         unit_ucum,
-        note: 'German T/l means 10^12/L; expected unit_ucum 10*12/L',
+        note: 'German T/l means 10^12/L; expected unit_ucum 10*12/L'
       });
     }
 
@@ -316,7 +308,7 @@ async function main(): Promise<void> {
         loinc_code,
         loinc_name: loinc_display,
         unit_source,
-        unit_ucum,
+        unit_ucum
       });
     }
 
@@ -330,29 +322,51 @@ async function main(): Promise<void> {
       unit_ucum,
       system_id: systemIdForRegions(region_ids_raw),
       interpretive_anatomy_source: 'curated_table',
-      region_ids: region_ids_raw.split('|').map((s) => s.trim()).filter(Boolean),
+      region_ids: region_ids_raw
+        .split('|')
+        .map((s) => s.trim())
+        .filter(Boolean),
       organ_mapping_source,
       blocking_flags,
       provenance: {
         source_file: sourceFile,
         sha256: sourceSha,
         sheet: 'Anchor_Core_Set',
-        row: rowNumber,
-      },
+        row: rowNumber
+      }
     });
   }
 
+  const coreIds = new Set(biomarkers.map((b) => b.biomarker_id));
   const reference_intervals: ReferenceIntervalRecord[] = [];
   const interpretive_bands: InterpretiveBandRecord[] = [];
+  let skippedNonCoreIntervals = 0;
   for (const { rowNumber, data: r } of riRows) {
     const interval_id = r.interval_id == null ? '' : String(r.interval_id);
     if (!interval_id) continue;
     const record_kind = r.record_kind == null ? '' : String(r.record_kind);
     if (!record_kind) continue;
 
+    const biomarker_id = String(r.biomarker_id ?? '');
+    // Anchor artefact publishes the 67-marker core only — orphan RI-sheet rows stay in the workbook.
+    if (!coreIds.has(biomarker_id)) {
+      skippedNonCoreIntervals += 1;
+      continue;
+    }
+
+    const unit_ucum = r.unit_ucum == null ? null : String(r.unit_ucum);
+    const iv = validateUcum(unit_ucum ?? '');
+    if (!iv.ok) {
+      ucumFailures.push({
+        biomarker_id,
+        unit_ucum: unit_ucum ?? '',
+        message: `interval ${interval_id}: ${iv.message}`
+      });
+    }
+
     const base = {
       interval_id,
-      biomarker_id: String(r.biomarker_id ?? ''),
+      biomarker_id,
       issuer: r.issuer == null ? null : String(r.issuer),
       issuer_kind: r.issuer_kind == null ? null : String(r.issuer_kind),
       assay: r.assay_or_catalogue == null ? null : String(r.assay_or_catalogue),
@@ -361,16 +375,15 @@ async function main(): Promise<void> {
       population: r.population == null ? null : String(r.population),
       low: r.low == null || r.low === '' ? null : Number(r.low),
       high: r.high == null || r.high === '' ? null : Number(r.high),
-      unit_ucum: r.unit_ucum == null ? null : String(r.unit_ucum),
+      unit_ucum,
       unit_source: r.unit == null ? null : String(r.unit),
-      reference_range_text:
-        r.reference_range_text == null ? null : String(r.reference_range_text),
+      reference_range_text: r.reference_range_text == null ? null : String(r.reference_range_text),
       provenance: {
         source_file: sourceFile,
         sha256: sourceSha,
         sheet: 'Reference_Intervals',
-        row: rowNumber,
-      },
+        row: rowNumber
+      }
     };
 
     if (record_kind === 'reference_interval') {
@@ -380,22 +393,17 @@ async function main(): Promise<void> {
     }
   }
 
-  const coreIds = new Set(biomarkers.map((b) => b.biomarker_id));
   const withReferenceInterval = new Set<string>();
   for (const ri of reference_intervals) {
-    if (coreIds.has(ri.biomarker_id)) withReferenceInterval.add(ri.biomarker_id);
+    withReferenceInterval.add(ri.biomarker_id);
   }
   const withBand = new Set<string>();
   for (const b of interpretive_bands) {
-    if (coreIds.has(b.biomarker_id)) withBand.add(b.biomarker_id);
+    withBand.add(b.biomarker_id);
   }
   const markersWithReferenceInterval = [...withReferenceInterval].sort();
-  const markersWithInterpretiveBandOnly = [...withBand]
-    .filter((id) => !withReferenceInterval.has(id))
-    .sort();
-  const markersWithNeither = [...coreIds]
-    .filter((id) => !withReferenceInterval.has(id) && !withBand.has(id))
-    .sort();
+  const markersWithInterpretiveBandOnly = [...withBand].filter((id) => !withReferenceInterval.has(id)).sort();
+  const markersWithNeither = [...coreIds].filter((id) => !withReferenceInterval.has(id) && !withBand.has(id)).sort();
 
   const byTier: Record<string, number> = {};
   for (const b of biomarkers) {
@@ -405,7 +413,7 @@ async function main(): Promise<void> {
   const counts = {
     markers_with_reference_interval: markersWithReferenceInterval.length,
     markers_with_interpretive_band_only: markersWithInterpretiveBandOnly.length,
-    markers_with_neither: markersWithNeither.length,
+    markers_with_neither: markersWithNeither.length
   };
 
   const artefact = {
@@ -414,14 +422,34 @@ async function main(): Promise<void> {
     source_file: sourceFile,
     decisions: ['D-a', 'D-b', 'D-c', 'D-d', 'D-e'],
     biomarkers: biomarkers.sort((a, b) => a.biomarker_id.localeCompare(b.biomarker_id)),
-    reference_intervals: reference_intervals.sort((a, b) =>
-      a.interval_id.localeCompare(b.interval_id),
-    ),
-    interpretive_bands: interpretive_bands.sort((a, b) =>
-      a.interval_id.localeCompare(b.interval_id),
-    ),
-    counts,
+    reference_intervals: reference_intervals.sort((a, b) => a.interval_id.localeCompare(b.interval_id)),
+    interpretive_bands: interpretive_bands.sort((a, b) => a.interval_id.localeCompare(b.interval_id)),
+    counts
   };
+
+  const mismatchIds = new Set(propertyMismatches.map((m) => m.biomarker_id));
+  const expectedHit = [...EXPECTED_MISMATCH_IDS].every((id) => mismatchIds.has(id));
+  const unexpected = propertyMismatches.filter((m) => !EXPECTED_MISMATCH_IDS.has(m.biomarker_id));
+
+  // Structural / UCUM gates — fail before writing so a bad workbook cannot overwrite the committed artefact.
+  if (biomarkers.length !== 67) {
+    console.error(`FAIL: expected 67 biomarkers, got ${biomarkers.length}; artefact not written`);
+    process.exit(1);
+  }
+  if (ucumFailures.length > 0) {
+    console.error('FAIL: UCUM validation failed; artefact not written:');
+    for (const u of ucumFailures) {
+      console.error(`  ${u.biomarker_id}: \`${u.unit_ucum}\` — ${u.message}`);
+    }
+    process.exit(1);
+  }
+  if (!expectedHit || propertyMismatches.length !== 3 || unexpected.length) {
+    console.error('FAIL: unexpected property mismatches (D-e); artefact not written:');
+    for (const m of propertyMismatches) {
+      console.error(`  ${m.biomarker_id} ${m.name_de} LOINC ${m.loinc_code} unit ${m.unit_source}`);
+    }
+    process.exit(1);
+  }
 
   const jsonText = stableStringify(artefact);
   const jsonSha = createHash('sha256').update(jsonText).digest('hex');
@@ -430,12 +458,9 @@ async function main(): Promise<void> {
   writeFileSync(OUT_JSON, jsonText, 'utf8');
   writeFileSync(OUT_SHA, `${jsonSha}  anchor-layer.v1.json\n`, 'utf8');
 
-  const mismatchIds = new Set(propertyMismatches.map((m) => m.biomarker_id));
-  const expectedHit = [...EXPECTED_MISMATCH_IDS].every((id) => mismatchIds.has(id));
-  const unexpected = propertyMismatches.filter((m) => !EXPECTED_MISMATCH_IDS.has(m.biomarker_id));
-
   const bandOnlyLines = markersWithInterpretiveBandOnly.map((id) => {
-    const b = biomarkers.find((x) => x.biomarker_id === id)!;
+    const b = biomarkers.find((x) => x.biomarker_id === id);
+    if (!b) throw new Error(`missing biomarker for band-only id ${id}`);
     return `- **${id} ${b.name_de}** — interpretive bands only (no \`reference_interval\`). Bands are already an interpretation (optimal / gut / grenzwertig / erhöht / pathologisch); they must not stand in for a measured interval (D-a, D-c).`;
   });
 
@@ -455,7 +480,7 @@ wrong for abstention purposes and is corrected here rather than quietly reused.
 | Metric | Value | Notes |
 |---|---:|---|
 | Biomarkers | ${biomarkers.length} | expected 67 |
-| Reference intervals (\`record_kind=reference_interval\`) | ${reference_intervals.length} | expected 93 |
+| Reference intervals (\`record_kind=reference_interval\`) | ${reference_intervals.length} | core-owned only (workbook RI rows for non-core ids skipped: ${skippedNonCoreIntervals}) |
 | Interpretive bands (\`record_kind=interpretive_band\`) | ${interpretive_bands.length} | expected 5 |
 | \`counts.markers_with_reference_interval\` | ${counts.markers_with_reference_interval} | measured assay intervals only |
 | \`counts.markers_with_interpretive_band_only\` | ${counts.markers_with_interpretive_band_only} | band(s), no reference interval |
@@ -463,6 +488,7 @@ wrong for abstention purposes and is corrected here rather than quietly reused.
 | Property mismatches (molar LOINC + mass unit) | ${propertyMismatches.length} | expected 3 |
 
 Superseded conflated headline (do not use): "31 with interval / 36 without" mixed RI∨band.
+Prior artefact revision published 93 RI rows including non-core orphan ids; this tip publishes core-owned intervals only.
 
 ### By tier
 
@@ -476,19 +502,24 @@ ${bandOnlyLines.join('\n') || '_none_'}
 
 ## Markers with neither reference interval nor band (abstain)
 
-${markersWithNeither.map((id) => {
-  const b = biomarkers.find((x) => x.biomarker_id === id)!;
-  return `- ${id} ${b.name_de}`;
-}).join('\n')}
+${markersWithNeither
+  .map((id) => {
+    const b = biomarkers.find((x) => x.biomarker_id === id);
+    if (!b) throw new Error(`missing biomarker for neither-interval id ${id}`);
+    return `- ${id} ${b.name_de}`;
+  })
+  .join('\n')}
 
 ## Property mismatches (D-e) — compiler FAIL condition
 
-${propertyMismatches
-  .map(
-    (m) =>
-      `- **${m.biomarker_id}** ${m.name_de}: LOINC \`${m.loinc_code}\` (${m.loinc_name}) with unit \`${m.unit_source}\` / UCUM \`${m.unit_ucum}\``,
-  )
-  .join('\n') || '_none_'}
+${
+  propertyMismatches
+    .map(
+      (m) =>
+        `- **${m.biomarker_id}** ${m.name_de}: LOINC \`${m.loinc_code}\` (${m.loinc_name}) with unit \`${m.unit_source}\` / UCUM \`${m.unit_ucum}\``
+    )
+    .join('\n') || '_none_'
+}
 
 Expected IDs detected: ${expectedHit ? 'yes (BM-060, BM-186, BM-405)' : 'NO — investigate'}  
 Unexpected mismatches: ${unexpected.length}
@@ -508,6 +539,7 @@ ${ucumDisagreements.map((u) => `- ${u.biomarker_id}: ${u.note} (source \`${u.uni
 - Biomarker records do **not** carry \`(low, high)\` (D-b).
 - Interpretive bands are a separate array from reference intervals (D-c).
 - \`system_id\` comes from \`docs/contracts/anchor-organ-to-system.md\` (curated_table).
+- Interval rows are emitted only when \`biomarker_id\` is in the 67-marker core; D-e classifier is shared with \`@open-twin/anchor-layer\`.
 `;
 
   mkdirSync(dirname(AUDIT), { recursive: true });
@@ -517,31 +549,16 @@ ${ucumDisagreements.map((u) => `- ${u.biomarker_id}: ${u.note} (source \`${u.uni
   console.log(`sha256 ${jsonSha}`);
   console.log(`Audit ${AUDIT}`);
   console.log(
-    `counts: biomarkers=${biomarkers.length} ref_intervals=${reference_intervals.length} bands=${interpretive_bands.length} with_ri=${counts.markers_with_reference_interval} band_only=${counts.markers_with_interpretive_band_only} neither=${counts.markers_with_neither} mismatches=${propertyMismatches.length}`,
+    `counts: biomarkers=${biomarkers.length} ref_intervals=${reference_intervals.length} bands=${interpretive_bands.length} with_ri=${counts.markers_with_reference_interval} band_only=${counts.markers_with_interpretive_band_only} neither=${counts.markers_with_neither} mismatches=${propertyMismatches.length} skipped_non_core_intervals=${skippedNonCoreIntervals}`
   );
 
-  if (biomarkers.length !== 67) {
-    console.error(`FAIL: expected 67 biomarkers, got ${biomarkers.length}`);
-    process.exit(1);
-  }
-  if (!expectedHit || propertyMismatches.length !== 3 || unexpected.length) {
-    console.error('FAIL: property mismatches (D-e) — human ADR required, not auto-fixed:');
-    for (const m of propertyMismatches) {
-      console.error(
-        `  ${m.biomarker_id} ${m.name_de} LOINC ${m.loinc_code} unit ${m.unit_source}`,
-      );
-    }
-    process.exit(1);
-  }
-
-  // Still fail on the three known mismatches so CI cannot green-wash them
-  console.error(
-    'FAIL: property mismatch (D-e) — three LOINC molar/mass conflicts require an ADR:',
-  );
-  for (const id of ['BM-060', 'BM-186', 'BM-405']) {
-    const m = propertyMismatches.find((x) => x.biomarker_id === id)!;
+  // Known D-e failure is intentional and runs after a successful write.
+  console.error('FAIL: property mismatch (D-e) — three LOINC molar/mass conflicts require an ADR:');
+  for (const id of PROPERTY_MISMATCH_IDS) {
+    const m = propertyMismatches.find((x) => x.biomarker_id === id);
+    if (!m) throw new Error(`expected property mismatch missing for ${id}`);
     console.error(
-      `  ${m.biomarker_id} ${m.name_de} LOINC ${m.loinc_code} unit ${m.unit_source} — property mismatch (molar LOINC + mass unit)`,
+      `  ${m.biomarker_id} ${m.name_de} LOINC ${m.loinc_code} unit ${m.unit_source} — property mismatch (molar LOINC + mass unit)`
     );
   }
   process.exit(1);

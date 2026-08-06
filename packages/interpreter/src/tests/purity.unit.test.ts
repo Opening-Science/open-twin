@@ -29,6 +29,8 @@ describe('engine purity', () => {
     expect(src).not.toMatch(/open-twin\.v0\.1\.yaml/);
     expect(src).not.toMatch(/anchor-layer/);
     expect(src).not.toMatch(/readFileSync/);
-    expect(src).not.toMatch(/from 'yaml'/);
+    expect(src).not.toMatch(/from ['"]yaml['"]/);
+    expect(src).not.toMatch(/import\s*\(\s*['"]yaml['"]\s*\)/);
+    expect(src).not.toMatch(/require\s*\(\s*['"]yaml['"]\s*\)/);
   });
 });

@@ -1,37 +1,37 @@
 /**
- * WHAT: Public API for the pure YAML rule-pack interpreter.
- * NOT:  Does not contain clinical knowledge — rules live in packages/interpreter/rules/.
+ * WHAT: Public API for the YAML rule-pack interpreter.
+ * NOT:  No biomarker ids or named analytes in evaluate.ts (purity test); clinical cutoffs live in packages/interpreter/rules/. Freshness/confidence constants live in confidence.ts by design.
  * GOVERNED BY: docs/strategy/contracts/rules/rule-pack.v0.1.schema.json; docs/contracts/interpretation-contract.v0.2.schema.json
- * CORRECTNESS: Golden fixtures under packages/interpreter/fixtures/golden/
+ * CORRECTNESS: Golden fixtures under packages/interpreter/fixtures/golden/; purity test forbids BM-* and named analytes in evaluate.ts (not "no thresholds" generally)
  */
 
-export { evaluate, serializeDocument } from './evaluate.js';
 export {
+  ageDays,
   computeConfidence,
   recencyFactor,
-  ageDays,
   roundHalfUp4,
-  STALE_AFTER_DAYS,
+  STALE_AFTER_DAYS
 } from './confidence.js';
+export { evaluate, serializeDocument } from './evaluate.js';
 export {
+  defaultRulePackPath,
+  type LoadRulePackOptions,
   loadRulePackFile,
   loadRulePackFromYaml,
-  validateRulePack,
-  defaultRulePackPath,
   RulePackValidationError,
-  type LoadRulePackOptions,
+  validateRulePack
 } from './load-rule-pack.js';
 export type {
-  RulePack,
-  Rule,
-  RuleInput,
+  BoundInterval,
+  EvaluateInput,
+  InputRole,
+  InterpreterObservation,
   LadderStep,
   LadderWhen,
+  Predicate,
+  Rule,
   RuleCaps,
   RuleGeometry,
-  EvaluateInput,
-  InterpreterObservation,
-  BoundInterval,
-  Predicate,
-  InputRole,
+  RuleInput,
+  RulePack
 } from './types.js';

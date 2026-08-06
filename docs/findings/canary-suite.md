@@ -5,7 +5,8 @@ Status: binding for CI (`verify/check-canaries.ts`).
 These fixtures exist because this repository has already shipped **270 passing
 tests over clinically wrong output**. Green tests are not evidence. The canary
 suite asks the opposite question: *does an existing gate reject this wrong
-input?* CI fails if any canary is **accepted**.
+input?* CI fails if any canary is **accepted**. Documented `FINDING:UNCAUGHT`
+rows stay in the log and do not block merge.
 
 Rule: if a canary is not caught by an existing gate, that is a **FINDING**.
 Do not paper over it with a fixture-specific special case.
@@ -14,9 +15,9 @@ Do not paper over it with a fixture-specific special case.
 
 | # | Canary | Expected rejection | Specific gate | Status |
 |---|---|---|---|---|
-| 1 | Angular value in degrees labelled as radians (BodyLoop `1.48165…`) | Must emit ~84.8923 `deg`, never ~1.48 `deg` | `packages/provider-vitronic/.../shared.ts#radiansToDegrees` (D10) | caught by harness |
+| 1 | Angular value in radians incorrectly emitted as `deg` (BodyLoop `1.48165…`) | Must emit ~84.8923 `deg`, never ~1.48 `deg` | `packages/provider-vitronic/.../shared.ts#radiansToDegrees` (D10) | caught by harness |
 | 2 | Bor µg/L vs LOINC 52914-9 `[Moles/volume]` | Property mismatch FAIL, no auto-fix | `detectPropertyMismatches` / `compile-anchor-layer.ts` (D-e) | caught by harness |
-| 3 | Fabricated LOINC `99999-9` | Missing / unsigned review record | `verify/check-terminology.ts` | caught by harness |
+| 3 | Fabricated LOINC `99999-5` | Missing / unsigned review record | `verify/check-terminology.ts` | caught by harness |
 | 4 | Real SNOMED, **wrong** body structure | Semantic reject of wrong anatomy binding | **none** | **FINDING:UNCAUGHT** |
 | 5 | Reference-range / interpretation flag when interval is null | Must abstain; no H/L flag without an interval | **none** | **FINDING:UNCAUGHT** |
 | 6 | Observation older than freshness window as `status=present` | Must be `stale` or refused (`confidence.md`) | **none** | **FINDING:UNCAUGHT** |

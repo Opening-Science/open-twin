@@ -5,47 +5,47 @@
  * CORRECTNESS: Round-trip / fixture tests for bundle shape; HL7 validator not yet run locally (no JRE) — external authority gap, not an oversight.
  */
 
-export { AnchorIngestError, isAnchorIngestError, type AnchorIngestErrorCode } from './errors.js';
-export {
-  type CollectionContext,
-  type MenstrualCyclePhase,
-  type TimeOfDayWindow,
-  type AdministrativeGender,
-  COLLECTION_CONTEXT_EXTENSION,
-  EXT_CYCLE_PHASE,
-  EXT_FASTING,
-  EXT_TOD_WINDOW,
-} from './context.js';
 export {
   getAnchorCatalogue,
   getBiomarker,
   getReferenceInterval,
-  intervalsForBiomarker,
+  intervalsForBiomarker
 } from './catalogue.js';
 export {
-  loincPropertyClass,
-  unitCommensurableWithLoinc,
-  resolveUcumUnit,
-  type LoincPropertyClass,
-} from './units.js';
-export {
-  PHYSIOLOGICAL_ENVELOPES,
-  isPhysiologicallyPossible,
-  type PhysiologicalEnvelope,
-} from './physiology.js';
-export {
-  CONNECTOR,
-  mapBiomarkerToObservation,
-  type BiomarkerMeasurement,
-} from './fhir/mapObservation.js';
+  type AdministrativeGender,
+  COLLECTION_CONTEXT_EXTENSION,
+  type CollectionContext,
+  EXT_CYCLE_PHASE,
+  EXT_FASTING,
+  EXT_TOD_WINDOW,
+  type MenstrualCyclePhase,
+  type TimeOfDayWindow
+} from './context.js';
+export { AnchorIngestError, type AnchorIngestErrorCode, isAnchorIngestError } from './errors.js';
 export { buildCollectionBundle, type CollectionEventInput } from './fhir/bundleBuilder.js';
+export {
+  type BiomarkerMeasurement,
+  CONNECTOR,
+  mapBiomarkerToObservation
+} from './fhir/mapObservation.js';
 export {
   ALL_MARKER_CLASS_FIXTURES,
   type MarkerClassFixture,
-  type MarkerClassId,
+  type MarkerClassId
 } from './fixtures/markerClasses.js';
 export {
-  bundleFromMarkerClassFixture,
+  isPhysiologicallyPossible,
+  PHYSIOLOGICAL_ENVELOPES,
+  type PhysiologicalEnvelope
+} from './physiology.js';
+export {
+  type LoincPropertyClass,
+  loincPropertyClass,
+  resolveUcumUnit,
+  unitCommensurableWithLoinc
+} from './units.js';
+export {
   allMarkerClassBundles,
   anchorFerritinBundle,
+  bundleFromMarkerClassFixture
 } from './verification/exampleBundles.js';

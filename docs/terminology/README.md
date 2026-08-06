@@ -10,9 +10,15 @@ Per-code review records:
 
 `docs/terminology/review-records/{VOCAB}-{code}.md`
 
-Legacy offline allowlist (still enforced by `verify/check-terminology.mjs`):
+Offline allowlist (enforced by `verify/check-terminology.mjs` as G1, and read by
+G2):
 
 [`verify/terminology-allowlist.json`](../../verify/terminology-allowlist.json)
+
+A G1 **APPROVED** entry satisfies G2's review-record requirement for that code
+(matched by vocabulary/`system`). Do not create a duplicate markdown record for
+a code already APPROVED on the allowlist — sign new records only for codes G2
+still reports as MISSING or UNVERIFIED.
 
 Unit exceptions:
 
@@ -24,9 +30,22 @@ memory or model output — a human signs after an authoritative lookup
 
 ## Gates
 
+Canonical entry point — runs every registered gate via `verify/run-verify.ts`:
+
 ```bash
-pnpm exec tsx verify/check-terminology.ts      # review records (UNVERIFIED = fail)
+pnpm verify
+```
+
+Terminology-related scripts (subset; full set is whatever `run-verify` registers):
+
+```bash
+pnpm exec tsx verify/check-terminology.ts      # UNVERIFIED records fail this
+                                               # gate, but it is registered
+                                               # ADVISORY: it does not fail
+                                               # pnpm verify. Promotes to
+                                               # blocking when the 67 anchor
+                                               # records are signed.
 pnpm exec tsx verify/check-snomed-boundary.ts # no SCTIDs in published paths
-node verify/check-terminology.mjs              # legacy allowlist
+node verify/check-terminology.mjs              # G1 allowlist
 node verify/check-units.mjs
 ```

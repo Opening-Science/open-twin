@@ -13,7 +13,8 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/](findings/) | whoever discovers the defect | New known-wrong or authority gap |
 | [findings/no-external-authority.md](findings/no-external-authority.md) | architect | Module gains or loses external authority |
 | [findings/verify-baseline.md](findings/verify-baseline.md) | architect | Verify gate picture / dual terminology / intentional reds |
-| [findings/parked-for-24-fhir-core-anchor-content.md](findings/parked-for-24-fhir-core-anchor-content.md) | engineer | Consumed when branch 24 lands fhir-core Anchor/lab UCUM bodies |
+| [findings/parked-for-fhir-connector-content.md](findings/parked-for-fhir-connector-content.md) | engineer | Consumed when open-twin/fhir-connector lands fhir-core Anchor/lab UCUM bodies |
+| [findings/header-fill-quality.md](findings/header-fill-quality.md) | architect | Header paste / shape debt; gate cannot verify CORRECTNESS truth |
 | [contracts/](contracts/) | package owner | Interface / schema change |
 | [contracts/interpretation-contract.v0.2.schema.json](contracts/interpretation-contract.v0.2.schema.json) | interpretation | Sole open-twin ↔ openXR interpretation interface |
 | [terminology/](terminology/) | clinical reviewer + engineer | Allowlist or review procedure change |
@@ -23,7 +24,7 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/canary-suite.md](findings/canary-suite.md) | architect | Deliberately-wrong canaries and uncaught findings |
 | [findings/synthea-coverage.md](findings/synthea-coverage.md) | engineer | Anchor×Synthea inventory; P7 consumer intersection |
 
-Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks landed on 21.
+Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks already on main.
 
 ## Layout
 
@@ -33,6 +34,9 @@ docs/
   CONVENTIONS.md
   GLOSSARY.md
   findings/      things that are wrong and known
+  contracts/     interpretation schema + confidence
+  terminology/   allowlist / review procedure
+  runbooks/      human procedures (e.g. verify-a-code)
 ```
 
 Root [`DECISIONS.md`](../DECISIONS.md) is the decision log. Do not treat root
