@@ -3,7 +3,7 @@ import {
   defaultRulePackPath,
   loadRulePackFile,
   loadRulePackFromYaml,
-  RulePackValidationError,
+  RulePackValidationError
 } from '../load-rule-pack.js';
 
 describe('rule pack loader', () => {
@@ -18,9 +18,7 @@ describe('rule pack loader', () => {
       const list = byFamily.get(r.family) ?? [];
       list.push(r.id);
       byFamily.set(r.family, list);
-      expect(r.clinical_basis === 'heuristic_no_guideline' || r.clinical_basis.startsWith('guideline:')).toBe(
-        true,
-      );
+      expect(r.clinical_basis === 'heuristic_no_guideline' || r.clinical_basis.startsWith('guideline:')).toBe(true);
     }
 
     expect(byFamily.has('hepatic')).toBe(true);

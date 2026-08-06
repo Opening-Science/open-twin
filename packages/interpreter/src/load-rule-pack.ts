@@ -37,7 +37,7 @@ function guidelineFileExists(id: string, guidelinesDir: string): boolean {
     join(guidelinesDir, `${id}.md`),
     join(guidelinesDir, id, 'README.md'),
     join(guidelinesDir, `${id}.yaml`),
-    join(guidelinesDir, `${id}.yml`),
+    join(guidelinesDir, `${id}.yml`)
   ];
   return candidates.some((p) => existsSync(p));
 }
@@ -47,10 +47,7 @@ export interface LoadRulePackOptions {
   guidelinesDir?: string;
 }
 
-export function validateRulePack(
-  pack: unknown,
-  options: LoadRulePackOptions = {},
-): RulePack {
+export function validateRulePack(pack: unknown, options: LoadRulePackOptions = {}): RulePack {
   const schemaPath = options.schemaPath ?? DEFAULT_SCHEMA_PATH;
   const guidelinesDir = options.guidelinesDir ?? DEFAULT_GUIDELINES_DIR;
   const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -84,15 +81,11 @@ export function validateRulePack(
         if (typeof basis === 'string' && basis.startsWith('guideline:')) {
           const gid = basis.slice('guideline:'.length);
           if (!guidelineFileExists(gid, guidelinesDir)) {
-            issues.push(
-              `/rules/${i}/clinical_basis guideline:${gid} — no file under docs/evidence/guidelines/`,
-            );
+            issues.push(`/rules/${i}/clinical_basis guideline:${gid} — no file under docs/evidence/guidelines/`);
           }
         } else if (basis !== undefined && basis !== 'heuristic_no_guideline') {
           if (typeof basis === 'string' && !basis.startsWith('guideline:')) {
-            issues.push(
-              `/rules/${i}/clinical_basis must be heuristic_no_guideline or guideline:<id>`,
-            );
+            issues.push(`/rules/${i}/clinical_basis must be heuristic_no_guideline or guideline:<id>`);
           }
         }
         if (r.emit === 'state' && r.system_id === undefined) {
@@ -106,18 +99,12 @@ export function validateRulePack(
   return pack as RulePack;
 }
 
-export function loadRulePackFromYaml(
-  yamlText: string,
-  options: LoadRulePackOptions = {},
-): RulePack {
+export function loadRulePackFromYaml(yamlText: string, options: LoadRulePackOptions = {}): RulePack {
   const parsed: unknown = parseYaml(yamlText);
   return validateRulePack(parsed, options);
 }
 
-export function loadRulePackFile(
-  path: string,
-  options: LoadRulePackOptions = {},
-): RulePack {
+export function loadRulePackFile(path: string, options: LoadRulePackOptions = {}): RulePack {
   return loadRulePackFromYaml(readFileSync(path, 'utf8'), options);
 }
 

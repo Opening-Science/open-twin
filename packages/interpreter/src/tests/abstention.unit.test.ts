@@ -16,13 +16,17 @@ describe('D-k abstention', () => {
           value: 110,
           observed_at: '2026-07-15T00:00:00.000Z',
           reference_interval_id: null,
-          interval: null,
-        },
-      ],
+          interval: null
+        }
+      ]
     });
 
     expect(doc.states).toHaveLength(1);
-    const state = doc.states[0]!;
+    const state = doc.states[0];
+    expect(state).toBeDefined();
+    if (state === undefined) {
+      throw new Error('expected one state');
+    }
     expect(state.sufficient_data).toBe(false);
     expect(state.insufficient_reason).toMatch(/reference_interval null/);
     expect(state.contributing.some((c) => c.status === 'no_reference_interval')).toBe(true);
@@ -41,15 +45,19 @@ describe('D-k abstention', () => {
           observed_at: '2026-07-15T00:00:00.000Z',
           reference_interval_id: 'RI-079',
           interval_record_kind: 'interpretive_band',
-          interval: { low: 130, high: 159 },
-        },
-      ],
+          interval: { low: 130, high: 159 }
+        }
+      ]
     });
 
-    const state = doc.states[0]!;
+    const state = doc.states[0];
+    expect(state).toBeDefined();
+    if (state === undefined) {
+      throw new Error('expected one state');
+    }
     expect(state.sufficient_data).toBe(false);
     expect(state.contributing.some((c) => c.biomarker_id === 'BM-190' && c.status === 'no_reference_interval')).toBe(
-      true,
+      true
     );
   });
 });

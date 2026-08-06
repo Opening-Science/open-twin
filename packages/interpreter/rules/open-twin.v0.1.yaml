@@ -1,5 +1,6 @@
 # OpenTwin rule pack v0.1
-# Clinical knowledge lives HERE. The engine is a pure evaluator.
+# Clinical cutoffs and biomarker roles live HERE. Engine evaluates predicates only
+# (purity test: no BM-* ids or named analytes in evaluate.ts; not "no thresholds" generally).
 # All clinical_basis values are heuristic_no_guideline — docs/evidence/guidelines/ is empty.
 schema_version: rule-pack.v0.1
 pack_id: open-twin.v0.1

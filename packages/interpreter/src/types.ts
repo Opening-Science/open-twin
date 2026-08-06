@@ -5,11 +5,7 @@
  * CORRECTNESS: Schema validation in load-rule-pack.ts against the committed JSON Schema
  */
 
-import type {
-  Severity,
-  SystemId,
-  UnrenderableReason,
-} from '@open-twin/interpretation-contract';
+import type { Severity, SystemId, UnrenderableReason } from '@open-twin/interpretation-contract';
 
 export type InputRole = 'required' | 'optional';
 

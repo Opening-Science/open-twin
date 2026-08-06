@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
 import { validateInterpretationDocument } from '@open-twin/interpretation-contract';
+import { describe, expect, it } from 'vitest';
 import { evaluate, serializeDocument } from '../evaluate.js';
 import { defaultRulePackPath, loadRulePackFile } from '../load-rule-pack.js';
 import type { EvaluateInput } from '../types.js';
@@ -40,8 +40,8 @@ describe('golden fixtures (byte-identical)', () => {
             `Golden drift for family "${fam}".`,
             'If intentional, regenerate with a written reason:',
             `  pnpm --filter @open-twin/interpreter regen-golden -- --family ${fam} --reason "..."`,
-            'See fixtures/golden/README.md and REASONS.md.',
-          ].join('\n'),
+            'See fixtures/golden/README.md and REASONS.md.'
+          ].join('\n')
         );
       }
 

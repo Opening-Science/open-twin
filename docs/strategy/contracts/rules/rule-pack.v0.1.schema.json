@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://open-twin.org/contracts/rules/rule-pack.v0.1.schema.json",
   "title": "OpenTwinRulePackV01",
-  "description": "Declarative clinical rule pack. All clinical knowledge lives here; the interpreter engine is a pure evaluator.",
+  "description": "Declarative clinical rule pack. Clinical cutoffs and biomarker roles live here; the engine evaluates predicates only (no BM-* ids or named analytes in evaluate.ts — purity test).",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "pack_id", "rules"],
@@ -96,15 +96,7 @@
     "Rule": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "family",
-        "clinical_basis",
-        "rule_strength",
-        "inputs",
-        "severity_ladder",
-        "emit"
-      ],
+      "required": ["id", "family", "clinical_basis", "rule_strength", "inputs", "severity_ladder", "emit"],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "family": { "type": "string", "minLength": 1 },
@@ -119,11 +111,7 @@
         "system_id": { "$ref": "#/$defs/SystemId" },
         "unrenderable_reason": {
           "type": "string",
-          "enum": [
-            "no_system_id_upstream",
-            "not_anatomical",
-            "system_excluded_upstream"
-          ]
+          "enum": ["no_system_id_upstream", "not_anatomical", "system_excluded_upstream"]
         },
         "unrenderable_id": { "type": "string" },
         "geometry": {
