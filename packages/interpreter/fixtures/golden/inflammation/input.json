@@ -3,12 +3,12 @@
   "as_of": "2026-07-28T00:00:00.000Z",
   "families": ["inflammation"],
   "observations": [
-  {
-    "biomarker_id": "BM-079",
-    "value": 12,
-    "observed_at": "2026-07-22T00:00:00.000Z",
-    "reference_interval_id": "RI-031",
-    "interval": { "low": null, "high": 5 }
-  }
-]
+    {
+      "biomarker_id": "BM-079",
+      "value": 12,
+      "observed_at": "2026-07-22T00:00:00.000Z",
+      "reference_interval_id": "RI-031",
+      "interval": { "low": null, "high": 5 }
+    }
+  ]
 }

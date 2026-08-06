@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!**/*.gen.ts"]
+    "includes": ["**", "!**/*.gen.ts", "!packages/anchor-layer/data"]
   },
   "formatter": {
     "enabled": true,
@@ -19,7 +19,7 @@
     "lineWidth": 120,
     "attributePosition": "auto",
     "bracketSpacing": true,
-    "includes": ["**"]
+    "includes": ["**", "!packages/anchor-layer/data/**", "!packages/interpreter/fixtures/golden/**/expected.json"]
   },
   "javascript": {
     "formatter": {
@@ -137,7 +137,7 @@
       }
     },
     {
-      "includes": ["verify/**", "packages/*/scripts/**"],
+      "includes": ["verify/**", "packages/*/scripts/**", "scripts/**"],
       "linter": {
         "rules": {
           "suspicious": {

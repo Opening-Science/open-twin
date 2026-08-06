@@ -25,12 +25,12 @@ export const PHYSIOLOGICAL_ENVELOPES: Readonly<Record<string, PhysiologicalEnvel
   'BM-064': { min: 0, max: 10_000 }, // Calprotectin ug/g
   'BM-435': { min: 0, max: 100 }, // DPD nmol/mmol
   'BM-001': { min: 0, max: 50_000 }, // Estradiol pmol/L
-  'BM-386': { min: 0, max: 200 }, // TSH m[IU]/L
+  'BM-386': { min: 0, max: 200 } // TSH m[IU]/L
 };
 
 export function isPhysiologicallyPossible(
   biomarkerId: string,
-  value: number,
+  value: number
 ): { ok: true } | { ok: false; envelope: PhysiologicalEnvelope } {
   const envelope = PHYSIOLOGICAL_ENVELOPES[biomarkerId];
   if (!envelope) return { ok: true };

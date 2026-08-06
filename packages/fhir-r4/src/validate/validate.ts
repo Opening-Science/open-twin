@@ -1,5 +1,5 @@
 /**
- * WHAT: Validates or normalises foreign FHIR R4 Bundles structurally.
+ * WHAT: Validates or normalises foreign FHIR R4 resources and Bundles structurally.
  * NOT:  Must not rewrite clinical codes or units to pass gates.
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 FHIR R4 structure rules (local checks); CI also runs official validator on emitted exemplars.

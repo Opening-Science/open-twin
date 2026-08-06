@@ -10,18 +10,18 @@ export type AnchorIngestErrorCode =
   | 'unit_incommensurable'
   | 'physiologically_impossible'
   /** D-c: interpretive band used where a measured reference interval is required. */
-  | 'interpretive_band_not_reference_interval';
+  | 'interpretive_band_not_reference_interval'
+  /** reference_interval_id belongs to a different biomarker than the measurement. */
+  | 'reference_interval_mismatch'
+  /** birthDate / effectiveDateTime fail FHIR date / offset-bearing dateTime shape. */
+  | 'invalid_context';
 
 export class AnchorIngestError extends Error {
   readonly code: AnchorIngestErrorCode;
   readonly biomarker_id?: string;
   readonly loinc_code?: string;
 
-  constructor(
-    code: AnchorIngestErrorCode,
-    message: string,
-    meta: { biomarker_id?: string; loinc_code?: string } = {},
-  ) {
+  constructor(code: AnchorIngestErrorCode, message: string, meta: { biomarker_id?: string; loinc_code?: string } = {}) {
     super(message);
     this.name = 'AnchorIngestError';
     this.code = code;

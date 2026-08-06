@@ -18,6 +18,8 @@ import { aggregateBundle } from '../packages/aggregate/src/verification/exampleB
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
 import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
+import { ALL_MARKER_CLASS_FIXTURES } from '../packages/provider-anchor/src/fixtures/markerClasses';
+import { bundleFromMarkerClassFixture } from '../packages/provider-anchor/src/verification/exampleBundles';
 import { googleHealthBundle } from '../packages/provider-google-health/src/verification/exampleBundle';
 import { openWearablesBundle } from '../packages/provider-open-wearables/src/verification/exampleBundle';
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
@@ -191,6 +193,11 @@ function anchorHbA1c(): Bundle {
 
 export const BUNDLE_CASES: BundleCase[] = [
   { name: 'anchor-hba1c', build: anchorHbA1c },
+  // Live provider-anchor mapper path — one bundle per marker class (first HL7 contact).
+  ...ALL_MARKER_CLASS_FIXTURES.map((fixture) => ({
+    name: `anchor-${fixture.classId}`,
+    build: (): Bundle => bundleFromMarkerClassFixture(fixture)
+  })),
   { name: 'fhir-core-exemplar', build: exemplar },
   { name: 'oura-sync', build: ouraBundle },
   // The recorded sandbox capture: real Oura payloads, all thirteen scopes.

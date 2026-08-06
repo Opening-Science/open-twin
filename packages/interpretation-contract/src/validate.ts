@@ -12,10 +12,7 @@ import addFormats from 'ajv-formats';
 import type { OpenTwinInterpretationDocumentV02 } from './generated/interpretation-contract.v0.2.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const SCHEMA_PATH = join(
-  HERE,
-  '../schema/interpretation-contract.v0.2.schema.json',
-);
+const SCHEMA_PATH = join(HERE, '../schema/interpretation-contract.v0.2.schema.json');
 
 export type ConformanceErrorCode =
   | 'SCHEMA'
@@ -50,7 +47,7 @@ const SYSTEM_IDS = new Set([
   'digestive',
   'endocrine',
   'integumentary',
-  'reproductive',
+  'reproductive'
 ]);
 
 const SCTID_RE =
@@ -82,7 +79,7 @@ function walkRejectLoincAxis(node: unknown, path: string, out: ConformanceError[
       code: 'LOINC_SYSTEM_AXIS_ANATOMY',
       message:
         'interpretive_anatomy_source "loinc_system_axis" is rejected (D-h): LOINC System is a specimen, not a site of pathology',
-      path: `${path}/interpretive_anatomy_source`,
+      path: `${path}/interpretive_anatomy_source`
     });
   }
   for (const [k, v] of Object.entries(node)) {
@@ -90,16 +87,12 @@ function walkRejectLoincAxis(node: unknown, path: string, out: ConformanceError[
   }
 }
 
-function collectContributing(
-  items: unknown,
-  path: string,
-  out: ConformanceError[],
-): string[] {
+function collectContributing(items: unknown, path: string, out: ConformanceError[]): string[] {
   if (!Array.isArray(items) || items.length === 0) {
     out.push({
       code: 'EMPTY_CONTRIBUTING',
       message: 'contributing[] must list every marker the rule read (D-k); empty is non-conformant',
-      path,
+      path
     });
     return [];
   }
@@ -118,12 +111,12 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
   const errors: ConformanceError[] = [];
 
   // Raw-text SNOMED / internal-only field check on the published JSON shape
-  const raw = typeof input === 'string' ? input : JSON.stringify(input);
+  const raw = typeof input === 'string' ? input : (JSON.stringify(input) ?? '');
   if (SCTID_RE.test(raw) || raw.includes('body_structure_snomed')) {
     errors.push({
       code: 'SCTID_IN_PUBLISHED',
       message:
-        'SNOMED CT identifiers / body_structure_snomed must not appear in a published interpretation document (D-l; Addendum 06 Finding 3)',
+        'SNOMED CT identifiers / body_structure_snomed must not appear in a published interpretation document (D-l; Addendum 06 Finding 3)'
     });
   }
 
@@ -134,14 +127,11 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
     return { ok: false, errors };
   }
 
-  if (
-    input.intended_use !== 'research_hypothesis_generation_n_of_1' ||
-    input.not_for_diagnostic_use !== true
-  ) {
+  if (input.intended_use !== 'research_hypothesis_generation_n_of_1' || input.not_for_diagnostic_use !== true) {
     errors.push({
       code: 'INTENDED_USE',
       message:
-        'intended_use must be research_hypothesis_generation_n_of_1 and not_for_diagnostic_use must be true (D-m)',
+        'intended_use must be research_hypothesis_generation_n_of_1 and not_for_diagnostic_use must be true (D-m)'
     });
   }
 
@@ -154,17 +144,11 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
       const msg = `${e.instancePath || '/'} ${e.message ?? 'schema violation'}`;
       if (e.keyword === 'enum' && path.endsWith('system_id')) {
         errors.push({ code: 'UNKNOWN_SYSTEM_ID', message: msg, path });
-      } else if (
-        e.keyword === 'maximum' &&
-        path.endsWith('confidence')
-      ) {
+      } else if (e.keyword === 'maximum' && path.endsWith('confidence')) {
         errors.push({ code: 'CONFIDENCE_OUT_OF_RANGE', message: msg, path });
       } else if (e.keyword === 'minItems' && path.endsWith('contributing')) {
         errors.push({ code: 'EMPTY_CONTRIBUTING', message: msg, path });
-      } else if (
-        e.keyword === 'enum' &&
-        String(e.message ?? '').includes('loinc_system_axis')
-      ) {
+      } else if (e.keyword === 'enum' && String(e.message ?? '').includes('loinc_system_axis')) {
         errors.push({ code: 'LOINC_SYSTEM_AXIS_ANATOMY', message: msg, path });
       } else {
         errors.push({ code: 'SCHEMA', message: msg, path });
@@ -184,21 +168,17 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
       errors.push({
         code: 'UNKNOWN_SYSTEM_ID',
         message: `unknown system_id "${sid}" — not in the nine-value openXR enum (D-f)`,
-        path: `/states/${i}/system_id`,
+        path: `/states/${i}/system_id`
       });
     }
     if (typeof state.confidence === 'number' && state.confidence > 1) {
       errors.push({
         code: 'CONFIDENCE_OUT_OF_RANGE',
         message: `confidence ${state.confidence} > 1 (D-j)`,
-        path: `/states/${i}/confidence`,
+        path: `/states/${i}/confidence`
       });
     }
-    const ids = collectContributing(
-      state.contributing,
-      `/states/${i}/contributing`,
-      errors,
-    );
+    const ids = collectContributing(state.contributing, `/states/${i}/contributing`, errors);
     for (const id of ids) stateMarkerIds.add(id);
     if (state.sufficient_data === false) {
       if (!Array.isArray(state.contributing) || state.contributing.length === 0) {
@@ -206,14 +186,14 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
           code: 'INSUFFICIENT_EMPTY_CONTRIBUTING',
           message:
             'sufficient_data=false still requires contributing[] listing every marker the rule read, including absences (D-k)',
-          path: `/states/${i}/contributing`,
+          path: `/states/${i}/contributing`
         });
       }
       if (typeof state.insufficient_reason !== 'string' || !state.insufficient_reason) {
         errors.push({
           code: 'MISSING_INSUFFICIENT_REASON',
           message: 'sufficient_data=false requires insufficient_reason',
-          path: `/states/${i}/insufficient_reason`,
+          path: `/states/${i}/insufficient_reason`
         });
       }
     }
@@ -225,14 +205,19 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
       errors.push({
         code: 'CONFIDENCE_OUT_OF_RANGE',
         message: `confidence ${u.confidence} > 1 (D-j)`,
-        path: `/unrenderable/${i}/confidence`,
+        path: `/unrenderable/${i}/confidence`
       });
     }
-    const ids = collectContributing(
-      u.contributing,
-      `/unrenderable/${i}/contributing`,
-      errors,
-    );
+    if (u.sufficient_data === false) {
+      if (typeof u.insufficient_reason !== 'string' || !u.insufficient_reason) {
+        errors.push({
+          code: 'MISSING_INSUFFICIENT_REASON',
+          message: 'sufficient_data=false requires insufficient_reason',
+          path: `/unrenderable/${i}/insufficient_reason`
+        });
+      }
+    }
+    const ids = collectContributing(u.contributing, `/unrenderable/${i}/contributing`, errors);
     for (const id of ids) unrenderableMarkerIds.add(id);
   });
 
@@ -241,7 +226,7 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
       errors.push({
         code: 'UNRENDERABLE_REROUTED',
         message: `biomarker ${id} appears in unrenderable[] and states[] — never reroute into a neighbouring system (D-g)`,
-        path: `/states`,
+        path: '/states'
       });
     }
   }
@@ -259,6 +244,6 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
   return {
     ok: true,
     errors: [],
-    document: input as unknown as OpenTwinInterpretationDocumentV02,
+    document: input as unknown as OpenTwinInterpretationDocumentV02
   };
 }

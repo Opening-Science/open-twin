@@ -22,8 +22,8 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Field | Value |
 |---|---|
 | Home | `verify/check-terminology.ts` + `docs/terminology/review-records/` + G1 allowlist |
-| What it answers | Does every LOINC/UCUM/SNOMED/FMA/UBERON literal in `src/` have a markdown review record with signed verification fields (not the literal `UNVERIFIED`)? |
-| Current | **FAIL** — see G2a and G2b separately |
+| What it answers | Does every LOINC/UCUM/SNOMED/FMA/UBERON literal in `src/` have either a signed markdown review record (verification fields present and not the literal `UNVERIFIED`) **or** a G1 allowlist entry with status `APPROVED` whose declared `system` matches that vocabulary? |
+| Current | **FAIL(advisory)** — see G2a and G2b separately |
 | Intentional red? | Partially — see sub-rows |
 
 ### G2a — 67 UNVERIFIED Anchor stubs (deliberate work queue)
@@ -35,13 +35,13 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Resolution | Sign each record; do not bulk-approve |
 | Must not absorb | G2b |
 
-### G2b — 51 MISSING non-Anchor review records (pre-existing debt)
+### G2b — 20 MISSING non-Anchor review records (pre-existing debt)
 
 | Field | Value |
 |---|---|
-| Origin | Codes already in connectors / samples / genomics that have **no** `docs/terminology/review-records/*.md` file. Discovered when P2’s gate scanned beyond Anchor. |
+| Origin | Codes already in connectors / samples / genomics that have **no** signed review record and are **not** G1 `APPROVED`. Discovered when P2’s gate scanned beyond Anchor; 31 of the historical “51 MISSING” were G1 overlaps and are no longer counted. |
 | Owner | Engineering + clinical review (pre-existing debt, not a P2-created queue) |
-| Overlap with G1 | Many of these 51 are already **APPROVED** on the allowlist (G1). The MISSING count is largely “second gate does not read the allowlist,” not “code never reviewed.” Exact overlap is in the P8.0b analysis. |
+| Current count | **20** true MISSING (15 LOINC + 5 UCUM). G1 cover: 31. See `docs/findings/missing-non-anchor-review-records.md`. |
 | Must not absorb | G2a |
 
 ### G3 — Canary suite (`verify/check-canaries.ts`, when registered)
@@ -53,12 +53,20 @@ aggregate exit code. Do not short-circuit: the baseline needs the full picture.
 | Intentional findings | 04, 05, 06, 11 (no existing semantic gate) — do not paper over |
 | Caught (incl. wrong-kind band) | 01, 02, 03, 07, 08, 09, 10, 12 |
 
+### Module headers (`verify/check-headers.ts`)
+
+| Field | Value |
+|---|---|
+| Home | `verify/check-headers.ts` + CI step in `gates` / `run-verify` |
+| On this tip (gate registered, headers not applied) | **FAIL(advisory)** — hundreds of exporting modules lack the convention block |
+| After `open-twin/module-headers` | **PASS**, gate promoted to blocking |
+| Intentional red? | Yes, until that branch lands |
+
 ### Other gates
 
 | Gate | Script | Typical |
 |---|---|---|
 | UCUM units | `verify/check-units.mjs` | PASS |
-| Module headers | `verify/check-headers.ts` | PASS |
 | Docs integrity | `verify/check-docs.ts` | PASS |
 | SNOMED publication boundary | `verify/check-snomed-boundary.ts` (when registered) | PASS |
 

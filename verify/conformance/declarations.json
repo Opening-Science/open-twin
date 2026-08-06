@@ -41,6 +41,11 @@
       "id": "method",
       "title": "How a value was arrived at",
       "description": "Whether a value was measured directly, estimated by the device from sensor data, derived from the sleep period, or selected from several overlapping sources. R4 has no element for measurement provenance beyond Observation.method, so this fills it. It matters because a consumer VO2max under LOINC 94122-9 (\"peak during exercise\") is a model output, not a graded exercise test, and a receiver cannot tell without being told."
+    },
+    {
+      "id": "anchor",
+      "title": "Anchor catalogue collection-context labels",
+      "description": "Local labels carried on Observation.extension collection-context so the interpreter can select a population. Values today: menstrual-cycle-phase follicular|midcycle|luteal|postmenopausal|unknown; time-of-day-window vor_10h|nach_17h|unspecified. These are catalogue stratification keys from German lab populations, not LOINC/SNOMED/UCUM. TODO(clinical-review): confirm each value against a primary source before treating them as a closed vocabulary; content remains not-present until then."
     }
   ],
   "extensions": [
@@ -189,6 +194,33 @@
       "context": ["Observation"],
       "title": "Oura workout source",
       "description": "How the workout was recorded: manual, autodetected, confirmed or workout_heart_rate."
+    },
+    {
+      "id": "collection-context",
+      "type": "complex",
+      "context": ["Observation"],
+      "title": "Collection context for population selection",
+      "description": "Sex, age, menstrual cycle phase, time of day and fasting state travel with the Observation so the interpreter can select a reference-interval population. The connector does not select populations; it only carries the draw context. Cortisol cannot be flagged without collection time; Oestradiol cannot without cycle phase.",
+      "subExtensions": [
+        {
+          "id": "menstrual-cycle-phase",
+          "type": "code",
+          "title": "Menstrual cycle phase",
+          "description": "Catalogue population label: follicular, midcycle, luteal, postmenopausal, or unknown."
+        },
+        {
+          "id": "fasting",
+          "type": "boolean",
+          "title": "Fasting state",
+          "description": "Whether the specimen was drawn while fasting, when known."
+        },
+        {
+          "id": "time-of-day-window",
+          "type": "code",
+          "title": "Time-of-day window",
+          "description": "Explicit catalogue window such as vor_10h or nach_17h when the lab labelled the draw that way."
+        }
+      ]
     },
     {
       "id": "reference-range-source",

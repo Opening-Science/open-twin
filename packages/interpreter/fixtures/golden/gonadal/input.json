@@ -3,12 +3,12 @@
   "as_of": "2026-07-28T00:00:00.000Z",
   "families": ["gonadal"],
   "observations": [
-  {
-    "biomarker_id": "BM-001",
-    "value": 200,
-    "observed_at": "2026-07-12T00:00:00.000Z",
-    "reference_interval_id": "RI-001",
-    "interval": { "low": 40, "high": 161 }
-  }
-]
+    {
+      "biomarker_id": "BM-001",
+      "value": 200,
+      "observed_at": "2026-07-12T00:00:00.000Z",
+      "reference_interval_id": "RI-001",
+      "interval": { "low": 40, "high": 161 }
+    }
+  ]
 }

@@ -166,6 +166,9 @@ export interface UnrenderableState {
    */
   confidence: number;
   sufficient_data: boolean;
+  /**
+   * Required by conformance when sufficient_data is false.
+   */
   insufficient_reason?: string;
   /**
    * @minItems 1

@@ -10,9 +10,7 @@
       "severity": "borderline",
       "confidence": 1.2,
       "sufficient_data": true,
-      "contributing": [
-        { "biomarker_id": "BM-156", "status": "present", "observed_at": "2026-07-01T00:00:00.000Z" }
-      ],
+      "contributing": [{ "biomarker_id": "BM-156", "status": "present", "observed_at": "2026-07-01T00:00:00.000Z" }],
       "interpretive_anatomy_source": "curated_table",
       "geometry": { "fma_id": "FMA:7197" }
     }

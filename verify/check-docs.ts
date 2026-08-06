@@ -6,7 +6,7 @@
  * GOVERNED BY: docs/CONVENTIONS.md
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -27,7 +27,7 @@ function walk(dir: string, out: string[]): void {
 }
 
 function walkTs(dir: string, out: string[]): void {
-  let entries;
+  let entries: string[] = [];
   try {
     entries = readdirSync(dir);
   } catch {
@@ -69,12 +69,15 @@ if (!existsSync(DECISIONS)) {
 }
 
 const decisionsBody = existsSync(DECISIONS) ? readFileSync(DECISIONS, 'utf8') : '';
-const decisionAnchors = new Set(
-  [...decisionsBody.matchAll(/<a\s+id="(d\d+)"\s*><\/a>/gi)].map((m) => m[1]!.toLowerCase()),
-);
+const decisionAnchors = new Set<string>();
+for (const m of decisionsBody.matchAll(/<a\s+id="(d\d+)"\s*><\/a>/gi)) {
+  const id = m[1];
+  if (id) decisionAnchors.add(id.toLowerCase());
+}
 // Also accept ## Dn headings as anchors dn
 for (const m of decisionsBody.matchAll(/^##\s+(D\d+)\b/gm)) {
-  decisionAnchors.add(m[1]!.toLowerCase());
+  const id = m[1];
+  if (id) decisionAnchors.add(id.toLowerCase());
 }
 
 const tsFiles: string[] = [];
@@ -97,14 +100,14 @@ for (const file of tsFiles) {
     if (!p) continue;
     if (p.startsWith('docs/adr/') || /^docs\/contracts\/ADR-/i.test(p)) {
       offenders.push(
-        `${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ or docs/contracts/ADR-* (${p})`,
+        `${relative(ROOT, file)}: GOVERNED BY must not reference docs/adr/ or docs/contracts/ADR-* (${p})`
       );
       continue;
     }
     const dec = p.match(/^DECISIONS\.md#(d\d+)\b/i);
     if (dec) {
-      const id = dec[1]!.toLowerCase();
-      if (!decisionAnchors.has(id)) {
+      const id = dec[1];
+      if (id && !decisionAnchors.has(id.toLowerCase())) {
         offenders.push(`${relative(ROOT, file)}: GOVERNED BY missing anchor ${p}`);
       }
       continue;

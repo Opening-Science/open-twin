@@ -10,23 +10,23 @@ describe('confidence.md worked example', () => {
           biomarker_id: 'BM-072',
           status: 'present',
           observed_at: '2026-07-01T00:00:00Z',
-          reference_interval_id: 'RI-020',
+          reference_interval_id: 'RI-020'
         },
         {
           biomarker_id: 'BM-190',
           status: 'present',
           observed_at: '2026-04-01T00:00:00Z',
-          reference_interval_id: null,
+          reference_interval_id: null
         },
         {
           biomarker_id: 'BM-200',
           status: 'missing',
           observed_at: null,
-          reference_interval_id: null,
-        },
+          reference_interval_id: null
+        }
       ],
       0.8,
-      asOf,
+      asOf
     );
     expect(confidence).toBe(0.2133);
     expect(roundHalfUp4((2 / 3) * 0.4 * 0.8)).toBe(0.2133);
