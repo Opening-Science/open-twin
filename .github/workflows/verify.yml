@@ -75,6 +75,11 @@ jobs:
         continue-on-error: true
         run: pnpm exec tsx verify/check-terminology.ts
 
+      # Canary harnesses import package sources that resolve @open-twin/* via
+      # dist/ (same as typecheck). Without a build, CI fails MODULE_NOT_FOUND
+      # before any canary outcome is reported.
+      - run: pnpm -r build
+
       - name: Canary suite
         run: pnpm exec tsx verify/check-canaries.ts
 
