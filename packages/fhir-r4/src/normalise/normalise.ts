@@ -145,7 +145,7 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
 
   // Pass 1: decide every new id before rewriting anything, so a reference can be
   // repointed regardless of the order entries appear in.
-  const idMap = new Map<string, string>();
+  const referenceIndex = emptyReferenceIndex();
   const assigned: Array<{ view: (typeof views)[number]; id: string }> = [];
 
   for (const view of views) {
@@ -158,9 +158,7 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
       measure: view.resourceType
     });
     assigned.push({ view, id });
-    for (const key of aliasesOf(view.fullUrl, view.resourceType, view.resource)) {
-      idMap.set(key, id);
-    }
+    indexResource(referenceIndex, view.fullUrl, view.resourceType, view.resource, id);
   }
 
   // Pass 2: rewrite.
@@ -174,7 +172,7 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
     const clone: JsonObject = Object.fromEntries(Object.entries(source).filter(([key]) => key !== 'text'));
     clone.id = id;
 
-    rewriteReferences(clone, idMap, referenced);
+    issues.push(...rewriteReferences(clone, referenceIndex, view.fullUrl, referenced, `${view.path}.resource`));
 
     if (isObject(clone.subject)) {
       clone.subject = { ...subject };
@@ -215,6 +213,13 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
     resources.push(clone as unknown as FhirResource);
   }
 
+  // An ambiguous reference cannot safely be left as an apparent external reference:
+  // after the ids are replaced there is no longer enough information to repair it.
+  // Return no partially rewritten bundle.
+  if (issues.some((item) => item.rule === 'ot-reference-ambiguous')) {
+    return { issues, outcome: toOutcome(issues) };
+  }
+
   issues.push(...ensureSubjectResolves(subject, options, resources));
   issues.push(...reportOrphanedPatients(assigned, referenced, subject));
 
@@ -236,35 +241,113 @@ function addressOf(resourceType: string, resource: JsonObject): string | undefin
   return typeof resource.id === 'string' ? `${resourceType}/${resource.id}` : undefined;
 }
 
-/** Every string an intra-bundle reference could have used to address this entry. */
-function aliasesOf(fullUrl: string | undefined, resourceType: string, resource: JsonObject): string[] {
-  const keys: string[] = [];
-  if (fullUrl) {
-    keys.push(fullUrl);
-    const tail = RESTFUL_TAIL.exec(fullUrl)?.[1];
-    if (tail) keys.push(tail);
-  }
-  const address = addressOf(resourceType, resource);
-  if (address) keys.push(address);
-  return keys;
+interface ReferenceIndex {
+  /** Exact fullUrls, including absolute REST URLs and urns. */
+  exact: Map<string, Set<string>>;
+  /** Unqualified ResourceType/id aliases. May deliberately contain several targets. */
+  address: Map<string, Set<string>>;
 }
 
-function rewriteReferences(node: unknown, idMap: ReadonlyMap<string, string>, referenced: Set<string>): void {
-  if (Array.isArray(node)) {
-    for (const item of node) rewriteReferences(item, idMap, referenced);
-    return;
-  }
-  if (!isObject(node)) return;
+function emptyReferenceIndex(): ReferenceIndex {
+  return { exact: new Map(), address: new Map() };
+}
 
-  if (typeof node.reference === 'string' && node.resourceType === undefined) {
-    const target = idMap.get(node.reference);
-    if (target) {
-      node.reference = `urn:uuid:${target}`;
-      referenced.add(target);
+function addTarget(index: Map<string, Set<string>>, key: string, id: string): void {
+  const targets = index.get(key) ?? new Set<string>();
+  targets.add(id);
+  index.set(key, targets);
+}
+
+function indexResource(
+  index: ReferenceIndex,
+  fullUrl: string | undefined,
+  resourceType: string,
+  resource: JsonObject,
+  id: string
+): void {
+  if (fullUrl) addTarget(index.exact, fullUrl, id);
+  const address = addressOf(resourceType, resource);
+  if (address) addTarget(index.address, address, id);
+}
+
+function soleTarget(targets: ReadonlySet<string> | undefined): string | undefined {
+  return targets?.size === 1 ? targets.values().next().value : undefined;
+}
+
+/**
+ * Resolves a relative reference against the service base implied by the referring
+ * entry's fullUrl. Two servers may legitimately use the same ResourceType/id; a
+ * global tail map would silently attach the reference to whichever entry came last.
+ */
+function resolveTarget(
+  reference: string,
+  sourceFullUrl: string | undefined,
+  index: ReferenceIndex
+): { target?: string; ambiguous: boolean } {
+  const exact = index.exact.get(reference);
+  if (exact) return { target: soleTarget(exact), ambiguous: exact.size > 1 };
+
+  if (RESTFUL_TAIL.test(reference)) return { ambiguous: false };
+  if (!/^[A-Za-z]+\/[A-Za-z0-9\-.]{1,64}$/.test(reference)) return { ambiguous: false };
+
+  if (sourceFullUrl) {
+    const sourceTail = RESTFUL_TAIL.exec(sourceFullUrl);
+    if (sourceTail) {
+      const base = sourceFullUrl.slice(0, sourceTail.index + 1);
+      try {
+        const resolved = new URL(reference, base).toString();
+        const basedTargets = index.exact.get(resolved);
+        if (basedTargets) return { target: soleTarget(basedTargets), ambiguous: basedTargets.size > 1 };
+      } catch {
+        // Validation owns malformed URLs. There is no safe base-aware rewrite here.
+      }
     }
   }
 
-  for (const value of Object.values(node)) rewriteReferences(value, idMap, referenced);
+  const unqualified = index.address.get(reference);
+  return { target: soleTarget(unqualified), ambiguous: (unqualified?.size ?? 0) > 1 };
+}
+
+function rewriteReferences(
+  node: unknown,
+  index: ReferenceIndex,
+  sourceFullUrl: string | undefined,
+  referenced: Set<string>,
+  path: string
+): FhirIssue[] {
+  const issues: FhirIssue[] = [];
+  if (Array.isArray(node)) {
+    for (const [itemIndex, item] of node.entries()) {
+      issues.push(...rewriteReferences(item, index, sourceFullUrl, referenced, `${path}[${itemIndex}]`));
+    }
+    return issues;
+  }
+  if (!isObject(node)) return issues;
+
+  if (typeof node.reference === 'string' && node.resourceType === undefined) {
+    const resolution = resolveTarget(node.reference, sourceFullUrl, index);
+    const target = resolution.target;
+    if (target) {
+      node.reference = `urn:uuid:${target}`;
+      referenced.add(target);
+    } else if (resolution.ambiguous) {
+      issues.push(
+        issue(
+          'error',
+          'multiple-matches',
+          'ot-reference-ambiguous',
+          `${path}.reference`,
+          'This relative reference matches more than one resource in the bundle and has no usable entry base that identifies one target. Normalisation stopped rather than choosing by bundle order.'
+        )
+      );
+    }
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'reference') continue;
+    issues.push(...rewriteReferences(value, index, sourceFullUrl, referenced, `${path}.${key}`));
+  }
+  return issues;
 }
 
 /**

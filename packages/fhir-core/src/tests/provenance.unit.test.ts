@@ -1,5 +1,6 @@
 import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
+import { deterministicId } from '../identity';
 import { createObservation } from '../observation';
 import { connectorDevice, derivedObservation, deviceReference, METHOD } from '../provenance';
 import { reliabilityFor } from '../reliability';
@@ -10,7 +11,7 @@ const SUBJECT = { reference: 'urn:uuid:cd483717-65bb-5d76-a007-ddb564f6c2cb' };
 
 const sleepFrom = (connector: string, minutes: number): Observation =>
   createObservation({
-    id: `00000000-0000-5000-8000-00000000000${connector.length}`,
+    id: deterministicId({ connector, subjectKey: 'subject-1', recordId: 'sleep' }),
     code: { system: SYSTEMS.LOINC, code: '93832-4', display: 'Sleep duration' },
     subject: SUBJECT,
     effectiveDateTime: '2026-07-26T07:00:00+02:00',
@@ -81,7 +82,7 @@ describe('derivedObservation', () => {
   it('points at every source, not only the winner', () => {
     // The point of the design: the raw record survives. A future ranking change must
     // not require re-fetching anything.
-    expect(derived.derivedFrom).toEqual([{ reference: `urn:uuid:${oura.id}` }, { reference: `urn:uuid:${google.id}` }]);
+    expect(derived.derivedFrom).toEqual([oura.id, google.id].sort().map((id) => ({ reference: `urn:uuid:${id}` })));
   });
 
   it('records why that source won, in readable prose', () => {
@@ -131,6 +132,33 @@ describe('derivedObservation', () => {
     expect(() =>
       derivedObservation({ sources: [], policy: 'x', connector: 'open-twin', subjectKey: 's', measure: 'm' })
     ).toThrow(TypeError);
+  });
+
+  it('refuses id-less sources rather than emitting urn:uuid:undefined provenance', () => {
+    const withoutId = { ...oura, id: undefined };
+    expect(() =>
+      derivedObservation({
+        sources: [withoutId, google],
+        selected: withoutId,
+        policy: 'test',
+        connector: 'open-twin',
+        subjectKey: 'subject-1',
+        measure: 'sleep-duration'
+      })
+    ).toThrow(/every source must have a lowercase UUID id/);
+  });
+
+  it('derives the same identity regardless of source order', () => {
+    const reversed = derivedObservation({
+      sources: [google, oura],
+      selected: oura,
+      policy,
+      connector: 'open-twin',
+      subjectKey: 'subject-1',
+      measure: 'sleep-duration'
+    });
+    expect(reversed.id).toBe(derived.id);
+    expect(reversed.derivedFrom).toEqual(derived.derivedFrom);
   });
 });
 

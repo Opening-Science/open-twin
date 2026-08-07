@@ -82,10 +82,11 @@ downstream, from one that quietly corrupts one.
 
 Normalisation refuses outright — returning `bundle: undefined` — on anything it
 cannot repair without guessing: `obs-6`, a missing required element, an unknown
-resource type, a duplicate fullUrl, an invalid UCUM code, or a `urn:uuid:` reference
-that resolves to nothing. The addressing defects it exists to repair
-(`ot-fullurl-*`, `bdl-8`) do not stop it, and neither do the unit findings, which are
-carried through to the caller attached to a bundle that still states them.
+resource type, a duplicate fullUrl, an invalid UCUM code, a `urn:uuid:` reference
+that resolves to nothing, or `ot-reference-ambiguous` (an unbased relative reference
+that matches resources on more than one server). The addressing defects it exists to
+repair (`ot-fullurl-*`, `bdl-8`) do not stop it, and neither do the unit findings,
+which are carried through to the caller attached to a bundle that still states them.
 
 ### 3. UCUM and unit checking
 

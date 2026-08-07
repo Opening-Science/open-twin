@@ -62,6 +62,7 @@ export const FHIR_ISSUE_RULES = [
   'ot-fullurl-oid',
   'ot-fullurl-id-mismatch',
   'ot-reference-malformed',
+  'ot-reference-ambiguous',
   'ot-reference-unresolved-urn',
   'ot-reference-unresolved-contained',
   'ot-reference-external',

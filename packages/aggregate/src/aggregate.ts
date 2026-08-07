@@ -146,7 +146,7 @@ export function aggregate(options: AggregateOptions): AggregateResult {
     // One connector reporting a measure twice in a day is not a disagreement between
     // sources, and picking between a device's own two readings is not what the
     // reliability evidence speaks to.
-    const connectors = [...new Set(items.map((item) => item.connector))];
+    const connectors = [...new Set(items.map((item) => item.connector))].sort();
     if (connectors.length < 2) continue;
 
     const selection = selectSource(
@@ -159,7 +159,19 @@ export function aggregate(options: AggregateOptions): AggregateResult {
       continue;
     }
 
-    const winner = items.find((item) => item.connector === selection.winner.connector)?.observation;
+    const winningReadings = items.filter((item) => item.connector === selection.winner.connector);
+    if (winningReadings.length !== 1) {
+      reconciliations.push({
+        measure,
+        day,
+        sources: connectors,
+        policy:
+          `${selection.winner.connector} is the preferred source for ${measure}, but it supplied ` +
+          `${winningReadings.length} readings for ${day}. No within-source selection rule is defined, so aggregation abstained.`
+      });
+      continue;
+    }
+    const winner = winningReadings[0]?.observation;
     if (!winner) continue;
 
     derived.push(

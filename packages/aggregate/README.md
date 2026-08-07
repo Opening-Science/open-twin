@@ -24,6 +24,8 @@ evidence per *(source, measure)* pair, with citations — and either:
   - *energy expenditure* abstains outright — published MAPE above 30% for every
     brand tested, so naming a winner would present a confidence nobody has earned;
   - *equally graded sources* abstain rather than break a tie on array order;
+  - *several same-day readings from the preferred source* abstain because the
+    reliability evidence ranks connectors, not readings within one connector;
   - *a single reporting source* is not a disagreement, so nothing is asserted.
 
 A selection nobody can audit is indistinguishable from a guess, which is why the
@@ -49,13 +51,18 @@ for (const r of reconciliations) {
 }
 ```
 
-## The one precondition: one subject
+## Preconditions: one subject and canonical source ids
 
 Each connector mints its own `urn:uuid:` subject from its own key unless the
 integrator supplies a common one (decision D1). Left alone, nothing would match and
 the aggregator would report no overlap — a wrong answer that looks like a clean one.
 So `aggregate` **throws** when its sources carry more than one subject reference:
 supply the same `subject` to every connector for the same person before aggregating.
+
+Every Observation participating in a derived result must also carry a lowercase
+UUID `id`. Connector bundles built with `buildBundle` already satisfy this. A foreign
+id-less bundle must be normalized first; aggregation refuses it rather than emitting
+an unresolved `urn:uuid:undefined` provenance reference.
 
 ## Where the grades come from
 
