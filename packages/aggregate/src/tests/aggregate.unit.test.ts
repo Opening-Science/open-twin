@@ -1,6 +1,7 @@
 import {
   buildBundle,
   createObservation,
+  deterministicId,
   quantity,
   SYSTEMS,
   subjectReference,
@@ -24,15 +25,21 @@ interface Reading {
 
 /** A bundle as a connector would emit it, so the aggregator is fed its real input. */
 function bundleFrom(connector: string, readings: Reading[]): Bundle {
-  const resources: Observation[] = readings.map((reading, index) =>
-    createObservation({
-      id: `${connector}-${index}-0000-5000-8000-00000000000${index}`,
+  const resources: Observation[] = readings.map((reading, index) => {
+    const day = reading.day ?? '2026-06-20';
+    return createObservation({
+      id: deterministicId({
+        connector,
+        subjectKey: SUBJECT_KEY,
+        recordId: `${reading.code}|${day}|${index}`,
+        measure: reading.code
+      }),
       code: { system: SYSTEMS.LOINC, code: reading.code },
       subject: SUBJECT,
-      effectiveDateTime: `${reading.day ?? '2026-06-20'}T07:00:00+02:00`,
+      effectiveDateTime: `${day}T07:00:00+02:00`,
       valueQuantity: quantity(reading.value, reading.unit)
-    })
-  );
+    });
+  });
   return buildBundle({
     connector: { connector, version: '0.1.0' },
     resources,
