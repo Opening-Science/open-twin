@@ -89,7 +89,8 @@ Maintainers may request additional information before work begins.
  
 Security vulnerabilities must **not** be reported through the public issue tracker.
  
-Instead, security-related findings should be reported directly to the repository maintainers through a private communication channel.
+Instead, security-related findings should be reported directly to the repository maintainers through a private communication channel or use GitHub's private
+vulnerability reporting on this repository.
  
 Examples include:
  
@@ -174,6 +175,34 @@ All implementations should:
  
 Developers should avoid introducing unrelated changes within the same contribution.
 
+# Review and Approval
+ 
+Every pull request must be reviewed and approved by at least one repository maintainer before it can be merged.
+ 
+The reviewer is responsible for evaluating:
+ 
+- Correctness
+- Code quality
+- Test coverage
+- Compliance with repository standards
+- Potential security implications
+- Architectural consistency
+ 
+Maintainers may request revisions before approval is granted.
+ 
+No pull request may be merged without the required approval.
+
+# Contributor Responsibilities
+ 
+Contributors are expected to:
+ 
+- Act professionally and respectfully
+- Follow repository processes
+- Provide accurate information in issues and pull requests
+- Address review feedback in a timely manner
+- Maintain the quality and integrity of the project
+
+
 ## Adding a mapper or a connector
 
 Read [DECISIONS.md](DECISIONS.md) first. Subject linkage (D1), ids (D2), code
@@ -181,10 +210,11 @@ systems (D3) and units (D4) are decided once and shared — a connector that
 decides these for itself is wrong even when each choice is individually
 defensible. The checklist form lives in [ONBOARDING.md](ONBOARDING.md).
 
-## Security
-
-Do not open a public issue for a vulnerability. Use GitHub's private
-vulnerability reporting on this repository, or contact the maintainer directly.
+# Compliance Statement
+ 
+Compliance with this guide is mandatory for all repository contributions. Maintainers reserve the right to reject contributions that do not meet the requirements defined in this document.
+ 
+The goal of these requirements is to ensure that the project remains secure, maintainable, transparent, and accessible for the broader open science community.
 
 ## Legal
 
