@@ -15,6 +15,95 @@ Node ≥ 20 and pnpm 11 (pinned via `packageManager` — `corepack enable`, or
 pnpm install --frozen-lockfile
 ```
 
+# Reporting Issues
+ 
+## Feature Requests, Improvements, and Wishes
+ 
+Any new feature idea, enhancement, improvement, or wish must be documented by creating an issue before implementation begins.
+ 
+The purpose of creating an issue is to:
+ 
+- Provide visibility to the community
+- Allow maintainers to prioritize work
+- Prevent duplicate efforts
+- Ensure implementation requirements are clearly understood
+ 
+### Required Issue Information
+ 
+Issues should contain sufficient information for a developer to understand and implement the requested change.
+ 
+At a minimum, an issue should include:
+ 
+#### Title
+ 
+A concise and descriptive summary.
+ 
+#### Background
+ 
+Describe the current situation and context.
+ 
+#### Problem Statement
+ 
+Clearly explain what problem is being solved.
+ 
+#### Proposed Solution
+ 
+Describe the expected behavior or implementation approach.
+ 
+#### Acceptance Criteria
+ 
+Provide measurable criteria that define when the work is considered complete.
+ 
+Examples:
+ 
+- A new API endpoint returns the requested data.
+- Documentation has been updated.
+- All tests pass successfully.
+ 
+#### Additional Context
+ 
+Include any relevant information such as:
+ 
+- Screenshots
+- References
+- Links to specifications
+- Related issues
+ 
+---
+ 
+## Non-Security Bug Reports
+ 
+Non-security related bugs should be reported through the repository issue tracker.
+ 
+Bug reports should include:
+ 
+- Steps to reproduce
+- Expected behavior
+- Actual behavior
+- Environment information
+- Relevant logs or error messages
+ 
+Maintainers may request additional information before work begins.
+
+# Security Vulnerability Reporting
+ 
+Security vulnerabilities must **not** be reported through the public issue tracker.
+ 
+Instead, security-related findings should be reported directly to the repository maintainers through a private communication channel.
+ 
+Examples include:
+ 
+- Authentication bypasses
+- Authorization issues
+- Privilege escalation vulnerabilities
+- Remote code execution vulnerabilities
+- Sensitive data exposure
+- Dependency vulnerabilities with security impact
+ 
+Maintainers will coordinate vulnerability assessment, remediation, disclosure, and release management.
+ 
+---
+
 ## Before every PR
 
 ```bash
@@ -69,10 +158,21 @@ quote input values.
 - Branch per issue, named `<issue-number>-<slug>`; merged by PR into `main`.
 - Conventional-commit subjects (`fix(provider-oura): …`) are the norm in the
   history; keep to them.
-- Commit signing is not required and not enforced. If that ever changes, it
-  will be enforced through branch protection, not requested in prose.
+- Commit signing will be enforced via branch protection rules as soon as the repository will go public.
 - A PR should say what changed, why, and how it was verified — including which
   gate or fixture would have caught the defect it fixes.
+
+## Implementation Requirements
+ 
+All implementations should:
+ 
+- Fulfill the issue requirements
+- Follow established architectural patterns
+- Minimize unnecessary complexity
+- Maintain backward compatibility whenever possible
+- Include appropriate test coverage
+ 
+Developers should avoid introducing unrelated changes within the same contribution.
 
 ## Adding a mapper or a connector
 
