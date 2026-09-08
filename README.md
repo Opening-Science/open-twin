@@ -92,6 +92,9 @@ well-formed and wrong. And neither catches radians-labelled-as-degrees, because
 `1.48 deg` is structurally perfect — that class needs a fixture with an
 independently computed expected value.
 
+## Synthetic patients (Synthea)
+Java 21+: `./tools/synthea/generate.sh` → reproducible N=100 FHIR R4 cohort under
+`tools/synthea/out/` (not committed). Details: [docs/synthea.md](docs/synthea.md).
 ## Documentation map
 
 Written to be equally legible to a human contributor and to a Claude Code session
@@ -104,6 +107,7 @@ working in this repo — same facts, one place each.
 | [DECISIONS.md](DECISIONS.md) | **before adding or changing a mapper** — subject linkage, ids, code systems, units |
 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | you want the measured state: architecture, test data, defect history, what is not built |
 | [PROVENANCE.md](PROVENANCE.md) | anything involving the Opening-Science repository |
+| [docs/synthea.md](docs/synthea.md) | reproducible Synthea FHIR generation (recipe only) |
 | [Contributing.md](Contributing.md) | you are about to open a PR |
 | `packages/*/README.md` | you are working inside one package |
 
