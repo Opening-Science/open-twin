@@ -8,9 +8,7 @@
         "resourceType": "Patient",
         "id": "4f083ce3-f12b-bb4b-7353-e17f0cd55b0a",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"]
         },
         "extension": [
           {
@@ -82,13 +80,8 @@
           {
             "use": "official",
             "family": "Walter473",
-            "given": [
-              "Ezekiel373",
-              "Leslie90"
-            ],
-            "prefix": [
-              "Mr."
-            ]
+            "given": ["Ezekiel373", "Leslie90"],
+            "prefix": ["Mr."]
           }
         ],
         "telecom": [
@@ -133,9 +126,7 @@
         "resourceType": "Observation",
         "id": "4f083ce3-f12b-bb4b-c1c7-160cc37081e4",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height"]
         },
         "status": "final",
         "category": [
@@ -224,9 +215,7 @@
         "resourceType": "Observation",
         "id": "4f083ce3-f12b-bb4b-8d47-61a73e6e4f2a",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"]
         },
         "status": "final",
         "category": [
@@ -272,9 +261,7 @@
         "resourceType": "Observation",
         "id": "4f083ce3-f12b-bb4b-96e3-67782d088376",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"]
         },
         "status": "final",
         "category": [
@@ -320,9 +307,7 @@
         "resourceType": "Observation",
         "id": "4f083ce3-f12b-bb4b-9591-360c0952723f",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age"]
         },
         "status": "final",
         "category": [

@@ -8,9 +8,7 @@
         "resourceType": "Patient",
         "id": "aee7bbe1-0c45-c028-1e62-1f4cdb30c273",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"]
         },
         "extension": [
           {
@@ -82,10 +80,7 @@
           {
             "use": "official",
             "family": "Fritsch593",
-            "given": [
-              "Wilfredo622",
-              "Isaiah615"
-            ]
+            "given": ["Wilfredo622", "Isaiah615"]
           }
         ],
         "telecom": [
@@ -130,9 +125,7 @@
         "resourceType": "Observation",
         "id": "aee7bbe1-0c45-c028-3323-c28fc7726e3f",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-height"]
         },
         "status": "final",
         "category": [
@@ -221,9 +214,7 @@
         "resourceType": "Observation",
         "id": "aee7bbe1-0c45-c028-f7e9-8659e6a0bcfc",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-body-weight"]
         },
         "status": "final",
         "category": [
@@ -269,9 +260,7 @@
         "resourceType": "Observation",
         "id": "aee7bbe1-0c45-c028-37b5-a989603064ba",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"]
         },
         "status": "final",
         "category": [
@@ -317,9 +306,7 @@
         "resourceType": "Observation",
         "id": "aee7bbe1-0c45-c028-0356-be9a76e9b7a4",
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age"
-          ]
+          "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/pediatric-bmi-for-age"]
         },
         "status": "final",
         "category": [
