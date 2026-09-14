@@ -25,6 +25,7 @@ import { openWearablesBundle } from '../packages/provider-open-wearables/src/ver
 import { ouraBundle } from '../packages/provider-oura/src/verification/exampleBundle';
 import { ouraSandboxBundle } from '../packages/provider-oura/src/verification/sandboxBundle';
 import { buildVitronicExemplarBundle } from '../packages/provider-vitronic/src/tests/fixtures/exemplarBundle';
+import { whoopBundle } from '../packages/provider-whoop/src/verification/exampleBundle';
 
 /**
  * Bundles handed to the HL7 validator in CI.
@@ -202,6 +203,7 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'oura-sync', build: ouraBundle },
   // The recorded sandbox capture: real Oura payloads, all thirteen scopes.
   { name: 'oura-sandbox-real', build: ouraSandboxBundle },
+  { name: 'whoop-sync', build: whoopBundle },
   // Two connectors reconciled: exercises derivedFrom and the open-twin method system.
   { name: 'aggregate-two-sources', build: aggregateBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
