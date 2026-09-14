@@ -30,7 +30,12 @@ export interface WhoopMapperContext {
 }
 
 export function whoopResourceId(context: WhoopMapperContext, vendorId: string, kind: string): string {
-  return deterministicId([CONNECTOR.connector, context.subjectKey, kind, vendorId]);
+  return deterministicId({
+    connector: CONNECTOR.connector,
+    subjectKey: context.subjectKey,
+    recordId: vendorId,
+    measure: kind
+  });
 }
 
 export function whoopIdentifier(vendorId: string): Identifier[] {

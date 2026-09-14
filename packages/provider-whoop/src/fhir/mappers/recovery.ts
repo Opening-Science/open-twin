@@ -4,7 +4,14 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import { CATEGORY, createObservation, quantity, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  optionalNumericComponent,
+  quantity,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopRecovery } from '../../api/schemas/recovery';
 import {
@@ -75,15 +82,24 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
     }
 
     if (typeof score.spo2_percentage === 'number') {
+      // Root code stays WHOOP-local: LOINC 59408-5 alone pulls the oxygen-sat
+      // profile, which requires magic code 2708-6. Same pattern as Oura spo2.
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'spo2'),
           identifier: whoopIdentifier(`${key}-spo2`),
-          code: LOINC.OXYGEN_SATURATION,
+          code: whoopCoding('spo2', 'WHOOP SpO2'),
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime: effective,
-          valueQuantity: quantity(score.spo2_percentage, UCUM.PERCENT)
+          dataAbsentReason: dataAbsentReason('not-applicable'),
+          components: [
+            optionalNumericComponent(
+              [LOINC.OXYGEN_SATURATION, whoopCoding('spo2-percentage', 'SpO2 percentage')],
+              score.spo2_percentage,
+              UCUM.PERCENT
+            )
+          ]
         })
       );
     }
