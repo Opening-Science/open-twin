@@ -16,6 +16,7 @@ export const SYSTEMS = {
 
   /** Foundation-controlled. One namespace per connector (D3). */
   OURA: 'http://opentwin.ch/fhir/CodeSystem/oura',
+  WHOOP: 'http://opentwin.ch/fhir/CodeSystem/whoop',
   GOOGLE_HEALTH: 'http://opentwin.ch/fhir/CodeSystem/google-health',
   VITRONIC: 'http://opentwin.ch/fhir/CodeSystem/vitronic',
   ANCHOR: 'http://opentwin.ch/fhir/CodeSystem/anchor',
@@ -29,6 +30,7 @@ export const SYSTEMS = {
 
   /** Foundation-controlled identifier namespaces, reused as `Identifier.system` (D2). */
   OURA_IDENTIFIER: 'http://opentwin.ch/fhir/sid/oura',
+  WHOOP_IDENTIFIER: 'http://opentwin.ch/fhir/sid/whoop',
   GOOGLE_HEALTH_IDENTIFIER: 'http://opentwin.ch/fhir/sid/google-health',
   VITRONIC_IDENTIFIER: 'http://opentwin.ch/fhir/sid/vitronic',
   ANCHOR_IDENTIFIER: 'http://opentwin.ch/fhir/sid/anchor'
