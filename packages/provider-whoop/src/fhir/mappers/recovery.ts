@@ -14,17 +14,12 @@ import {
 } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopRecovery } from '../../api/schemas/recovery';
-import {
-  effectiveFromIso,
-  LOINC,
-  type WhoopMapperContext,
-  whoopCoding,
-  whoopIdentifier,
-  whoopResourceId
-} from './shared';
+import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 function recoveryKey(row: WhoopRecovery): string {
-  return row.sleep_id ?? String(row.cycle_id ?? row.created_at ?? 'unknown');
+  if (row.sleep_id !== undefined) return row.sleep_id;
+  if (row.cycle_id !== undefined) return String(row.cycle_id);
+  return row.created_at ?? 'unknown';
 }
 
 export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapperContext): Observation[] {
@@ -36,10 +31,10 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
     const score = row.score;
     if (!score) continue;
 
-    const effective = effectiveFromIso(row.created_at, context.retrievedAt);
+    const effectiveDateTime = row.created_at ?? context.retrievedAt;
     const key = recoveryKey(row);
 
-    if (typeof score.recovery_score === 'number') {
+    if (score.recovery_score !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'recovery-score'),
@@ -47,13 +42,13 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
           code: whoopCoding('recovery-score', 'WHOOP recovery score'),
           category: CATEGORY.SURVEY,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.recovery_score, UCUM.SCORE)
         })
       );
     }
 
-    if (typeof score.hrv_rmssd_milli === 'number') {
+    if (score.hrv_rmssd_milli !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'hrv-rmssd'),
@@ -61,13 +56,13 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
           code: whoopCoding('hrv-rmssd', 'HRV RMSSD'),
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.hrv_rmssd_milli, UCUM.MILLISECOND)
         })
       );
     }
 
-    if (typeof score.resting_heart_rate === 'number') {
+    if (score.resting_heart_rate !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'resting-hr'),
@@ -75,15 +70,15 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
           code: LOINC.HEART_RATE,
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.resting_heart_rate, UCUM.PER_MINUTE)
         })
       );
     }
 
-    if (typeof score.spo2_percentage === 'number') {
-      // Root code stays WHOOP-local: LOINC 59408-5 alone pulls the oxygen-sat
-      // profile, which requires magic code 2708-6. Same pattern as Oura spo2.
+    if (score.spo2_percentage !== undefined) {
+      // Root Observation code is WHOOP-local so HL7 does not apply the oxygensat
+      // profile (which requires LOINC 2708-6). LOINC 59408-5 stays on the component.
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'spo2'),
@@ -91,7 +86,7 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
           code: whoopCoding('spo2', 'WHOOP SpO2'),
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           dataAbsentReason: dataAbsentReason('not-applicable'),
           components: [
             optionalNumericComponent(

@@ -6,10 +6,23 @@ GOVERNED BY: DECISIONS.md#d8
  */
 import { ConnectorError } from '@open-twin/fhir-core';
 import type { WhoopAppConfig } from '../config/config';
-import { WHOOP_AUTH_URL, WHOOP_SCOPES, WHOOP_TOKEN_URL } from '../config/constants';
 import { CONNECTOR } from '../fhir/mappers/shared';
 import { whoopHttpError } from '../utils/errorMessageHandler';
 import { type TokenResponse, TokenResponseSchema } from './schemas/auth';
+
+export const WHOOP_SCOPES = [
+  'read:recovery',
+  'read:cycles',
+  'read:sleep',
+  'read:workout',
+  'read:profile',
+  'offline'
+] as const;
+
+export type WhoopScope = (typeof WHOOP_SCOPES)[number];
+
+export const WHOOP_AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth';
+export const WHOOP_TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
 
 /** Whoop requires OAuth `state` to be exactly 8 characters. */
 export function createWhoopOAuthState(): string {

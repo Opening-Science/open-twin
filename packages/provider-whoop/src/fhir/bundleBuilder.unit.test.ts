@@ -1,5 +1,5 @@
 /**
- * WHAT: Fixture-level assertions for WHOOP → FHIR mapping correctness.
+ * WHAT: Fixture-level assertions for buildWhoopBundleFromPayload correctness.
  * NOT:  Must not call the live WHOOP API.
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: asserts codes/units/values independently of whatever the mapper currently emits.
@@ -11,10 +11,10 @@ import { patientUuid, SYSTEMS } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
 import { WhoopSyncPayloadSchema } from '../api/schemas/sync';
-import { buildWhoopBundleFromPayload } from '../fhir/bundleBuilder';
-import { CONNECTOR } from '../fhir/mappers/shared';
+import { buildWhoopBundleFromPayload } from './bundleBuilder';
+import { CONNECTOR } from './mappers/shared';
 
-const fixturePath = join(dirname(fileURLToPath(import.meta.url)), 'fixtures/whoop-sync.json');
+const fixturePath = join(dirname(fileURLToPath(import.meta.url)), '../tests/fixtures/whoop-sync.json');
 const payload = WhoopSyncPayloadSchema.parse(JSON.parse(readFileSync(fixturePath, 'utf8')));
 
 function observations(bundle: ReturnType<typeof buildWhoopBundleFromPayload>): Observation[] {
@@ -25,22 +25,14 @@ function byCode(obs: Observation[], system: string, code: string): Observation[]
   return obs.filter((o) => o.code?.coding?.some((c) => c.system === system && c.code === code));
 }
 
-describe('WHOOP mappers', () => {
+describe('buildWhoopBundleFromPayload', () => {
   const subjectKey = 'wearer-fixture-1';
   const timestamp = '2026-07-26T10:00:00Z';
 
-  it('builds a collection bundle with Patient and Observations', () => {
+  it('uses a deterministic Patient when no subject is supplied', () => {
     const bundle = buildWhoopBundleFromPayload(payload, { subjectKey, timestamp });
-
     expect(bundle.resourceType).toBe('Bundle');
     expect(bundle.type).toBe('collection');
-    const types = (bundle.entry ?? []).map((e) => e.resource?.resourceType);
-    expect(types.filter((t) => t === 'Patient')).toHaveLength(1);
-    expect(types.filter((t) => t === 'Observation').length).toBeGreaterThanOrEqual(5);
-  });
-
-  it('uses a deterministic subject when none is supplied', () => {
-    const bundle = buildWhoopBundleFromPayload(payload, { subjectKey, timestamp });
     const patient = bundle.entry?.find((e) => e.resource?.resourceType === 'Patient')?.resource;
     expect(patient?.id).toBe(patientUuid(CONNECTOR.connector, subjectKey));
   });

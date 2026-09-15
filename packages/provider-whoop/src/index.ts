@@ -12,11 +12,12 @@ export {
   createWhoopOAuthState,
   exchangeWhoopCode,
   getWhoopAuthorizationUrl,
-  refreshWhoopToken
+  refreshWhoopToken,
+  WHOOP_SCOPES,
+  type WhoopScope
 } from './api/client';
 export type { WhoopSyncPayload } from './api/schemas/sync';
-export { WhoopAppConfig } from './config/config';
-export { WHOOP_SCOPES, type WhoopScope } from './config/constants';
+export type { WhoopAppConfig } from './config/config';
 export {
   buildWhoopBundleFromPayload,
   getFhirBundleFromWhoopData,

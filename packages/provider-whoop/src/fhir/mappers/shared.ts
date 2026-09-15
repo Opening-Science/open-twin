@@ -41,7 +41,3 @@ export function whoopResourceId(context: WhoopMapperContext, vendorId: string, k
 export function whoopIdentifier(vendorId: string): Identifier[] {
   return [{ system: SYSTEMS.WHOOP_IDENTIFIER, value: vendorId }];
 }
-
-export function effectiveFromIso(iso: string | undefined, fallback: string): string {
-  return iso ?? fallback;
-}

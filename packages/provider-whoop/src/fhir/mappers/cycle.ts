@@ -7,14 +7,7 @@ GOVERNED BY: DECISIONS.md#d4
 import { CATEGORY, createObservation, quantity, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopCycle } from '../../api/schemas/cycle';
-import {
-  effectiveFromIso,
-  LOINC,
-  type WhoopMapperContext,
-  whoopCoding,
-  whoopIdentifier,
-  whoopResourceId
-} from './shared';
+import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
@@ -25,10 +18,10 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
     const score = row.score;
     if (!score) continue;
 
-    const key = String(row.id ?? row.start ?? 'unknown');
-    const effective = effectiveFromIso(row.start, context.retrievedAt);
+    const key = row.id !== undefined ? String(row.id) : (row.start ?? 'unknown');
+    const effectiveDateTime = row.start ?? context.retrievedAt;
 
-    if (typeof score.strain === 'number') {
+    if (score.strain !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'strain'),
@@ -36,13 +29,13 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
           code: whoopCoding('day-strain', 'WHOOP day strain'),
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.strain, UCUM.SCORE)
         })
       );
     }
 
-    if (typeof score.average_heart_rate === 'number') {
+    if (score.average_heart_rate !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'cycle-avg-hr'),
@@ -50,7 +43,7 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
           code: LOINC.HEART_RATE,
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.average_heart_rate, UCUM.PER_MINUTE)
         })
       );

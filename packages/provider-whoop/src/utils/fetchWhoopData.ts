@@ -6,7 +6,7 @@ GOVERNED BY: DECISIONS.md#d6
  */
 import { ConnectorError } from '@open-twin/fhir-core';
 import type { z } from 'zod';
-import { WHOOP_API_BASE, WHOOP_PATHS } from '../api/endpoints';
+import { WHOOP_API_BASE, WHOOP_PATHS } from '../api/paths';
 import type { WhoopCycle } from '../api/schemas/cycle';
 import { WhoopCycleSchema } from '../api/schemas/cycle';
 import type { WhoopRecovery } from '../api/schemas/recovery';
@@ -19,6 +19,9 @@ import { CONNECTOR } from '../fhir/mappers/shared';
 import { whoopHttpError } from './errorMessageHandler';
 import type { TokenHandler } from './tokenUtils';
 
+/** Hard cap so a stuck next_token cannot loop forever. */
+export const WHOOP_MAX_PAGES = 100;
+
 async function fetchCollection<T>(
   path: string,
   accessToken: string,
@@ -28,9 +31,9 @@ async function fetchCollection<T>(
 ): Promise<T[]> {
   const collectionSchema = WhoopCollectionSchema(recordSchema);
   const records: T[] = [];
-  let nextToken: string | null | undefined;
+  let nextToken: string | undefined;
 
-  do {
+  for (let page = 0; page < WHOOP_MAX_PAGES; page++) {
     const url = new URL(`${WHOOP_API_BASE}${path}`);
     for (const [key, value] of Object.entries(query)) {
       url.searchParams.set(key, value);
@@ -66,10 +69,16 @@ async function fetchCollection<T>(
     }
 
     records.push(...parsed.data.records);
-    nextToken = parsed.data.next_token ?? null;
-  } while (nextToken);
+    const token = parsed.data.next_token;
+    if (!token) return records;
+    nextToken = token;
+  }
 
-  return records;
+  throw new ConnectorError(`Whoop pagination exceeded ${WHOOP_MAX_PAGES} pages`, {
+    code: 'transport',
+    connector: CONNECTOR.connector,
+    operation
+  });
 }
 
 export interface WhoopWindow {

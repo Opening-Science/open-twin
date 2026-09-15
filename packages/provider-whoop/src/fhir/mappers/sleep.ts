@@ -7,14 +7,7 @@ GOVERNED BY: DECISIONS.md#d4
 import { CATEGORY, createObservation, quantity, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopSleep } from '../../api/schemas/sleep';
-import {
-  effectiveFromIso,
-  LOINC,
-  type WhoopMapperContext,
-  whoopCoding,
-  whoopIdentifier,
-  whoopResourceId
-} from './shared';
+import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
@@ -26,10 +19,10 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
     const score = row.score;
     if (!score) continue;
 
-    const key = row.id ?? String(row.start ?? 'unknown');
-    const effective = effectiveFromIso(row.start, context.retrievedAt);
+    const key = row.id ?? row.start ?? 'unknown';
+    const effectiveDateTime = row.start ?? context.retrievedAt;
 
-    if (typeof score.sleep_performance_percentage === 'number') {
+    if (score.sleep_performance_percentage !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'sleep-performance'),
@@ -37,13 +30,13 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
           code: whoopCoding('sleep-performance', 'WHOOP sleep performance'),
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.sleep_performance_percentage, UCUM.PERCENT)
         })
       );
     }
 
-    if (typeof score.sleep_efficiency_percentage === 'number') {
+    if (score.sleep_efficiency_percentage !== undefined) {
       observations.push(
         createObservation({
           id: whoopResourceId(context, key, 'sleep-efficiency'),
@@ -51,14 +44,14 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
           code: whoopCoding('sleep-efficiency', 'WHOOP sleep efficiency'),
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(score.sleep_efficiency_percentage, UCUM.PERCENT)
         })
       );
     }
 
     const inBedMs = score.stage_summary?.total_in_bed_time_milli;
-    if (typeof inBedMs === 'number') {
+    if (inBedMs !== undefined) {
       const minutes = Math.round(inBedMs / 60_000);
       observations.push(
         createObservation({
@@ -67,7 +60,7 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
           code: LOINC.TIME_IN_BED,
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
-          effectiveDateTime: effective,
+          effectiveDateTime,
           valueQuantity: quantity(minutes, UCUM.MINUTE)
         })
       );

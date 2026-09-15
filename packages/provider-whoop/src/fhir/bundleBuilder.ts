@@ -116,7 +116,6 @@ export async function getFhirBundleFromWhoopData(
   return { bundle: buildWhoopBundle(data, options), issues: collectIssues(errors) };
 }
 
-/** Map fixture or cached sync payload without HTTP. */
 export function buildWhoopBundleFromPayload(data: WhoopSyncPayload, options: WhoopRequestOptions): Bundle {
   if (!options.subjectKey) {
     throw new ConnectorError('subjectKey is required', {
