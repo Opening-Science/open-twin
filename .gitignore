@@ -179,3 +179,7 @@ test.junit.xml
 
 # Generated from verify/conformance/declarations.json by build-conformance.mjs
 /verify/conformance/generated/
+
+# Synthea: recipe is committed; JAR cache and generated cohorts are not
+/tools/synthea/.cache/
+/tools/synthea/out/
