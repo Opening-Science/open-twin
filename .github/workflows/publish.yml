@@ -35,6 +35,7 @@ on:
           - '@open-twin/hl7v2'
           - '@open-twin/genomics-vcf'
           - '@open-twin/provider-oura'
+          - '@open-twin/provider-whoop'
           - '@open-twin/provider-google-health'
           - '@open-twin/provider-vitronic'
           - '@open-twin/provider-open-wearables'

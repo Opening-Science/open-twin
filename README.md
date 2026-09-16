@@ -28,6 +28,7 @@ Nine packages. Seven map or ingest; two are infrastructure.
 | [`fhir-core`](packages/fhir-core) | — | the shared contract: systems, units, identity, provenance, errors |
 | [`aggregate`](packages/aggregate) | — | cross-source reconciliation |
 | [`provider-oura`](packages/provider-oura) | vendor → FHIR | Oura Ring v2 API |
+| [`provider-whoop`](packages/provider-whoop) | vendor → FHIR | WHOOP Developer API v2 |
 | [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | **Google Health API v4** (see warning) |
 | [`provider-vitronic`](packages/provider-vitronic) | vendor → FHIR | VITRONIC BodyLoop body scanner |
 | [`provider-open-wearables`](packages/provider-open-wearables) | vendor → FHIR | OpenWearables normalised schema |
