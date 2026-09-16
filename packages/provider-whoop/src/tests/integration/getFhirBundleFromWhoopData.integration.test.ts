@@ -88,7 +88,7 @@ describe('getFhirBundleFromWhoopData (integration)', () => {
     expect(fetchMock).toHaveBeenCalled();
   });
 
-  it('stops pagination when next_token never ends and records an issue', async () => {
+  it('stops pagination at MAX_PAGES and returns partial records without failing the sync', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : input.toString();
       if (url.includes('/oauth/oauth2/token')) {
@@ -118,6 +118,7 @@ describe('getFhirBundleFromWhoopData (integration)', () => {
       return url.includes('/recovery');
     });
     expect(recoveryCalls.length).toBe(WHOOP_MAX_PAGES);
-    expect(result.issues?.issue?.some((i) => i.diagnostics?.includes('pagination exceeded'))).toBe(true);
+    expect(result.issues).toBeUndefined();
+    expect(result.bundle.resourceType).toBe('Bundle');
   });
 });

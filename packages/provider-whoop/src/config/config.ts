@@ -6,8 +6,6 @@ GOVERNED BY: DECISIONS.md#d9
  */
 import type { WhoopScope } from '../api/client';
 
-export type { WhoopScope };
-
 export interface WhoopAppConfig {
   clientId: string;
   clientSecret: string;

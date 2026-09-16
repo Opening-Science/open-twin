@@ -14,7 +14,7 @@ const CycleScoreSchema = z.object({
 });
 
 export const WhoopCycleSchema = z.object({
-  id: z.number().optional(),
+  id: z.coerce.string().optional(),
   start: z.string().optional(),
   end: z.string().optional(),
   score_state: z.string().optional(),

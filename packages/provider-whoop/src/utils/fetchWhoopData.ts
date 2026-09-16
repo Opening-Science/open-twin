@@ -74,11 +74,7 @@ async function fetchCollection<T>(
     nextToken = token;
   }
 
-  throw new ConnectorError(`Whoop pagination exceeded ${WHOOP_MAX_PAGES} pages`, {
-    code: 'transport',
-    connector: CONNECTOR.connector,
-    operation
-  });
+  return records;
 }
 
 export interface WhoopWindow {

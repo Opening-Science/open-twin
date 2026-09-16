@@ -15,7 +15,7 @@ const RecoveryScoreSchema = z.object({
 });
 
 export const WhoopRecoverySchema = z.object({
-  cycle_id: z.number().optional(),
+  cycle_id: z.coerce.string().optional(),
   sleep_id: z.string().optional(),
   score_state: z.string().optional(),
   created_at: z.string().optional(),

@@ -18,7 +18,7 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
     const score = row.score;
     if (!score) continue;
 
-    const key = row.id !== undefined ? String(row.id) : (row.start ?? 'unknown');
+    const key = row.id ?? row.start ?? 'unknown';
     const effectiveDateTime = row.start ?? context.retrievedAt;
 
     if (score.strain !== undefined) {

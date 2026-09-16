@@ -17,9 +17,7 @@ import type { WhoopRecovery } from '../../api/schemas/recovery';
 import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 function recoveryKey(row: WhoopRecovery): string {
-  if (row.sleep_id !== undefined) return row.sleep_id;
-  if (row.cycle_id !== undefined) return String(row.cycle_id);
-  return row.created_at ?? 'unknown';
+  return row.sleep_id ?? row.cycle_id ?? row.created_at ?? 'unknown';
 }
 
 export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapperContext): Observation[] {
