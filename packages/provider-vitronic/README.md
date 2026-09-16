@@ -18,7 +18,18 @@ npm install @open-twin/provider-vitronic
 
 ### Setup & Prerequisites
 
-(t.b.d.)
+#### Authentication limitation
+
+BodyLoop's available API contract requires the OAuth resource-owner password grant:
+the client sends the configured `username` and `password` to the BodyLoop token
+endpoint with `grant_type=password`. This legacy grant is discouraged by current
+OAuth guidance and should be replaced if VITRONIC offers a supported delegated or
+machine-to-machine alternative.
+
+Until then, provide credentials only from the host application's secret manager.
+The connector holds them in memory only for token requests; it does not persist
+them and its errors and FHIR `OperationOutcome` diagnostics never include request
+or response bodies. Do not put credentials in source code, logs, or bundle data.
 
 ---
 
