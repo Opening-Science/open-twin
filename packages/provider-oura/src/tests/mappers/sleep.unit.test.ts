@@ -24,6 +24,7 @@ describe('mapOuraSleepToFHIR', () => {
     average_heart_rate: 55.5,
     time_in_bed: 28800,
     total_sleep_duration: 27000,
+    awake_time: 1200,
     sleep_algorithm_version: 'v2',
     sleep_analysis_reason: 'normal',
     ring_id: 'ring-9',
@@ -107,6 +108,10 @@ describe('mapOuraSleepToFHIR', () => {
     expect(observation.component).toContainEqual({
       code: { coding: [{ system: SYSTEMS.LOINC, code: '103213-5', display: 'Duration in bed' }] },
       valueQuantity: minutes(480)
+    });
+    expect(observation.component).toContainEqual({
+      code: { coding: [{ system: SYSTEMS.OURA, code: 'awake-time', display: 'Time Awake During Sleep Period' }] },
+      valueQuantity: minutes(20)
     });
   });
 
