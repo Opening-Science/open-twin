@@ -26,7 +26,7 @@ describe('Oura OAuth client', () => {
 
     expect(error).toBeInstanceOf(ConnectorError);
     expect(error).toMatchObject({ code: 'auth', status: 401, operation: 'POST oauth/token' });
-    expect(error.message).not.toContain('authorization-code');
+    expect((error as ConnectorError).message).not.toContain('authorization-code');
   });
 
   it('reports a non-JSON successful-status response as a typed transport failure', async () => {
