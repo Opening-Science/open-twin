@@ -8,6 +8,7 @@ import {
   CATEGORY,
   createObservation,
   dataAbsentReason,
+  LOINC_CODINGS,
   optionalNumericComponent,
   quantity,
   UCUM
@@ -77,7 +78,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList, context: OuraMapperC
         // bed" while the property is NRat and the example unit is `/h`. `/h` is
         // dimensionally meaningless for a duration, so `min` is emitted pending a
         // term-change request to Regenstrief. Recorded in DECISIONS.md.
-        optionalNumericComponent(LOINC.TIME_IN_BED, minutesFromSeconds(sleep.time_in_bed), UCUM.MINUTE),
+        optionalNumericComponent(LOINC_CODINGS.TIME_IN_BED, minutesFromSeconds(sleep.time_in_bed), UCUM.MINUTE),
         optionalNumericComponent(
           ouraCoding('awake-time', 'Time Awake During Sleep Period'),
           minutesFromSeconds(sleep.awake_time),
@@ -104,7 +105,7 @@ export function mapOuraSleepToFHIR(ouraData: OuraSleepList, context: OuraMapperC
         // statistic, because two distinct measures must never be distinguished
         // only by a free-text display on one shared code.
         optionalNumericComponent(
-          [LOINC.HEART_RATE, ouraCoding('sleep-average-heart-rate', 'Average Heart Rate During Sleep')],
+          [LOINC_CODINGS.HEART_RATE, ouraCoding('sleep-average-heart-rate', 'Average Heart Rate During Sleep')],
           sleep.average_heart_rate,
           UCUM.PER_MINUTE
         ),

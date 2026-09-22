@@ -7,6 +7,7 @@ GOVERNED BY: DECISIONS.md#d9
 export * from './bundle';
 export * from './errors';
 export * from './identity';
+export * from './loinc';
 export * from './observation';
 export * from './provenance';
 export * from './referenceRange';

@@ -4,11 +4,17 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import { CATEGORY, createObservation, dataAbsentReason, optionalNumericComponent, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  LOINC_CODINGS,
+  optionalNumericComponent,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { OuraSpo2List } from '../../api/schemas/spo2';
 import {
-  LOINC,
   localNumericComponent,
   OURA_UNITS,
   type OuraMapperContext,
@@ -38,7 +44,7 @@ export function mapOuraSpo2ToFHIR(ouraData: OuraSpo2List, context: OuraMapperCon
           // oximetry, and this is a nightly average. The second coding says so;
           // an effectivePeriod covering the night would say it better, but Oura
           // supplies only the civil day on this endpoint.
-          [LOINC.OXYGEN_SATURATION, ouraCoding('spo2-daily-average', 'Daily Average Oxygen Saturation')],
+          [LOINC_CODINGS.OXYGEN_SATURATION, ouraCoding('spo2-daily-average', 'Daily Average Oxygen Saturation')],
           spo2.spo2_percentage?.average,
           UCUM.PERCENT
         ),

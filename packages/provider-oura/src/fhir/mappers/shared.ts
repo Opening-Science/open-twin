@@ -41,12 +41,9 @@ export const LOINC = {
   DEEP_SLEEP_DURATION: { system: SYSTEMS.LOINC, code: '93831-6', display: 'Deep sleep duration' },
   LIGHT_SLEEP_DURATION: { system: SYSTEMS.LOINC, code: '93830-8', display: 'Light sleep duration' },
   SLEEP_LATENCY: { system: SYSTEMS.LOINC, code: '103212-7', display: 'Duration of falling asleep' },
-  TIME_IN_BED: { system: SYSTEMS.LOINC, code: '103213-5', display: 'Duration in bed' },
-  HEART_RATE: { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
   HEART_RATE_MINIMUM: { system: SYSTEMS.LOINC, code: '103222-6', display: 'Heart rate.minimum' },
   /** LOINC's component here is "Breaths" while its Long Common Name is "Respiratory rate". */
   RESPIRATORY_RATE: { system: SYSTEMS.LOINC, code: '9279-1' },
-  OXYGEN_SATURATION: { system: SYSTEMS.LOINC, code: '59408-5' },
   BODY_HEIGHT: { system: SYSTEMS.LOINC, code: '8302-2', display: 'Body height' },
   BODY_WEIGHT: { system: SYSTEMS.LOINC, code: '29463-7', display: 'Body weight' },
   STEPS_24H: { system: SYSTEMS.LOINC, code: '41950-7', display: 'Number of steps in 24 hour Measured' },
