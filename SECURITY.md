@@ -9,7 +9,7 @@ version of each public npm package. Earlier releases are not supported.
 
 Do not report suspected vulnerabilities in public issues, pull requests,
 discussions, or social media. Report them privately to
-[martin.etzrodt@opening.science](mailto:martin.etzrodt@opening.science).
+[security-opentwin@opening.science](mailto:security-opentwin@opening.science).
 
 Include a clear description of the issue, affected package and version, impact,
 and steps to reproduce it. Use a minimal, sanitized reproduction.
