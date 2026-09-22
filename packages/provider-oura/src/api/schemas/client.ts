@@ -18,12 +18,10 @@ import { SUPPORTED_SCOPES } from '../../config/constants';
  * parsed this schema; `requestOuraData` now does, which is a behaviour change:
  * a malformed date is rejected here instead of reaching Oura.
  */
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/; // Format: YYYY-MM-DD
-
 export const RequestParamsSchema = z.object({
   types: z.array(z.enum([...SUPPORTED_SCOPES])).min(1),
-  start_date: z.string().regex(ISO_DATE).optional(),
-  end_date: z.string().regex(ISO_DATE).optional(),
+  start_date: z.iso.date().optional(),
+  end_date: z.iso.date().optional(),
   /**
    * The wearer's UTC offset, e.g. '+03:00'. Used to widen a bare date into the
    * datetime window the `heartrate` endpoints require.

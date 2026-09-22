@@ -197,6 +197,12 @@ describe('getOuraData (integration)', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
+  it('rejects a calendar-invalid start_date', async () => {
+    await expect(getOuraData({ types: ['heartrate'], start_date: '2026-99-99' }, tokenHandler)).rejects.toThrow();
+
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
   it('reports a non-ok status as an issue without echoing the response body', async () => {
     vi.mocked(globalThis.fetch).mockResolvedValue({
       ok: false,
