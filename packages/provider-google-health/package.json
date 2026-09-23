@@ -32,7 +32,7 @@
   "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
-    "@googleapis/health": "^2.0.0",
+    "@googleapis/health": "^6.0.0",
     "@open-twin/fhir-core": "workspace:*",
     "@types/fhir": "^0.0.44",
     "googleapis": "^173.0.0"
