@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
-    "@lhncbc/ucum-lhc": "7.1.9",
+    "@lhncbc/ucum-lhc": "^7.1.9",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
-    "tsx": "4.23.15",
-    "exceljs": "4.4.0"
+    "tsx": "^4.23.15",
+    "exceljs": "^4.4.0"
   }
 }

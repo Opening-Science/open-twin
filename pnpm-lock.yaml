@@ -12,7 +12,7 @@ importers:
         specifier: 2.4.15
         version: 2.4.15
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@open-twin/aggregate':
         specifier: workspace:*
@@ -21,10 +21,10 @@ importers:
         specifier: workspace:*
         version: link:packages/fhir-r4
       exceljs:
-        specifier: 4.4.0
+        specifier: ^4.4.0
         version: 4.4.0
       tsx:
-        specifier: 4.23.15
+        specifier: ^4.23.15
         version: 4.23.15
 
   packages/aggregate:
@@ -33,91 +33,91 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/anchor-layer:
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.27.7)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/fhir-core:
     dependencies:
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/fhir-r4:
     dependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
+        specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       tsx:
-        specifier: 4.23.15
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/genomics-vcf:
@@ -126,79 +126,79 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
+        specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/hl7v2:
     dependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/interpretation-contract:
     dependencies:
       ajv:
-        specifier: 8.20.0
+        specifier: ^8.18.0
         version: 8.20.0
       ajv-formats:
-        specifier: 3.0.1
+        specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       json-schema-to-typescript:
-        specifier: 15.0.4
+        specifier: ^15.0.4
         version: 15.0.4
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       tsx:
-        specifier: 4.23.15
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/interpreter:
@@ -207,29 +207,29 @@ importers:
         specifier: workspace:*
         version: link:../interpretation-contract
       ajv:
-        specifier: 8.20.0
+        specifier: ^8.17.1
         version: 8.20.0
       ajv-formats:
-        specifier: 3.0.1
+        specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
       yaml:
-        specifier: 2.9.0
+        specifier: ^2.8.0
         version: 2.9.0
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       tsx:
-        specifier: 4.23.15
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-anchor:
@@ -241,60 +241,60 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-google-health:
     dependencies:
       '@googleapis/health':
-        specifier: 2.0.0
+        specifier: ^2.0.0
         version: 2.0.0(supports-color@7.2.0)
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       googleapis:
-        specifier: 173.0.0
+        specifier: ^173.0.0
         version: 173.0.0(supports-color@7.2.0)
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: 0.4.1
+        specifier: ^0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       reflect-metadata:
-        specifier: 0.2.2
+        specifier: ^0.2.2
         version: 0.2.2
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-open-wearables:
@@ -303,32 +303,32 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
+        specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
       '@rollup/plugin-swc':
-        specifier: 0.4.1
+        specifier: ^0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       reflect-metadata:
-        specifier: 0.2.2
+        specifier: ^0.2.2
         version: 0.2.2
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-oura:
@@ -337,35 +337,35 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
+        specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: 0.4.1
+        specifier: ^0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       reflect-metadata:
-        specifier: 0.2.2
+        specifier: ^0.2.2
         version: 0.2.2
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-vitronic:
@@ -374,35 +374,35 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: 0.0.44
+        specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
+        specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: 7.1.9
+        specifier: ^7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: 0.4.1
+        specifier: ^0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: 20.19.43
+        specifier: ^20.19.43
         version: 20.19.43
       jest-extended:
-        specifier: 7.0.0
+        specifier: ^7.0.0
         version: 7.0.0(typescript@5.9.3)
       reflect-metadata:
-        specifier: 0.2.2
+        specifier: ^0.2.2
         version: 0.2.2
       tsup:
-        specifier: 8.5.1
+        specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.9
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@20.19.43)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-whoop:

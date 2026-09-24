@@ -49,13 +49,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@types/fhir": "0.0.44"
+    "@types/fhir": "^0.0.44"
   },
   "devDependencies": {
-    "@lhncbc/ucum-lhc": "7.1.9",
-    "@types/node": "20.19.43",
-    "tsup": "8.5.1",
-    "typescript": "5.9.3",
-    "vitest": "4.1.9"
+    "@lhncbc/ucum-lhc": "^7.1.9",
+    "@types/node": "^20.19.43",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
   }
 }
