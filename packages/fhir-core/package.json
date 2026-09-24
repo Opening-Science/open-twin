@@ -55,7 +55,7 @@
     "@lhncbc/ucum-lhc": "^7.1.9",
     "@types/node": "^20.19.43",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.9"
   }
 }
