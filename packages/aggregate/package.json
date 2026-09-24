@@ -34,14 +34,14 @@
   "license": "MIT",
   "dependencies": {
     "@open-twin/fhir-core": "workspace:*",
-    "@types/fhir": "^0.0.44"
+    "@types/fhir": "0.0.44"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
-    "jest-extended": "^7.0.0",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.9"
+    "@types/node": "26.6.2",
+    "jest-extended": "7.0.0",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
   },
   "repository": {
     "type": "git",
