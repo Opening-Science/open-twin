@@ -43,7 +43,7 @@
     "jest-extended": "7.0.0",
     "reflect-metadata": "0.2.2",
     "tsup": "8.5.1",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.9"
   },
   "repository": {
