@@ -40,7 +40,7 @@
   "devDependencies": {
     "@lhncbc/ucum-lhc": "^7.1.9",
     "@rollup/plugin-swc": "^0.4.1",
-    "@types/node": "^20.19.43",
+    "@types/node": "^26.6.2",
     "jest-extended": "^7.0.0",
     "reflect-metadata": "^0.2.2",
     "tsup": "^8.5.1",
