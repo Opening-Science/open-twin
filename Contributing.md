@@ -28,8 +28,9 @@ the issue tracker using the bug-report form. Branch from `main` using
 `<issue-number>-<slug>`, keep changes focused, and open a pull request to
 `main`.
 
-The pull request must explain what changed, why, and how it was verified. Every
-pull request requires maintainer approval before merge.
+The pull request must explain what changed, why, and how it was verified. Merging
+to `main` requires maintainer approval, signed commits and the blocking `Verify`
+checks. Advisory terminology jobs do not block merging.
 
 ## Clinical and data safeguards
 

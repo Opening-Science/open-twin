@@ -111,5 +111,6 @@ class needs a fixture with an independently computed expected value.
 - Biome for format and lint.
 - Branch per issue, named `<issue-number>-<slug>`, merged by PR. Keep this.
 - `Contributing.md` is authoritative for the PR workflow and gate procedure.
-  Signed commits and one approving review are required on `main`. Check the live
-  branch-protection rules before merging.
+  Signed commits, one approving review and blocking CI checks are required on
+  `main`. Keep required-check names aligned with the workflow and package matrix;
+  check the live branch-protection rules before merging.
