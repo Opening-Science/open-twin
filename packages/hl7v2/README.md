@@ -55,6 +55,20 @@ left **verbatim** in the text rather than deleted, so the loss stays visible.
 
 ---
 
+## Stable identity and upgrades
+
+Since #157, message-based resource IDs use MSH-10 and a sender namespace from
+MSH-3/MSH-4 or `ConvertOptions.sourceNamespace`. Patient IDs use the primary PID
+identifier and assigning authority; local identifiers include the sender
+namespace and local authority. Integrators must keep that namespace stable and supply an explicit
+`subject.reference` if no stable patient identifier can be formed. Missing identity
+or multiple PID segments produce an empty bundle with issues; `pidToPatient`
+can return `undefined`.
+
+IDs differ from earlier versions. Before importing into an existing store,
+integrators must reconcile records or rebuild from source; re-running upserts
+can create duplicates.
+
 ## The decisions worth arguing with
 
 ### OBX-3: LOINC is what says it is LOINC
@@ -127,7 +141,7 @@ zero-filled"*.
   and would be up to 59 minutes wrong.
 - `Bundle.timestamp` and `DiagnosticReport.issued` are `instant`, which needs both
   seconds and an offset. Without one they are omitted (`issued`) or fall back to the
-  caller's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: *"MSH-7 does
+  integrator's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: *"MSH-7 does
   not require a time offset while Bundle.timestamp does."*
 
 ### PID-8 is mapped, not passed through

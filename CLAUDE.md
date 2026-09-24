@@ -4,11 +4,9 @@ Standing brief for any session working on this codebase.
 
 ## What this repository is
 
-**This repository is `etzm/open-twin`, and it is the source of truth.**
-`Opening-Science/open-twin` is where the code came from and is now a historical
-reference only — it is not kept in sync, and pushing to it is deliberately
-disabled. See `PROVENANCE.md` before assuming anything about the other repo, or
-before acting on a pull request that lives there.
+Development and pull requests for this checkout use `Opening-Science/open-twin`.
+See `PROVENANCE.md` for historical work in the separate `etzm/open-twin` copy;
+verify current remotes before pushing.
 
 A pnpm monorepo of health-data connectors that translate vendor APIs and clinical
 formats into FHIR R4 bundles, plus a reconciliation layer over them.
@@ -18,18 +16,24 @@ formats into FHIR R4 bundles, plus a reconciliation layer over them.
 | `@open-twin/fhir-core` | Shared FHIR building blocks, terminology systems, unit policy |
 | `@open-twin/aggregate` | Cross-source reconciliation; abstains without evidence |
 | `@open-twin/provider-oura` | Oura Ring v2 API |
+| `@open-twin/provider-whoop` | WHOOP Developer API v2 |
 | `@open-twin/provider-google-health` | **Google Health API v4** — see the warning below |
 | `@open-twin/provider-vitronic` | VITRONIC BodyLoop body scanner |
-| `@open-twin/provider-open-wearables` | OpenWearables normalised schema (never verified against a running instance) |
+| [`@open-twin/open-wearables`](packages/provider-open-wearables) | OpenWearables normalised schema (never verified against a running instance) |
 | `@open-twin/fhir-r4` | Foreign FHIR R4 bundles: validation + normalisation |
 | `@open-twin/hl7v2` | HL7 v2.x ORU/ADT messages |
 | `@open-twin/genomics-vcf` | VCF variant calls via the Genomics Reporting IG |
 
 MIT licensed, developed under the Open Science Foundation.
 
+Research and non-medical consumer wellness only; interpretation is research-only.
+Medical use is outside the intended scope. Follow [intended use](docs/INTENDED-USE.md)
+when changing outputs or claims. Passing tests do not establish clinical validity
+or regulatory conformity.
+
 Documentation map: `README.md` (front door + docs table), `ONBOARDING.md` (first-day
 path and the traps), `DECISIONS.md` (before touching any mapper), `BUILD-SUMMARY.md`
-(measured state), `PROVENANCE.md` (the other repo), `Contributing.md` (PR workflow).
+(measured state), `PROVENANCE.md` (repository history), `Contributing.md` (PR workflow).
 
 **`provider-google-health` does not talk to Google Health Connect.** It calls
 `health.googleapis.com/v4`, which Google documents as the next generation of the
@@ -78,6 +82,7 @@ behaviour with a skip on it.
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm build
 pnpm lint          # biome
 pnpm test          # every package
 pnpm typecheck     # tsc --noEmit, every package
@@ -88,22 +93,23 @@ pnpm build && pnpm emit-bundles out/
 java -jar validator_cli.jar out/*.json -version 4.0.1 -tx n/a -best-practice ignore
 ```
 
-Both gates fail closed: an unreviewed code is a failure, not a warning. The workflow
-is to look each code up **once**, record the official name and who checked it in the
-allowlist, and flip it to `approved`. Do not bulk-approve to get a green run — the
-whole value of the gate is that approving costs a lookup, which is exactly the step
-that was skipped when five wrong codes shipped.
+The allowlist and UCUM checks are blocking; the separate terminology review-record
+check is advisory. A passing aggregate does not establish that every code has a
+signed review. See `docs/findings/verify-baseline.md` for the remaining review debt.
+Look codes up against primary sources and record the official name and reviewer;
+do not bulk-approve to obtain a green run.
 
 Note what the offline validator does **not** catch: `-tx n/a` degrades terminology
 errors to warnings and still exits 0. It buys structure only. The separate
-`fhir-terminology` CI job is what catches a code that is well-formed and wrong. And
-neither catches radians-labelled-as-degrees, because `1.48 deg` is structurally
-perfect — that class needs a fixture with an independently computed expected value.
+`fhir-terminology` CI job checks code validity and displays. It cannot establish
+that a valid code describes the measurement correctly. Neither catches
+radians-labelled-as-degrees, because `1.48 deg` is structurally perfect — that
+class needs a fixture with an independently computed expected value.
 
 ## Conventions
 
 - Biome for format and lint.
 - Branch per issue, named `<issue-number>-<slug>`, merged by PR. Keep this.
-- `Contributing.md` is authoritative for the PR workflow and gate procedure. Commit
-  signing is deliberately not claimed and not enforced; if that changes it goes
-  through branch protection, not prose.
+- `Contributing.md` is authoritative for the PR workflow and gate procedure.
+  Signed commits and one approving review are required on `main`. Check the live
+  branch-protection rules before merging.

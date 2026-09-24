@@ -1,8 +1,20 @@
 # Provenance
 
+## Current repository
+
+Development and pull requests use `Opening-Science/open-twin`. The historical
+account below describes a previous migration to `etzm/open-twin`; its remote and
+PR instructions are superseded. Check current remotes and PR status before acting.
+
+---
+
+## Historical record — 26 July 2026
+
+Superseded; retained for history only.
+
 Where this code came from, where it lives now, and how to take it back.
 
-## This repository is the source of truth
+### This repository is the source of truth
 
 Active development is on **`etzm/open-twin`** (private).
 
@@ -23,7 +35,7 @@ repository. Re-enabling it is meant to be a conscious decision:
 git remote set-url --push upstream https://github.com/Opening-Science/open-twin.git
 ```
 
-## Why a mirror and not a fork
+### Why a mirror and not a fork
 
 `gh repo fork` returns `HTTP 403: The repository exists, but forking is disabled`.
 The Opening-Science organisation sets `members_can_fork_private_repositories: false`.
@@ -35,7 +47,7 @@ The practical consequence: there is no GitHub fork relationship. No automatic
 upstream tracking, and no cross-repository pull requests. Everything else works
 normally.
 
-## What happened on 26 July 2026
+### What happened on 26 July 2026
 
 The original repository was assessed and 50 defects were reported. That assessment
 was independently re-verified here: 52 confirmed, 9 corrected or refuted, and **57
@@ -61,7 +73,7 @@ on the three connector-fix branches. Do not review them, and do not merge them.
 | #7 | #74 | `open-twin/add-open-wearables` |
 | #8 | #75 | `open-twin/add-fhir-r4` |
 
-## For the Opening-Science team: how to copy this back
+### For the Opening-Science team: how to copy this back
 
 Nothing here is withheld, and nothing needs to be reconstructed. The whole history
 is intact and can be pulled directly once you have read access:
