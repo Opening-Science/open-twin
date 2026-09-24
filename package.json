@@ -15,7 +15,7 @@
     "emit-bundles": "tsx verify/emit-bundles.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15",
+    "@biomejs/biome": "2.5.14",
     "@lhncbc/ucum-lhc": "7.1.9",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
