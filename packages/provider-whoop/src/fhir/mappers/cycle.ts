@@ -4,10 +4,10 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import { CATEGORY, createObservation, quantity, UCUM } from '@open-twin/fhir-core';
+import { CATEGORY, createObservation, LOINC_CODINGS, quantity, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopCycle } from '../../api/schemas/cycle';
-import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
+import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
@@ -40,7 +40,7 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'cycle-avg-hr'),
           identifier: whoopIdentifier(`${key}-avg-hr`),
-          code: LOINC.HEART_RATE,
+          code: LOINC_CODINGS.HEART_RATE,
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime,

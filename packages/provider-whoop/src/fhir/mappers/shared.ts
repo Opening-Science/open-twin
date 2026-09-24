@@ -13,16 +13,6 @@ export function whoopCoding(code: string, display?: string): CodingInput {
   return display === undefined ? { system: SYSTEMS.WHOOP, code } : { system: SYSTEMS.WHOOP, code, display };
 }
 
-export const LOINC = {
-  HEART_RATE: { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
-  OXYGEN_SATURATION: {
-    system: SYSTEMS.LOINC,
-    code: '59408-5',
-    display: 'Oxygen saturation in Arterial blood by Pulse oximetry'
-  },
-  TIME_IN_BED: { system: SYSTEMS.LOINC, code: '103213-5', display: 'Duration in bed' }
-} as const satisfies Record<string, CodingInput>;
-
 export interface WhoopMapperContext {
   subject: Reference;
   subjectKey: string;

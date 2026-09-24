@@ -4,10 +4,10 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import { CATEGORY, createObservation, quantity, UCUM } from '@open-twin/fhir-core';
+import { CATEGORY, createObservation, LOINC_CODINGS, quantity, UCUM } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { WhoopSleep } from '../../api/schemas/sleep';
-import { LOINC, type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
+import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
 export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
@@ -57,7 +57,7 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'time-in-bed'),
           identifier: whoopIdentifier(`${key}-in-bed`),
-          code: LOINC.TIME_IN_BED,
+          code: LOINC_CODINGS.TIME_IN_BED,
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
           effectiveDateTime,

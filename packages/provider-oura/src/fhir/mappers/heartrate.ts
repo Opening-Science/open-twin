@@ -4,10 +4,18 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import { CATEGORY, createObservation, dataAbsentReason, PROFILES, quantity, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  createObservation,
+  dataAbsentReason,
+  LOINC_CODINGS,
+  PROFILES,
+  quantity,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Extension, Observation } from 'fhir/r4';
 import type { OuraHeartRateList } from '../../api/schemas/heartrate';
-import { LOINC, type OuraMapperContext, ouraExtensionUrl, ouraResourceId } from './shared';
+import { type OuraMapperContext, ouraExtensionUrl, ouraResourceId } from './shared';
 
 export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList, context: OuraMapperContext): Observation[] {
   if (!ouraData?.data || ouraData.data.length === 0) return [];
@@ -25,7 +33,7 @@ export function mapOuraHeartRateToFHIR(ouraData: OuraHeartRateList, context: Our
 
     const observation = createObservation({
       id: ouraResourceId(context, hr.timestamp, 'heart-rate'),
-      code: LOINC.HEART_RATE,
+      code: LOINC_CODINGS.HEART_RATE,
       category: CATEGORY.VITAL_SIGNS,
       subject: context.subject,
       effectiveDateTime: hr.timestamp,

@@ -9,12 +9,13 @@ import {
   codeableComponent,
   createObservation,
   dataAbsentReason,
+  LOINC_CODINGS,
   optionalNumericComponent,
   UCUM
 } from '@open-twin/fhir-core';
 import type { Extension, Observation } from 'fhir/r4';
 import type { PublicSample, SessionList } from '../../api/schemas/session';
-import { LOINC, type OuraMapperContext, ouraCoding, ouraExtensionUrl, ouraIdentifier, ouraResourceId } from './shared';
+import { type OuraMapperContext, ouraCoding, ouraExtensionUrl, ouraIdentifier, ouraResourceId } from './shared';
 
 function averageSample(sample: PublicSample | null): number | undefined {
   if (!sample?.items || sample.items.length === 0) return undefined;
@@ -48,7 +49,7 @@ export function mapOuraSessionToFHIR(ouraData: SessionList, context: OuraMapperC
         // second coding names the statistic. Distinguishing two measures by a
         // free-text display on one shared code is what this avoids.
         optionalNumericComponent(
-          [LOINC.HEART_RATE, ouraCoding('session-mean-heart-rate', 'Session Mean Heart Rate')],
+          [LOINC_CODINGS.HEART_RATE, ouraCoding('session-mean-heart-rate', 'Session Mean Heart Rate')],
           averageSample(session.heart_rate),
           UCUM.PER_MINUTE
         ),
