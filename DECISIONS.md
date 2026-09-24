@@ -272,13 +272,14 @@ not re-declare the enum.
 <a id="d13"></a>
 ## D13 — MDR intended-use line on every interpretation document
 
-**Context.** EU MDR Annex VIII Rule 11 distinguishes software that merely presents
-a person’s own data from software that generates clinical recommendations.
-Visualising measurements on a research twin can sit outside Rule 11’s
-recommendation limb; emitting advice cannot. The interpretation document is the
-sole interface to the XR visualisation layer — if it grows a recommendation
-field, the whole twin inherits a medical-device purpose it is not authorised to
-carry.
+**Context.** The project's intended use is research and non-medical consumer
+wellness; experimental interpretation remains research-only. Medical-device
+qualification depends on intended purpose, functionality and product claims.
+MDR Annex VIII Rule 11 classifies relevant software after qualification; it is
+not an exemption for software without a recommendation field. Laboratory or
+genetic interpretation may also require an IVDR assessment. A research label or
+schema constant does not settle either question. See
+[Intended use and integration responsibilities](docs/INTENDED-USE.md).
 
 **Decision.** Every interpretation document **must** carry:
 
@@ -288,14 +289,15 @@ carry.
 | `not_for_diagnostic_use` | `true` |
 
 These are schema constants. Any other value is non-conformant. A recommendation
-engine — if built — is a **separate component** with its own intended-purpose
-statement and regulatory file. It is never a feature of the twin document.
+engine — if built — requires a separate intended-purpose decision and appropriate
+regulatory assessment. A component boundary does not itself exempt the combined
+product. Recommendations remain outside this document's scope.
 
 **Consequences.** Conformance rejects documents that omit or alter these fields.
-XR and research UIs may show the constants as a fixed research disclaimer; they
-must not offer “diagnose” or “treat” affordances fed by this document. Changing
-intended use requires a new decision and a new contract version — not a silent
-field flip.
+XR and research UIs must explain the research scope alongside interpretation
+outputs, including that confidence measures rule support, not disease probability.
+They must not offer “diagnose” or “treat” affordances fed by this document. Changing
+intended use requires a new decision, contract version and product assessment.
 
 ---
 

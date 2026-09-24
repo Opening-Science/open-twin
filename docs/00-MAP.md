@@ -8,6 +8,8 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 
 | Doc | Owner | Update trigger |
 |---|---|---|
+| [INTENDED-USE.md](INTENDED-USE.md) | project maintainers | Functionality, audiences, claims, distribution or integration safeguards change |
+| [US-USE.md](US-USE.md) | project maintainers | US audiences, product claims, data flows, research protocols or applicable rules change |
 | [CONVENTIONS.md](CONVENTIONS.md) | architect | Header shape or verify-script change |
 | [GLOSSARY.md](GLOSSARY.md) | architect | New domain term introduced in code |
 | [findings/](findings/) | whoever discovers the defect | New known-wrong or authority gap |

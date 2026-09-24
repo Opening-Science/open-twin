@@ -14,11 +14,12 @@ being productive without breaking the things this codebase exists to protect.
    `@open-twin/fhir-core`, recorded with reasons in [DECISIONS.md](DECISIONS.md).
 3. `@open-twin/aggregate` reconciles overlapping measurements across connectors,
    and refuses to pick a winner when the evidence gives no basis to.
-4. **A green test run is not evidence of correctness** — correctness is checked
-   against external authority: the UCUM grammar, a recorded human review of every
-   terminology code, and the official HL7 validator (all in CI, failing closed).
-5. The output is other people's health records, so nothing from a payload ever
-   goes into an error message, a log line, or a validation report.
+4. Verification combines UCUM checks, recorded terminology reviews and the
+   official HL7 validator over registered example bundles. Some checks are
+   advisory; a passing run does not establish clinical accuracy.
+5. Outputs and diagnostic reports may contain sensitive information. Keep
+   payloads out of logs and follow the
+   [intended-use and integration guidance](docs/INTENDED-USE.md).
 
 ## Day one
 
@@ -27,11 +28,11 @@ being productive without breaking the things this codebase exists to protect.
 corepack enable            # or: npm i -g pnpm@11.17.0
 
 pnpm install --frozen-lockfile
-pnpm lint && pnpm typecheck && pnpm test && pnpm verify
+pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm verify
 ```
 
-All four must pass on a fresh clone of `main`. If they do not, something is wrong
-with the environment, not the code — CI runs exactly these on every PR.
+Blocking checks must pass. Investigate failures in the code or environment;
+`pnpm verify` reports advisory findings separately.
 
 Then produce the bundles and look at one:
 
@@ -39,23 +40,22 @@ Then produce the bundles and look at one:
 pnpm build && pnpm emit-bundles out/
 ```
 
-`out/` now holds the 11 bundles CI feeds to the HL7 validator. Open one; that is
+`out/` now holds the registered example bundles CI feeds to the HL7 validator. Open one; that is
 the product. Everything in this repo exists to make those files correct.
 
 ## Verify baseline (read before trusting a red cross)
 
-Upstream’s day-one line still stands for lint, typecheck, and test. **`pnpm verify`
-is different after the interpretation work lands:** it runs every registered gate
-to completion (no `&&` short-circuit) and the aggregate may be red for *documented*
-reasons. That is intentional, not a broken clone.
+`pnpm verify` runs every registered gate and reports blocking and advisory results
+separately. A passing exit status can include advisory failures.
 
 | Gate | Role | Typical |
 |---|---|---|
 | `verify/check-terminology.mjs` (allowlist) | Merge-blocking | PASS when no rejected/unknown FHIR codes |
 | `verify/check-units.mjs` | Merge-blocking | PASS |
-| Module headers / docs integrity | Merge-blocking once landed | PASS when headers/docs intact |
-| Review-record gate (G2, when landed) | **Advisory** until Anchor stubs are signed | May FAIL — see `docs/findings/verify-baseline.md` |
-| Canary suite (when landed) | Fails while FINDING:UNCAUGHT remains | May FAIL — four known gaps are findings, not silent defects |
+| Module headers / docs integrity | Merge-blocking | PASS when headers/docs intact |
+| Publication regressions / packed artifacts / SNOMED boundary | Merge-blocking | Built tarballs are checked before release |
+| Review-record gate (G2) | **Advisory** | Review debt remains — see `docs/findings/verify-baseline.md` |
+| Canary suite | Blocks on `ACCEPTED`; documented findings do not block | PASS can include four known semantic gaps |
 
 Do not “fix” intentional red by bulk-approving allowlists or deleting canaries.
 See `docs/findings/verify-baseline.md` for G1 vs G2a (67 UNVERIFIED Anchor stubs)
@@ -68,7 +68,7 @@ agreement — it is not an implementation detail.
 |---|---|---|
 | 1 | [README.md](README.md) | what the packages are and how they relate |
 | 2 | [CLAUDE.md](CLAUDE.md) | the ground rules — written for AI sessions, equally binding advice for humans |
-| 3 | [DECISIONS.md](DECISIONS.md) | the ten cross-cutting decisions, each with the defect that forced it |
+| 3 | [DECISIONS.md](DECISIONS.md) | the cross-cutting decisions, each with the defect that forced it |
 | 4 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | the measured state: test data per connector, defect history, what is not built |
 | 5 | the README of the package you will touch | its API and its verification story |
 
@@ -101,7 +101,7 @@ agreement — it is not an implementation detail.
    `pnpm verify` — the gate will demand a recorded lookup in the allowlists
    under `verify/`. Look it up once, record the official name and yourself as
    the checker, flip it to `approved`. Never bulk-approve.
-3. `pnpm lint && pnpm typecheck && pnpm test && pnpm verify` — all green.
+3. `pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm verify` — all green.
 4. Open a PR. CI adds the HL7 validator (blocking) and a terminology check
    against `tx.fhir.org` (advisory). Say in the PR what would have caught the
    defect you fixed.
@@ -129,7 +129,4 @@ Beyond that:
 
 [CLAUDE.md](CLAUDE.md) is loaded automatically and is the binding brief; this
 file adds the human-onboarding context around it. When memory notes or session
-summaries conflict with what `git log` and the gates say, the repo wins. Recent
-provenance quirks worth knowing: pushes to the `upstream` (Opening-Science)
-remote are deliberately disabled, and the eight old PRs there are historical —
-see [PROVENANCE.md](PROVENANCE.md).
+summaries conflict with what `git log` and the gates say, the repo wins. Repository history is recorded in [PROVENANCE.md](PROVENANCE.md).

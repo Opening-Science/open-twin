@@ -5,9 +5,12 @@ Generic FHIR R4 ingest and conformance for open-twin.
 Every other package in this repository turns a vendor API into FHIR. This one is the
 other direction: it accepts FHIR R4 that open-twin did not produce, says precisely
 what is wrong with it, and brings it into the conventions the rest of the project
-follows. It is also how open-twin proves that what it emits is conformant, because
-the bundle it registers with the HL7 validator is the output of its own normaliser
-over somebody else's data rather than a literal written to pass.
+follows. Its registered HL7 validation example exercises the normaliser against
+an external fixture. That check covers the example, not every possible input.
+
+Read the [intended-use and integration guidance](../../docs/INTENDED-USE.md)
+before using real participant data. Normalization rejects mixed or ambiguous
+source-patient identities before assigning the caller’s subject.
 
 ```ts
 import { normaliseBundle, validateFhir } from '@open-twin/fhir-r4';
@@ -28,12 +31,14 @@ const { bundle, outcome } = normaliseBundle(payload, {
 
 ### 1. Validation — `validateFhir(input, { units? })`
 
-Takes `unknown`. Never throws, whatever it is handed: `null`, a number, an array, a
-Bundle whose `entry` is a string. Returns `{ ok, issues, outcome }`, where `outcome`
-is a FHIR `OperationOutcome`.
+Takes `unknown` and returns `{ ok, issues, outcome }`, where `outcome` is a FHIR
+`OperationOutcome`. Cyclic, accessor-bearing or oversized input is rejected with
+`ot-input-unsafe`. Limits are depth 64, 50,000 traversal nodes and 10 million
+characters across keys and string values. Hosts should also limit request sizes.
 
 | rule | what it catches |
 | --- | --- |
+| `ot-input-unsafe` | unsafe object graphs or inputs exceeding traversal limits |
 | `ot-not-an-object`, `ot-missing-resource-type`, `ot-unknown-resource-type` | it is not a resource, or claims a type R4 does not define |
 | `ot-missing-required-element` | a top-level element the base R4 definition declares `min: 1` |
 | `ot-invalid-id` | `Resource.id` outside `[A-Za-z0-9\-\.]{1,64}` |
@@ -62,7 +67,13 @@ working one by reading the code.
 
 ### 2. Normalisation — `normaliseBundle(input, options)`
 
-Four things change, and nothing else:
+The source must describe at most one unambiguous patient; split multi-patient
+bundles before calling. Multiple Patient entries, conflicting subjects and
+non-patient subject targets produce `ot-normalised-subject-ambiguous` with no
+output bundle. The caller remains responsible for matching that source patient
+to the requested destination subject.
+
+The normalizer changes addressing and provenance:
 
 - **D1** every `subject` is repointed at one caller-supplied reference. Without one,
   the deterministic `urn:uuid:` fallback applies and a minimal Patient is added so the
@@ -214,30 +225,14 @@ without enumerating its codes.
 
 ## Privacy
 
-No value from the input ever reaches a message. Issues are located by FHIRPath
-expression — `Bundle.entry[3].resource.valueQuantity.code` — and the prose explains
-the rule, never the data. This includes zod's own messages, which interpolate the
-received value into `invalid_type` and are therefore discarded and replaced. A
-validation report is exactly the artefact that ends up in a log, a CI annotation or a
-ticket, and this package validates other people's records.
+Diagnostic prose uses fixed messages, including replacements for zod messages
+that could interpolate input values. FHIRPath expressions locate issues, for
+example `Bundle.entry[3].resource.valueQuantity.code`.
 
-Two consequences that are easy to miss, and are enforced rather than intended:
-
-- **The expression is built from element names, and a key is only an element name by
-  convention.** `validateFhir` takes `unknown`, so a tree indexed by a record number,
-  a date or a name would put that in the path. Any key that is not of the shape
-  `[A-Za-z][A-Za-z0-9_-]{0,63}` is replaced by `<redacted>`, keeping the finding
-  locatable by position without repeating the key.
-- **The resource type is not in any message**, including
-  `ot-missing-required-element`, where naming it would have been natural. "This bundle
-  contains a MedicationStatement" is a clinical statement about a person.
-
-`src/tests/validate.unit.test.ts` asserts all of this with marker strings placed in
-values *and* in a key.
-
-The residual, stated because it is real: for a bare resource the root of a FHIRPath
-expression *is* the resource type — `Observation.status` — because that is what makes
-it a FHIRPath. Inside a Bundle the root is `Bundle`, and the type does not appear.
+Diagnostic paths retain only a fixed allowlist of element names. Unknown keys
+become indexed `<redacted>` placeholders in validation and normalization reports.
+These safeguards do not anonymize the input or output bundles. Restrict access
+and retention, and use synthetic reports in public tickets and CI logs.
 
 The recorded oracle file does quote the fixtures. Those are synthetic bundles written
 for this repository, plus HL7's published examples.

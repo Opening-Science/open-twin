@@ -16,6 +16,7 @@ Use Node 20 or later and the pinned pnpm version.
 ```bash
 corepack enable
 pnpm install --frozen-lockfile
+pnpm build
 pnpm lint
 pnpm typecheck
 pnpm test
@@ -49,3 +50,11 @@ pull request requires maintainer approval before merge.
 Do not commit proprietary vendor material or imply vendor endorsement. By
 contributing, you license your contribution under the repository's
 [MIT License](LICENSE).
+
+Contribute only material you have the right to license. For third-party content,
+record its source, applicable terms, redistribution permission and required
+notices; public availability alone is insufficient. Changes to health claims,
+interpretation outputs or supported audiences must update
+[the intended-use statement](docs/INTENDED-USE.md) and identify any assessment
+needed before release. Do not describe test or FHIR conformance results as
+clinical validation or regulatory certification.

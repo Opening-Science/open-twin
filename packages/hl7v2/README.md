@@ -55,6 +55,20 @@ left **verbatim** in the text rather than deleted, so the loss stays visible.
 
 ---
 
+## Stable identity and upgrades
+
+Conversion requires MSH-10 plus a stable sender namespace from MSH-3/MSH-4 or
+`ConvertOptions.sourceNamespace`. Patient identity uses the primary identifier
+and assigning authority; local identifiers are scoped to the sender and local
+authority. If no stable patient identifier can be formed, supply an explicit
+`subject.reference`. Missing identity or multiple PID segments produce an empty
+bundle with issues; `pidToPatient` can return `undefined`.
+
+The identity fix changes deterministic resource IDs. Before importing into a
+store populated by an earlier version, reconcile existing records or rebuild
+from source; blindly repeating upserts can create duplicates. Keep the chosen
+sender namespace stable between runs.
+
 ## The decisions worth arguing with
 
 ### OBX-3: LOINC is what says it is LOINC

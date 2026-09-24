@@ -1,5 +1,17 @@
 # Provenance
 
+## Current repository
+
+Development and pull requests for this checkout are hosted at
+`Opening-Science/open-twin`. The account below records an earlier migration to
+`etzm/open-twin` on 26 July 2026. Its statements about active remotes and stale
+PRs describe that date, not current routing instructions. Check current GitHub
+PR status and local remotes before acting on the historical commands.
+
+---
+
+## Historical record — 26 July 2026
+
 Where this code came from, where it lives now, and how to take it back.
 
 ## This repository is the source of truth

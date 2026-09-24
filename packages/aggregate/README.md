@@ -14,8 +14,14 @@ Two rules hold it together, and both are about not destroying evidence:
 
 ## What a reconciliation is
 
-When more than one connector reports the same **measure** on the same **day**, the
-aggregator consults `reliabilityFor` in `@open-twin/fhir-core` — graded validation
+Only observations with the same explicit subject, a single matching coding,
+quantity system and unit code, and exact effective time or period are candidates.
+Observations with comparators, components or additional method, body-site,
+specimen, device or focus context are preserved without reconciliation. The
+aggregator does not infer unit conversions or equivalence from a shared day.
+Time in bed, time asleep, different sleep stages and HRV scores remain distinct.
+
+For matching candidates, the aggregator consults `reliabilityFor` in `@open-twin/fhir-core` — graded validation
 evidence per *(source, measure)* pair, with citations — and either:
 
 - emits a **derived Observation** carrying `derivedFrom` pointing at *every* source
@@ -24,7 +30,7 @@ evidence per *(source, measure)* pair, with citations — and either:
   - *energy expenditure* abstains outright — published MAPE above 30% for every
     brand tested, so naming a winner would present a confidence nobody has earned;
   - *equally graded sources* abstain rather than break a tie on array order;
-  - *several same-day readings from the preferred source* abstain because the
+  - *several matching readings from the preferred source* abstain because the
     reliability evidence ranks connectors, not readings within one connector;
   - *a single reporting source* is not a disagreement, so nothing is asserted.
 
