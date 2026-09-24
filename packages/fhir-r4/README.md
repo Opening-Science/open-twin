@@ -2,15 +2,10 @@
 
 Generic FHIR R4 ingest and conformance for open-twin.
 
-Every other package in this repository turns a vendor API into FHIR. This one is the
-other direction: it accepts FHIR R4 that open-twin did not produce, says precisely
-what is wrong with it, and brings it into the conventions the rest of the project
-follows. Its registered HL7 validation example exercises the normaliser against
-an external fixture. That check covers the example, not every possible input.
-
-Read the [intended-use and integration guidance](../../docs/INTENDED-USE.md)
-before using real participant data. Normalization rejects mixed or ambiguous
-source-patient identities before assigning the caller’s subject.
+Accepts external FHIR R4 bundles, reports selected structural and unit issues,
+and normalizes addressing and provenance. Its registered HL7 validator example
+checks one normalization output; it does not prove conformance for every input.
+See [intended use](../../docs/INTENDED-USE.md) before handling participant data.
 
 ```ts
 import { normaliseBundle, validateFhir } from '@open-twin/fhir-r4';
@@ -31,14 +26,12 @@ const { bundle, outcome } = normaliseBundle(payload, {
 
 ### 1. Validation — `validateFhir(input, { units? })`
 
-Takes `unknown` and returns `{ ok, issues, outcome }`, where `outcome` is a FHIR
-`OperationOutcome`. Cyclic, accessor-bearing or oversized input is rejected with
-`ot-input-unsafe`. Limits are depth 64, 50,000 traversal nodes and 10 million
-characters across keys and string values. Hosts should also limit request sizes.
+Accepts unknown input and reports ordinary structural errors as
+`{ ok, issues, outcome }`, with a FHIR `OperationOutcome`. Hosts should bound
+input size and depth and handle exceptions from malformed or excessive input.
 
 | rule | what it catches |
 | --- | --- |
-| `ot-input-unsafe` | unsafe object graphs or inputs exceeding traversal limits |
 | `ot-not-an-object`, `ot-missing-resource-type`, `ot-unknown-resource-type` | it is not a resource, or claims a type R4 does not define |
 | `ot-missing-required-element` | a top-level element the base R4 definition declares `min: 1` |
 | `ot-invalid-id` | `Resource.id` outside `[A-Za-z0-9\-\.]{1,64}` |
@@ -67,13 +60,7 @@ working one by reading the code.
 
 ### 2. Normalisation — `normaliseBundle(input, options)`
 
-The source must describe at most one unambiguous patient; split multi-patient
-bundles before calling. Multiple Patient entries, conflicting subjects and
-non-patient subject targets produce `ot-normalised-subject-ambiguous` with no
-output bundle. The caller remains responsible for matching that source patient
-to the requested destination subject.
-
-The normalizer changes addressing and provenance:
+Four things change, and nothing else:
 
 - **D1** every `subject` is repointed at one caller-supplied reference. Without one,
   the deterministic `urn:uuid:` fallback applies and a minimal Patient is added so the
@@ -223,16 +210,17 @@ green validator run. The `meta.tag` lines are `Information`, because
 `verify/conformance/generated/CodeSystem-connector.json` declares the code system
 without enumerating its codes.
 
-## Privacy
+## Privacy and integration
 
-Diagnostic prose uses fixed messages, including replacements for zod messages
-that could interpolate input values. FHIRPath expressions locate issues, for
-example `Bundle.entry[3].resource.valueQuantity.code`.
+Diagnostic prose uses fixed messages, but diagnostic paths can retain input keys
+that resemble field names. Treat reports as potentially sensitive; use synthetic
+examples in public issues and restrict log access and retention.
 
-Diagnostic paths retain only a fixed allowlist of element names. Unknown keys
-become indexed `<redacted>` placeholders in validation and normalization reports.
-These safeguards do not anonymize the input or output bundles. Restrict access
-and retention, and use synthetic reports in public tickets and CI logs.
+The caller must supply a bundle for one verified source patient and establish
+its relationship to the destination subject before normalization. Apply input
+size/depth limits at the application boundary. These functions are not a full
+FHIR profile validator or an anonymization service. See the
+[intended-use guidance](../../docs/INTENDED-USE.md).
 
 The recorded oracle file does quote the fixtures. Those are synthetic bundles written
 for this repository, plus HL7's published examples.

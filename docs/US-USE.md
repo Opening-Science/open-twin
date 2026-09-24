@@ -1,100 +1,55 @@
-# US use: claims, privacy and research
+# US use
 
-Maintainer: project maintainers. Last reviewed: 24 September 2026.
+Reviewed 24 September 2026. Supplements [Intended use](INTENDED-USE.md);
+research and non-medical wellness only. This is deployment guidance, not an FDA
+determination, privacy notice or complete state-law assessment.
 
-This supplements [Intended use and integration responsibilities](INTENDED-USE.md)
-for research and non-medical consumer wellness. It identifies deployment decisions;
-it is not an FDA determination, a privacy notice or a complete state-law survey.
-Publishing source code and operating a service that handles participant data are
-different activities. Assess the responsibilities of each party actually involved.
+## Functions and claims
 
-## FDA boundary
+Keep functionality, user interfaces and promotion consistent with the non-medical
+purpose. A research label or `not_for_diagnostic_use` flag does not make disease
+assessment or treatment functionality a wellness feature. FDA’s
+[general-wellness guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/general-wellness-policy-low-risk-devices)
+distinguishes certain excluded software functions from low-risk devices covered
+by enforcement discretion; neither means FDA approval.
 
-Keep consumer features within the project's non-medical wellness purpose.
-Experimental interpretation remains research-only. Do not expose disease-risk,
-organ-dysfunction or treatment conclusions to consumers merely by adding a
-wellness label or `not_for_diagnostic_use` flag.
+Do not claim clinical accuracy, FDA approval/clearance, HIPAA compliance or
+anonymity without an applicable basis. Substantiate health and performance claims,
+including demonstrations and endorsements, and explain the tested scope. Place
+the [intended-use notice](INTENDED-USE.md#purpose-and-limits) alongside outputs.
+A disclaimer cannot correct contradictory functionality or marketing.
 
-FDA's [January 2026 general-wellness guidance](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/general-wellness-policy-low-risk-devices)
-distinguishes software excluded from the device definition from certain low-risk
-devices subject to an enforcement-discretion policy. Neither amounts to FDA
-approval. Evaluate each function, its risks, UI, instructions and marketing;
-the project's own research label does not settle its regulatory status.
+## Privacy and incidents
 
-Suggested notice, where it accurately describes the product:
+- **HIPAA:** assess whether the operator is a covered entity or business associate.
+  A consumer wellness service may fall outside HIPAA; handling information for a
+  covered provider may create different obligations. Where applicable, implement
+  required safeguards and business-associate arrangements. FHIR support is not
+  compliance. See [HHS guidance](https://www.hhs.gov/hipaa/for-professionals/covered-entities/index.html).
+- **FTC:** assess the [Health Breach Notification Rule](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-318)
+  for qualifying personal-health-record services outside HIPAA, including their
+  ability to combine health information from multiple sources. Unauthorized
+  disclosures can trigger duties, not only hacking. Do not assume an EU location
+  or nonprofit status provides an exemption; evaluate the rule’s scope.
+- **States:** assess laws for the users and data involved, including
+  [Washington’s My Health My Data Act](https://www.atg.wa.gov/protecting-washingtonians-personal-health-data-and-privacy)
+  and [California’s CCPA](https://oag.ca.gov/privacy/ccpa), with their respective
+  thresholds and exemptions. Health/genetic privacy and breach laws may impose
+  additional duties. GDPR or HIPAA compliance does not settle state-law coverage.
 
-> Experimental software for research and non-medical wellness. Not intended to
-> diagnose, treat, cure or prevent disease. Research interpretations are not
-> clinically validated and must not guide medical decisions. FHIR conformance
-> checks do not establish FDA approval or clearance.
+Identify the operator, data uses, recipients, retention and rights in a service-specific
+notice. Assess consent and deletion requirements, research reuse, analytics,
+advertising and AI-provider transfers. Establish an incident-response and
+notification process. Make only privacy promises the service actually implements.
 
-Place relevant limits alongside outputs and in onboarding, not solely in this
-repository. A notice cannot contradict what the product actually does or implies.
+## Research and responsibility
 
-## Claims and evidence
+Determine whether the [Common Rule](https://www.hhs.gov/ohrp/regulations-and-policy/regulations/common-rule/index.html),
+FDA human-subject requirements or institutional policies apply. Obtain required
+review and consent, or document an applicable exemption or waiver. A research-only
+label does not establish one. Assess additional obligations before including
+children or returning individual genetic interpretations.
 
-Keep a record of each public health or performance claim, its supporting evidence
-and tested scope. Apply this to the README, demonstrations, screenshots, app-store
-text and testimonials. Avoid unsubstantiated claims such as clinically accurate,
-detects disease, FDA approved, HIPAA compliant or anonymous. Describe observed
-technical test results precisely. FDA's guidance addresses consistent labeling;
-the [FTC endorsement guides](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-B/part-255)
-also require truthful, substantiated endorsements and relevant disclosures.
-
-## Health-data responsibilities
-
-**HIPAA is role-dependent.** Determine whether the operator is a covered entity or
-acts as a business associate handling protected health information on its behalf.
-A direct-to-consumer wellness service may fall outside HIPAA; a provider-facing
-deployment may not. Where applicable, implement the required safeguards and
-business-associate arrangements. FHIR support does not establish compliance.
-See [45 CFR 160.102–103](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-160/subpart-A).
-
-**FTC breach duties can apply outside HIPAA.** A service combining wearable,
-user-entered or other health information may meet the personal-health-record
-definition. Assess the [Health Breach Notification Rule](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-318)
-against actual roles and data flows, including the capacity to draw from multiple
-sources. Covered breaches include unauthorized disclosures, not only hacking.
-The rule expressly reaches qualifying foreign and domestic entities holding US
-citizens' or residents' information. EU location or nonprofit status is not an
-automatic exclusion. Assign an incident owner and notification process before
-collecting real data; assess HIPAA and state breach duties where applicable.
-
-**State requirements need a separate assessment.** Washington's
-[My Health My Data Act](https://www.atg.wa.gov/protecting-washingtonians-personal-health-data-and-privacy)
-can reach out-of-state services targeting Washington consumers and provides for
-private enforcement. Where applicable, implement its consumer-health privacy
-policy, consent, deletion and sale-authorization requirements. Also assess
-[California's CCPA](https://oag.ca.gov/privacy/ccpa) and other applicable health,
-genetic and general privacy laws. Check the launch population, entity thresholds
-and exemptions; HIPAA or GDPR compliance alone does not settle these questions.
-
-Before launch, publish a product-specific notice identifying the operator,
-data categories, purposes, recipients, retention, rights and contact route.
-Document any research reuse, analytics, advertising, AI-provider transfers or
-model training. Implement required choices before processing. Do not promise
-no sharing, no sale, deletion or anonymity unless the actual service supports it.
-These libraries do not supply that notice, consent flow or incident process.
-
-## Research and additional audiences
-
-The study sponsor should document whether the
-[Common Rule](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-46/subpart-A),
-FDA human-subject requirements or institutional policies apply. Obtain any
-required review and consent, or document the applicable exemption or waiver.
-A research-only label is not such a determination. General-wellness deployment
-does not by itself make every study subject to the Common Rule.
-
-Before adding children or returning individual genetic interpretations, assess
-the additional privacy, consent and regulatory requirements for that population
-and activity. They are not cleared by this document.
-
-## Release record
-
-Have US-qualified counsel review the actual product and target states. Record
-the intended functions, supported claims, data flows, applicable regimes,
-responsible operator and unresolved issues. Review the service's terms and
-liability provisions separately; do not treat the MIT warranty disclaimer as a
-waiver of participant rights or a substitute for compliance.
-
-This supplement leaves the MIT license unchanged.
+Have qualified counsel review the actual service and target states before launch.
+The MIT warranty disclaimer does not replace compliance or eliminate mandatory
+liability. This document does not change the license or clear a medical use.

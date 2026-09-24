@@ -1,90 +1,79 @@
-# Intended use and integration responsibilities
+# Intended use and responsibilities
 
-Maintainer: project maintainers. Last reviewed: 24 September 2026.
-Review this statement when functionality, audiences, claims or distribution change.
+Reviewed 24 September 2026. Applies to the project’s research and non-medical
+consumer-wellness scope. For US audiences, also read [US use](US-USE.md).
 
-The data-protection and medical-device references below address the EU. For US
-users, participants or deployments, also read the [US supplement](US-USE.md).
-Both may apply to the same service.
+## Purpose and limits
 
-## Purpose and evidence
+Open-twin provides experimental health-data conversion and research libraries.
+**It is not intended for medical use:** diagnosis, disease prediction or
+prevention, clinical monitoring, triage, treatment or other medical decisions.
+Experimental interpretations, severity labels and confidence scores are research
+outputs, not clinical findings or disease probabilities. They should not guide
+care or replace professional medical advice.
 
-Open-twin targets developers building research tools and non-medical
-consumer-wellness applications. Its connectors import and organize measurements
-in FHIR R4. The project does not claim suitability for diagnosis, prevention,
-prediction or prognosis of disease, medical monitoring, treatment or triage.
+Tests and FHIR checks cover selected inputs and technical properties. They do
+not establish clinical safety, performance or regulatory conformity. Describe
+the tested scope and remaining uncertainty; see the
+[verification baseline](findings/verify-baseline.md).
 
-Experimental interpretation modules are intended for **research hypothesis
-generation only**. Their heuristic rules can produce severity labels and
-confidence values. These describe rule outputs and support; they are not
-validated assessments of disease probability or organ health. Keep these outputs
-out of consumer medical conclusions, alerts and treatment recommendations.
+Display this notice alongside relevant outputs, not only in repository documentation:
 
-CI checks registered example bundles, selected terminology and units, and test
-fixtures. Passing those checks does not establish clinical performance, accuracy
-for every input, or regulatory conformity. The
-[verification baseline](findings/verify-baseline.md) records advisory review
-debt and known gaps. State the tested scope whenever describing validation.
+> Experimental software for research and non-medical wellness. Not intended for
+> diagnosis, treatment or other medical decisions. Outputs may be incomplete or
+> incorrect; research scores are not clinically validated assessments.
 
-Suggested notice alongside research interpretation outputs:
+## EU product boundary
 
-> Experimental research output. Severity labels and confidence values describe
-> heuristic rules; they are not clinically validated conclusions or disease
-> probabilities. Do not use them for diagnosis or treatment decisions.
+Regulatory status depends on the actual functions, intended purpose and claims
+of the resulting product. A wellness label, research disclaimer or separate
+component does not exempt medical functionality. Assess device qualification
+before applying classification rules, including MDR Rule 11. Laboratory or
+genetic interpretation may instead fall under the IVDR. See the
+[MDR](https://eur-lex.europa.eu/eli/reg/2017/745/oj/eng) and
+[IVDR](https://eur-lex.europa.eu/eli/reg/2017/746/oj/eng).
 
-## Deployment boundaries
+Before deployment, the responsible operator should document its functions,
+audience, claims and regulatory assessment. A move toward medical functionality
+requires a separate intended-purpose decision, appropriate evidence and any
+applicable regulatory procedures before use. This repository makes no claim of
+medical-device certification or clearance.
 
-A disclaimer or `not_for_diagnostic_use` field does not determine regulatory
-status. Intended purpose depends on the functionality, instructions, presentation
-and promotional claims of the resulting product. EU medical-device qualification
-must be assessed before applying classification rules such as MDR Rule 11.
-Laboratory or genetic interpretation may also require an IVDR assessment.
-See [MDR Article 2 and Annex VIII](https://eur-lex.europa.eu/eli/reg/2017/745/oj/eng)
-and [IVDR Articles 1–2](https://eur-lex.europa.eu/eli/reg/2017/746/oj/eng).
+## Data and research
 
-Before consumer deployment, obtain a qualified assessment of the actual product
-and its claims. Separating an interpretation component does not by itself exempt
-the combined product. These intended-purpose statements do not amend the MIT
-license or certify a downstream application's compliance.
+FHIR conversion and deterministic IDs **do not anonymize data**. Treat source
+records, output bundles and diagnostic reports as potentially sensitive.
 
-## Participant data
+Where GDPR applies, operators must establish controller/processor roles, an
+Article 6 legal basis and, for health or genetic data, an applicable Article 9
+condition. Provide transparent notices, data minimisation, access controls,
+secure credentials, retention/deletion and rights processes. Assess processor
+contracts, international transfers, incident duties and whether a DPIA is required.
+Research status alone does not supply a legal basis or waive consent/ethics
+requirements. See [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng),
+particularly Articles 6, 9, 13–14, 25, 28, 32–35, 44 and 89.
 
-FHIR conversion and deterministic UUIDs **do not anonymize data**. Outputs may
-retain vendor identifiers, demographics and health or genetic information.
-Diagnostic reports should also be treated as potentially sensitive.
-
-Where GDPR applies to real participant data, the host operator must:
-
-- Establish controller/processor roles, an Article 6 legal basis and an applicable
-  Article 9 condition for special-category data. A research label alone is not a
-  lawful basis. Explain purposes and recipients to participants.
-- Implement access controls, protected token storage, data minimisation,
-  retention/deletion procedures and a participant-rights process.
-- Assess international transfers and whether the processing requires a data
-  protection impact assessment. Research safeguards depend on the study and
-  applicable EU and national law.
-
-See [GDPR Articles 6, 9, 25, 32, 35, 44 and 89](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng).
-The library supplies none of these organisational arrangements automatically.
-Use synthetic fixtures in issues and tests; report security concerns through
-[SECURITY.md](../SECURITY.md).
+Validate source-patient linkage and measurement meaning before using outputs;
+apply input limits and protect diagnostics at the application boundary. Use
+synthetic data in public reports and follow [SECURITY.md](../SECURITY.md).
+Obtain applicable research approvals and participant permissions.
 
 ## Third-party rights
 
-The [MIT license](../LICENSE) covers rights the project can grant in its code and
-documentation. It does not grant rights to vendor services or independently
-licensed terminology, datasets and other third-party content.
+The [MIT license](../LICENSE) covers only rights the project can grant.
+Terminology, the Anchor workbook, vendor examples, datasets and genomic fixtures
+may have separate terms. Record their source, license, required notices and
+redistribution permission before publication. Public availability, a provenance
+record or synthetic status does not itself establish those rights. Check
+[HL7 terms](https://www.hl7.org/fhir/R4/license.html),
+[SNOMED licensing](https://www.snomed.org/get-snomed) and the
+[LOINC license](https://loinc.org/license/). Vendor names imply no endorsement.
 
-Before redistributing terminology, the Anchor workbook/catalogue, vendor examples
-or genomic fixtures, record the source, version, applicable terms, required notices
-and evidence of permission. Public availability and synthetic data status do not
-themselves establish permission to redistribute. A provenance record identifies a
-source; it is not a license clearance.
+## Warranty and responsibility
 
-HL7's FHIR specification is CC0, with separate
-[third-party and trademark provisions](https://www.hl7.org/fhir/R4/license.html).
-Check [SNOMED licensing and registration](https://www.snomed.org/get-snomed)
-for the relevant territories and distribution, and the current
-[LOINC license](https://loinc.org/license/). The repository does not establish
-that every intended redistribution has been cleared. Vendor names identify
-integrations and do not imply endorsement.
+The software is supplied under the MIT license’s warranty and liability terms,
+subject to applicable law. This guidance does not change that license, certify
+compliance, exclude mandatory liability or waive participant or consumer rights.
+Each party remains responsible for its own applicable obligations. Operators
+need product-specific privacy notices and service terms; obtain qualified EU/US
+review of actual functions, claims and data flows before consumer deployment.

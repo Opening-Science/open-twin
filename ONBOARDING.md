@@ -53,7 +53,6 @@ separately. A passing exit status can include advisory failures.
 | `verify/check-terminology.mjs` (allowlist) | Merge-blocking | PASS when no rejected/unknown FHIR codes |
 | `verify/check-units.mjs` | Merge-blocking | PASS |
 | Module headers / docs integrity | Merge-blocking | PASS when headers/docs intact |
-| Publication regressions / packed artifacts / SNOMED boundary | Merge-blocking | Built tarballs are checked before release |
 | Review-record gate (G2) | **Advisory** | Review debt remains — see `docs/findings/verify-baseline.md` |
 | Canary suite | Blocks on `ACCEPTED`; documented findings do not block | PASS can include four known semantic gaps |
 

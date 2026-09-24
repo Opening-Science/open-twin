@@ -6,8 +6,9 @@ matching measurements across sources.
 
 Developed under the Open Science Foundation for **research and non-medical
 consumer wellness**. Experimental interpretation modules support research
-hypothesis generation; they are not intended for diagnosis, treatment or other
-medical decisions. Confidence values measure rule support, not disease probability.
+hypothesis generation. **Medical use is outside the intended scope**, including
+diagnosis, disease prediction, clinical monitoring, triage and treatment.
+Confidence values describe rule support, not disease probability.
 
 ## Get started
 
@@ -24,13 +25,12 @@ pnpm verify
 pnpm emit-bundles out/
 ```
 
-Build first: workspace packages resolve each other's compiled exports, and
-publication checks inspect built artifacts. CI also runs the official HL7
-validator; a local validator run requires Java 21. See [Onboarding](ONBOARDING.md).
+Build first: workspace packages resolve each other's compiled exports.
+CI also runs the official HL7 validator; a local validator run requires Java 21. See [Onboarding](ONBOARDING.md).
 
 ## Packages
 
-Ten public library packages:
+Ten connector and core library packages (npm publishing is currently disabled):
 
 | package | direction | source |
 |---|---|---|
@@ -38,7 +38,7 @@ Ten public library packages:
 | [`aggregate`](packages/aggregate) | — | cross-source reconciliation |
 | [`provider-oura`](packages/provider-oura) | vendor → FHIR | Oura Ring v2 API |
 | [`provider-whoop`](packages/provider-whoop) | vendor → FHIR | WHOOP Developer API v2 |
-| [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | **Google Health API v4** (see warning) |
+| [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | Google Health API v4 |
 | [`provider-vitronic`](packages/provider-vitronic) | vendor → FHIR | VITRONIC BodyLoop body scanner |
 | [`open-wearables`](packages/provider-open-wearables) | vendor → FHIR | OpenWearables normalised schema |
 | [`fhir-r4`](packages/fhir-r4) | FHIR → FHIR | foreign R4 bundles: validation + normalisation |
@@ -47,7 +47,8 @@ Ten public library packages:
 
 
 Four additional workspace packages—`anchor-layer`, `provider-anchor`,
-`interpretation-contract` and `interpreter`—are private research modules.
+`interpretation-contract` and `interpreter`—are research modules marked private
+for npm publication.
 Package READMEs document their APIs and supported inputs.
 
 The Google Health connector uses `health.googleapis.com/v4`; it is not an
@@ -59,7 +60,7 @@ This is an experimental library collection. Applications supply scheduling,
 storage, authentication, access controls and user interfaces.
 
 Verification combines unit tests, UCUM and terminology checks, example-bundle
-validation, and publication checks. Some terminology reviews and semantic
+validation. Some terminology reviews and semantic
 canaries remain advisory or record known gaps. Passing CI does not establish
 clinical accuracy, regulatory conformity or correctness for every input. See the
 [verification baseline](docs/findings/verify-baseline.md).
