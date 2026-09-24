@@ -6,7 +6,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
  */
 import { buildBundle, ConnectorError, derivedObservation } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Observation } from 'fhir/r4';
-import { effectiveDay, type Measure, measureOf, occasionKey } from './measure';
+import { effectiveDay, type Measure, measureOf } from './measure';
 import { selectSource } from './select';
 
 /**
@@ -113,13 +113,12 @@ export function aggregate(options: AggregateOptions): AggregateResult {
       const day = effectiveDay(resource);
       // No known measure or no effective time: carried, not reconciled. Without a time
       // there is nothing to say it describes the same occasion as anything else.
-      const occasion = occasionKey(resource);
-      if (!measure || !day || !subject || !occasion) continue;
+      if (!measure || !day) continue;
 
       // Keyed by subject as well as occasion. Reconciling across subjects would
       // attribute one person's reading to another; the guard below means this can only
       // ever be belt and braces.
-      const key = JSON.stringify([subject, occasion]);
+      const key = `${subject ?? '(none)'}|${measure}|${day}`;
       const group = byOccasion.get(key) ?? { measure, day, items: [] };
       group.items.push({ connector, observation: resource });
       byOccasion.set(key, group);

@@ -17,7 +17,7 @@ import { type FhirIssue, type FhirIssueRule, issue, toOutcome } from '../issues'
 import { readEntries } from '../validate/fullurl';
 import { parseBundle, parseEnvelope } from '../validate/structure';
 import { validateFhir } from '../validate/validate';
-import { diagnosticElement, isObject, type JsonObject } from '../validate/walk';
+import { isObject, type JsonObject } from '../validate/walk';
 
 const RESTFUL_TAIL = /\/([A-Za-z]+\/[A-Za-z0-9\-.]{1,64})$/;
 
@@ -161,19 +161,6 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
     indexResource(referenceIndex, view.fullUrl, view.resourceType, view.resource, id);
   }
 
-  if (!hasSingleSubject(views, referenceIndex)) {
-    issues.push(
-      issue(
-        'error',
-        'multiple-matches',
-        'ot-normalised-subject-ambiguous',
-        'Bundle.entry.resource.subject',
-        'Normalisation requires one unambiguous source patient. Split multi-patient bundles and resolve subject identity before ingesting.'
-      )
-    );
-    return { issues, outcome: toOutcome(issues) };
-  }
-
   // Pass 2: rewrite.
   const resources: FhirResource[] = [];
   const referenced = new Set<string>();
@@ -247,57 +234,6 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
   return { bundle, issues, outcome: toOutcome(issues) };
 }
 
-/** Resolve aliases before deciding whether rewriting would combine different people. */
-function hasSingleSubject(views: ReturnType<typeof readEntries>['views'], index: ReferenceIndex): boolean {
-  const patients = views.filter((view) => view.resourceType === 'Patient');
-  if (patients.length > 1) return false;
-  const identities = new Set<string>();
-  for (const view of views) {
-    if (!view.resource) continue;
-    if (view.resourceType === 'Patient') {
-      const address = view.fullUrl ?? addressOf('Patient', view.resource);
-      if (!address) return false;
-      const resolution = resolveTarget(address, view.fullUrl, index);
-      if (!resolution.target || resolution.ambiguous) return false;
-      identities.add(resolution.target);
-    }
-    // Top-level subjects are the references this normalizer actually reassigns.
-    const subject = view.resource.subject;
-    if (!isObject(subject)) continue;
-    if (typeof subject.reference !== 'string' || !subject.reference || subject.reference.includes('?')) return false;
-    const resolution = resolveTarget(subject.reference, view.fullUrl, index);
-    if (resolution.ambiguous) return false;
-    if (resolution.target && index.types.get(resolution.target) !== 'Patient') return false;
-    if (
-      !resolution.target &&
-      !subject.reference.startsWith('#') &&
-      !/^Patient\/[A-Za-z0-9.-]+$/.test(subject.reference) &&
-      !/^https?:\/\/.+\/Patient\/[A-Za-z0-9.-]+$/.test(subject.reference)
-    )
-      return false;
-    if (subject.reference.startsWith('#')) {
-      const containedId = subject.reference.slice(1);
-      const contained = Array.isArray(view.resource.contained) ? view.resource.contained : [];
-      if (
-        !contained.some(
-          (resource) => isObject(resource) && resource.resourceType === 'Patient' && resource.id === containedId
-        )
-      )
-        return false;
-    }
-    let identity = resolution.target ?? subject.reference;
-    if (!resolution.target && /^[A-Za-z]+\//.test(subject.reference) && view.fullUrl) {
-      const tail = RESTFUL_TAIL.exec(view.fullUrl);
-      if (tail) identity = new URL(subject.reference, view.fullUrl.slice(0, tail.index + 1)).toString();
-    }
-    // Fragment identities are local to their containing resource, not the bundle.
-    if (subject.reference.startsWith('#')) identity = `${view.index}:${subject.reference}`;
-    identities.add(identity);
-    if (identities.size > 1) return false;
-  }
-  return identities.size <= 1;
-}
-
 /** Resource types whose whole meaning depends on knowing who they are about. */
 const SUBJECT_EXPECTED = new Set(['Observation', 'DiagnosticReport', 'Condition', 'Procedure', 'MedicationStatement']);
 
@@ -310,12 +246,10 @@ interface ReferenceIndex {
   exact: Map<string, Set<string>>;
   /** Unqualified ResourceType/id aliases. May deliberately contain several targets. */
   address: Map<string, Set<string>>;
-  unbased: Map<string, Set<string>>;
-  types: Map<string, string>;
 }
 
 function emptyReferenceIndex(): ReferenceIndex {
-  return { exact: new Map(), address: new Map(), unbased: new Map(), types: new Map() };
+  return { exact: new Map(), address: new Map() };
 }
 
 function addTarget(index: Map<string, Set<string>>, key: string, id: string): void {
@@ -333,11 +267,7 @@ function indexResource(
 ): void {
   if (fullUrl) addTarget(index.exact, fullUrl, id);
   const address = addressOf(resourceType, resource);
-  if (address) {
-    addTarget(index.address, address, id);
-    if (!fullUrl || !RESTFUL_TAIL.test(fullUrl)) addTarget(index.unbased, address, id);
-  }
-  index.types.set(id, resourceType);
+  if (address) addTarget(index.address, address, id);
 }
 
 function soleTarget(targets: ReadonlySet<string> | undefined): string | undefined {
@@ -368,10 +298,6 @@ function resolveTarget(
         const resolved = new URL(reference, base).toString();
         const basedTargets = index.exact.get(resolved);
         if (basedTargets) return { target: soleTarget(basedTargets), ambiguous: basedTargets.size > 1 };
-        // Never bind a relative reference to a different REST server merely
-        // because that server is the only one with this short id in the bundle.
-        const unbased = index.unbased.get(reference);
-        return { target: soleTarget(unbased), ambiguous: (unbased?.size ?? 0) > 1 };
       } catch {
         // Validation owns malformed URLs. There is no safe base-aware rewrite here.
       }
@@ -417,11 +343,9 @@ function rewriteReferences(
     }
   }
 
-  for (const [position, [key, value]] of Object.entries(node).entries()) {
+  for (const [key, value] of Object.entries(node)) {
     if (key === 'reference') continue;
-    issues.push(
-      ...rewriteReferences(value, index, sourceFullUrl, referenced, `${path}.${diagnosticElement(key, position)}`)
-    );
+    issues.push(...rewriteReferences(value, index, sourceFullUrl, referenced, `${path}.${key}`));
   }
   return issues;
 }

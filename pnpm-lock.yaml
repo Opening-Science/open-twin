@@ -26,9 +26,6 @@ importers:
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
 
   packages/aggregate:
     dependencies:

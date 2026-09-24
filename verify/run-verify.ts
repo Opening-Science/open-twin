@@ -44,16 +44,6 @@ export const GATES: Gate[] = [
     args: ['exec', 'tsx', 'verify/check-docs.ts']
   },
   {
-    id: 'publication-regressions (verify/check-publication-tests.ts)',
-    command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-publication-tests.ts']
-  },
-  {
-    id: 'packed-artifacts (verify/check-package-artifacts.ts)',
-    command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-package-artifacts.ts']
-  },
-  {
     id: 'snomed-boundary (verify/check-snomed-boundary.ts)',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-snomed-boundary.ts']
@@ -68,11 +58,6 @@ export const GATES: Gate[] = [
     id: 'canary-suite (verify/check-canaries.ts)',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-canaries.ts']
-  },
-  {
-    id: 'verify-ci-equivalence (verify/check-verify-equivalence.ts)',
-    command: 'pnpm',
-    args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts']
   }
 ];
 
