@@ -16,6 +16,7 @@ formats into FHIR R4 bundles, plus a reconciliation layer over them.
 | `@open-twin/fhir-core` | Shared FHIR building blocks, terminology systems, unit policy |
 | `@open-twin/aggregate` | Cross-source reconciliation; abstains without evidence |
 | `@open-twin/provider-oura` | Oura Ring v2 API |
+| `@open-twin/provider-whoop` | WHOOP Developer API v2 |
 | `@open-twin/provider-google-health` | **Google Health API v4** — see the warning below |
 | `@open-twin/provider-vitronic` | VITRONIC BodyLoop body scanner |
 | [`@open-twin/open-wearables`](packages/provider-open-wearables) | OpenWearables normalised schema (never verified against a running instance) |
@@ -109,6 +110,6 @@ class needs a fixture with an independently computed expected value.
 
 - Biome for format and lint.
 - Branch per issue, named `<issue-number>-<slug>`, merged by PR. Keep this.
-- `Contributing.md` is authoritative for the PR workflow and gate procedure. Commit
-  signing is deliberately not claimed and not enforced; if that changes it goes
-  through branch protection, not prose.
+- `Contributing.md` is authoritative for the PR workflow and gate procedure.
+  Signed commits and one approving review are required on `main`. Check the live
+  branch-protection rules before merging.
