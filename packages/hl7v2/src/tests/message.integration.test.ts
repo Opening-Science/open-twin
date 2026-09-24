@@ -299,3 +299,71 @@ describe('local codes stay under the system the caller names', () => {
     expect(observation?.code.coding?.[0]?.system).toBe(perSender);
   });
 });
+
+describe('scoped HL7 identity', () => {
+  const source = (issuer: string, sender = 'SENDER', patient = '12345', control = 'message-1') =>
+    `MSH|^~\\&|${sender}|FACILITY|||20260923120000+0000||ORU^R01|${control}|P|2.5.1\r` +
+    `PID|1||${patient}^^^&${issuer}&ISO||Example^Research\r` +
+    'OBX|1|NM|8302-2^Body height^LN||170|cm|||||F';
+  const convert = (raw: string) => convertMessage(raw, { timestamp: TIMESTAMP, bundleType: 'transaction' });
+
+  it('separates matching MRNs from distinct assigning authorities, including transaction targets', () => {
+    const a = convert(source('1.2.3.4'));
+    const b = convert(source('1.2.3.5'));
+    expect(entries<Patient>(a.bundle, 'Patient')[0]?.id).toBeDefined();
+    expect(entries<Patient>(a.bundle, 'Patient')[0]?.id).not.toBe(entries<Patient>(b.bundle, 'Patient')[0]?.id);
+    expect(a.bundle.entry?.map((entry) => entry.request?.url)).not.toEqual(
+      b.bundle.entry?.map((entry) => entry.request?.url)
+    );
+    expect(convert(source('1.2.3.4')).bundle).toEqual(a.bundle);
+  });
+
+  it('scopes authority-less identifiers to the sender', () => {
+    const a = convert(source('', 'A'));
+    const b = convert(source('', 'B'));
+    expect(entries<Patient>(a.bundle, 'Patient')[0]?.id).not.toBe(entries<Patient>(b.bundle, 'Patient')[0]?.id);
+  });
+
+  it('scopes message and observation ids even when the same global patient appears at two senders', () => {
+    const a = convert(source('1.2.3.4', 'A'));
+    const b = convert(source('1.2.3.4', 'B'));
+    expect(entries<Patient>(a.bundle, 'Patient')[0]?.id).toBe(entries<Patient>(b.bundle, 'Patient')[0]?.id);
+    expect(entries<Observation>(a.bundle, 'Observation')[0]?.id).not.toBe(
+      entries<Observation>(b.bundle, 'Observation')[0]?.id
+    );
+    expect(a.bundle.id).not.toBe(b.bundle.id);
+  });
+
+  it('does not derive a patient from a missing identifier or segment position', () => {
+    const result = convert(source('1.2.3.4', 'A', ''));
+    expect(result.bundle.entry).toBeUndefined();
+    expect(JSON.stringify(result.issues)).toContain('stable patient identifier');
+    const explicit = convertMessage(source('', 'A', ''), {
+      timestamp: TIMESTAMP,
+      subject: { reference: 'Patient/known' }
+    });
+    expect(entries<Observation>(explicit.bundle, 'Observation')[0]?.subject?.reference).toBe('Patient/known');
+  });
+
+  it('rejects missing message control IDs and multiple patient segments', () => {
+    expect(convert(source('1.2.3.4', 'A', '12345', '')).bundle.entry).toBeUndefined();
+    expect(convert(`${source('1.2.3.4')}\rPID|2||67890`).bundle.entry).toBeUndefined();
+  });
+});
+
+it('keeps local assigning authorities distinct within one HL7 sender', () => {
+  const raw = (authority: string) =>
+    `MSH|^~\\&|APP|FAC|||20260923120000+0000||ADT^A01|m1|P|2.5.1\rPID|1||12345^^^${authority}`;
+  const first = convertMessage(raw('LocalA'), { timestamp: TIMESTAMP });
+  const second = convertMessage(raw('LocalB'), { timestamp: TIMESTAMP });
+  expect(entries<Patient>(first.bundle, 'Patient')[0]?.id).not.toBe(entries<Patient>(second.bundle, 'Patient')[0]?.id);
+});
+
+it('requires an explicit source namespace when the HL7 sender is absent', () => {
+  const raw = 'MSH|^~\\&|||||20260923120000+0000||ADT^A01|m1|P|2.5.1\rPID|1||12345';
+  expect(convertMessage(raw, { timestamp: TIMESTAMP }).bundle.entry).toBeUndefined();
+  const first = convertMessage(raw, { timestamp: TIMESTAMP, sourceNamespace: 'feed-a' });
+  const second = convertMessage(raw, { timestamp: TIMESTAMP, sourceNamespace: 'feed-b' });
+  expect(entries<Patient>(first.bundle, 'Patient')[0]?.id).toBeDefined();
+  expect(entries<Patient>(first.bundle, 'Patient')[0]?.id).not.toBe(entries<Patient>(second.bundle, 'Patient')[0]?.id);
+});

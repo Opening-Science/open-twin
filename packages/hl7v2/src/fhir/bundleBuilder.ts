@@ -48,6 +48,8 @@ export interface ConvertOptions {
    * asserting an identity this connector cannot vouch for.
    */
   readonly subject?: Reference;
+  /** Stable sender namespace when MSH-3/MSH-4 are absent or not unique across feeds. */
+  readonly sourceNamespace?: string;
   /**
    * `Bundle.timestamp`, used when MSH-7 cannot supply one. The IG notes that "MSH-7
    * does not require a time offset while Bundle.timestamp does", and leaves the
@@ -95,7 +97,20 @@ export function convertMessage(raw: string, options: ConvertOptions): Conversion
   const message = parsed.message;
   const datatypes: DatatypeContext = { encoding: message.encoding, localCodeSystem };
   const msh = findSegment(message, 'MSH');
-  const messageControlId = field(msh, 10, 1, message.encoding) ?? 'unknown-control-id';
+  const sender = [3, 4].map((number) => [1, 2, 3].map((part) => field(msh, number, part, message.encoding) ?? ''));
+  const sourceNamespace =
+    options.sourceNamespace?.trim() ||
+    (sender.some((parts) => parts.some(Boolean)) ? JSON.stringify(sender) : undefined);
+  const controlId = field(msh, 10, 1, message.encoding);
+  if (!sourceNamespace || !controlId?.trim()) {
+    issues.add(
+      'A sender namespace and MSH-10 message control identifier are required for stable resource identity',
+      'validation',
+      { segment: 'MSH', position: 0 }
+    );
+    return { bundle: emptyBundle(options), issues: toOperationOutcome([...issues.all]) };
+  }
+  const messageControlId = JSON.stringify([sourceNamespace, controlId]);
 
   if (!isSupported(msh, datatypes, issues)) {
     return {
@@ -113,7 +128,19 @@ export function convertMessage(raw: string, options: ConvertOptions): Conversion
     return { bundle: emptyBundle(options, messageControlId), issues: toOperationOutcome([...issues.all]) };
   }
 
-  const { patient, subjectKey } = pidToPatient(pid, datatypes, issues, CONNECTOR);
+  // This converter handles one patient per message, never a multi-patient batch.
+  if (message.segments.filter((segment) => segment.name === 'PID').length !== 1) {
+    issues.add('Multiple PID segments require separate single-patient conversions', 'validation', {
+      segment: 'PID',
+      position: pid.position
+    });
+    return { bundle: emptyBundle(options, messageControlId), issues: toOperationOutcome([...issues.all]) };
+  }
+  const mappedPatient = pidToPatient(pid, datatypes, issues, CONNECTOR, sourceNamespace, options.subject?.reference);
+  if (!mappedPatient) {
+    return { bundle: emptyBundle(options, messageControlId), issues: toOperationOutcome([...issues.all]) };
+  }
+  const { patient, subjectKey } = mappedPatient;
   const subject = subjectReference({ reference: options.subject, connector: CONNECTOR, subjectKey });
 
   const resources: FhirResource[] = [];

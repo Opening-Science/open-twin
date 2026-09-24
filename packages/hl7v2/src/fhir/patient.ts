@@ -9,7 +9,7 @@ import type { Patient } from 'fhir/r4';
 import type { IssueLog } from '../issues';
 import { cxToIdentifier, type DatatypeContext, xpnToHumanName } from '../v2/datatypes';
 import { parseV2DateTime, v2Date } from '../v2/datetime';
-import { field, repetitions, type Segment } from '../v2/parser';
+import { component, field, repetitions, type Segment, subcomponent } from '../v2/parser';
 import { ADMINISTRATIVE_GENDER } from '../v2/tables';
 
 /**
@@ -39,8 +39,10 @@ export function pidToPatient(
   segment: Segment,
   context: DatatypeContext,
   issues: IssueLog,
-  connector: string
-): PatientResult {
+  connector: string,
+  sourceNamespace?: string,
+  suppliedSubject?: string
+): PatientResult | undefined {
   const at = { segment: segment.name, position: segment.position };
   const identifiers = repetitions(segment, 3)
     .map((rep) =>
@@ -61,7 +63,25 @@ export function pidToPatient(
   // D1/D2: a stable key for this person, taken from the identifier the sender
   // considers primary. It is the message control id's business to change between
   // sends; the patient key must not, or every resend creates a new patient.
-  const subjectKey = identifiers[0]?.value ?? `${segment.name}-${segment.position}`;
+  const primary = identifiers[0];
+  const primaryRepetition = repetitions(segment, 3).find((rep) => component(rep, 1, context.encoding));
+  const localAuthority = [1, 2, 3].map((part) => subcomponent(primaryRepetition, 4, part, context.encoding) ?? '');
+  const namespace =
+    primary?.system ?? (sourceNamespace ? JSON.stringify([sourceNamespace, localAuthority]) : undefined);
+  const subjectKey =
+    primary?.value && namespace
+      ? JSON.stringify(['identifier', namespace, primary.value])
+      : suppliedSubject
+        ? JSON.stringify(['subject', suppliedSubject])
+        : undefined;
+  if (!subjectKey) {
+    issues.add(
+      'A stable patient identifier and namespace, or an explicit subject reference, are required',
+      'validation',
+      { ...at, field: 'PID-3' }
+    );
+    return undefined;
+  }
 
   const patient: Patient = {
     resourceType: 'Patient',
