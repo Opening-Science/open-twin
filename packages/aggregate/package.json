@@ -37,7 +37,7 @@
     "@types/fhir": "^0.0.44"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^26.6.2",
     "jest-extended": "^7.0.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
