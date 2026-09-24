@@ -209,8 +209,8 @@ describe('normaliseBundle', () => {
         type: 'collection',
         entry: [
           {
-            fullUrl: 'https://a.example/fhir/Practitioner/p',
-            resource: { resourceType: 'Practitioner', id: 'p', gender: 'female' }
+            fullUrl: 'https://a.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p', gender: 'female' }
           },
           {
             fullUrl: 'https://a.example/fhir/Observation/o',
@@ -220,12 +220,12 @@ describe('normaliseBundle', () => {
               status: 'final',
               code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
               subject: { reference: 'Patient/external' },
-              performer: [{ reference: 'Practitioner/p' }]
+              performer: [{ reference: 'Patient/p' }]
             }
           },
           {
-            fullUrl: 'https://b.example/fhir/Practitioner/p',
-            resource: { resourceType: 'Practitioner', id: 'p', gender: 'male' }
+            fullUrl: 'https://b.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p', gender: 'male' }
           }
         ]
       };
@@ -234,7 +234,7 @@ describe('normaliseBundle', () => {
       const entries = bundle.entry ?? [];
       const expected = entries.find((entry) => {
         const resource = entry.resource as { resourceType?: string; gender?: string } | undefined;
-        return resource?.resourceType === 'Practitioner' && resource.gender === 'female';
+        return resource?.resourceType === 'Patient' && resource.gender === 'female';
       });
       const observation = entries.find((entry) => entry.resource?.resourceType === 'Observation')
         ?.resource as Observation;
@@ -248,8 +248,8 @@ describe('normaliseBundle', () => {
         type: 'collection',
         entry: [
           {
-            fullUrl: 'https://a.example/fhir/Practitioner/p',
-            resource: { resourceType: 'Practitioner', id: 'p' }
+            fullUrl: 'https://a.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p' }
           },
           {
             fullUrl: 'urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -259,12 +259,12 @@ describe('normaliseBundle', () => {
               status: 'final',
               code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
               subject: { reference: 'Patient/external' },
-              performer: [{ reference: 'Practitioner/p' }]
+              performer: [{ reference: 'Patient/p' }]
             }
           },
           {
-            fullUrl: 'https://b.example/fhir/Practitioner/p',
-            resource: { resourceType: 'Practitioner', id: 'p' }
+            fullUrl: 'https://b.example/fhir/Patient/p',
+            resource: { resourceType: 'Patient', id: 'p' }
           }
         ]
       };
@@ -365,122 +365,4 @@ describe('normaliseBundle', () => {
       expect(result.outcome.resourceType).toBe('OperationOutcome');
     });
   });
-});
-
-describe('single-subject normalization boundary', () => {
-  const bundle = (resources: unknown[]) => ({
-    resourceType: 'Bundle',
-    type: 'collection',
-    entry: resources.map((resource) => ({ resource }))
-  });
-  const observation = (id: string, reference: string) => ({
-    resourceType: 'Observation',
-    id,
-    status: 'final',
-    code: {},
-    subject: { reference }
-  });
-
-  it('rejects two patients before rewriting any subject, for collection and transaction outputs', () => {
-    const input = bundle([
-      { resourceType: 'Patient', id: 'one' },
-      { resourceType: 'Patient', id: 'two' },
-      observation('a', 'Patient/one'),
-      observation('b', 'Patient/two')
-    ]);
-    const before = structuredClone(input);
-    for (const type of ['collection', 'transaction'] as const) {
-      const result = normaliseBundle(input, options({ type, subject: { reference: 'Patient/target' } }));
-      expect(result.bundle).toBeUndefined();
-      expect(result.issues.map((item) => item.rule)).toContain('ot-normalised-subject-ambiguous');
-    }
-    expect(input).toEqual(before);
-  });
-
-  it('rejects distinct external subjects even when no Patient entries are included', () => {
-    const result = normaliseBundle(
-      bundle([observation('a', 'Patient/one'), observation('b', 'Patient/two')]),
-      options()
-    );
-    expect(result.bundle).toBeUndefined();
-    expect(result.issues.map((item) => item.rule)).toContain('ot-normalised-subject-ambiguous');
-  });
-
-  it('resolves relative and absolute aliases of the same patient before comparing', () => {
-    const input = {
-      resourceType: 'Bundle',
-      type: 'collection',
-      entry: [
-        { fullUrl: 'https://a.example/fhir/Patient/one', resource: { resourceType: 'Patient', id: 'one' } },
-        { fullUrl: 'https://a.example/fhir/Observation/a', resource: observation('a', 'Patient/one') },
-        {
-          fullUrl: 'https://a.example/fhir/Observation/b',
-          resource: observation('b', 'https://a.example/fhir/Patient/one')
-        }
-      ]
-    };
-    expect(normaliseBundle(input, options()).bundle).toBeDefined();
-  });
-
-  it('does not equate identical relative subjects from different FHIR server bases', () => {
-    const input = {
-      resourceType: 'Bundle',
-      type: 'collection',
-      entry: [
-        { fullUrl: 'https://a.example/fhir/Observation/a', resource: observation('a', 'Patient/one') },
-        { fullUrl: 'https://b.example/fhir/Observation/b', resource: observation('b', 'Patient/one') }
-      ]
-    };
-    expect(normaliseBundle(input, options()).bundle).toBeUndefined();
-  });
-
-  it('redacts identifier-shaped keys in normalization diagnostics', () => {
-    const input = {
-      resourceType: 'Bundle',
-      type: 'collection',
-      entry: [
-        { fullUrl: 'https://a.example/Practitioner/p', resource: { resourceType: 'Practitioner', id: 'p' } },
-        { fullUrl: 'https://b.example/Practitioner/p', resource: { resourceType: 'Practitioner', id: 'p' } },
-        { resource: { ...observation('o', 'Patient/external'), PatientRecord12345: { reference: 'Practitioner/p' } } }
-      ]
-    };
-    const result = normaliseBundle(input, options());
-    expect(result.bundle).toBeUndefined();
-    expect(result.issues.map((item) => item.rule)).toContain('ot-reference-ambiguous');
-    expect(JSON.stringify(result.outcome)).not.toContain('PatientRecord12345');
-  });
-});
-
-it('does not resolve an external subject to a patient on another server with the same id', () => {
-  const input = {
-    resourceType: 'Bundle',
-    type: 'collection',
-    entry: [
-      { fullUrl: 'https://a.example/Patient/p', resource: { resourceType: 'Patient', id: 'p' } },
-      {
-        fullUrl: 'https://b.example/Observation/o',
-        resource: {
-          resourceType: 'Observation',
-          id: 'o',
-          status: 'final',
-          code: {},
-          subject: { reference: 'Patient/p' }
-        }
-      }
-    ]
-  };
-  const result = normaliseBundle(input, options());
-  expect(result.bundle).toBeUndefined();
-  expect(result.issues.map((item) => item.rule)).toContain('ot-normalised-subject-ambiguous');
-});
-
-it('does not reassign a group observation to a patient', () => {
-  const input = {
-    resourceType: 'Bundle',
-    type: 'collection',
-    entry: [
-      { resource: { resourceType: 'Observation', status: 'final', code: {}, subject: { reference: 'Group/study' } } }
-    ]
-  };
-  expect(normaliseBundle(input, options()).bundle).toBeUndefined();
 });

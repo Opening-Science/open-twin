@@ -6,52 +6,54 @@
  * GOTCHA: Recency breakpoints (30/90/180) are contract constants, not clinical thresholds.
  */
 
-import {
-  ageDaysUtc,
-  type Contributor,
-  computeConfidence as contractConfidence,
-  decimalStringToRational,
-  rationalToFixed4,
-  recencyFromAgeDays
-} from '@open-twin/interpretation-contract';
+import type { Contributor } from '@open-twin/interpretation-contract';
 
-/** Whole elapsed days, shared with the normative contract. */
-export const STALE_AFTER_DAYS = 180;
+/** Contract recency map breakpoints (days) and factors — from confidence.md, not YAML. */
+const RECENCY_LE_30 = 1.0;
+const RECENCY_LE_90 = 0.7;
+const RECENCY_LE_180 = 0.4;
+const RECENCY_GT_180 = 0.1;
+const DAY_30 = 30;
+const DAY_90 = 90;
+const DAY_180 = 180;
+
+/** Age beyond which a contributor is status=stale for rule matching (confidence.md). */
+export const STALE_AFTER_DAYS = DAY_180;
 
 export function ageDays(observedAt: string, asOf: string): number {
-  return ageDaysUtc(asOf, observedAt);
+  const a = Date.parse(observedAt);
+  const b = Date.parse(asOf);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return Number.POSITIVE_INFINITY;
+  return Math.max(0, (b - a) / 86_400_000);
 }
 
-export const recencyFactor = recencyFromAgeDays;
-
-/** Preserve the number's decimal spelling, including small YAML strengths. */
-function decimal(n: number): string {
-  return String(n).replace(
-    /^(\d)(?:\.(\d+))?e-(\d+)$/,
-    (_match, first, rest, exponent) => `0.${'0'.repeat(Number(exponent) - 1)}${first}${rest ?? ''}`
-  );
+export function recencyFactor(deltaDays: number): number {
+  if (deltaDays <= DAY_30) return RECENCY_LE_30;
+  if (deltaDays <= DAY_90) return RECENCY_LE_90;
+  if (deltaDays <= DAY_180) return RECENCY_LE_180;
+  return RECENCY_GT_180;
 }
 
-/** Compatibility wrapper; rounding itself is owned by the contract. */
+/** Half-up to four decimal places (confidence.md). */
 export function roundHalfUp4(n: number): number {
-  return Number(rationalToFixed4(decimalStringToRational(decimal(n))));
+  return Math.round(n * 10_000 + Number.EPSILON) / 10_000;
 }
 
 export function computeConfidence(contributing: Contributor[], ruleStrength: number, asOf: string): number {
-  // Validate as_of even when no present contributors need a recency calculation.
-  ageDaysUtc(asOf, asOf);
+  if (contributing.length === 0) return 0;
   const present = contributing.filter((c) => c.status === 'present');
-  let recency = present.length === 0 ? 0 : 1;
+  const C = present.length / contributing.length;
+  if (present.length === 0) return 0;
+
+  let R = 1;
   for (const c of present) {
-    const factor = c.observed_at ? recencyFromAgeDays(ageDaysUtc(asOf, c.observed_at)) : 0;
-    recency = Math.min(recency, factor);
+    if (c.observed_at == null || c.observed_at === '') {
+      R = 0;
+      break;
+    }
+    R = Math.min(R, recencyFactor(ageDays(c.observed_at, asOf)));
   }
-  return Number(
-    contractConfidence({
-      presentCount: present.length,
-      contributingCount: contributing.length,
-      R: decimal(recency),
-      S: decimal(ruleStrength)
-    }).fixed4
-  );
+
+  const S = ruleStrength;
+  return roundHalfUp4(C * R * S);
 }

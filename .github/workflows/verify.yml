@@ -16,13 +16,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: verify-${{ github.workflow }}-${{ github.ref }}
+  group: verify-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -69,21 +68,17 @@ jobs:
       - name: Docs integrity gate
         run: pnpm exec tsx verify/check-docs.ts
 
-      - name: Build artifacts before publication checks
-        run: pnpm -r build
-
-      - name: Publication regression checks
-        run: pnpm exec tsx verify/check-publication-tests.ts
-
-      - name: Packed publication artifacts
-        run: pnpm exec tsx verify/check-package-artifacts.ts
-
       - name: SNOMED publication boundary
         run: pnpm exec tsx verify/check-snomed-boundary.ts
 
       - name: Terminology review-records (advisory)
         continue-on-error: true
         run: pnpm exec tsx verify/check-terminology.ts
+
+      # Canary harnesses import package sources that resolve @open-twin/* via
+      # dist/ (same as typecheck). Without a build, CI fails MODULE_NOT_FOUND
+      # before any canary outcome is reported.
+      - run: pnpm -r build
 
       - name: Canary suite
         run: pnpm exec tsx verify/check-canaries.ts

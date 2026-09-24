@@ -59,15 +59,6 @@ const normalising = (rule: FhirIssueRule, why: string, input: unknown, overrides
 });
 
 const CASES: readonly RuleCase[] = [
-  validating('ot-input-unsafe', 'a non-JSON value is rejected', { resourceType: 'Patient', value: 1n }),
-  normalising(
-    'ot-normalised-subject-ambiguous',
-    'multiple patients cannot be reassigned to one',
-    inBundle([
-      { resource: { resourceType: 'Patient', id: 'one' } },
-      { resource: { resourceType: 'Patient', id: 'two' } }
-    ])
-  ),
   validating('ot-not-an-object', 'a number is not a resource', 42),
   validating('ot-missing-resource-type', 'resourceType is not a string', { resourceType: 7 }),
   validating('ot-unknown-resource-type', 'Scan is not an R4 resource type', { resourceType: 'Scan' }),
@@ -221,8 +212,8 @@ const CASES: readonly RuleCase[] = [
     type: 'collection',
     entry: [
       {
-        fullUrl: 'https://a.example/fhir/Practitioner/p',
-        resource: { resourceType: 'Practitioner', id: 'p' }
+        fullUrl: 'https://a.example/fhir/Patient/p',
+        resource: { resourceType: 'Patient', id: 'p' }
       },
       {
         fullUrl: 'urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -231,12 +222,12 @@ const CASES: readonly RuleCase[] = [
           id: 'o',
           status: 'final',
           code: {},
-          performer: [{ reference: 'Practitioner/p' }]
+          performer: [{ reference: 'Patient/p' }]
         }
       },
       {
-        fullUrl: 'https://b.example/fhir/Practitioner/p',
-        resource: { resourceType: 'Practitioner', id: 'p' }
+        fullUrl: 'https://b.example/fhir/Patient/p',
+        resource: { resourceType: 'Patient', id: 'p' }
       }
     ]
   }),

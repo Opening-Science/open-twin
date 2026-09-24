@@ -40,6 +40,7 @@ export type Measure =
  */
 const BY_LOINC: Readonly<Record<string, Measure>> = {
   '93832-4': 'total-sleep-time', // Sleep duration
+  '103213-5': 'total-sleep-time', // Duration in bed — same measure, different boundary
   '93829-0': 'sleep-staging', // REM sleep duration
   '93830-8': 'sleep-staging', // Light sleep duration
   '93831-6': 'sleep-staging', // Deep sleep duration
@@ -49,6 +50,7 @@ const BY_LOINC: Readonly<Record<string, Measure>> = {
   '41981-2': 'energy-expenditure', // Calories burned
   '59408-5': 'oxygen-saturation', // SpO2 by pulse oximetry
   '40443-4': 'resting-heart-rate', // Heart rate --resting
+  '103222-6': 'resting-heart-rate', // Resting heart rate during sleep
   '94122-9': 'vo2max' // Oxygen consumption --peak during exercise
 };
 
@@ -58,7 +60,8 @@ const BY_LOINC: Readonly<Record<string, Measure>> = {
  * connectors can both publish `hrv` and mean different things.
  */
 const BY_LOCAL: Readonly<Record<string, Measure>> = {
-  [`${SYSTEMS.GOOGLE_HEALTH}|heart-rate-variability`]: 'heart-rate-variability'
+  [`${SYSTEMS.GOOGLE_HEALTH}|heart-rate-variability`]: 'heart-rate-variability',
+  [`${SYSTEMS.OURA}|hrv-balance`]: 'heart-rate-variability'
 };
 
 export function measureOf(observation: Observation): Measure | undefined {
@@ -77,8 +80,10 @@ export function measureOf(observation: Observation): Measure | undefined {
 /**
  * The day an Observation is about, as the calendar date of its effective time.
  *
- * Used to label reconciliations. Sharing a calendar day alone does not establish
- * measurement equivalence; occasionKey additionally checks the code, unit and time.
+ * Two connectors describing the same night do not agree to the second — one reports
+ * the moment the sync completed, another the start of the sleep period — so matching
+ * on an exact instant would find no overlap at all and silently reconcile nothing.
+ * The day is the granularity the vendors themselves summarise at.
  *
  * Returns undefined when there is no effective time. Such an Observation is not
  * reconciled: without a time there is nothing to say it describes the same occasion as
@@ -90,45 +95,9 @@ export function effectiveDay(observation: Observation): string | undefined {
   return instant.slice(0, 10);
 }
 
-/** Conservative equivalence key; a reliability category alone cannot identify a measurement. */
+/** Identifies the occasion two Observations would have to share to be reconcilable. */
 export function occasionKey(observation: Observation): string | undefined {
   const measure = measureOf(observation);
   const day = effectiveDay(observation);
-  const time = observation.effectiveDateTime ?? observation.effectivePeriod?.start;
-  if (!time || !Number.isFinite(Date.parse(time))) return undefined;
-  const quantity = observation.valueQuantity;
-  const codings = observation.code?.coding ?? [];
-  // Evidence categories do not establish equivalence. Require an unambiguous
-  // coding, the same unit, and the same measurement window/context. No conversion
-  // or inferred equivalence is performed by source selection.
-  if (
-    !measure ||
-    !day ||
-    codings.length !== 1 ||
-    !quantity?.system ||
-    !quantity.code ||
-    typeof quantity.value !== 'number' ||
-    !Number.isFinite(quantity.value) ||
-    quantity.comparator ||
-    observation.component?.length
-  )
-    return undefined;
-  const coding = codings[0];
-  if (!coding?.system || !coding.code) return undefined;
-  const context = [
-    observation.method,
-    observation.bodySite,
-    observation.specimen,
-    observation.device,
-    observation.focus
-  ];
-  if (context.some((value) => value !== undefined)) return undefined;
-  return JSON.stringify([
-    coding.system,
-    coding.code,
-    quantity.system,
-    quantity.code,
-    observation.effectiveDateTime ?? null,
-    observation.effectivePeriod ?? null
-  ]);
+  return measure && day ? `${measure}|${day}` : undefined;
 }

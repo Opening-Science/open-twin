@@ -26,9 +26,6 @@ importers:
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
 
   packages/aggregate:
     dependencies:
@@ -104,8 +101,8 @@ importers:
         specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@types/node':
         specifier: ^20.19.43
@@ -132,8 +129,8 @@ importers:
         specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@types/node':
         specifier: ^20.19.43
@@ -309,8 +306,8 @@ importers:
         specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@rollup/plugin-swc':
         specifier: ^0.4.1
@@ -343,8 +340,8 @@ importers:
         specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: ^7.1.9
@@ -380,8 +377,8 @@ importers:
         specifier: ^0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: ^7.1.9
@@ -417,8 +414,8 @@ importers:
         specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: 4.4.3
-        version: 4.4.3
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: 7.1.9
@@ -2446,8 +2443,8 @@ packages:
     resolution: {integrity: sha512-9qv4rlDiopXg4E69k+vMHjNN63YFMe9sZMrdlvKnCjlCRWeCBswPPMPUfx+ipsAWq1LXHe70RcbaHdJJpS6hyQ==}
     engines: {node: '>= 10'}
 
-  zod@4.4.3:
-    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
 
@@ -4235,4 +4232,4 @@ snapshots:
       compress-commons: 4.1.2
       readable-stream: 3.6.2
 
-  zod@4.4.3: {}
+  zod@4.6.5: {}
