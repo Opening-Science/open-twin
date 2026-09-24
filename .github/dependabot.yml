@@ -11,7 +11,32 @@ updates:
       interval: weekly
     cooldown:
       default-days: 2
-    open-pull-requests-limit: 50
+    open-pull-requests-limit: 10
+    groups:
+      typescript-toolchain:
+        patterns:
+          - typescript
+          - '@types/node'
+          - tsx
+          - tsup
+          - vitest
+          - jest-extended
+          - '@rollup/plugin-swc'
+          - reflect-metadata
+      fhir-and-units:
+        patterns:
+          - '@types/fhir'
+          - '@lhncbc/ucum-lhc'
+      schema-validation:
+        patterns:
+          - ajv
+          - ajv-formats
+          - json-schema-to-typescript
+          - zod
+      google-health-client:
+        patterns:
+          - '@googleapis/health'
+          - googleapis
 
   - package-ecosystem: github-actions
     directory: /
@@ -19,3 +44,7 @@ updates:
       interval: weekly
     cooldown:
       default-days: 2
+    groups:
+      actions:
+        patterns:
+          - '*'
