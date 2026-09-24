@@ -38,7 +38,7 @@ on:
           - '@open-twin/provider-whoop'
           - '@open-twin/provider-google-health'
           - '@open-twin/provider-vitronic'
-          - '@open-twin/provider-open-wearables'
+          - '@open-twin/open-wearables'
       publish:
         description: 'Publish package to npm?'
         type: boolean
@@ -132,10 +132,15 @@ jobs:
   # DEPENDENTS, so building provider-oura never built the fhir-core it depends on.
   # `pnpm -r build` above builds everything in topological order instead.
 
+  verification:
+    name: Verify release commit
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
+    uses: ./.github/workflows/verify.yml
+
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, verification]
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == true }}
     environment: npm
     steps:
@@ -148,9 +153,14 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter "${{ inputs.package }}..." build
+      - run: pnpm -r build
+
+      - name: Pack and verify the selected release
+        run: pnpm exec tsx verify/check-package-artifacts.ts --package "$RELEASE_PACKAGE" --out "$RUNNER_TEMP/open-twin-release"
+        env:
+          RELEASE_PACKAGE: ${{ inputs.package }}
 
       - name: Publish ${{ inputs.package }}
-        run: pnpm --filter "${{ inputs.package }}" publish --access public --no-git-checks
+        run: npm publish "$RUNNER_TEMP/open-twin-release/package.tgz" --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

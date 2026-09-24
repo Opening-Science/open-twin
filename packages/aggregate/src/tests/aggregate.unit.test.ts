@@ -383,3 +383,49 @@ describe('aggregate', () => {
     ).toThrow(/connector tag/);
   });
 });
+
+describe('measurement equivalence before source selection', () => {
+  it.each([
+    ['93832-4', '103213-5'],
+    ['93829-0', '93830-8'],
+    ['93830-8', '93831-6'],
+    ['40443-4', '103222-6']
+  ])('does not reconcile %s with %s', (left, right) => {
+    const result = aggregate({
+      sources: [
+        { bundle: bundleFrom('oura', [{ recordId: 'a', code: left, value: 420, unit: UCUM.MINUTE }]) },
+        { bundle: bundleFrom('google-health', [{ recordId: 'b', code: right, value: 480, unit: UCUM.MINUTE }]) }
+      ],
+      subjectKey: SUBJECT_KEY,
+      timestamp: TIMESTAMP
+    });
+    expect(result.reconciliations).toEqual([]);
+    expect(result.bundle.entry).toHaveLength(2);
+  });
+
+  it.each([
+    'units',
+    'period',
+    'method',
+    'subject',
+    'comparator',
+    'hrv-score'
+  ])('does not infer equivalence across %s', (difference) => {
+    const a = bundleFrom('oura', [{ recordId: 'a', code: SLEEP, value: 420, unit: UCUM.MINUTE }]);
+    const b = bundleFrom('google-health', [{ recordId: 'b', code: SLEEP, value: 480, unit: UCUM.MINUTE }]);
+    const right = b.entry?.[0]?.resource as Observation;
+    if (difference === 'units') right.valueQuantity = { value: 8, system: SYSTEMS.UCUM, unit: 'h', code: 'h' };
+    if (difference === 'period') right.effectiveDateTime = '2026-06-20T20:00:00+02:00';
+    if (difference === 'method') right.method = { text: 'different measurement protocol' };
+    if (difference === 'subject') right.subject = undefined;
+    if (difference === 'comparator' && right.valueQuantity) right.valueQuantity.comparator = '<';
+    if (difference === 'hrv-score') {
+      (a.entry?.[0]?.resource as Observation).code = { coding: [{ system: SYSTEMS.OURA, code: 'hrv-balance' }] };
+      right.code = { coding: [{ system: SYSTEMS.GOOGLE_HEALTH, code: 'heart-rate-variability' }] };
+    }
+    expect(
+      aggregate({ sources: [{ bundle: a }, { bundle: b }], subjectKey: SUBJECT_KEY, timestamp: TIMESTAMP })
+        .reconciliations
+    ).toEqual([]);
+  });
+});

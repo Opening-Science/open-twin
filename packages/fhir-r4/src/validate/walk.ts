@@ -20,37 +20,151 @@ export interface Visited {
   path: string;
 }
 
-/**
- * The shape of a FHIR element name. Anything else is elided from a path rather than
- * copied into one.
- *
- * `validateFhir` accepts `unknown`, so a key in the tree is only an element name by
- * convention — a system that indexes an object by a record number, a date or a name
- * produces keys that are data. A path built by concatenating them would carry that
- * data into the report, which is the one thing this package must never do. The
- * placeholder keeps the path traceable by position without repeating the key.
- */
-const ELEMENT_NAME = /^[A-Za-z][A-Za-z0-9_-]{0,63}$/;
+/** Only static element names reach diagnostic paths; unknown keys may be identifiers. */
+const DIAGNOSTIC_ELEMENTS = new Set([
+  'resourceType',
+  'id',
+  'meta',
+  'tag',
+  'security',
+  'profile',
+  'versionId',
+  'lastUpdated',
+  'entry',
+  'resource',
+  'fullUrl',
+  'request',
+  'response',
+  'search',
+  'link',
+  'contained',
+  'extension',
+  'modifierExtension',
+  'url',
+  'identifier',
+  'system',
+  'value',
+  'code',
+  'coding',
+  'text',
+  'status',
+  'subject',
+  'patient',
+  'encounter',
+  'reference',
+  'type',
+  'display',
+  'component',
+  'referenceRange',
+  'low',
+  'high',
+  'numerator',
+  'denominator',
+  'valueQuantity',
+  'valueCodeableConcept',
+  'valueString',
+  'valueBoolean',
+  'valueInteger',
+  'valueRange',
+  'valueRatio',
+  'valueSampledData',
+  'valueTime',
+  'valueDateTime',
+  'valuePeriod',
+  'valueReference',
+  'valueDecimal',
+  'valueCode',
+  'valueUri',
+  'unit',
+  'comparator',
+  'effectiveDateTime',
+  'effectivePeriod',
+  'start',
+  'end',
+  'issued',
+  'dataAbsentReason',
+  'performer',
+  'result',
+  'basedOn',
+  'partOf',
+  'specimen',
+  'device',
+  'focus',
+  'derivedFrom',
+  'hasMember',
+  'method',
+  'bodySite',
+  'name',
+  'telecom',
+  'address'
+]);
 
-/**
- * Depth-first walk over every object in the tree, including the root.
- *
- * Arrays contribute an index to the path so a finding can be traced back to one
- * element rather than to "somewhere in a list", which is the difference between a
- * report a developer can act on and one they cannot.
- */
+export function diagnosticElement(key: string, index: number): string {
+  return DIAGNOSTIC_ELEMENTS.has(key) ? key : `<redacted>[${index}]`;
+}
+
+/** Iterative walk. Public validation bounds and checks the JSON graph before walking. */
 export function* walkObjects(root: unknown, path: string): Generator<Visited> {
-  if (Array.isArray(root)) {
-    for (const [index, item] of root.entries()) {
-      yield* walkObjects(item, `${path}[${index}]`);
+  const stack: Array<{ node: unknown; path: string }> = [{ node: root, path }];
+  const seen = new WeakSet<object>();
+  while (stack.length) {
+    const item = stack.pop();
+    if (!item || typeof item.node !== 'object' || item.node === null) continue;
+    if (seen.has(item.node)) continue;
+    seen.add(item.node);
+    if (Array.isArray(item.node)) {
+      for (let i = item.node.length - 1; i >= 0; i--) {
+        stack.push({ node: item.node[i], path: `${item.path}[${i}]` });
+      }
+    } else if (isObject(item.node)) {
+      yield { node: item.node, path: item.path };
+      const entries = Object.entries(item.node);
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const entry = entries[i];
+        if (entry) stack.push({ node: entry[1], path: `${item.path}.${diagnosticElement(entry[0], i)}` });
+      }
     }
-    return;
   }
-  if (!isObject(root)) return;
-  yield { node: root, path };
-  for (const [key, value] of Object.entries(root)) {
-    yield* walkObjects(value, `${path}.${ELEMENT_NAME.test(key) ? key : '<redacted>'}`);
+}
+
+/** Reject cycles, accessors and oversized graphs before parsing, cloning or traversing. */
+export function isBoundedJson(input: unknown): boolean {
+  const stack: Array<{ value: unknown; depth: number; leave?: boolean }> = [{ value: input, depth: 0 }];
+  const ancestors = new WeakSet<object>();
+  let nodes = 0;
+  let characters = 0;
+  while (stack.length) {
+    const item = stack.pop();
+    if (!item) break;
+    const { value, depth } = item;
+    if (item.leave) {
+      ancestors.delete(value as object);
+      continue;
+    }
+    if (++nodes > 50_000 || depth > 64) return false;
+    if (typeof value === 'string') characters += value.length;
+    if (characters > 10_000_000) return false;
+    if (value === null || value === undefined || typeof value === 'string' || typeof value === 'boolean') continue;
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) return false;
+      continue;
+    }
+    if (typeof value !== 'object' || ancestors.has(value)) return false;
+    const prototype = Object.getPrototypeOf(value);
+    if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) return false;
+    if (Array.isArray(value) && value.length > 50_000) return false;
+    const keys = Object.keys(value);
+    if (nodes + stack.length + keys.length > 50_000) return false;
+    ancestors.add(value);
+    stack.push({ value, depth, leave: true });
+    for (const key of keys) {
+      characters += key.length;
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !('value' in descriptor)) return false;
+      stack.push({ value: descriptor.value, depth: depth + 1 });
+    }
   }
+  return characters <= 10_000_000;
 }
 
 /**

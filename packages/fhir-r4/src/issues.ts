@@ -49,6 +49,8 @@ export const FHIR_ISSUE_RULES = [
   'bdl-8',
   // Rules this package defines. `ot-` marks them as open-twin's, not HL7's.
   'ot-not-an-object',
+  'ot-input-unsafe',
+  'ot-normalised-subject-ambiguous',
   'ot-missing-resource-type',
   'ot-unknown-resource-type',
   'ot-missing-required-element',

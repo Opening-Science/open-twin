@@ -16,7 +16,7 @@ import {
   type SystemState,
   type UnrenderableState
 } from '@open-twin/interpretation-contract';
-import { ageDays, computeConfidence, STALE_AFTER_DAYS } from './confidence.js';
+import { ageDays, computeConfidence, roundHalfUp4, STALE_AFTER_DAYS } from './confidence.js';
 import type { EvaluateInput, InterpreterObservation, LadderWhen, Rule, RulePack } from './types.js';
 
 const SEVERITY_RANK: Record<Severity, number> = {
@@ -266,6 +266,10 @@ function insufficientReason(contributors: Contributor[], rule: Rule): string | u
  * byte-identical JSON after stable key ordering.
  */
 export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpretationDocumentV02 {
+  ageDays(input.as_of, input.as_of);
+  for (const observation of input.observations) {
+    if (observation.observed_at) ageDays(observation.observed_at, input.as_of);
+  }
   const byId = observationMap(input.observations);
   const rules = pack.rules
     .filter((r) => !input.families || input.families.includes(r.family))
@@ -283,7 +287,7 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
     let confidence = computeConfidence(contributing, rule.rule_strength, input.as_of);
     if (rule.caps?.max_confidence !== undefined) {
       confidence = Math.min(confidence, rule.caps.max_confidence);
-      confidence = Math.round(confidence * 10_000 + Number.EPSILON) / 10_000;
+      confidence = roundHalfUp4(confidence);
     }
 
     const reason = insufficientReason(contributing, rule);

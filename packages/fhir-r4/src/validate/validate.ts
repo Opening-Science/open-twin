@@ -5,13 +5,13 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 FHIR R4 structure rules (local checks); CI also runs official validator on emitted exemplars.
  */
 import type { OperationOutcome } from 'fhir/r4';
-import { type FhirIssue, hasErrors, toOutcome } from '../issues';
+import { type FhirIssue, hasErrors, issue, toOutcome } from '../issues';
 import { checkUcumCodes, checkUnitPolicy } from '../units/check';
 import { checkFullUrls, type EntryView, readEntries } from './fullurl';
 import { checkObservation } from './invariants';
 import { buildReferenceIndex, checkReferences, collectReferences, type ReferenceSite } from './references';
 import { checkResourceStructure, parseBundle, parseEnvelope } from './structure';
-import type { JsonObject } from './walk';
+import { isBoundedJson, type JsonObject } from './walk';
 
 export interface ValidationOptions {
   /**
@@ -44,6 +44,28 @@ export interface ValidationResult {
  * a server this package does not have.
  */
 export function validateFhir(input: unknown, options: ValidationOptions = {}): ValidationResult {
+  try {
+    if (!isBoundedJson(input)) return invalidInput();
+    return validateBoundedFhir(input, options);
+  } catch {
+    // Unknown may include proxies or accessors. Never echo their thrown values.
+    return invalidInput();
+  }
+}
+
+function invalidInput(): ValidationResult {
+  return result([
+    issue(
+      'fatal',
+      'structure',
+      'ot-input-unsafe',
+      'Resource',
+      'Input must be bounded JSON without cycles or accessors (depth <= 64, nodes <= 50000, text <= 10000000 characters).'
+    )
+  ]);
+}
+
+function validateBoundedFhir(input: unknown, options: ValidationOptions): ValidationResult {
   const checkUnits = options.units ?? true;
   const issues: FhirIssue[] = [];
 

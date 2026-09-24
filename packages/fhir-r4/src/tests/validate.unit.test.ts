@@ -119,7 +119,9 @@ describe('validateFhir', () => {
     }
 
     // Elided rather than dropped: the finding is still reported, and still located.
-    expect(result.issues.map((item) => item.expression)).toContain('Bundle.entry[0].resource.<redacted>.code');
+    expect(
+      result.issues.some((item) => /^Bundle\.entry\[0\]\.resource\.<redacted>\[\d+\]\.code$/.test(item.expression))
+    ).toBe(true);
   });
 
   /**
@@ -284,5 +286,72 @@ describe('validateFhir', () => {
       false
     );
     expect(validateFhir(fixture?.bundle, { units: true }).issues.some((i) => i.rule === 'ot-ucum-invalid')).toBe(true);
+  });
+});
+
+describe('untrusted validation input', () => {
+  it.each(['PatientRecord12345', 'AliceSmith', 'record_20260923'])('redacts %s in diagnostic paths', (key) => {
+    const report = validateFhir({
+      resourceType: 'Patient',
+      [key]: { system: 'http://unitsofmeasure.org', code: 'bad-unit!' }
+    });
+    expect(report.ok).toBe(false);
+    expect(report.issues.map((item) => item.rule)).toContain('ot-ucum-invalid');
+    expect(JSON.stringify(report)).not.toContain(key);
+    expect(report.issues.some((item) => item.expression.includes('<redacted>'))).toBe(true);
+  });
+
+  it('returns a bounded issue for a 5000-level JSON tree', () => {
+    const root: Record<string, unknown> = { resourceType: 'Patient' };
+    let current = root;
+    for (let i = 0; i < 5000; i++) {
+      const child = {};
+      current.extension = child;
+      current = child;
+    }
+    const report = validateFhir(root);
+    expect(report.ok).toBe(false);
+    expect(report.issues.map((item) => item.rule)).toEqual(['ot-input-unsafe']);
+  });
+
+  it('rejects cycles, oversized arrays and oversized strings without throwing', () => {
+    const cycle: Record<string, unknown> = { resourceType: 'Patient' };
+    cycle.extension = cycle;
+    for (const input of [
+      cycle,
+      { resourceType: 'Patient', extension: new Array(50_001) },
+      { resourceType: 'Patient', text: 'x'.repeat(10_000_001) }
+    ]) {
+      const report = validateFhir(input);
+      expect(report.ok).toBe(false);
+      expect(report.issues.map((item) => item.rule)).toEqual(['ot-input-unsafe']);
+    }
+  });
+
+  it('never invokes input accessors or reports a thrown payload', () => {
+    let reads = 0;
+    const input = {
+      resourceType: 'Patient',
+      get secret() {
+        reads++;
+        throw new Error('SensitivePayload');
+      }
+    };
+    expect(validateFhir(input).ok).toBe(false);
+    expect(reads).toBe(0);
+    const proxy = new Proxy(
+      {},
+      {
+        getPrototypeOf() {
+          throw new Error('SensitivePayload');
+        }
+      }
+    );
+    expect(JSON.stringify(validateFhir(proxy))).not.toContain('SensitivePayload');
+  });
+
+  it('accepts shared, acyclic JSON objects', () => {
+    const tag = { system: 'https://example.org/tags', code: 'sample' };
+    expect(validateFhir({ resourceType: 'Patient', meta: { tag: [tag, tag] } }).ok).toBe(true);
   });
 });

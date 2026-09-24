@@ -61,3 +61,29 @@ describe('D-k abstention', () => {
     );
   });
 });
+
+it('keeps a contributor present through 180 whole elapsed days and stale at 181', () => {
+  const pack = loadRulePackFile(defaultRulePackPath());
+  const asOf = '2026-09-23T12:00:00Z';
+  for (const [days, expected] of [
+    [180.5, 'present'],
+    [181, 'stale']
+  ] as const) {
+    const doc = evaluate(pack, {
+      subject_ref: 'Patient/test',
+      as_of: asOf,
+      families: ['glycemic'],
+      observations: [
+        {
+          biomarker_id: 'BM-128',
+          value: 110,
+          observed_at: new Date(Date.parse(asOf) - days * 86400000).toISOString(),
+          reference_interval_id: 'test',
+          interval: { low: 70, high: 100 },
+          interval_record_kind: 'reference_interval'
+        }
+      ]
+    });
+    expect(doc.states[0]?.contributing.find((item) => item.biomarker_id === 'BM-128')?.status).toBe(expected);
+  }
+});
