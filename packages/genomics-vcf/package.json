@@ -34,15 +34,15 @@
   "license": "MIT",
   "dependencies": {
     "@open-twin/fhir-core": "workspace:*",
-    "@types/fhir": "^0.0.44",
-    "zod": "^4.6.5"
+    "@types/fhir": "0.0.44",
+    "zod": "4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^26.6.2",
-    "jest-extended": "^7.0.0",
-    "tsup": "^8.5.1",
-    "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "@types/node": "26.6.2",
+    "jest-extended": "7.0.0",
+    "tsup": "8.5.1",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
   },
   "repository": {
     "type": "git",
