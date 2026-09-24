@@ -3,8 +3,8 @@
 Generic FHIR R4 ingest and conformance for open-twin.
 
 Accepts external FHIR R4 bundles, reports selected structural and unit issues,
-and normalizes addressing and provenance. Its registered HL7 validator example
-checks one normalization output; it does not prove conformance for every input.
+and normalises addressing and provenance. Its registered HL7 validator example
+checks one normalisation output; it does not prove conformance for every input.
 See [intended use](../../docs/INTENDED-USE.md) before handling participant data.
 
 ```ts
@@ -26,8 +26,8 @@ const { bundle, outcome } = normaliseBundle(payload, {
 
 ### 1. Validation — `validateFhir(input, { units? })`
 
-Accepts unknown input and reports ordinary structural errors as
-`{ ok, issues, outcome }`, with a FHIR `OperationOutcome`. Hosts should bound
+Accepts unknown input and reports selected structural errors as
+`{ ok, issues, outcome }`, with a FHIR `OperationOutcome`. Integrators must bound
 input size and depth and handle exceptions from malformed or excessive input.
 
 | rule | what it catches |
@@ -62,7 +62,7 @@ working one by reading the code.
 
 Four things change, and nothing else:
 
-- **D1** every `subject` is repointed at one caller-supplied reference. Without one,
+- **D1** every `subject` is repointed at one integrator-supplied reference. Without one,
   the deterministic `urn:uuid:` fallback applies and a minimal Patient is added so the
   bundle still resolves internally.
 - **D2** every resource gets a deterministic UUID id from `deterministicId`, every
@@ -84,7 +84,7 @@ resource type, a duplicate fullUrl, an invalid UCUM code, a `urn:uuid:` referenc
 that resolves to nothing, or `ot-reference-ambiguous` (an unbased relative reference
 that matches resources on more than one server). The addressing defects it exists to
 repair (`ot-fullurl-*`, `bdl-8`) do not stop it, and neither do the unit findings,
-which are carried through to the caller attached to a bundle that still states them.
+which are carried through to the integrator attached to a bundle that still states them.
 
 ### 3. UCUM and unit checking
 
@@ -185,7 +185,7 @@ Two consequences follow from the first row and they should not be lost:
 
 `fhirR4IngestBundle()` is registered in `verify/bundles.manifest.ts` as
 `fhir-r4-ingest`. It is `HL7_VITALS_BUNDLE` put through `normaliseBundle` with no
-caller-supplied subject, so D1's fallback applies. The input is hostile in the way
+integrator-supplied subject, so D1's fallback applies. The input is hostile in the way
 real input is: every subject is `Patient/example`, no Patient is in the bundle at all,
 and all three entries declare `meta.profile: vitalsigns`, so the validator enforces
 the vital-signs profiles on the output.
@@ -212,14 +212,15 @@ without enumerating its codes.
 
 ## Privacy and integration
 
-Diagnostic prose uses fixed messages, but diagnostic paths can retain input keys
-that resemble field names. Treat reports as potentially sensitive; use synthetic
-examples in public issues and restrict log access and retention.
+Messages are fixed strings, but FHIRPath locations are built from input object
+keys, so a report can echo a key from the input. Integrators must protect reports
+as potentially sensitive; use synthetic examples in public issues and restrict
+log access and retention.
 
-The caller must supply a bundle for one verified source patient and establish
-its relationship to the destination subject before normalization. Apply input
+The integrator must supply a bundle for one verified source patient and establish
+its relationship to the destination subject before normalisation. Apply input
 size/depth limits at the application boundary. These functions are not a full
-FHIR profile validator or an anonymization service. See the
+FHIR profile validator or an anonymisation service. See the
 [intended-use guidance](../../docs/INTENDED-USE.md).
 
 The recorded oracle file does quote the fixtures. Those are synthetic bundles written

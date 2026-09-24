@@ -272,14 +272,9 @@ not re-declare the enum.
 <a id="d13"></a>
 ## D13 — MDR intended-use line on every interpretation document
 
-**Context.** The project's intended use is research and non-medical consumer
-wellness; experimental interpretation remains research-only. Medical-device
-qualification depends on intended purpose, functionality and product claims.
-MDR Annex VIII Rule 11 classifies relevant software after qualification; it is
-not an exemption for software without a recommendation field. Laboratory or
-genetic interpretation may also require an IVDR assessment. A research label or
-schema constant does not settle either question. See
-[Intended use and integration responsibilities](docs/INTENDED-USE.md).
+**Context.** Interpretations support research hypothesis generation. The
+[intended-use guidance](docs/INTENDED-USE.md) defines the medical-use exclusion
+and EU product boundary; schema constants do not establish regulatory status.
 
 **Decision.** Every interpretation document **must** carry:
 

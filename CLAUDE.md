@@ -18,17 +18,17 @@ formats into FHIR R4 bundles, plus a reconciliation layer over them.
 | `@open-twin/provider-oura` | Oura Ring v2 API |
 | `@open-twin/provider-google-health` | **Google Health API v4** — see the warning below |
 | `@open-twin/provider-vitronic` | VITRONIC BodyLoop body scanner |
-| `@open-twin/open-wearables` | OpenWearables normalised schema (never verified against a running instance) |
+| [`@open-twin/open-wearables`](packages/provider-open-wearables) | OpenWearables normalised schema (never verified against a running instance) |
 | `@open-twin/fhir-r4` | Foreign FHIR R4 bundles: validation + normalisation |
 | `@open-twin/hl7v2` | HL7 v2.x ORU/ADT messages |
 | `@open-twin/genomics-vcf` | VCF variant calls via the Genomics Reporting IG |
 
 MIT licensed, developed under the Open Science Foundation.
 
-Intended for research and non-medical consumer wellness; experimental
-interpretation is research-only. Follow `docs/INTENDED-USE.md` when changing
-outputs, claims or documentation. Do not equate conformance tests or research
-disclaimers with clinical validation, anonymity or regulatory clearance.
+Research and non-medical consumer wellness only; interpretation is research-only.
+Medical use is outside the intended scope. Follow [intended use](docs/INTENDED-USE.md)
+when changing outputs or claims. Passing tests do not establish clinical validity
+or regulatory conformity.
 
 Documentation map: `README.md` (front door + docs table), `ONBOARDING.md` (first-day
 path and the traps), `DECISIONS.md` (before touching any mapper), `BUILD-SUMMARY.md`

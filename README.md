@@ -6,13 +6,12 @@ matching measurements across sources.
 
 Developed under the Open Science Foundation for **research and non-medical
 consumer wellness**. Experimental interpretation modules support research
-hypothesis generation. **Medical use is outside the intended scope**, including
-diagnosis, disease prediction, clinical monitoring, triage and treatment.
-Confidence values describe rule support, not disease probability.
+hypothesis generation. **Medical use is outside the intended scope**; see
+[intended use](docs/INTENDED-USE.md).
 
 ## Get started
 
-Use Node 22 (the CI version) and pnpm 11.17.0, pinned in `packageManager`.
+Use Node 22 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
 
 ```bash
 npm install -g pnpm@11.17.0
@@ -30,7 +29,9 @@ CI also runs the official HL7 validator; a local validator run requires Java 21.
 
 ## Packages
 
-Ten connector and core library packages (npm publishing is currently disabled):
+Automated npm publishing is disabled; use the source checkout.
+
+Ten connector and core library packages (names use the `@open-twin/` scope):
 
 | package | direction | source |
 |---|---|---|
@@ -45,10 +46,8 @@ Ten connector and core library packages (npm publishing is currently disabled):
 | [`hl7v2`](packages/hl7v2) | HL7 v2 → FHIR | ORU/ADT messages |
 | [`genomics-vcf`](packages/genomics-vcf) | VCF → FHIR | variant calls, Genomics Reporting IG |
 
-
-Four additional workspace packages—`anchor-layer`, `provider-anchor`,
-`interpretation-contract` and `interpreter`—are research modules marked private
-for npm publication.
+Four additional workspace packages — `anchor-layer`, `provider-anchor`,
+`interpretation-contract` and `interpreter` — are research modules.
 Package READMEs document their APIs and supported inputs.
 
 The Google Health connector uses `health.googleapis.com/v4`; it is not an
@@ -59,11 +58,10 @@ Android Health Connect integration.
 This is an experimental library collection. Applications supply scheduling,
 storage, authentication, access controls and user interfaces.
 
-Verification combines unit tests, UCUM and terminology checks, example-bundle
-validation. Some terminology reviews and semantic
-canaries remain advisory or record known gaps. Passing CI does not establish
-clinical accuracy, regulatory conformity or correctness for every input. See the
-[verification baseline](docs/findings/verify-baseline.md).
+Verification combines unit tests, UCUM and terminology checks, and example-bundle validation. Some terminology reviews and semantic canaries remain advisory or record known gaps; see the [verification baseline](docs/findings/verify-baseline.md). Passing CI does not establish clinical accuracy, regulatory conformity or correctness for every input.
+
+Tests once passed on output that carried radians labelled as degrees; see
+[BUILD-SUMMARY.md](BUILD-SUMMARY.md) for the defect history.
 
 Before handling participant data or exposing outputs to consumers, read
 [Intended use and integration responsibilities](docs/INTENDED-USE.md) and,
@@ -85,9 +83,9 @@ for US audiences, the [US supplement](docs/US-USE.md).
 Development and pull requests for this repository are hosted at
 [Opening-Science/open-twin](https://github.com/Opening-Science/open-twin).
 
-## License and independence
+## Licence and independence
 
-[MIT](LICENSE) covers project code and documentation to the extent the project
-can grant those rights. Third-party terminology, datasets and vendor services
+[MIT](LICENSE) covers project code and documentation to the extent the copyright
+holders can grant those rights. Third-party terminology, datasets and vendor services
 may have separate terms; see [third-party rights](docs/INTENDED-USE.md#third-party-rights).
 Vendor names identify independent integrations and do not imply endorsement.

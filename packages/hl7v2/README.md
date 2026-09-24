@@ -57,17 +57,17 @@ left **verbatim** in the text rather than deleted, so the loss stays visible.
 
 ## Stable identity and upgrades
 
-Conversion requires MSH-10 plus a stable sender namespace from MSH-3/MSH-4 or
-`ConvertOptions.sourceNamespace`. Patient identity uses the primary identifier
-and assigning authority; local identifiers are scoped to the sender and local
-authority. If no stable patient identifier can be formed, supply an explicit
-`subject.reference`. Missing identity or multiple PID segments produce an empty
-bundle with issues; `pidToPatient` can return `undefined`.
+Since #157, message-based resource IDs use MSH-10 and a sender namespace from
+MSH-3/MSH-4 or `ConvertOptions.sourceNamespace`. Patient IDs use the primary PID
+identifier and assigning authority; local identifiers include the sender
+namespace and local authority. Integrators must keep that namespace stable and supply an explicit
+`subject.reference` if no stable patient identifier can be formed. Missing identity
+or multiple PID segments produce an empty bundle with issues; `pidToPatient`
+can return `undefined`.
 
-The identity fix changes deterministic resource IDs. Before importing into a
-store populated by an earlier version, reconcile existing records or rebuild
-from source; blindly repeating upserts can create duplicates. Keep the chosen
-sender namespace stable between runs.
+IDs differ from earlier versions. Before importing into an existing store,
+integrators must reconcile records or rebuild from source; re-running upserts
+can create duplicates.
 
 ## The decisions worth arguing with
 
@@ -141,7 +141,7 @@ zero-filled"*.
   and would be up to 59 minutes wrong.
 - `Bundle.timestamp` and `DiagnosticReport.issued` are `instant`, which needs both
   seconds and an offset. Without one they are omitted (`issued`) or fall back to the
-  caller's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: *"MSH-7 does
+  integrator's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: *"MSH-7 does
   not require a time offset while Bundle.timestamp does."*
 
 ### PID-8 is mapped, not passed through

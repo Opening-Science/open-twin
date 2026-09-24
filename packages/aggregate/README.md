@@ -31,9 +31,9 @@ evidence per *(source, measure)* pair, with citations — and either:
 A selection nobody can audit is indistinguishable from a guess, which is why the
 policy prose and the citation ride inside the bundle.
 
-The caller must verify that grouped measurements are comparable. The current
+The integrator must verify that grouped measurements are comparable. The current
 measure/day grouping does not establish matching units, measurement windows or
-clinical equivalence. Source selection is experimental; see the
+measurement equivalence. Source selection is experimental; see the
 [intended-use guidance](../../docs/INTENDED-USE.md).
 
 ## Usage
@@ -66,7 +66,7 @@ supply the same `subject` to every connector for the same person before aggregat
 
 Every Observation participating in a derived result must also carry a lowercase
 UUID `id`. Connector bundles built with `buildBundle` already satisfy this. A foreign
-id-less bundle must be normalized first; aggregation refuses it rather than emitting
+id-less bundle must be normalised first; aggregation refuses it rather than emitting
 an unresolved `urn:uuid:undefined` provenance reference.
 
 ## Where the grades come from

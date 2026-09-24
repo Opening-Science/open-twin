@@ -11,10 +11,10 @@ Do not use public issues or pull requests for security reports. Follow
 
 ## Before a pull request
 
-Use Node 20 or later and the pinned pnpm version.
+Use Node 22 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
 
 ```bash
-corepack enable
+npm install -g pnpm@11.17.0
 pnpm install --frozen-lockfile
 pnpm build
 pnpm lint
@@ -42,19 +42,15 @@ pull request requires maintainer approval before merge.
   `dataAbsentReason`, not zero.
 - Do not put API response bodies, health payloads, identifiers, credentials, or
   tokens in logs, errors, fixtures, issues, or pull requests.
-- A passing test is not clinical evidence. Tests for mapper corrections must
-  assert independently determined expected values.
+- Tests for mapper corrections must assert independently determined expected
+  values; see [validation limits](docs/INTENDED-USE.md#purpose-and-limits).
 
 ## Legal
 
-Do not commit proprietary vendor material or imply vendor endorsement. By
-contributing, you license your contribution under the repository's
-[MIT License](LICENSE).
-
-Contribute only material you have the right to license. For third-party content,
-record its source, applicable terms, redistribution permission and required
-notices; public availability alone is insufficient. Changes to health claims,
-interpretation outputs or supported audiences must update
-[the intended-use statement](docs/INTENDED-USE.md) and identify any assessment
-needed before release. Do not describe test or FHIR conformance results as
-clinical validation or regulatory certification.
+Contribute only material you have the right to license. By contributing, you
+license your contribution under [MIT](LICENSE).
+Record third-party sources, terms, redistribution permission and required
+notices; follow [third-party rights](docs/INTENDED-USE.md#third-party-rights).
+Changes to health claims, interpretation outputs or supported audiences must
+update [intended use](docs/INTENDED-USE.md) and identify assessments needed before
+release. See [warranty and responsibility](docs/INTENDED-USE.md#warranty-and-responsibility).

@@ -1,8 +1,7 @@
 # Onboarding
 
-You are new to this repository — a student joining the project, a contributor, or
-a Claude Code session opening it for the first time. This is the shortest path to
-being productive without breaking the things this codebase exists to protect.
+Setup, verification and first contributions for students, contributors and coding
+agents. Read the shared decisions before changing a mapper.
 
 ## The mental model, in five sentences
 
@@ -16,23 +15,26 @@ being productive without breaking the things this codebase exists to protect.
    and refuses to pick a winner when the evidence gives no basis to.
 4. Verification combines UCUM checks, recorded terminology reviews and the
    official HL7 validator over registered example bundles. Some checks are
-   advisory; a passing run does not establish clinical accuracy.
+   advisory; see [validation limits](docs/INTENDED-USE.md#purpose-and-limits).
 5. Outputs and diagnostic reports may contain sensitive information. Keep
    payloads out of logs and follow the
    [intended-use and integration guidance](docs/INTENDED-USE.md).
 
 ## Day one
 
+Use Node 22 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
+Java 21 is needed only for a local HL7 validator run.
+
 ```bash
-# Toolchain: Node >= 20, pnpm 11. Java 21 only for the optional local validator run.
-corepack enable            # or: npm i -g pnpm@11.17.0
+npm install -g pnpm@11.17.0
 
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm verify
 ```
 
-Blocking checks must pass. Investigate failures in the code or environment;
-`pnpm verify` reports advisory findings separately.
+Blocking checks must pass. CI runs these checks on every PR.
+Investigate failures in the code or environment; `pnpm verify` reports advisory
+findings separately.
 
 Then produce the bundles and look at one:
 
