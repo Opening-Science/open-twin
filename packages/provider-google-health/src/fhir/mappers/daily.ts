@@ -5,7 +5,15 @@
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
  */
-import { CATEGORY, codeableConcept, compact, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  codeableConcept,
+  compact,
+  LOINC_CODINGS,
+  SYSTEMS,
+  stringComponent,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
@@ -131,7 +139,7 @@ export function mapDailyOxygenSaturationToFHIR(
       measure: 'daily-oxygen-saturation',
       category: CATEGORY.VITAL_SIGNS,
       code: [
-        { system: SYSTEMS.LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' },
+        LOINC_CODINGS.OXYGEN_SATURATION,
         {
           system: SYSTEMS.GOOGLE_HEALTH,
           code: 'daily-oxygen-saturation',
@@ -141,7 +149,7 @@ export function mapDailyOxygenSaturationToFHIR(
       method: DAILY_AVERAGE_METHOD,
       effectiveDateTime: dateToIsoString(data.date),
       expectsValue: true,
-      valueQuantity: loincQuantity('59408-5', toNumber(data.averagePercentage)),
+      valueQuantity: loincQuantity(LOINC_CODINGS.OXYGEN_SATURATION.code, toNumber(data.averagePercentage)),
       components: [
         ghOptionalNumericComponent(
           { system: SYSTEMS.GOOGLE_HEALTH, code: 'lower-bound-percentage', display: 'Lower bound oxygen saturation' },

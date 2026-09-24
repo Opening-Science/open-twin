@@ -17,11 +17,6 @@ import type { Observation } from 'fhir/r4';
 import type { WhoopRecovery } from '../../api/schemas/recovery';
 import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
-const WHOOP_OXYGEN_SATURATION = {
-  ...LOINC_CODINGS.OXYGEN_SATURATION,
-  display: 'Oxygen saturation in Arterial blood by Pulse oximetry'
-} as const;
-
 function recoveryKey(row: WhoopRecovery): string {
   return row.sleep_id ?? row.cycle_id ?? row.created_at ?? 'unknown';
 }
@@ -94,7 +89,7 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
           dataAbsentReason: dataAbsentReason('not-applicable'),
           components: [
             optionalNumericComponent(
-              [WHOOP_OXYGEN_SATURATION, whoopCoding('spo2-percentage', 'SpO2 percentage')],
+              [LOINC_CODINGS.OXYGEN_SATURATION, whoopCoding('spo2-percentage', 'SpO2 percentage')],
               score.spo2_percentage,
               UCUM.PERCENT
             )

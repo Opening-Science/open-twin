@@ -3,7 +3,7 @@ import { LOINC_CODINGS } from '../loinc';
 import { LOINC_UNITS } from '../units';
 
 describe('shared LOINC codings', () => {
-  it('publishes the reviewed coding values shared by Oura and WHOOP', () => {
+  it('publishes the canonical reviewed coding values', () => {
     expect(LOINC_CODINGS).toEqual({
       HEART_RATE: {
         system: 'http://loinc.org',
@@ -12,7 +12,8 @@ describe('shared LOINC codings', () => {
       },
       OXYGEN_SATURATION: {
         system: 'http://loinc.org',
-        code: '59408-5'
+        code: '59408-5',
+        display: 'Oxygen saturation in Arterial blood by Pulse oximetry'
       },
       TIME_IN_BED: {
         system: 'http://loinc.org',

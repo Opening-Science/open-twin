@@ -5,7 +5,15 @@
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
  */
-import { CATEGORY, codeableConcept, compact, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  codeableConcept,
+  compact,
+  LOINC_CODINGS,
+  SYSTEMS,
+  stringComponent,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation, Period } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
@@ -298,7 +306,11 @@ export function mapSleepToFHIR(data: health_v4.Schema$Sleep, meta: DataPointMeta
         // LOINC 103213-5 "Duration in bed" is a modelling anomaly: the component says
         // duration, the property is NRat and the example unit is `/h`. `min` is emitted
         // pending a term-change request to Regenstrief. See DECISIONS.md.
-        loincComponent('103213-5', 'Duration in bed', toNumber(summary?.minutesInSleepPeriod)),
+        loincComponent(
+          LOINC_CODINGS.TIME_IN_BED.code,
+          LOINC_CODINGS.TIME_IN_BED.display,
+          toNumber(summary?.minutesInSleepPeriod)
+        ),
         loincComponent('103212-7', 'Duration of falling asleep', toNumber(summary?.minutesToFallAsleep)),
         ...stageSummaries,
         stringComponent({ system: SYSTEMS.GOOGLE_HEALTH, code: 'sleep-type', display: 'Sleep type' }, data.type),

@@ -5,7 +5,15 @@
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
  */
-import { CATEGORY, codeableConcept, PROFILES, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  codeableConcept,
+  LOINC_CODINGS,
+  PROFILES,
+  SYSTEMS,
+  stringComponent,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import type { health_v4 } from 'googleapis';
 import {
@@ -100,10 +108,10 @@ export function mapHeartRateToFHIR(data: health_v4.Schema$HeartRate, meta: DataP
     {
       measure: 'heart-rate',
       category: CATEGORY.VITAL_SIGNS,
-      code: { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
+      code: LOINC_CODINGS.HEART_RATE,
       effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
       expectsValue: true,
-      valueQuantity: loincQuantity('8867-4', toNumber(data.beatsPerMinute)),
+      valueQuantity: loincQuantity(LOINC_CODINGS.HEART_RATE.code, toNumber(data.beatsPerMinute)),
       components: [
         stringComponent(
           { system: SYSTEMS.GOOGLE_HEALTH, code: 'motion-context', display: 'Motion context' },
@@ -173,12 +181,12 @@ export function mapOxygenSaturationToFHIR(data: health_v4.Schema$OxygenSaturatio
       // The daily aggregate uses the same LOINC code. The vendor coding is what makes
       // a spot reading distinguishable from a daily average in a queryable field.
       code: [
-        { system: SYSTEMS.LOINC, code: '59408-5', display: 'Oxygen saturation in Arterial blood by Pulse oximetry' },
+        LOINC_CODINGS.OXYGEN_SATURATION,
         { system: SYSTEMS.GOOGLE_HEALTH, code: 'oxygen-saturation', display: 'Spot oxygen saturation' }
       ],
       effectiveDateTime: sampleTimeToDateTime(data.sampleTime),
       expectsValue: true,
-      valueQuantity: loincQuantity('59408-5', toNumber(data.percentage)),
+      valueQuantity: loincQuantity(LOINC_CODINGS.OXYGEN_SATURATION.code, toNumber(data.percentage)),
       profiles: [PROFILES.OXYGEN_SATURATION]
     },
     meta
