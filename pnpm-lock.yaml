@@ -12,7 +12,7 @@ importers:
         specifier: 2.4.15
         version: 2.4.15
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@open-twin/aggregate':
         specifier: workspace:*
@@ -21,10 +21,10 @@ importers:
         specifier: workspace:*
         version: link:packages/fhir-r4
       exceljs:
-        specifier: ^4.4.0
+        specifier: 4.4.0
         version: 4.4.0
       tsx:
-        specifier: ^4.23.15
+        specifier: 4.23.15
         version: 4.23.15
 
   packages/aggregate:
@@ -33,91 +33,91 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.27.7)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/anchor-layer:
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/fhir-core:
     dependencies:
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/fhir-r4:
     dependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       tsx:
-        specifier: ^4.23.15
+        specifier: 4.23.15
         version: 4.23.15
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/genomics-vcf:
@@ -126,79 +126,79 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/hl7v2:
     dependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/interpretation-contract:
     dependencies:
       ajv:
-        specifier: ^8.18.0
-        version: 8.20.0
+        specifier: 8.18.0
+        version: 8.18.0
       ajv-formats:
-        specifier: ^3.0.1
-        version: 3.0.1(ajv@8.20.0)
+        specifier: 3.0.1
+        version: 3.0.1(ajv@8.18.0)
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       json-schema-to-typescript:
-        specifier: ^16.0.0
+        specifier: 16.0.0
         version: 16.0.0
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       tsx:
-        specifier: ^4.23.15
+        specifier: 4.23.15
         version: 4.23.15
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/interpreter:
@@ -207,30 +207,30 @@ importers:
         specifier: workspace:*
         version: link:../interpretation-contract
       ajv:
-        specifier: ^8.17.1
-        version: 8.20.0
+        specifier: 8.17.1
+        version: 8.17.1
       ajv-formats:
-        specifier: ^3.0.1
-        version: 3.0.1(ajv@8.20.0)
+        specifier: 3.0.1
+        version: 3.0.1(ajv@8.17.1)
       yaml:
-        specifier: ^2.8.0
-        version: 2.9.0
+        specifier: 2.8.0
+        version: 2.8.0
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+        specifier: 8.5.1
+        version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.8.0)
       tsx:
-        specifier: ^4.23.15
+        specifier: 4.23.15
         version: 4.23.15
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
+        specifier: 5.0.1
+        version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0))
 
   packages/provider-anchor:
     dependencies:
@@ -241,60 +241,60 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
     devDependencies:
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-google-health:
     dependencies:
       '@googleapis/health':
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0(supports-color@7.2.0)
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       googleapis:
-        specifier: ^181.0.0
+        specifier: 181.0.0
         version: 181.0.0(supports-color@7.2.0)
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: ^0.4.1
+        specifier: 0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       reflect-metadata:
-        specifier: ^0.2.2
+        specifier: 0.2.2
         version: 0.2.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-open-wearables:
@@ -303,32 +303,32 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@rollup/plugin-swc':
-        specifier: ^0.4.1
+        specifier: 0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       reflect-metadata:
-        specifier: ^0.2.2
+        specifier: 0.2.2
         version: 0.2.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-oura:
@@ -337,35 +337,35 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: ^0.4.1
+        specifier: 0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       reflect-metadata:
-        specifier: ^0.2.2
+        specifier: 0.2.2
         version: 0.2.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-vitronic:
@@ -374,35 +374,35 @@ importers:
         specifier: workspace:*
         version: link:../fhir-core
       '@types/fhir':
-        specifier: ^0.0.44
+        specifier: 0.0.44
         version: 0.0.44
       zod:
-        specifier: ^4.6.5
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@lhncbc/ucum-lhc':
-        specifier: ^7.1.9
+        specifier: 7.1.9
         version: 7.1.9
       '@rollup/plugin-swc':
-        specifier: ^0.4.1
+        specifier: 0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.62.2)
       '@types/node':
-        specifier: ^26.6.2
+        specifier: 26.6.2
         version: 26.6.2
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 7.0.0
         version: 7.0.0(typescript@7.0.2)
       reflect-metadata:
-        specifier: ^0.2.2
+        specifier: 0.2.2
         version: 0.2.2
       tsup:
-        specifier: ^8.5.1
+        specifier: 8.5.1
         version: 8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       typescript:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vitest:
-        specifier: ^5.0.1
+        specifier: 5.0.1
         version: 5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/provider-whoop:
@@ -1405,8 +1405,11 @@ packages:
       ajv:
         optional: true
 
-  ajv@8.20.0:
-    resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
+  ajv@8.17.1:
+    resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
+
+  ajv@8.18.0:
+    resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
@@ -2046,10 +2049,6 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@4.0.4:
-    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
-    engines: {node: '>=12'}
-
   picomatch@4.0.7:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
@@ -2409,6 +2408,11 @@ packages:
 
   xmldoc@0.4.0:
     resolution: {integrity: sha512-rJ/+/UzYCSlFNuAzGuRyYgkH2G5agdX1UQn4+5siYw9pkNC3Hu/grYNDx/dqYLreeSjnY5oKg74CMBKxJHSg6Q==}
+
+  yaml@2.8.0:
+    resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
 
   yaml@2.9.0:
     resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
@@ -2770,7 +2774,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.9
       estree-walker: 2.0.2
-      picomatch: 4.0.4
+      picomatch: 4.0.7
     optionalDependencies:
       rollup: 4.62.2
 
@@ -3006,6 +3010,15 @@ snapshots:
     optionalDependencies:
       vite: 8.1.0(@types/node@26.6.2)(esbuild@0.27.7)(tsx@4.23.15)(yaml@2.9.0)
 
+  '@vitest/mocker@5.0.1(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0))':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@vitest/spy': 5.0.1
+      estree-walker: 3.0.3
+      magic-string: 1.4.1
+    optionalDependencies:
+      vite: 8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0)
+
   '@vitest/mocker@5.0.1(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -3021,11 +3034,22 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ajv-formats@3.0.1(ajv@8.20.0):
+  ajv-formats@3.0.1(ajv@8.17.1):
     optionalDependencies:
-      ajv: 8.20.0
+      ajv: 8.17.1
 
-  ajv@8.20.0:
+  ajv-formats@3.0.1(ajv@8.18.0):
+    optionalDependencies:
+      ajv: 8.18.0
+
+  ajv@8.17.1:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-uri: 3.1.8
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
+
+  ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.8
@@ -3698,8 +3722,6 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@4.0.4: {}
-
   picomatch@4.0.7: {}
 
   pirates@4.0.7: {}
@@ -3709,6 +3731,14 @@ snapshots:
       confbox: 0.1.8
       mlly: 1.8.2
       pathe: 2.0.3
+
+  postcss-load-config@6.0.1(postcss@8.5.15)(tsx@4.23.15)(yaml@2.8.0):
+    dependencies:
+      lilconfig: 3.1.3
+    optionalDependencies:
+      postcss: 8.5.15
+      tsx: 4.23.15
+      yaml: 2.8.0
 
   postcss-load-config@6.0.1(postcss@8.5.15)(tsx@4.23.15)(yaml@2.9.0):
     dependencies:
@@ -3943,6 +3973,35 @@ snapshots:
   tslib@2.8.1:
     optional: true
 
+  tsup@8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.8.0):
+    dependencies:
+      bundle-require: 5.1.0(esbuild@0.27.7)
+      cac: 6.7.14
+      chokidar: 4.0.3
+      consola: 3.4.2
+      debug: 4.4.3(supports-color@7.2.0)
+      esbuild: 0.27.7
+      fix-dts-default-cjs-exports: 1.0.1
+      joycon: 3.1.1
+      picocolors: 1.1.1
+      postcss-load-config: 6.0.1(postcss@8.5.15)(tsx@4.23.15)(yaml@2.8.0)
+      resolve-from: 5.0.0
+      rollup: 4.62.2
+      source-map: 0.7.6
+      sucrase: 3.35.1
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.17
+      tree-kill: 1.2.2
+    optionalDependencies:
+      '@swc/core': 1.15.43
+      postcss: 8.5.15
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
+
   tsup@8.5.1(@swc/core@1.15.43)(postcss@8.5.15)(supports-color@7.2.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.27.7)
@@ -4038,6 +4097,20 @@ snapshots:
       tsx: 4.23.15
       yaml: 2.9.0
 
+  vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0):
+    dependencies:
+      lightningcss: 1.32.0
+      picomatch: 4.0.7
+      postcss: 8.5.15
+      rolldown: 1.1.3
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      '@types/node': 26.6.2
+      esbuild: 0.28.2
+      fsevents: 2.3.3
+      tsx: 4.23.15
+      yaml: 2.8.0
+
   vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.32.0
@@ -4067,6 +4140,27 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       vite: 8.1.0(@types/node@26.6.2)(esbuild@0.27.7)(tsx@4.23.15)(yaml@2.9.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 26.6.2
+    transitivePeerDependencies:
+      - msw
+
+  vitest@5.0.1(@types/node@26.6.2)(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0)):
+    dependencies:
+      '@types/chai': 5.2.3
+      '@vitest/mocker': 5.0.1(vite@8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0))
+      chai: 6.2.2
+      es-module-lexer: 2.3.2
+      expect-type: 1.4.0
+      magic-string: 1.4.1
+      obug: 2.2.1
+      picomatch: 4.0.7
+      std-env: 4.2.0
+      tinybench: 6.1.4
+      tinyexec: 1.3.0
+      tinyglobby: 0.2.17
+      vite: 8.1.0(@types/node@26.6.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.8.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.6.2
@@ -4109,7 +4203,10 @@ snapshots:
     dependencies:
       sax: 1.1.6
 
-  yaml@2.9.0: {}
+  yaml@2.8.0: {}
+
+  yaml@2.9.0:
+    optional: true
 
   zip-stream@4.1.1:
     dependencies:
