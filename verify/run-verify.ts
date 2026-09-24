@@ -58,6 +58,11 @@ export const GATES: Gate[] = [
     id: 'canary-suite (verify/check-canaries.ts)',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-canaries.ts']
+  },
+  {
+    id: 'verify-ci-equivalence (verify/check-verify-equivalence.ts)',
+    command: 'pnpm',
+    args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts']
   }
 ];
 

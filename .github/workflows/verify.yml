@@ -1,0 +1,287 @@
+# Correctness gates for the FHIR output.
+#
+# The test suite is not evidence that a bundle is correct: 270 tests passed while
+# the output carried radians labelled as degrees, an invalid UCUM code, and five
+# LOINC/SNOMED codes that mean something other than what the mapper sends. Several
+# of those tests asserted the defect as intended behaviour.
+#
+# So correctness is checked here against external authority instead: the published
+# UCUM grammar, a recorded human review of every terminology code, and the official
+# HL7 validator.
+
+name: Verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned deliberately. "Always use the current validator" is HL7's advice for
+  # correctness, but an unpinned validator lets an upstream release turn the build
+  # red without a commit. Bump this on purpose.
+  VALIDATOR_VERSION: 6.9.12
+
+jobs:
+  # Two tiers, because "known to be wrong" and "not yet audited" are different
+  # facts and only one of them is a reason to stop a merge.
+  #
+  # Clearing the unreviewed list needs a clinical terminology reviewer — weeks of a
+  # person's attention, not a code change. A single gate covering both would leave
+  # this red for months, and a permanently red check is a check nobody reads, which
+  # is how a genuinely invalid unit would then slip past behind the same red cross.
+  gates:
+    name: No known-wrong codes or units
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      # Both gates run strict. `--allow-unreviewed` was a standing waiver with no expiry,
+      # carried while 72 terminology codes and 35 unit pairs were outstanding. Those were
+      # signed off on 2026-07-26, and the unit rule became a lookup rather than a
+      # signature — Quantity.unit must be UCUM's own name for Quantity.code — so there is
+      # no backlog left for the flag to hide.
+      - name: Terminology gate
+        run: node verify/check-terminology.mjs
+
+      - name: UCUM unit gate
+        run: node verify/check-units.mjs
+
+      - name: Module header gate
+        run: pnpm exec tsx verify/check-headers.ts
+
+      - name: Docs integrity gate
+        run: pnpm exec tsx verify/check-docs.ts
+
+      - name: SNOMED publication boundary
+        run: pnpm exec tsx verify/check-snomed-boundary.ts
+
+      - name: Terminology review-records (advisory)
+        continue-on-error: true
+        run: pnpm exec tsx verify/check-terminology.ts
+
+      # Canary harnesses import package sources that resolve @open-twin/* via
+      # dist/ (same as typecheck). Without a build, CI fails MODULE_NOT_FOUND
+      # before any canary outcome is reported.
+      - run: pnpm -r build
+
+      - name: Canary suite
+        run: pnpm exec tsx verify/check-canaries.ts
+
+      - name: Local/CI verify gate equivalence
+        run: pnpm exec tsx verify/check-verify-equivalence.ts
+
+  review-status:
+    name: Terminology review outstanding
+    runs-on: ubuntu-latest
+    # Reports how much terminology review is outstanding. It fails, honestly, until
+    # a named reviewer has signed off on every code and unit pair — which is weeks
+    # of a person's attention, not a code change.
+    #
+    # This job is NOT meant to block a merge, but a workflow cannot express that:
+    # `continue-on-error` keeps the run from failing yet the check still renders as
+    # a red cross, which was verified here rather than assumed. Whether an
+    # unreviewed code blocks a merge is a branch-protection decision — list
+    # `No known-wrong codes or units` as a required check and leave this one out.
+    #
+    # Do not make this pass by bulk-approving the allowlist. The entire value of
+    # the gate is that approval costs a lookup, which is exactly the step that was
+    # skipped when five wrong codes shipped.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      # Surfaced in the run summary so the outstanding count is legible without
+      # opening logs, while the step still exits non-zero.
+      - name: Outstanding review
+        run: |
+          {
+            echo '## Terminology and unit review outstanding'
+            echo '```'
+            node verify/check-terminology.mjs || true
+            node verify/check-units.mjs || true
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          node verify/check-terminology.mjs > /dev/null && node verify/check-units.mjs > /dev/null
+
+  # The package list is derived from the workspace rather than hardcoded. A fixed
+  # list silently stopped covering four packages the moment they were added — they
+  # were never type-checked or tested in CI, and nothing said so.
+  packages:
+    name: Enumerate workspace packages
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.enumerate.outputs.list }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - id: enumerate
+        run: |
+          list=$(pnpm -r --depth -1 list --json \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{
+                const dirs=JSON.parse(d).map(p=>p.path).filter(p=>p.includes("/packages/"));
+                console.log(JSON.stringify(dirs.map(p=>p.split("/packages/")[1])));
+              })')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "Matrix: $list"
+
+  tests:
+    name: Type check, lint and test
+    runs-on: ubuntu-latest
+    needs: [packages]
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.packages.outputs.list) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+      # Workspace packages resolve @open-twin/* through `types: ./dist/index.d.ts`,
+      # so without a build every dependent package fails type check with
+      # "Cannot find module '@open-twin/fhir-core'".
+      - run: pnpm -r build
+
+      - name: Type check ${{ matrix.package }}
+        working-directory: packages/${{ matrix.package }}
+        run: npx tsc --noEmit
+
+      - name: Test ${{ matrix.package }}
+        working-directory: packages/${{ matrix.package }}
+        run: npx vitest run
+
+  fhir-validate:
+    name: HL7 FHIR validator (structure)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # ~95% of validator wall-clock is package loading and JVM startup; validation
+      # itself is sub-second. Cache both, keyed on the pinned versions.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.fhir/packages
+            ~/validator
+          key: fhir-${{ runner.os }}-v${{ env.VALIDATOR_VERSION }}-r4.0.1
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+
+      - name: Generate conformance resources and bundles
+        run: |
+          node verify/build-conformance.mjs
+          pnpm emit-bundles out/
+
+      - name: Fetch the validator
+        run: |
+          mkdir -p ~/validator
+          [ -f ~/validator/validator_cli.jar ] || curl -sSL -o ~/validator/validator_cli.jar \
+            "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/${VALIDATOR_VERSION}/validator_cli.jar"
+
+      # `-tx n/a` runs fully offline: deterministic, no dependency on a server with
+      # no SLA, and it works on pull requests from forks. It buys structure only —
+      # a terminology error degrades to a warning and the process still exits 0,
+      # which is why the terminology job below exists separately.
+      #
+      # One invocation over every bundle. Never one process per file.
+      - name: Validate structure (blocking)
+        run: |
+          java -jar ~/validator/validator_cli.jar out/*.json \
+            -version 4.0.1 \
+            -ig verify/conformance/generated \
+            -tx n/a \
+            -best-practice ignore \
+            -jurisdiction uv \
+            -output-style eslint-compact \
+            -level errors
+
+  fhir-terminology:
+    name: HL7 FHIR validator (terminology)
+    runs-on: ubuntu-latest
+    # tx.fhir.org is HL7's reference server and carries no SLA — their words are
+    # that it "is not supported for production usage". A vendor outage must not
+    # block a merge, but the signal is worth having: this tier is the only thing
+    # that catches a code that is well-formed and wrong.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.fhir/packages
+            ~/validator
+          key: fhir-${{ runner.os }}-v${{ env.VALIDATOR_VERSION }}-r4.0.1
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: node verify/build-conformance.mjs
+      - run: pnpm emit-bundles out/
+
+      - name: Fetch the validator
+        run: |
+          mkdir -p ~/validator
+          [ -f ~/validator/validator_cli.jar ] || curl -sSL -o ~/validator/validator_cli.jar \
+            "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/${VALIDATOR_VERSION}/validator_cli.jar"
+
+      - name: Validate codes and displays against tx.fhir.org
+        run: |
+          java -jar ~/validator/validator_cli.jar out/*.json \
+            -version 4.0.1 \
+            -ig verify/conformance/generated \
+            -tx https://tx.fhir.org \
+            -txCache verify/.tx-cache \
+            -best-practice ignore \
+            -jurisdiction uv \
+            -output-style eslint-compact \
+            -level errors
