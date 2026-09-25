@@ -86,6 +86,12 @@ that matches resources on more than one server). The addressing defects it exist
 repair (`ot-fullurl-*`, `bdl-8`) do not stop it, and neither do the unit findings,
 which are carried through to the integrator attached to a bundle that still states them.
 
+An integrator may explicitly set `unresolvedUrnPolicy: 'preserve'` for a deliberately
+trimmed collection Bundle whose omitted targets are known. The unresolved reference is
+left byte-for-byte unchanged and `ot-reference-unresolved-urn` remains in `issues` and
+the `OperationOutcome`; preservation never means the target resolved. The default is
+`reject`.
+
 ### 3. UCUM and unit checking
 
 Every `Quantity` under `http://unitsofmeasure.org` is parsed against the real UCUM
