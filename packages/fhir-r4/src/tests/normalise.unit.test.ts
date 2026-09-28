@@ -5,7 +5,7 @@ import { normaliseBundle } from '../normalise/normalise';
 import { HL7_LIPIDS_BUNDLE } from '../samples/hl7-lipids-bundle';
 import { HL7_VITALS_BUNDLE } from '../samples/hl7-vitals-bundle';
 import { validateFhir } from '../validate/validate';
-import { INVALID_FIXTURES } from './fixtures/invalid-bundles';
+import { INVALID_FIXTURES, VALID_BASELINE } from './fixtures/invalid-bundles';
 
 const CONNECTOR = { connector: 'fhir-r4', version: '0.1.0' };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -329,6 +329,36 @@ describe('normaliseBundle', () => {
       // validator calls it. Still fatal here, because every reference is rewritten.
       expect(result.bundle).toBeUndefined();
       expect(result.issues.map((issue) => issue.rule)).toContain('ot-reference-unresolved-urn');
+    });
+
+    it('preserves and reports an unresolved non-subject urn only when explicitly requested', () => {
+      const input = structuredClone(VALID_BASELINE) as Bundle;
+      const sourceObservation = observations(input)[0];
+      const unresolvedEncounter = 'urn:uuid:3f1b8c40-5d21-4e77-9a03-1b2c3d4e5f60';
+      if (!sourceObservation) throw new Error('VALID_BASELINE must contain an Observation');
+      sourceObservation.encounter = { reference: unresolvedEncounter };
+
+      const result = normaliseBundle(
+        input,
+        options({
+          subject: { reference: 'Patient/external' },
+          unresolvedUrnPolicy: 'preserve'
+        })
+      );
+      const observation = observations(result.bundle as Bundle)[0];
+
+      expect(result.bundle).toBeDefined();
+      expect(observation?.code.coding?.[0]).toMatchObject({ code: '8867-4' });
+      expect(observation?.valueQuantity).toMatchObject({ value: 62, unit: 'per minute', code: '/min' });
+      expect(observation?.effectiveDateTime).toBe('2026-07-26T09:30:00+02:00');
+      expect(observation?.encounter?.reference).toBe(unresolvedEncounter);
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({
+          severity: 'warning',
+          rule: 'ot-reference-unresolved-urn',
+          expression: 'Bundle.entry[1].resource.encounter.reference'
+        })
+      );
     });
 
     it('repairs the addressing problems it exists to repair rather than refusing them', () => {

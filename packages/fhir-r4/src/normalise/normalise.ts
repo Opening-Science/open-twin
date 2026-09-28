@@ -35,9 +35,10 @@ const RESTFUL_TAIL = /\/([A-Za-z]+\/[A-Za-z0-9\-.]{1,64})$/;
  *    unchanged, attached to the normalised bundle, for a human to decide about.
  *
  * Everything else that is an error stops the process. Normalising a bundle that
- * violates obs-6, or that carries a dangling `urn:uuid:` reference, would produce a
- * tidy-looking bundle that is still wrong — and now with open-twin's provenance tag
- * on it, which makes it this project's problem rather than the sender's.
+ * violates obs-6, or silently discarding a dangling `urn:uuid:` finding, would
+ * produce a tidy-looking bundle that is still wrong — and now with open-twin's
+ * provenance tag on it, which makes it this project's problem rather than the
+ * sender's.
  */
 const NOT_A_BLOCKER: ReadonlySet<FhirIssueRule> = new Set<FhirIssueRule>([
   'ot-fullurl-missing',
@@ -61,7 +62,9 @@ const NOT_A_BLOCKER: ReadonlySet<FhirIssueRule> = new Set<FhirIssueRule>([
  * resolves to nothing cannot be rewritten. Continuing would emit a bundle whose
  * internal graph is broken, carrying open-twin's provenance tag.
  */
-const BLOCKS_NORMALISATION: ReadonlySet<FhirIssueRule> = new Set<FhirIssueRule>(['ot-reference-unresolved-urn']);
+const BLOCKS_NORMALISATION_BY_DEFAULT: ReadonlySet<FhirIssueRule> = new Set<FhirIssueRule>([
+  'ot-reference-unresolved-urn'
+]);
 
 export interface NormaliseOptions {
   /** Who is doing the ingesting, and at which version. Becomes the `meta.tag` (D3). */
@@ -78,6 +81,13 @@ export interface NormaliseOptions {
    * minimal Patient is added so the bundle still resolves internally.
    */
   subject?: Reference;
+  /**
+   * How to handle a `urn:` reference whose target is absent from the input Bundle.
+   * The safe default is `reject`. `preserve` leaves the reference byte-for-byte
+   * unchanged and keeps `ot-reference-unresolved-urn` in the typed result; it does
+   * not mean the reference resolved.
+   */
+  unresolvedUrnPolicy?: 'reject' | 'preserve';
   /** ISO 8601. Supplied by the caller so the output is reproducible. */
   timestamp: string;
   /** Stable key so re-normalising the same input yields the same Bundle.id. */
@@ -113,10 +123,11 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
   const validation = validateFhir(input);
   issues.push(...validation.issues);
 
+  const preserveUnresolvedUrns = options.unresolvedUrnPolicy === 'preserve';
   const blocking = validation.issues.filter(
     (item) =>
       ((item.severity === 'error' || item.severity === 'fatal') && !NOT_A_BLOCKER.has(item.rule)) ||
-      BLOCKS_NORMALISATION.has(item.rule)
+      (!preserveUnresolvedUrns && BLOCKS_NORMALISATION_BY_DEFAULT.has(item.rule))
   );
   if (blocking.length > 0) return { issues, outcome: toOutcome(issues) };
 
