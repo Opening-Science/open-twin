@@ -12,7 +12,7 @@ import { ouraHttpError } from '../utils/errorMessageHandler';
 import { getOuraOauthTokenUrl } from './endpoints';
 import { type TokenResponse, TokenResponseSchema } from './schemas/auth';
 
-export function getAuthorizationUrl(config: OuraRingAppConfig): string {
+export function getAuthorizationUrl(config: OuraRingAppConfig, state?: string): string {
   if (!config.clientId || !config.redirectUri) {
     throw new ConnectorError('Missing required OAuth parameters (client_id, redirect_uri)', {
       code: 'validation',
@@ -28,6 +28,9 @@ export function getAuthorizationUrl(config: OuraRingAppConfig): string {
     response_type: 'code',
     scope: (config.scopes || []).join(' ')
   });
+  if (state) {
+    params.set('state', state);
+  }
 
   return `${baseUrl}?${params.toString()}`;
 }
