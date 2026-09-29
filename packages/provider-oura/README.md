@@ -32,6 +32,23 @@ npm install @open-twin/provider-oura
 
 ⚠️ Important: This package only maintains the access and refresh tokens in memory at runtime. You must capture the generated tokens and store them in a secure, persistent location.
 
+### `getAuthorizationUrl(config, state?)`
+
+Builds the Oura authorize URL. Pass an optional OAuth `state` for CSRF protection; it is included only when non-empty.
+
+```ts
+import { getAuthorizationUrl, type OuraRingAppConfig } from '@open-twin/provider-oura';
+
+const config: OuraRingAppConfig = {
+  clientId: 'YOUR_CLIENT_ID',
+  clientSecret: 'YOUR_CLIENT_SECRET',
+  redirectUri: 'YOUR_REDIRECT_URI'
+};
+
+const authorizeUrl = getAuthorizationUrl(config, 'optional-csrf-state');
+// redirect the user to authorizeUrl, then pass the returned code to TokenHandler
+```
+
 ### `TokenHandler(config, authorizationToken)`
 
 A helper class which handles the runtime storage and automatic refreshing of the tokens
