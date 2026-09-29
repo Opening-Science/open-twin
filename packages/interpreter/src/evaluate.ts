@@ -219,6 +219,88 @@ function applySeverityCap(severity: Severity, max?: Severity): Severity {
   return severity;
 }
 
+/** D-i ordinal used when collapsing duplicate system_id rows. indeterminate is not ranked above marked. */
+const COLLAPSE_SEVERITY_RANK: Record<Exclude<Severity, 'indeterminate'>, number> = {
+  none: 0,
+  borderline: 1,
+  mild: 2,
+  moderate: 3,
+  marked: 4
+};
+
+function geometryKey(geometry: SystemState['geometry']): string {
+  return `${geometry.fma_id}\0${geometry.uberon_id ?? ''}`;
+}
+
+function mergeCollapsedSeverity(values: Severity[]): Severity {
+  if (values.every((s) => s === 'indeterminate')) return 'indeterminate';
+  let best: Exclude<Severity, 'indeterminate'> = 'none';
+  for (const s of values) {
+    if (s === 'indeterminate') continue;
+    if (COLLAPSE_SEVERITY_RANK[s] > COLLAPSE_SEVERITY_RANK[best]) best = s;
+  }
+  return best;
+}
+
+function unionContributing(group: SystemState[]): [Contributor, ...Contributor[]] {
+  const byId = new Map<string, Contributor>();
+  for (const state of group) {
+    for (const contributor of state.contributing) {
+      if (!byId.has(contributor.biomarker_id)) byId.set(contributor.biomarker_id, contributor);
+    }
+  }
+  const list = [...byId.values()].sort((a, b) => a.biomarker_id.localeCompare(b.biomarker_id));
+  const first = list[0];
+  if (first === undefined) {
+    throw new Error('collapsed state has empty contributing');
+  }
+  return [first, ...list.slice(1)];
+}
+
+/**
+ * Document shape (D12): XR colours one paint per SystemId. Multiple rules may
+ * fire for the same system_id; the published document keeps one row.
+ * Conflicting geometry is a pack error, not a silent FMA pick.
+ */
+function collapseStatesBySystemId(states: SystemState[]): SystemState[] {
+  const groups = new Map<string, SystemState[]>();
+  for (const state of states) {
+    const list = groups.get(state.system_id) ?? [];
+    list.push(state);
+    groups.set(state.system_id, list);
+  }
+  const collapsed: SystemState[] = [];
+  for (const [systemId, group] of groups) {
+    const keys = new Set(group.map((s) => geometryKey(s.geometry)));
+    if (keys.size > 1) {
+      throw new Error(`duplicate system_id "${systemId}" with conflicting geometry`);
+    }
+    const first = group[0];
+    if (first === undefined) continue;
+    if (group.length === 1) {
+      collapsed.push(first);
+      continue;
+    }
+    const sufficient = group.every((s) => s.sufficient_data);
+    const confidence = Math.min(...group.map((s) => s.confidence));
+    const merged: SystemState = {
+      system_id: first.system_id,
+      severity: mergeCollapsedSeverity(group.map((s) => s.severity)),
+      confidence: Math.round(confidence * 10_000 + Number.EPSILON) / 10_000,
+      sufficient_data: sufficient,
+      contributing: unionContributing(group),
+      interpretive_anatomy_source: 'curated_table',
+      geometry: first.geometry
+    };
+    if (!sufficient) {
+      const reason = group.map((s) => s.insufficient_reason).find((r) => typeof r === 'string' && r.length > 0);
+      if (reason !== undefined) merged.insufficient_reason = reason;
+    }
+    collapsed.push(merged);
+  }
+  return collapsed;
+}
+
 function insufficientReason(contributors: Contributor[], rule: Rule): string | undefined {
   const requiredIds = new Set(rule.inputs.filter((i) => i.role === 'required').map((i) => i.biomarker_id));
 
@@ -323,7 +405,8 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
     }
   }
 
-  states.sort((a, b) => {
+  const collapsed = collapseStatesBySystemId(states);
+  collapsed.sort((a, b) => {
     const ca = a.contributing.map((c) => c.biomarker_id).join(',');
     const cb = b.contributing.map((c) => c.biomarker_id).join(',');
     return ca.localeCompare(cb) || a.system_id.localeCompare(b.system_id);
@@ -336,7 +419,7 @@ export function evaluate(pack: RulePack, input: EvaluateInput): OpenTwinInterpre
     not_for_diagnostic_use: true,
     subject_ref: input.subject_ref,
     as_of: input.as_of,
-    states,
+    states: collapsed,
     unrenderable
   };
 }

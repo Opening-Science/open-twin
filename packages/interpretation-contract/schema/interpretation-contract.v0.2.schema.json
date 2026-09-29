@@ -40,6 +40,7 @@
     "states": {
       "type": "array",
       "description": "Per-SystemId interpretive states for systems the XR layer can colour. Markers with no SystemId home must appear only under unrenderable[] (D-g).",
+      "$comment": "At most one states[] entry per system_id. Duplicates are non-conformant (D12: XR colours one paint per SystemId). JSON Schema 2020-12 cannot unique-by-property; validateInterpretationDocument enforces DUPLICATE_SYSTEM_ID.",
       "items": { "$ref": "#/$defs/SystemState" }
     },
     "unrenderable": {

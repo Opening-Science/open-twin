@@ -1,5 +1,15 @@
 # Interpretation contract — changelog
 
+## v0.2 uniqueness amendment — 2026-09-28
+
+`states[]` may contain at most one entry per `system_id` (D12). JSON Schema
+2020-12 cannot unique-by-property; `validateInterpretationDocument` rejects
+duplicates with `DUPLICATE_SYSTEM_ID`. The schema `$comment` on `states`
+records the constraint. `schema_version` stays `interpretation-contract.v0.2`.
+
+open-twin-xr vendors this schema by SHA256 and must re-pin after this file
+changes, then add uniqueness to its hand-written browser guards.
+
 ## v0.2 — 2026-08-02
 
 Sole published interface between open-twin interpretation and open-twin-openXR

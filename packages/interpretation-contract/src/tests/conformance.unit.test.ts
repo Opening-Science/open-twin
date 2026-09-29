@@ -23,7 +23,8 @@ const REJECT_EXPECTATIONS: Record<string, ConformanceErrorCode> = {
   'insufficient-empty-contributing.json': 'INSUFFICIENT_EMPTY_CONTRIBUTING',
   'loinc-system-axis.json': 'LOINC_SYSTEM_AXIS_ANATOMY',
   'sctid-in-published.json': 'SCTID_IN_PUBLISHED',
-  'unrenderable-rerouted.json': 'UNRENDERABLE_REROUTED'
+  'unrenderable-rerouted.json': 'UNRENDERABLE_REROUTED',
+  'duplicate-system-id.json': 'DUPLICATE_SYSTEM_ID'
 };
 
 describe('interpretation-contract conformance', () => {

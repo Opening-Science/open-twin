@@ -23,6 +23,7 @@ export type ConformanceErrorCode =
   | 'LOINC_SYSTEM_AXIS_ANATOMY'
   | 'SCTID_IN_PUBLISHED'
   | 'UNRENDERABLE_REROUTED'
+  | 'DUPLICATE_SYSTEM_ID'
   | 'MISSING_INSUFFICIENT_REASON'
   | 'INTENDED_USE';
 
@@ -160,10 +161,23 @@ export function validateInterpretationDocument(input: unknown): ConformanceResul
   const unrenderable = Array.isArray(input.unrenderable) ? input.unrenderable : [];
   const stateMarkerIds = new Set<string>();
   const unrenderableMarkerIds = new Set<string>();
+  const seenSystemIds = new Map<string, number>();
 
   states.forEach((state, i) => {
     if (!isRecord(state)) return;
     const sid = state.system_id;
+    if (typeof sid === 'string') {
+      const prev = seenSystemIds.get(sid);
+      if (prev !== undefined) {
+        errors.push({
+          code: 'DUPLICATE_SYSTEM_ID',
+          message: `states[] must contain at most one entry per system_id (D12); duplicate "${sid}"`,
+          path: `/states/${i}/system_id`
+        });
+      } else {
+        seenSystemIds.set(sid, i);
+      }
+    }
     if (typeof sid === 'string' && !SYSTEM_IDS.has(sid)) {
       errors.push({
         code: 'UNKNOWN_SYSTEM_ID',
