@@ -47,6 +47,8 @@ const { bundle } = await getFhirBundleFromWhoopData(window, tokenHandler, {
 });
 ```
 
+`getWhoopData` is the supported package entry; hosts must not import `src/utils/fetchWhoopData`.
+
 Tokens are held in memory only; persist refresh tokens in your app if you need offline sync.
 
 ## Scope
