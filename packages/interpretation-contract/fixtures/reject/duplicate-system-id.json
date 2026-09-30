@@ -1,0 +1,42 @@
+{
+  "schema_version": "interpretation-contract.v0.2",
+  "intended_use": "research_hypothesis_generation_n_of_1",
+  "not_for_diagnostic_use": true,
+  "subject_ref": "urn:uuid:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "as_of": "2026-07-28T00:00:00.000Z",
+  "states": [
+    {
+      "system_id": "digestive",
+      "severity": "indeterminate",
+      "confidence": 0.4,
+      "sufficient_data": true,
+      "contributing": [
+        {
+          "biomarker_id": "BM-123",
+          "status": "present",
+          "observed_at": "2026-07-20T00:00:00.000Z",
+          "reference_interval_id": "RI-057"
+        }
+      ],
+      "interpretive_anatomy_source": "curated_table",
+      "geometry": { "fma_id": "FMA:7197", "uberon_id": "UBERON:0002107" }
+    },
+    {
+      "system_id": "digestive",
+      "severity": "mild",
+      "confidence": 0.35,
+      "sufficient_data": true,
+      "contributing": [
+        {
+          "biomarker_id": "BM-132",
+          "status": "present",
+          "observed_at": "2026-07-20T00:00:00.000Z",
+          "reference_interval_id": "RI-064"
+        }
+      ],
+      "interpretive_anatomy_source": "curated_table",
+      "geometry": { "fma_id": "FMA:7197", "uberon_id": "UBERON:0002107" }
+    }
+  ],
+  "unrenderable": []
+}

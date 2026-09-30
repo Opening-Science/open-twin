@@ -31,3 +31,10 @@
 - families: thyroid
 
 - regenerated `thyroid/expected.json`
+
+## 2026-09-28T17:57:23.709Z
+
+- reason: Collapse two digestive states; previous two-row hepatic document was contract-invalid under at-most-one system_id.
+- families: hepatic
+
+- regenerated `hepatic/expected.json`
