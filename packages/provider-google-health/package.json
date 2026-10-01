@@ -32,10 +32,10 @@
   "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
-    "@googleapis/health": "6.0.0",
+    "@googleapis/health": "6.0.1",
     "@open-twin/fhir-core": "workspace:*",
     "@types/fhir": "0.0.44",
-    "googleapis": "181.0.0"
+    "googleapis": "182.0.0"
   },
   "devDependencies": {
     "@lhncbc/ucum-lhc": "7.1.9",

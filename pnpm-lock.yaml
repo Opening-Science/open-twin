@@ -260,8 +260,8 @@ importers:
   packages/provider-google-health:
     dependencies:
       '@googleapis/health':
-        specifier: 6.0.0
-        version: 6.0.0(supports-color@7.2.0)
+        specifier: 6.0.1
+        version: 6.0.1(supports-color@7.2.0)
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
@@ -269,8 +269,8 @@ importers:
         specifier: 0.0.44
         version: 0.0.44
       googleapis:
-        specifier: 181.0.0
-        version: 181.0.0(supports-color@7.2.0)
+        specifier: 182.0.0
+        version: 182.0.0(supports-color@7.2.0)
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: 7.1.9
@@ -832,8 +832,8 @@ packages:
   '@fast-csv/parse@4.3.6':
     resolution: {integrity: sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==}
 
-  '@googleapis/health@6.0.0':
-    resolution: {integrity: sha512-/1L5lzuoV3mQKjIwTHha9kEbbDsF1WFxXYEmu6SMBkuktlF3x3ylZw8R1Jmt53IDAkvDJMPDA5Nk2rui7oR3aQ==}
+  '@googleapis/health@6.0.1':
+    resolution: {integrity: sha512-Bs6yVwCsig/99hay2GXt6sqJyCJunfFwtg3Nhr2MPTg1yVwZ4JxzuUiWtGGEZ1dYNtyaAiowR7RV9rjNqud52w==}
     engines: {node: '>=22.0.0'}
 
   '@jest/diff-sequences@30.4.0':
@@ -1606,8 +1606,8 @@ packages:
     resolution: {integrity: sha512-UJBElspYPJb0+fI8q0LxARw1hPnwd9yd5NqhKqEUPxjhnB1jdsRP7rlRTBp69JS5Vo10bCiRE9+ISsIG2A+Ttg==}
     engines: {node: '>=22'}
 
-  googleapis@181.0.0:
-    resolution: {integrity: sha512-fCzsqaVjA5FrA9DdXn4WlnmnLUvqjWx0JGZzcHbSC9iMfb8PK1lTxsvYpnaRf0j4b6usfKlW+YHSKjHnkgqmjQ==}
+  googleapis@182.0.0:
+    resolution: {integrity: sha512-W8K/yy5kb1j6TiKEtSj4I4DgjeImVfSzYmdmp8Bdn3dHBamBjmpJUteF0R7QQ9Ym++2Yq+ZYXvIFBC7ywBohAA==}
     engines: {node: '>=22.0.0'}
 
   gopd@1.2.0:
@@ -2537,7 +2537,7 @@ snapshots:
       lodash.isundefined: 3.0.1
       lodash.uniq: 4.5.0
 
-  '@googleapis/health@6.0.0(supports-color@7.2.0)':
+  '@googleapis/health@6.0.1(supports-color@7.2.0)':
     dependencies:
       googleapis-common: 9.1.0(supports-color@7.2.0)
     transitivePeerDependencies:
@@ -3258,7 +3258,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  googleapis@181.0.0(supports-color@7.2.0):
+  googleapis@182.0.0(supports-color@7.2.0):
     dependencies:
       google-auth-library: 11.1.0(supports-color@7.2.0)
       googleapis-common: 9.1.0(supports-color@7.2.0)
