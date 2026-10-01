@@ -32,8 +32,8 @@ export function createBodyLoopClient(config: BodyLoopClientConfig): BodyLoopClie
   return new BodyLoopClient(config);
 }
 
-export async function getAvailableViatars(client: BodyLoopClient): Promise<ViatarList> {
-  return await client.getAvailableViatars();
+export async function getAvailableViatars(client: BodyLoopClient, probandId?: number): Promise<ViatarList> {
+  return await client.getAvailableViatars(probandId);
 }
 
 export async function getViatar(client: BodyLoopClient, viatarId: string): Promise<Viatar> {

@@ -127,8 +127,19 @@ export class BodyLoopClient {
     return await this.tokenPromise;
   }
 
-  async getAvailableViatars(): Promise<ViatarList> {
+  /**
+   * GET /viatars/. When `probandId` is supplied, keep rows whose integer
+   * `proband_id` equals it. `key_external` is not queryable. Never calls /probands.
+   */
+  async getAvailableViatars(probandId?: number): Promise<ViatarList> {
     const operation = 'GET viatars';
+    if (probandId !== undefined && !Number.isInteger(probandId)) {
+      throw new ConnectorError('proband_id must be an integer', {
+        code: 'validation',
+        connector: CONNECTOR,
+        operation
+      });
+    }
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.VIATARS();
     const response = await fetch(url, {
@@ -148,7 +159,10 @@ export class BodyLoopClient {
       throw validationError(operation);
     }
 
-    return parseResult.data;
+    if (probandId === undefined) {
+      return parseResult.data;
+    }
+    return parseResult.data.filter((row) => row.proband_id === probandId);
   }
 
   async getViatar(viatarId: string): Promise<Viatar> {
