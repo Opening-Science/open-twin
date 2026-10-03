@@ -86,7 +86,26 @@ export class BodyLoopClient {
     }
   }
 
+  private apiToken(): string | undefined {
+    return 'apiToken' in this.config ? this.config.apiToken : undefined;
+  }
+
   private async getAccessToken(): Promise<Token> {
+    const supplied = this.apiToken();
+    if (supplied) {
+      return {
+        access_token: supplied,
+        token_type: 'Bearer',
+        expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      };
+    }
+    if (!('username' in this.config) || !this.config.username || !this.config.password) {
+      throw new ConnectorError('Username and password are required when no API token is supplied', {
+        code: 'auth',
+        connector: CONNECTOR,
+        operation: 'POST authentification/token'
+      });
+    }
     const operation = 'POST authentification/token';
     const response = await fetch(this.config.baseUrl + ENDPOINTS.AUTH(), {
       method: 'POST',
@@ -115,6 +134,9 @@ export class BodyLoopClient {
   }
 
   async getToken(): Promise<Token> {
+    if (this.apiToken()) {
+      return this.getAccessToken();
+    }
     if (this.token && this.token.expires_at.getTime() > Date.now()) {
       return this.token;
     }

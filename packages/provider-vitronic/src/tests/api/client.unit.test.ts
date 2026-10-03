@@ -37,6 +37,44 @@ describe('BodyLoopClient authentication', () => {
     expect(String(error)).not.toContain(username);
     expect(String(error)).not.toContain(password);
   });
+
+  it('uses a caller-supplied Bearer token and never posts the password grant', async () => {
+    const apiToken = 'admin-minted-secret-token';
+    vi.mocked(globalThis.fetch).mockResolvedValue(jsonResponse([]));
+    const client = new BodyLoopClient({
+      baseUrl: 'https://bodyloop.example',
+      apiToken,
+      scope: 'admin'
+    });
+
+    await client.getAvailableViatars();
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    const [url, init] = vi.mocked(globalThis.fetch).mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://bodyloop.example/api/v2/viatars/');
+    expect(url).not.toContain('authentification');
+    expect((init.headers as Record<string, string>).Authorization).toBe(`Bearer ${apiToken}`);
+  });
+
+  it('does not expose an API token when a Bearer request fails', async () => {
+    const apiToken = 'admin-minted-secret-token';
+    vi.mocked(globalThis.fetch).mockResolvedValue({
+      ok: false,
+      status: 401,
+      headers: new Headers()
+    } as unknown as Response);
+    const client = new BodyLoopClient({
+      baseUrl: 'https://bodyloop.example',
+      apiToken,
+      scope: 'admin'
+    });
+
+    const error = await client.getViatar('1').catch((reason: unknown) => reason);
+
+    expect(error).toBeInstanceOf(ConnectorError);
+    expect(error).toMatchObject({ code: 'auth', status: 401 });
+    expect(String(error)).not.toContain(apiToken);
+  });
 });
 
 describe('BodyLoopClient viatar list', () => {
