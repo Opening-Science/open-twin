@@ -5,6 +5,7 @@ GOVERNED BY: DECISIONS.md#d8
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: Hosts still need durable token persistence; TokenStore interfaces are not implemented in-tree.
  */
+import { Buffer } from 'node:buffer';
 import { Readable } from 'node:stream';
 import { ConnectorError, fromHttpStatus, parseRetryAfter } from '@open-twin/fhir-core';
 import type { BodyLoopClientConfig } from '../config/config';
@@ -12,6 +13,7 @@ import { ENDPOINTS, type Scope } from '../config/constants';
 import { type ProbandRequest, type ProbandResponse, ProbandResponseSchema } from './schemas/proband';
 import { MEASUREMENT_SCHEMAS, type MeasurementData, type Token, TokenSchema } from './schemas/shared';
 import { type Viatar, type ViatarList, ViatarListSchema, type ViatarRequest, ViatarSchema } from './schemas/viatars';
+import { pinnedRequest, TlsPinMismatchError } from './tls';
 
 const CONNECTOR = 'vitronic';
 
@@ -52,6 +54,13 @@ export function asConnectorError(error: unknown, operation: string): ConnectorEr
   if (error instanceof ConnectorError) {
     return error;
   }
+  if (error instanceof TlsPinMismatchError) {
+    return new ConnectorError('The TLS certificate fingerprint did not match', {
+      code: 'transport',
+      connector: CONNECTOR,
+      operation: 'TLS pin'
+    });
+  }
   return new ConnectorError('The request could not be completed', {
     code: 'transport',
     connector: CONNECTOR,
@@ -69,6 +78,36 @@ export interface ScopeResult<T extends Scope> {
   error?: ConnectorError;
 }
 
+function headersRecord(headers?: HeadersInit): Record<string, string> {
+  if (!headers) {
+    return {};
+  }
+  if (headers instanceof Headers) {
+    return Object.fromEntries(headers.entries());
+  }
+  if (Array.isArray(headers)) {
+    return Object.fromEntries(headers);
+  }
+  return { ...headers };
+}
+
+function pinnedBody(body: BodyInit | null | undefined): string | Buffer | Uint8Array | undefined {
+  if (body === undefined || body === null) {
+    return undefined;
+  }
+  if (typeof body === 'string' || body instanceof Uint8Array || Buffer.isBuffer(body)) {
+    return body;
+  }
+  if (body instanceof URLSearchParams) {
+    return body.toString();
+  }
+  throw new ConnectorError('The request body could not be sent under a TLS pin', {
+    code: 'validation',
+    connector: CONNECTOR,
+    operation: 'TLS pin'
+  });
+}
+
 export class BodyLoopClient {
   private config: BodyLoopClientConfig;
   private token: Token | null = null;
@@ -76,6 +115,37 @@ export class BodyLoopClient {
 
   constructor(config: BodyLoopClientConfig) {
     this.config = config;
+  }
+
+  private async send(url: string, init: RequestInit, operation: string): Promise<Response> {
+    const pin = this.config.tlsFingerprintSha256;
+    if (pin) {
+      if (!url.startsWith('https:')) {
+        throw new ConnectorError('A TLS pin requires HTTPS', {
+          code: 'validation',
+          connector: CONNECTOR,
+          operation: 'TLS pin'
+        });
+      }
+      try {
+        const result = await pinnedRequest(
+          url,
+          {
+            method: init.method ?? 'GET',
+            headers: headersRecord(init.headers),
+            body: pinnedBody(init.body)
+          },
+          { kind: 'pin', fingerprintSha256: pin }
+        );
+        return new Response(new Uint8Array(result.body), {
+          status: result.status,
+          headers: result.headers
+        });
+      } catch (error) {
+        throw asConnectorError(error, operation);
+      }
+    }
+    return fetch(url, init);
   }
 
   private async parseJson(response: Response, operation: string): Promise<unknown> {
@@ -107,18 +177,22 @@ export class BodyLoopClient {
       });
     }
     const operation = 'POST authentification/token';
-    const response = await fetch(this.config.baseUrl + ENDPOINTS.AUTH(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+    const response = await this.send(
+      this.config.baseUrl + ENDPOINTS.AUTH(),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          grant_type: 'password',
+          username: this.config.username,
+          password: this.config.password,
+          scope: this.config.scope
+        }).toString()
       },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        username: this.config.username,
-        password: this.config.password,
-        scope: this.config.scope
-      }).toString()
-    });
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -164,11 +238,15 @@ export class BodyLoopClient {
     }
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.VIATARS();
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
-      }
-    });
+    const response = await this.send(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      },
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -191,11 +269,15 @@ export class BodyLoopClient {
     const operation = 'GET viatar';
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.VIATAR(viatarId);
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
-      }
-    });
+    const response = await this.send(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      },
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -214,11 +296,15 @@ export class BodyLoopClient {
     const token = await this.getToken();
     const endpointKey = scope.toUpperCase() as keyof typeof ENDPOINTS;
     const url = this.config.baseUrl + ENDPOINTS[endpointKey](viatarId);
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
-      }
-    });
+    const response = await this.send(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      },
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -255,11 +341,15 @@ export class BodyLoopClient {
 
     const url = this.config.baseUrl + ENDPOINTS.MODEL(viatarId, modelName);
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
-      }
-    });
+    const response = await this.send(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      },
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -280,14 +370,18 @@ export class BodyLoopClient {
     const operation = 'POST probands';
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.PROBANDS();
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/json'
+    const response = await this.send(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(proband)
       },
-      body: JSON.stringify(proband)
-    });
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -306,11 +400,15 @@ export class BodyLoopClient {
     const operation = 'GET proband';
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.PROBANDS() + probandId;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`
-      }
-    });
+    const response = await this.send(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      },
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -330,14 +428,18 @@ export class BodyLoopClient {
     const token = await this.getToken();
     const url = this.config.baseUrl + ENDPOINTS.VIATARS();
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/json'
+    const response = await this.send(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(viatarRequest)
       },
-      body: JSON.stringify(viatarRequest)
-    });
+      operation
+    );
 
     if (!response.ok) {
       throw httpError(response, operation);
@@ -349,14 +451,18 @@ export class BodyLoopClient {
     }
     const viatarId = responseJson.viatar_id;
 
-    const scanStartResult = await fetch(this.config.baseUrl + ENDPOINTS.VIATAR_START(String(viatarId)), {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/json'
+    const scanStartResult = await this.send(
+      this.config.baseUrl + ENDPOINTS.VIATAR_START(String(viatarId)),
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ target_kind })
       },
-      body: JSON.stringify({ target_kind })
-    });
+      'POST viatar targets'
+    );
 
     if (!scanStartResult.ok) {
       throw httpError(scanStartResult, 'POST viatar targets');

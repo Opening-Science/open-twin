@@ -13,6 +13,8 @@ import type { SystemScope } from './constants';
 export type BodyLoopClientConfig = {
   baseUrl: string;
   scope: SystemScope;
+  /** SHA-256 hex of the scanner certificate DER. When set, every request uses a pinned agent. */
+  tlsFingerprintSha256?: string;
 } & (
   | {
       username: string;
