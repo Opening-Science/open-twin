@@ -1,7 +1,7 @@
 /**
  * WHAT: Package public barrel: re-exports the supported API surface.
  * NOT:  Must not contain mapping or clinical logic; implementation lives in sibling modules.
-GOVERNED BY: DECISIONS.md#d9
+GOVERNED BY: DECISIONS.md#d8; DECISIONS.md#d9
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import type { RequestParams } from './api/schemas/client';
@@ -16,6 +16,7 @@ import {
 import type { TokenHandler } from './utils/tokenUtils';
 
 export { getAuthorizationUrl } from './api/client';
+export type { TokenResponse } from './api/schemas/auth';
 export { OuraRingAppConfig } from './config/config';
 export type { SupportedScope } from './config/constants';
 export type { OuraBundleResult, OuraDataResult, OuraRequestOptions } from './fhir/bundleBuilder';

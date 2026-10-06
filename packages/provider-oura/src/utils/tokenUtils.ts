@@ -1,7 +1,7 @@
 /**
  * WHAT: Shared non-clinical utilities for the connector package.
  * NOT:  Must not choose terminology or units.
-GOVERNED BY: DECISIONS.md#d9
+GOVERNED BY: DECISIONS.md#d8; DECISIONS.md#d9
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import { ConnectorError } from '@open-twin/fhir-core';
@@ -67,5 +67,11 @@ export class TokenHandler {
   setTokens(tokenResponse: TokenResponse): void {
     this.tokenContainer = tokenResponse;
     this.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
+  }
+
+  /** Host persistence must not alias the in-memory container. */
+  getTokens(): TokenResponse | null {
+    if (!this.tokenContainer) return null;
+    return { ...this.tokenContainer };
   }
 }
