@@ -7,6 +7,7 @@ GOVERNED BY: DECISIONS.md#d9
 import { BodyLoopClient, type ScopeResult } from './api/client';
 import type { ProbandRequest, ProbandResponse } from './api/schemas/proband';
 import type { Viatar, ViatarList, ViatarRequest } from './api/schemas/viatars';
+import { TLS_PIN_MISMATCH, TlsPinMismatchError } from './api/tls';
 import type { BodyLoopClientConfig } from './config/config';
 import type { Scope, Scopes } from './config/constants';
 import {
@@ -26,14 +27,14 @@ export type {
   VitronicBundleResult,
   VitronicMeasurementResponse
 };
-export { BodyLoopClient, buildBundleFromVitronicResponse };
+export { BodyLoopClient, buildBundleFromVitronicResponse, TLS_PIN_MISMATCH, TlsPinMismatchError };
 
 export function createBodyLoopClient(config: BodyLoopClientConfig): BodyLoopClient {
   return new BodyLoopClient(config);
 }
 
-export async function getAvailableViatars(client: BodyLoopClient): Promise<ViatarList> {
-  return await client.getAvailableViatars();
+export async function getAvailableViatars(client: BodyLoopClient, probandId?: number): Promise<ViatarList> {
+  return await client.getAvailableViatars(probandId);
 }
 
 export async function getViatar(client: BodyLoopClient, viatarId: string): Promise<Viatar> {

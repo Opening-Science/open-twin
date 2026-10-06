@@ -73,6 +73,11 @@
       "reason": "The UCUM unity. UCUM names it '1', which is the code itself, so the name rule is vacuous here. Used only where the quantity is genuinely dimensionless: heartbeat entropy, VO2max covariance, surface-normal vector components, and allelic frequency under LOINC 81258-6, whose property is NFr \u2014 a number fraction in [0,1], never a percentage. Bare '1' was chosen over an annotation because these are dimensionless in fact, not merely unlabelled.",
       "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
     },
+    "cubic meter|m3": {
+      "status": "exception",
+      "reason": "UCUM publishes the name of 'm3' as HTML meter<sup>3</sup>. Quantity.unit cannot carry markup; 'cubic meter' is the spoken name. Used only for VITRONIC property_path body.volume (D15).",
+      "reviewed": "open-twin #178, BodyLoop 0.13.7 property paths"
+    },
     "US ring size|{ring_size}": {
       "status": "exception",
       "reason": "UCUM annotations cannot contain a space \u2014 '{US ring size}' is rejected by the grammar \u2014 so the code has to stay the machine token '{ring_size}', whose stripped name is 'ring_size'. The readable form names the sizing scale, and a ring size without it is not interpretable: US 8 and EU 57 are the same ring. The annotation carries no meaning to a receiver either way, since a conformant parser discards it and reads the unity.",
@@ -83,9 +88,9 @@
     "packages/provider-vitronic/src/fhir/mappers/properties.ts": {
       "status": "approved",
       "occurrences": 1,
-      "reason": "VITRONIC BodyLoop scan properties are untyped key/value pairs and the API states no unit for them anywhere in the payload. The mapper emits the number with no unit rather than asserting a UCUM unit nobody has verified, which ground rule 1 forbids and which would be the worse error: a wrong unit is silently interpretable, a missing one is visibly incomplete. FHIR permits a Quantity with only a value, and the HL7 validator reports no error on the emitted bundle.",
-      "resolved_by": "A reviewed property_path -> unit table, tracked as TODO(clinical-review) in the mapper. Once it exists the paths with a known unit carry one and this waiver shrinks or goes away.",
-      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26"
+      "reason": "Unknown VITRONIC property_path values remain untyped key/value pairs; D15 binds five exact paths to SI units and leaves every other numeric path as a Quantity with a value and no unit. A missing unit is visibly incomplete; a guessed unit is silently interpretable. FHIR permits a Quantity with only a value.",
+      "resolved_by": "DECISIONS.md#d15. Extending the table is an amendment, not a local guess. The waiver stays while unknown paths exist.",
+      "reviewed": "Martin Etzrodt, PhD, Open Science Foundation, 2026-07-26; table filled open-twin #178"
     }
   }
 }

@@ -2,7 +2,7 @@ import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
 import type { Property } from '../../api/schemas/properties';
 import { mapPropertyListToFHIR, mapPropertyToFHIR } from '../../fhir/mappers/properties';
-import { CONTEXT, DATA_ABSENT_REASON, OBSERVATION_CATEGORY, SUBJECT, VITRONIC } from './testHelpers';
+import { CONTEXT, DATA_ABSENT_REASON, OBSERVATION_CATEGORY, SUBJECT, UCUM, VITRONIC } from './testHelpers';
 
 function makeProperty(overrides: Partial<Property> = {}): Property {
   return {
@@ -37,17 +37,60 @@ describe('mapPropertyToFHIR', () => {
   });
 
   /**
-   * The API states no unit for properties anywhere in the payload, so the
-   * Quantity carries a value and nothing else. Attaching a UCUM code nobody has
+   * Unknown paths have no verified unit (D15). Attaching a UCUM code nobody has
    * verified would assert a dimension the source never claimed.
    */
-  it('maps a numeric value to a deliberately unitless valueQuantity', () => {
+  it('maps a numeric value on an unknown path to a deliberately unitless valueQuantity', () => {
     const observation = mapPropertyToFHIR(makeProperty({ value: 42 }), CONTEXT);
 
     expect(observation.valueQuantity).toEqual({ value: 42 });
     expect(observation.valueString).toBeUndefined();
     expect(observation.valueBoolean).toBeUndefined();
     expect(observation.dataAbsentReason).toBeUndefined();
+  });
+
+  it('emits SI units for the five exact D15 property paths', () => {
+    const cases = [
+      { property_path: 'body.height', value: 1.752, unit: 'meter', code: 'm' },
+      { property_path: 'body.surface', value: 1.9, unit: 'square meter', code: 'm2' },
+      { property_path: 'body.volume', value: 0.07, unit: 'cubic meter', code: 'm3' },
+      { property_path: 'body.mass', value: 68.4, unit: 'kilogram', code: 'kg' },
+      { property_path: 'body.bmi', value: 22.4, unit: 'kilogram per square meter', code: 'kg/m2' }
+    ] as const;
+
+    for (const row of cases) {
+      const observation = mapPropertyToFHIR(
+        makeProperty({ property_path: row.property_path, value: row.value }),
+        CONTEXT
+      );
+      expect(observation.valueQuantity).toEqual({
+        value: row.value,
+        unit: row.unit,
+        system: UCUM,
+        code: row.code
+      });
+    }
+  });
+
+  it('does not treat a prefixed path as a D15 key', () => {
+    expect(
+      mapPropertyToFHIR(makeProperty({ property_path: 'body.mass_index', value: 22.4 }), CONTEXT).valueQuantity
+    ).toEqual({ value: 22.4 });
+    expect(
+      mapPropertyToFHIR(makeProperty({ property_path: 'body.mass.extra', value: 68.4 }), CONTEXT).valueQuantity
+    ).toEqual({ value: 68.4 });
+  });
+
+  it('passes body.bmi through as reported, without recomputing mass/height²', () => {
+    const mass = 80;
+    const height = 2;
+    const reportedBmi = 22.4;
+    expect(reportedBmi).not.toBe(mass / height ** 2);
+
+    const observation = mapPropertyToFHIR(makeProperty({ property_path: 'body.bmi', value: reportedBmi }), CONTEXT);
+
+    expect(observation.valueQuantity?.value).toBe(reportedBmi);
+    expect(observation.valueQuantity?.code).toBe('kg/m2');
   });
 
   it('maps a boolean value to valueBoolean', () => {

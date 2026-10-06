@@ -4,7 +4,9 @@ A provider for connecting Vitronic device to the Open Twin ecosystem. This packa
 
 ## Features
 
-(t.b.d.)
+Library only (D8): HTTP client + FHIR mapping. There is no runner or CLI in this
+package. Host-side scan cycle tooling lives outside this repository
+(twin-llm `scripts/vitronic/cycle.ts`).
 
 ---
 
@@ -18,18 +20,42 @@ npm install @open-twin/provider-vitronic
 
 ### Setup & Prerequisites
 
-#### Authentication limitation
+#### Authentication
 
-BodyLoop's available API contract requires the OAuth resource-owner password grant:
-the client sends the configured `username` and `password` to the BodyLoop token
-endpoint with `grant_type=password`. This legacy grant is discouraged by current
-OAuth guidance and should be replaced if VITRONIC offers a supported delegated or
-machine-to-machine alternative.
+BodyLoop accepts either:
 
-Until then, provide credentials only from the host application's secret manager.
-The connector holds them in memory only for token requests; it does not persist
-them and its errors and FHIR `OperationOutcome` diagnostics never include request
-or response bodies. Do not put credentials in source code, logs, or bundle data.
+1. The OAuth resource-owner **password grant** (`grant_type=password`) — BodyLoop's
+   documented contract, discouraged by current OAuth guidance, still required when
+   no API token exists.
+2. An admin-minted **Bearer API token** (`apiToken`). The client then never posts
+   username or password.
+
+Provide secrets only from the host application's secret manager. The connector
+holds them in memory only; it does not persist them and its errors and FHIR
+`OperationOutcome` diagnostics never include request or response bodies, tokens,
+or passwords.
+
+```ts
+createBodyLoopClient({ baseUrl, username, password, scope: 'admin' });
+createBodyLoopClient({ baseUrl, apiToken, scope: 'admin' });
+```
+
+#### TLS
+
+A self-signed scanner certificate is trusted only when `tlsFingerprintSha256` is
+the SHA-256 of that certificate's DER. Mismatch throws `TlsPinMismatchError`
+(wrapped as `ConnectorError` code `transport`). The library never sets
+`NODE_TLS_REJECT_UNAUTHORIZED`. Without a pin, Node's default TLS verification
+applies.
+
+```ts
+createBodyLoopClient({
+  baseUrl,
+  apiToken,
+  scope: 'admin',
+  tlsFingerprintSha256
+});
+```
 
 ---
 
@@ -46,20 +72,31 @@ const { bundle, issues } = await getFhirBundleFromVitronicData(client, viatarId,
   // from the scan's proband id and a matching Patient travels in the bundle.
   subject: { reference: 'Patient/1234' }
 });
+
+const scans = await client.getAvailableViatars(probandId);
 ```
 
 `issues` is a FHIR `OperationOutcome` and is present only when something failed. A
 scope that could not be fetched does not discard the scopes that could.
 
+`getAvailableViatars(probandId?)` GETs `/api/v2/viatars/` and, when an integer
+`probandId` is supplied, keeps rows whose `proband_id` equals it. It never calls
+`/probands`. The FHIR ingest path uses `getViatar` for `proband_id` the same way.
+
 ### What the mapping asserts
 
 | BodyLoop | FHIR | Unit |
 |---|---|---|
-| `angles.*`, `rotation.*` | `Observation.valueQuantity` / `component` | `deg` — the API reports **radians**, which are converted |
-| `position`, `distances.*`, `height`, `circumferences.*` | `component` / `valueQuantity` | `m` |
+| `angles.*`, `rotation.*` | `Observation.valueQuantity` / `component` | `deg` — the API reports **radians**, which are converted (D10) |
+| `position`, `distances.*`, `height`, `circumferences.*` | `component` / `valueQuantity` | `m` (D10) |
 | `areas.*` | `component` | `m2` |
 | `normal.*` | `component` | `1` — a surface normal is a direction vector, not an angle |
-| `properties[].value` | `value[x]` | none — the API states no unit, and one is not invented |
+| `properties` `body.height` | `valueQuantity` | `m` (D15) |
+| `properties` `body.surface` | `valueQuantity` | `m2` (D15) |
+| `properties` `body.volume` | `valueQuantity` | `m3` (D15) — not litre |
+| `properties` `body.mass` | `valueQuantity` | `kg` (D15) |
+| `properties` `body.bmi` | `valueQuantity` | `kg/m2` (D15) — scanner figure, not recomputed |
+| other `properties[].value` | `value[x]` | none — unknown paths stay unitless (D15) |
 
 Measurement paths are published as codes in the Foundation-controlled CodeSystem
 `http://opentwin.ch/fhir/CodeSystem/vitronic`. No LOINC or SNOMED CT code is

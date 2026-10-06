@@ -325,6 +325,34 @@ branch does not redefine `SystemId`.
 the layer the module implements. New packages declare a layer in their README.
 Crossing a layer boundary requires an explicit decision, not a convenience import.
 
+<a id="d15"></a>
+## D15 — VITRONIC property paths have SI units by exact path
+
+**Decision.** BodyLoop 0.13.7 `properties[].property_path` values that match these
+strings exactly carry the SI unit in the table. Any other path stays a Quantity
+with a value and no unit. Matching is exact: `body.mass` is not `body.mass_index`.
+
+| `property_path` | UCUM |
+|---|---|
+| `body.height` | `m` |
+| `body.surface` | `m2` |
+| `body.volume` | `m3` |
+| `body.mass` | `kg` |
+| `body.bmi` | `kg/m2` |
+
+`body.bmi` is the scanner-reported figure. It is not recomputed from mass and
+height — those do not agree on this device.
+
+**Why.** D4 binds LOINC codes, and these Observations use the vendor-local
+Vitronic CodeSystem. D10 is the measure-list decision (metres; angles converted
+from radians to degrees) and must not be stretched to untyped property keys.
+The payload does not name a unit on the property; the five paths were established
+from the live 0.13.7 API. A missing unit on an unknown path is recoverable; a
+wrong unit (the original issue’s litres for volume) is silently interpretable.
+
+**Trade-off.** Unknown numeric properties remain incomplete Quantities, still
+covered by the units-allowlist waiver on the mapper file. Extending the table
+is a D15 amendment, not a local guess.
 
 ## Still open — needs a named clinical reviewer
 
