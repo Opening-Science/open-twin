@@ -84,11 +84,17 @@ const tokenHandler = new TokenHandler(ouraRingAppConfig, options.auth_code);
 // Initial token exchange
 await tokenHandler.authenticate();
 
-// Or you can directly set the tokens
-// tokenHandler.setTokens({access_token: string, token_type: "bearer", expires_in: number, refresh_token: string})
+// Persist the pair and its absolute expiry yourself (D8) — in memory only.
+const stored = tokenHandler.getTokens();
+
+// Restore on a later process: skip authenticate; pass both so expiry is not recomputed.
+// tokenHandler.setTokens(stored.tokens, stored.expiresAt)
+// Passing only tokens treats expires_in as seconds from now; use it for fresh tokens, not restores.
 
 // Returns the access token. If token is expired, refreshes and returns it.
 await tokenHandler.getAccessToken()
+
+// After a refresh, getTokens() returns the rotated pair and new expiresAt for re-persist.
 
 ```
 
