@@ -64,14 +64,14 @@ export class TokenHandler {
     });
   }
 
-  setTokens(tokenResponse: TokenResponse): void {
+  setTokens(tokenResponse: TokenResponse, expiresAt?: number): void {
     this.tokenContainer = tokenResponse;
-    this.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
+    this.expiresAt = expiresAt ?? Date.now() + tokenResponse.expires_in * 1000;
   }
 
   /** Host persistence must not alias the in-memory container. */
-  getTokens(): TokenResponse | null {
-    if (!this.tokenContainer) return null;
-    return { ...this.tokenContainer };
+  getTokens(): { tokens: TokenResponse; expiresAt: number } | undefined {
+    if (!this.tokenContainer || this.expiresAt == null) return undefined;
+    return { tokens: { ...this.tokenContainer }, expiresAt: this.expiresAt };
   }
 }
