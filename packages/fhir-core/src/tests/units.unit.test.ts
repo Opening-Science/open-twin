@@ -90,16 +90,14 @@ describe('quantity()', () => {
     });
   });
 
-  it.each([
-    [undefined],
-    [null],
-    [Number.NaN],
-    [Number.POSITIVE_INFINITY]
-  ])('returns undefined rather than emitting a unit with no value for %s', (value) => {
-    // A Quantity carrying unit and code but no value is structurally invalid
-    // FHIR, and NaN previously serialised as the literal string "null".
-    expect(quantity(value as number | null | undefined, UCUM.METRE)).toBeUndefined();
-  });
+  it.each([[undefined], [null], [Number.NaN], [Number.POSITIVE_INFINITY]])(
+    'returns undefined rather than emitting a unit with no value for %s',
+    (value) => {
+      // A Quantity carrying unit and code but no value is structurally invalid
+      // FHIR, and NaN previously serialised as the literal string "null".
+      expect(quantity(value as number | null | undefined, UCUM.METRE)).toBeUndefined();
+    }
+  );
 });
 
 describe('glucoseCodeFor', () => {
