@@ -25,11 +25,12 @@ pnpm verify
 
 Create an issue before starting a feature. Report non-security defects through
 the issue tracker using the bug-report form. Branch from `main` using
-`<issue-number>-<slug>`, keep changes focused, and open a pull request to
-`main`.
+`<issue-number>-<slug>` and open a pull request to `main`.
 
-The pull request must explain what changed, why, and how it was verified. Every
-pull request requires maintainer approval before merge.
+Keep each pull request to one concern. Write or summarise its description
+yourself in at most 10 lines: What, Behaviour, How tested, and `Closes #n`. Do
+not paste raw AI output. Every pull request requires maintainer approval before
+merge.
 
 ## Clinical and data safeguards
 
@@ -40,10 +41,21 @@ pull request requires maintainer approval before merge.
   name and reviewer before approval. Do not bulk-approve records.
 - Match units to the source data. Represent missing data with
   `dataAbsentReason`, not zero.
-- Do not put API response bodies, health payloads, identifiers, credentials, or
-  tokens in logs, errors, fixtures, issues, or pull requests.
+- Fixtures may contain synthetic data, including synthetic vendor responses,
+  once its provenance and redistribution rights are recorded beside it, in the
+  fixture folder's `PROVENANCE.md` or the file header; see
+  [third-party rights](docs/INTENDED-USE.md#third-party-rights).
+- Do not put real participant data, identifiers, credentials, or tokens in
+  fixtures, logs, errors, issues, or pull requests. Keep API response bodies and
+  health payloads out of logs, errors, issues, and pull requests.
 - Tests for mapper corrections must assert independently determined expected
   values; see [validation limits](docs/INTENDED-USE.md#purpose-and-limits).
+
+## AI-assisted contributions
+
+The same rules apply to AI-assisted work, and the contributor remains
+responsible for it. Never put personal or health data into AI tools. Agent
+instructions are in [CLAUDE.md](CLAUDE.md).
 
 ## Legal
 
