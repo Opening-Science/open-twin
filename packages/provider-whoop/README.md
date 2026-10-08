@@ -37,6 +37,18 @@ const authorizeUrl = getWhoopAuthorizationUrl(config, state);
 const tokenHandler = new TokenHandler(config, authorizationCode);
 await tokenHandler.authenticate();
 
+// Persist the pair and its absolute expiry yourself (D8) — in memory only.
+const stored = tokenHandler.getTokens();
+
+// Restore on a later process: skip authenticate; pass both so expiry is not recomputed.
+// tokenHandler.setTokens(stored.tokens, stored.expiresAt)
+// Passing only tokens treats expires_in as seconds from now; use it for fresh tokens, not restores.
+
+// Returns the access token. If token is expired, refreshes and returns it.
+await tokenHandler.getAccessToken()
+
+// After a refresh, getTokens() returns the rotated pair and new expiresAt for re-persist.
+
 const window = { start: '2026-06-01T00:00:00.000Z', end: '2026-06-30T23:59:59.000Z' };
 
 const { data, issues } = await getWhoopData(window, tokenHandler, { subjectKey: 'wearer-stable-id' });
@@ -49,7 +61,8 @@ const { bundle } = await getFhirBundleFromWhoopData(window, tokenHandler, {
 
 `getWhoopData` is the supported package entry; hosts must not import `src/utils/fetchWhoopData`.
 
-Tokens are held in memory only; persist refresh tokens in your app if you need offline sync.
+Tokens are held in memory only; persist the pair and its absolute expiry in your app.
+`expiresAt` is an absolute timestamp in epoch milliseconds.
 
 ## Scope
 
