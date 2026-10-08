@@ -132,7 +132,7 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
   if (blocking.length > 0) return { issues, outcome: toOutcome(issues) };
 
   const envelope = parseEnvelope(input, 'Resource');
-  if (!envelope.resource || envelope.resource.resourceType !== 'Bundle') {
+  if (envelope.resource?.resourceType !== 'Bundle') {
     issues.push(
       issue(
         'error',

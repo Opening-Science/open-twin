@@ -76,20 +76,16 @@ describe('mapOuraHeartRateToFHIR', () => {
     expect(observation.extension).toEqual([{ url: SOURCE_URL, valueString: 'awake' }]);
   });
 
-  it.each([
-    'awake',
-    'workout',
-    'rest',
-    'sleep',
-    'live',
-    'session'
-  ] as const)('maps the "%s" source into the source extension', (source) => {
-    const input: OuraHeartRateList = { data: [{ ...baseEntry, source }], next_token: null };
+  it.each(['awake', 'workout', 'rest', 'sleep', 'live', 'session'] as const)(
+    'maps the "%s" source into the source extension',
+    (source) => {
+      const input: OuraHeartRateList = { data: [{ ...baseEntry, source }], next_token: null };
 
-    const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
+      const [observation] = mapOuraHeartRateToFHIR(input, TEST_CONTEXT);
 
-    expect(observation.extension?.[0]).toEqual({ url: SOURCE_URL, valueString: source });
-  });
+      expect(observation.extension?.[0]).toEqual({ url: SOURCE_URL, valueString: source });
+    }
+  );
 
   it('sets dataAbsentReason rather than a 0 bpm reading when bpm is not a number', () => {
     // A 0 bpm vital sign reads as asystole. `bpm ?? 0` made that the fallback.

@@ -123,28 +123,25 @@ describe('synthea trimmed fixtures', () => {
     }
   });
 
-  it.each(EXPECTED_OBSERVATIONS)('$fixture preserves $resourceId code, value, unit and timestamp', ({
-    fixture: fixtureName,
-    resourceId,
-    codings,
-    valueQuantity,
-    effectiveDateTime
-  }) => {
-    const fixture = fixtures.find(({ name }) => name === fixtureName);
-    if (!fixture) throw new Error(`missing fixture ${fixtureName}`);
-    const source = observations(fixture.bundle as Bundle).find((observation) => observation.id === resourceId);
-    const result = normaliseFixture(fixture);
-    const normalised = observations(result.bundle as Bundle).find((observation) =>
-      observation.code.coding?.some((coding) => coding.code === codings[0].code)
-    );
+  it.each(EXPECTED_OBSERVATIONS)(
+    '$fixture preserves $resourceId code, value, unit and timestamp',
+    ({ fixture: fixtureName, resourceId, codings, valueQuantity, effectiveDateTime }) => {
+      const fixture = fixtures.find(({ name }) => name === fixtureName);
+      if (!fixture) throw new Error(`missing fixture ${fixtureName}`);
+      const source = observations(fixture.bundle as Bundle).find((observation) => observation.id === resourceId);
+      const result = normaliseFixture(fixture);
+      const normalised = observations(result.bundle as Bundle).find((observation) =>
+        observation.code.coding?.some((coding) => coding.code === codings[0].code)
+      );
 
-    expect(source?.code.coding).toEqual(codings);
-    expect(source?.valueQuantity).toEqual(valueQuantity);
-    expect(source?.effectiveDateTime).toBe(effectiveDateTime);
-    expect(normalised?.code.coding).toEqual(codings);
-    expect(normalised?.valueQuantity).toEqual(valueQuantity);
-    expect(normalised?.effectiveDateTime).toBe(effectiveDateTime);
-  });
+      expect(source?.code.coding).toEqual(codings);
+      expect(source?.valueQuantity).toEqual(valueQuantity);
+      expect(source?.effectiveDateTime).toBe(effectiveDateTime);
+      expect(normalised?.code.coding).toEqual(codings);
+      expect(normalised?.valueQuantity).toEqual(valueQuantity);
+      expect(normalised?.effectiveDateTime).toBe(effectiveDateTime);
+    }
+  );
 
   it.each(fixtures)('$name normalises to byte-identical JSON twice', (fixture) => {
     const first = normaliseFixture(fixture);
