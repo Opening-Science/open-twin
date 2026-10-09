@@ -1,7 +1,7 @@
 /**
  * WHAT: Package public barrel: re-exports the supported API surface.
  * NOT:  Must not contain mapping or clinical logic; implementation lives in sibling modules.
-GOVERNED BY: DECISIONS.md#d9
+GOVERNED BY: DECISIONS.md#d8; DECISIONS.md#d9
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import { fetchWhoopData, type WhoopRequestOptions } from './fhir/bundleBuilder';
@@ -16,6 +16,7 @@ export {
   WHOOP_SCOPES,
   type WhoopScope
 } from './api/client';
+export type { TokenResponse } from './api/schemas/auth';
 export type { WhoopSyncPayload } from './api/schemas/sync';
 export type { WhoopAppConfig } from './config/config';
 export {
