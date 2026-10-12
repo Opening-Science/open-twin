@@ -12,6 +12,11 @@ updates:
     cooldown:
       default-days: 2
     open-pull-requests-limit: 10
+    ignore:
+      # TypeScript 7 breaks `tsup --dts`, which builds every package through the
+      # TypeScript compiler API (#184, #196). Lift once tsup supports TS 7.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       typescript-toolchain:
         patterns:
