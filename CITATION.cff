@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use open-twin in your work, please cite it as below."
+type: software
+title: "open-twin: health-data connectors to FHIR R4"
+abstract: >-
+  A collection of connectors that translate wearable, body-scanner, clinical and
+  genomic data into FHIR R4 bundles, with a reconciliation layer that keeps every
+  source value and abstains where the evidence does not support a choice.
+  Conceived as an open connector repository in analogy to Bioconductor.
+authors:
+  - family-names: Dike
+    given-names: Peter
+    alias: CPD9
+  - family-names: Etzrodt
+    given-names: Martin
+    alias: etzm
+    orcid: "https://orcid.org/0000-0003-1928-3904"
+  - family-names: Matthias
+    given-names: Paul
+    alias: PaulMatthiasVUSE
+  - family-names: Wilkening
+    given-names: Robin
+    orcid: "https://orcid.org/0000-0002-8332-5016"
+  - family-names: Yildizgorer
+    given-names: Berk
+    alias: BerkYildizgorer
+repository-code: "https://github.com/Opening-Science/open-twin"
+license: MIT
+keywords:
+  - FHIR
+  - HL7
+  - wearables
+  - interoperability
+  - digital twin
