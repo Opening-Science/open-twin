@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="878" viewBox="0 0 1000 878" role="img" aria-labelledby="title desc">
+<title id="title">How open-twin moves health data</title>
+<desc id="desc">Nine sources (Oura, WHOOP, Google Health, OpenWearables, VITRONIC BodyLoop, FHIR R4 records, HL7 v2 messages, VCF genome variants and Anchor lab biomarkers) each pass through their own connector, then through a shared FHIR contract for identity, codes and units, into a FHIR R4 bundle. Bundles are checked on every pull request by terminology, UCUM and the HL7 validator. Bundles are reconciled into one per person. Lab biomarkers are interpreted against the Anchor layer and a rule pack, and the result is shown per body system in the open-twin-xr viewer.</desc>
+<style>
+.box{fill:#262628;stroke:#3a3a3c;stroke-width:1}
+.foot{fill:#141415;stroke:#3a3a3c;stroke-width:1}
+.num{fill:#3a3a3c}
+.numt{font:600 11px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#f5f5f7}
+.sec{font:600 14px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#c7c7cc;letter-spacing:-0.1px}
+.lbl{font:600 12.5px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#f5f5f7}
+.det{font:400 11px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#98989d}
+.pkg{font:500 11.5px ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;fill:#e5e5ea}
+.leg{font:400 12.5px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#d1d1d6}
+.brand{font:700 40px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#f5f5f7;letter-spacing:-1.2px}
+.tag{font:500 14px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#d1d1d6}
+.doc{fill:#f5f5f7}
+.doct{font:700 6.6px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;fill:#1c1c1e;letter-spacing:0.2px}
+.term{fill:#f5f5f7}
+.pill{fill:#f5f5f7;stroke:#1c1c1e;stroke-width:1.5}
+.stop{fill:#f5f5f7;stroke:#1c1c1e;stroke-width:1.5}
+.fig{fill:#3a3a3c;stroke:#8e8e93;stroke-width:1.2}
+</style>
+<rect width="1000" height="878" rx="16" fill="#1c1c1e"/>
+<rect x="16" y="74" width="252" height="390" rx="10" class="box"/>
+<circle cx="26" cy="58" r="9" class="num"/>
+<text x="26" y="61.5" class="numt" text-anchor="middle">1</text>
+<text x="41" y="62.5" class="sec" text-anchor="start">Sources</text>
+<rect x="284" y="74" width="196" height="390" rx="10" class="box"/>
+<circle cx="294" cy="58" r="9" class="num"/>
+<text x="294" y="61.5" class="numt" text-anchor="middle">2</text>
+<text x="309" y="62.5" class="sec" text-anchor="start">Connectors</text>
+<rect x="540" y="172" width="386" height="128" rx="10" class="box"/>
+<circle cx="550" cy="156" r="9" class="num"/>
+<text x="550" y="159.5" class="numt" text-anchor="middle">3</text>
+<text x="565" y="160.5" class="sec" text-anchor="start">Shared FHIR contract</text>
+<rect x="540" y="340" width="386" height="104" rx="10" class="box"/>
+<circle cx="550" cy="324" r="9" class="num"/>
+<text x="550" y="327.5" class="numt" text-anchor="middle">4</text>
+<text x="565" y="328.5" class="sec" text-anchor="start">Checked on every pull request</text>
+<rect x="640" y="538" width="286" height="178" rx="10" class="box"/>
+<circle cx="650" cy="522" r="9" class="num"/>
+<text x="650" y="525.5" class="numt" text-anchor="middle">5</text>
+<text x="665" y="526.5" class="sec" text-anchor="start">Reconcile</text>
+<rect x="240" y="538" width="384" height="178" rx="10" class="box"/>
+<circle cx="250" cy="522" r="9" class="num"/>
+<text x="250" y="525.5" class="numt" text-anchor="middle">6</text>
+<text x="265" y="526.5" class="sec" text-anchor="start">Interpret (research)</text>
+<rect x="16" y="538" width="208" height="178" rx="10" class="box"/>
+<circle cx="26" cy="522" r="9" class="num"/>
+<text x="26" y="525.5" class="numt" text-anchor="middle">7</text>
+<text x="41" y="526.5" class="sec" text-anchor="start">View</text>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path id="l0" d="M60 108 H450 C505 108 505 232 560 232 H930 A38 38 0 0 1 968 270 V588 A38 38 0 0 1 930 626 H712" stroke="#30d158" stroke-width="3.4"/>
+<path id="l1" d="M60 150 H450 C505 150 505 232 560 232 H930 A38 38 0 0 1 968 270 V588 A38 38 0 0 1 930 626 H712" stroke="#30d158" stroke-width="3.4"/>
+<path id="l2" d="M60 192 H450 C505 192 505 232 560 232 H930 A38 38 0 0 1 968 270 V588 A38 38 0 0 1 930 626 H712" stroke="#30d158" stroke-width="3.4"/>
+<path id="l3" d="M60 234 H450 C505 234 505 232 560 232 H930 A38 38 0 0 1 968 270 V588 A38 38 0 0 1 930 626 H712" stroke="#30d158" stroke-width="3.4"/>
+<path id="l4" d="M60 276 H450 C505 276 505 238 560 238 H930 A32 32 0 0 1 962 270 V588 A32 32 0 0 1 930 620 H712" stroke="#ff9f0a" stroke-width="3.4"/>
+<path id="l5" d="M60 318 H450 C505 318 505 244 560 244 H930 A26 26 0 0 1 956 270 V588 A26 26 0 0 1 930 614 H712" stroke="#409cff" stroke-width="3.4"/>
+<path id="l6" d="M60 360 H450 C505 360 505 244 560 244 H930 A26 26 0 0 1 956 270 V588 A26 26 0 0 1 930 614 H712" stroke="#409cff" stroke-width="3.4"/>
+<path id="l7" d="M60 402 H450 C505 402 505 250 560 250 H930 A20 20 0 0 1 950 270 V588 A20 20 0 0 1 930 608 H712" stroke="#bf5af2" stroke-width="3.4"/>
+<path id="l8" d="M60 444 H450 C505 444 505 256 560 256 H930 A14 14 0 0 1 944 270 V588 A14 14 0 0 1 930 602 H918 C888 602 888 574 858 574 H196" stroke="#ff6961" stroke-width="3.4"/>
+<path id="ci" d="M880 262 V384 A16 16 0 0 1 864 400 H572" stroke="#8e8e93" stroke-width="2.4" stroke-dasharray="1 6"/>
+</g>
+<path d="M23 97 a2 2 0 0 1 2 -2 H39 L45 101 V119 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="111.5" class="doct" text-anchor="middle">API</text>
+<rect x="52" y="104" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="100" class="lbl" text-anchor="start">Oura Ring</text>
+<text x="70" y="125" class="det" text-anchor="start">sleep, readiness, heart rate</text>
+<path d="M23 139 a2 2 0 0 1 2 -2 H39 L45 143 V161 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="153.5" class="doct" text-anchor="middle">API</text>
+<rect x="52" y="146" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="142" class="lbl" text-anchor="start">WHOOP</text>
+<text x="70" y="167" class="det" text-anchor="start">recovery, strain, sleep</text>
+<path d="M23 181 a2 2 0 0 1 2 -2 H39 L45 185 V203 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="195.5" class="doct" text-anchor="middle">API</text>
+<rect x="52" y="188" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="184" class="lbl" text-anchor="start">Google Health</text>
+<text x="70" y="209" class="det" text-anchor="start">Fitbit and Pixel Watch</text>
+<path d="M23 223 a2 2 0 0 1 2 -2 H39 L45 227 V245 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="237.5" class="doct" text-anchor="middle">API</text>
+<rect x="52" y="230" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="226" class="lbl" text-anchor="start">OpenWearables</text>
+<text x="70" y="251" class="det" text-anchor="start">Apple Health, Garmin, Polar and more</text>
+<path d="M23 265 a2 2 0 0 1 2 -2 H39 L45 269 V287 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="279.5" class="doct" text-anchor="middle">SCAN</text>
+<rect x="52" y="272" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="268" class="lbl" text-anchor="start">VITRONIC BodyLoop</text>
+<text x="70" y="293" class="det" text-anchor="start">3D body scan</text>
+<path d="M23 307 a2 2 0 0 1 2 -2 H39 L45 311 V329 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="321.5" class="doct" text-anchor="middle">FHIR</text>
+<rect x="52" y="314" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="310" class="lbl" text-anchor="start">Health records</text>
+<text x="70" y="335" class="det" text-anchor="start">FHIR R4 bundles</text>
+<path d="M23 349 a2 2 0 0 1 2 -2 H39 L45 353 V371 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="363.5" class="doct" text-anchor="middle">HL7</text>
+<rect x="52" y="356" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="352" class="lbl" text-anchor="start">Lab and hospital messages</text>
+<text x="70" y="377" class="det" text-anchor="start">HL7 v2 results and admissions</text>
+<path d="M23 391 a2 2 0 0 1 2 -2 H39 L45 395 V413 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="405.5" class="doct" text-anchor="middle">VCF</text>
+<rect x="52" y="398" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="394" class="lbl" text-anchor="start">Genome variants</text>
+<text x="70" y="419" class="det" text-anchor="start">VCF files</text>
+<path d="M23 433 a2 2 0 0 1 2 -2 H39 L45 437 V455 a2 2 0 0 1 -2 2 H25 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="34" y="447.5" class="doct" text-anchor="middle">LAB</text>
+<rect x="52" y="440" width="8" height="8" rx="1.5" class="term"/>
+<text x="70" y="436" class="lbl" text-anchor="start">Lab biomarkers</text>
+<text x="70" y="461" class="det" text-anchor="start">Anchor biomarker panel</text>
+<circle cx="382" cy="108" r="3.6" class="stop"/>
+<text x="382" y="99" class="pkg" text-anchor="middle">provider-oura</text>
+<circle cx="382" cy="150" r="3.6" class="stop"/>
+<text x="382" y="141" class="pkg" text-anchor="middle">provider-whoop</text>
+<circle cx="382" cy="192" r="3.6" class="stop"/>
+<text x="382" y="183" class="pkg" text-anchor="middle">provider-google-health</text>
+<circle cx="382" cy="234" r="3.6" class="stop"/>
+<text x="382" y="225" class="pkg" text-anchor="middle">open-wearables</text>
+<circle cx="382" cy="276" r="3.6" class="stop"/>
+<text x="382" y="267" class="pkg" text-anchor="middle">provider-vitronic</text>
+<circle cx="382" cy="318" r="3.6" class="stop"/>
+<text x="382" y="309" class="pkg" text-anchor="middle">fhir-r4</text>
+<circle cx="382" cy="360" r="3.6" class="stop"/>
+<text x="382" y="351" class="pkg" text-anchor="middle">hl7v2</text>
+<circle cx="382" cy="402" r="3.6" class="stop"/>
+<text x="382" y="393" class="pkg" text-anchor="middle">genomics-vcf</text>
+<circle cx="382" cy="444" r="3.6" class="stop"/>
+<text x="382" y="435" class="pkg" text-anchor="middle">provider-anchor</text>
+<rect x="583.5" y="227" width="9" height="34" rx="4.5" class="pill"/>
+<text x="588" y="219" class="lbl" text-anchor="middle">Identity</text>
+<text x="588" y="278" class="det" text-anchor="middle">subject and ids</text>
+<rect x="693.5" y="227" width="9" height="34" rx="4.5" class="pill"/>
+<text x="698" y="219" class="lbl" text-anchor="middle">Codes</text>
+<text x="698" y="278" class="det" text-anchor="middle">LOINC, SNOMED CT</text>
+<rect x="785.5" y="227" width="9" height="34" rx="4.5" class="pill"/>
+<text x="790" y="219" class="lbl" text-anchor="middle">Units</text>
+<text x="790" y="278" class="det" text-anchor="middle">UCUM</text>
+<rect x="875.5" y="227" width="9" height="34" rx="4.5" class="pill"/>
+<text x="880" y="205" class="lbl" text-anchor="middle">FHIR R4 bundle</text>
+<text x="880" y="219" class="det" text-anchor="middle">with provenance</text>
+<circle cx="800" cy="400" r="3.6" class="stop"/>
+<text x="800" y="388" class="lbl" text-anchor="middle">HL7 validator</text>
+<text x="800" y="422" class="det" text-anchor="middle">official structure check</text>
+<circle cx="700" cy="400" r="3.6" class="stop"/>
+<text x="700" y="388" class="lbl" text-anchor="middle">UCUM grammar</text>
+<text x="700" y="422" class="det" text-anchor="middle">every unit</text>
+<circle cx="600" cy="400" r="3.6" class="stop"/>
+<text x="600" y="388" class="lbl" text-anchor="middle">Terminology</text>
+<text x="600" y="422" class="det" text-anchor="middle">reviewed codes</text>
+<rect x="566" y="396" width="8" height="8" rx="1.5" class="term"/>
+<rect x="831.5" y="603" width="9" height="28" rx="4.5" class="pill"/>
+<text x="836" y="658" class="pkg" text-anchor="middle">aggregate</text>
+<text x="836" y="674" class="det" text-anchor="middle">Same measure, two sources:</text>
+<text x="836" y="688" class="det" text-anchor="middle">choose on evidence, or abstain</text>
+<rect x="706" y="604" width="6" height="26" rx="2" class="term"/>
+<path d="M673 606 a2 2 0 0 1 2 -2 H689 L695 610 V628 a2 2 0 0 1 -2 2 H675 a2 2 0 0 1 -2 -2 Z" class="doc"/>
+<text x="684" y="620.5" class="doct" text-anchor="middle">FHIR</text>
+<text x="684" y="658" class="lbl" text-anchor="middle">One bundle</text>
+<text x="684" y="674" class="det" text-anchor="middle">per person</text>
+<circle cx="560" cy="574" r="3.6" class="stop"/>
+<text x="560" y="562" class="lbl" text-anchor="middle">Anchor layer</text>
+<text x="560" y="598" class="det" text-anchor="middle">67 biomarkers,</text>
+<text x="560" y="612" class="det" text-anchor="middle">reference ranges</text>
+<circle cx="440" cy="574" r="3.6" class="stop"/>
+<text x="440" y="562" class="lbl" text-anchor="middle">Rule pack</text>
+<text x="440" y="598" class="det" text-anchor="middle">cutoffs in YAML,</text>
+<text x="440" y="612" class="det" text-anchor="middle">not in code</text>
+<circle cx="320" cy="574" r="3.6" class="stop"/>
+<text x="320" y="562" class="lbl" text-anchor="middle">Interpretation</text>
+<text x="320" y="598" class="det" text-anchor="middle">one state per</text>
+<text x="320" y="612" class="det" text-anchor="middle">body system</text>
+<rect x="192" y="570" width="8" height="8" rx="1.5" class="term"/>
+<g class="fig" transform="translate(0 22)">
+<circle cx="62" cy="566" r="9"/>
+<path d="M44 610 V594 a18 14 0 0 1 36 0 V610 Z"/>
+</g>
+<path d="M86 612 C 120 612 140 574 186 574" fill="none" stroke="#ff6961" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 5"/>
+<text x="36" y="662" class="pkg" text-anchor="start">open-twin-xr</text>
+<text x="36" y="678" class="det" text-anchor="start">3D body viewer, in the browser</text>
+<text x="36" y="692" class="det" text-anchor="start">or on a headset</text>
+<g>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.7s" begin="0s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9234;1"><mpath href="#l0"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.7s" begin="-7.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9234;1"><mpath href="#l0"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.4s" begin="-1.4s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.922;1"><mpath href="#l1"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.4s" begin="-9.1s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.922;1"><mpath href="#l1"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.2s" begin="-2.7s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9208;1"><mpath href="#l2"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.2s" begin="-10.3s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9208;1"><mpath href="#l2"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.1s" begin="-4.1s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9204;1"><mpath href="#l3"/></animateMotion></circle>
+<circle r="4.2" fill="#30d158" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.1s" begin="-11.6s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9204;1"><mpath href="#l3"/></animateMotion></circle>
+<circle r="4.2" fill="#ff9f0a" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15s" begin="-5.5s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9198999999999999;1"><mpath href="#l4"/></animateMotion></circle>
+<circle r="4.2" fill="#ff9f0a" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15s" begin="-13s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9198999999999999;1"><mpath href="#l4"/></animateMotion></circle>
+<circle r="4.2" fill="#409cff" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15s" begin="-6.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9198999999999999;1"><mpath href="#l5"/></animateMotion></circle>
+<circle r="4.2" fill="#409cff" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15s" begin="-14.3s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9198999999999999;1"><mpath href="#l5"/></animateMotion></circle>
+<circle r="4.2" fill="#409cff" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.3s" begin="-8.2s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9214;1"><mpath href="#l6"/></animateMotion></circle>
+<circle r="4.2" fill="#409cff" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.3s" begin="-0.6s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9214;1"><mpath href="#l6"/></animateMotion></circle>
+<circle r="4.2" fill="#bf5af2" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.4s" begin="-9.6s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9218999999999999;1"><mpath href="#l7"/></animateMotion></circle>
+<circle r="4.2" fill="#bf5af2" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="15.4s" begin="-1.9s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9218999999999999;1"><mpath href="#l7"/></animateMotion></circle>
+<circle r="4.2" fill="#ff6961" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="20.2s" begin="-11s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9407000000000001;1"><mpath href="#l8"/></animateMotion></circle>
+<circle r="4.2" fill="#ff6961" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="20.2s" begin="-0.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9407000000000001;1"><mpath href="#l8"/></animateMotion></circle>
+<circle r="3.4" fill="#8e8e93"><animateMotion dur="9.3s" begin="-1s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.7854;1"><mpath href="#ci"/></animateMotion></circle>
+</g>
+<rect x="16" y="748" width="968" height="112" rx="10" class="foot"/>
+<text x="40" y="802" class="brand" text-anchor="start">open-twin</text>
+<text x="42" y="830" class="tag" text-anchor="start">Health data from several sources, mapped to one standard.</text>
+<text x="42" y="846" class="det" text-anchor="start">Open Science Foundation  ·  MIT  ·  research and non-medical wellness use</text>
+<path d="M640 782 H666" stroke="#30d158" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="786" class="leg" text-anchor="start">Wearables</text>
+<path d="M640 806 H666" stroke="#ff9f0a" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="810" class="leg" text-anchor="start">Body scan</text>
+<path d="M640 830 H666" stroke="#409cff" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="834" class="leg" text-anchor="start">Health records</text>
+<path d="M800 782 H826" stroke="#bf5af2" stroke-linecap="round" stroke-width="3.4"/>
+<text x="836" y="786" class="leg" text-anchor="start">Genomics</text>
+<path d="M800 806 H826" stroke="#ff6961" stroke-linecap="round" stroke-width="3.4"/>
+<text x="836" y="810" class="leg" text-anchor="start">Lab biomarkers</text>
+<path d="M800 830 H826" stroke="#8e8e93" stroke-linecap="round" stroke-dasharray="1 6" stroke-width="2.4"/>
+<text x="836" y="834" class="leg" text-anchor="start">Verification</text>
+</svg>
