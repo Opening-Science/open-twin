@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="852" viewBox="0 0 1000 852" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="878" viewBox="0 0 1000 878" role="img" aria-labelledby="title desc">
 <title id="title">How open-twin moves health data</title>
 <desc id="desc">Nine sources (Oura, WHOOP, Google Health, OpenWearables, VITRONIC BodyLoop, FHIR R4 records, HL7 v2 messages, VCF genome variants and Anchor lab biomarkers) each pass through their own connector, then through a shared FHIR contract for identity, codes and units, into a FHIR R4 bundle. Bundles are checked on every pull request by terminology, UCUM and the HL7 validator. Bundles are reconciled into one per person. Lab biomarkers are interpreted against the Anchor layer and a rule pack, and the result is shown per body system in the open-twin-xr viewer.</desc>
 <style>
@@ -20,7 +20,7 @@
 .stop{fill:#f5f5f7;stroke:#1c1c1e;stroke-width:1.5}
 .fig{fill:#3a3a3c;stroke:#8e8e93;stroke-width:1.2}
 </style>
-<rect width="1000" height="852" rx="16" fill="#1c1c1e"/>
+<rect width="1000" height="878" rx="16" fill="#1c1c1e"/>
 <rect x="16" y="74" width="252" height="390" rx="10" class="box"/>
 <circle cx="26" cy="58" r="9" class="num"/>
 <text x="26" y="61.5" class="numt" text-anchor="middle">1</text>
@@ -37,15 +37,15 @@
 <circle cx="550" cy="324" r="9" class="num"/>
 <text x="550" y="327.5" class="numt" text-anchor="middle">4</text>
 <text x="565" y="328.5" class="sec" text-anchor="start">Checked on every pull request</text>
-<rect x="640" y="538" width="286" height="152" rx="10" class="box"/>
+<rect x="640" y="538" width="286" height="178" rx="10" class="box"/>
 <circle cx="650" cy="522" r="9" class="num"/>
 <text x="650" y="525.5" class="numt" text-anchor="middle">5</text>
 <text x="665" y="526.5" class="sec" text-anchor="start">Reconcile</text>
-<rect x="240" y="538" width="384" height="152" rx="10" class="box"/>
+<rect x="240" y="538" width="384" height="178" rx="10" class="box"/>
 <circle cx="250" cy="522" r="9" class="num"/>
 <text x="250" y="525.5" class="numt" text-anchor="middle">6</text>
 <text x="265" y="526.5" class="sec" text-anchor="start">Interpret (research)</text>
-<rect x="16" y="538" width="208" height="152" rx="10" class="box"/>
+<rect x="16" y="538" width="208" height="178" rx="10" class="box"/>
 <circle cx="26" cy="522" r="9" class="num"/>
 <text x="26" y="525.5" class="numt" text-anchor="middle">7</text>
 <text x="41" y="526.5" class="sec" text-anchor="start">View</text>
@@ -197,20 +197,20 @@
 <circle r="4.2" fill="#ff6961" stroke="#1c1c1e" stroke-width="1.5"><animateMotion dur="20.2s" begin="-0.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.9407000000000001;1"><mpath href="#l8"/></animateMotion></circle>
 <circle r="3.4" fill="#8e8e93"><animateMotion dur="9.3s" begin="-1s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.7854;1"><mpath href="#ci"/></animateMotion></circle>
 </g>
-<rect x="16" y="722" width="968" height="112" rx="10" class="foot"/>
-<text x="40" y="776" class="brand" text-anchor="start">open-twin</text>
-<text x="42" y="804" class="tag" text-anchor="start">Health data from many sources, mapped to one standard.</text>
-<text x="42" y="820" class="det" text-anchor="start">Open Science Foundation  ·  MIT  ·  research and non-medical wellness use</text>
-<path d="M640 756 H666" stroke="#30d158" stroke-linecap="round" stroke-width="3.4"/>
-<text x="676" y="760" class="leg" text-anchor="start">Wearables</text>
-<path d="M640 780 H666" stroke="#ff9f0a" stroke-linecap="round" stroke-width="3.4"/>
-<text x="676" y="784" class="leg" text-anchor="start">Body scan</text>
-<path d="M640 804 H666" stroke="#409cff" stroke-linecap="round" stroke-width="3.4"/>
-<text x="676" y="808" class="leg" text-anchor="start">Health records</text>
-<path d="M800 756 H826" stroke="#bf5af2" stroke-linecap="round" stroke-width="3.4"/>
-<text x="836" y="760" class="leg" text-anchor="start">Genomics</text>
-<path d="M800 780 H826" stroke="#ff6961" stroke-linecap="round" stroke-width="3.4"/>
-<text x="836" y="784" class="leg" text-anchor="start">Lab biomarkers</text>
-<path d="M800 804 H826" stroke="#8e8e93" stroke-linecap="round" stroke-dasharray="1 6" stroke-width="2.4"/>
-<text x="836" y="808" class="leg" text-anchor="start">Verification</text>
+<rect x="16" y="748" width="968" height="112" rx="10" class="foot"/>
+<text x="40" y="802" class="brand" text-anchor="start">open-twin</text>
+<text x="42" y="830" class="tag" text-anchor="start">Health data from several sources, mapped to one standard.</text>
+<text x="42" y="846" class="det" text-anchor="start">Open Science Foundation  ·  MIT  ·  research and non-medical wellness use</text>
+<path d="M640 782 H666" stroke="#30d158" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="786" class="leg" text-anchor="start">Wearables</text>
+<path d="M640 806 H666" stroke="#ff9f0a" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="810" class="leg" text-anchor="start">Body scan</text>
+<path d="M640 830 H666" stroke="#409cff" stroke-linecap="round" stroke-width="3.4"/>
+<text x="676" y="834" class="leg" text-anchor="start">Health records</text>
+<path d="M800 782 H826" stroke="#bf5af2" stroke-linecap="round" stroke-width="3.4"/>
+<text x="836" y="786" class="leg" text-anchor="start">Genomics</text>
+<path d="M800 806 H826" stroke="#ff6961" stroke-linecap="round" stroke-width="3.4"/>
+<text x="836" y="810" class="leg" text-anchor="start">Lab biomarkers</text>
+<path d="M800 830 H826" stroke="#8e8e93" stroke-linecap="round" stroke-dasharray="1 6" stroke-width="2.4"/>
+<text x="836" y="834" class="leg" text-anchor="start">Verification</text>
 </svg>
