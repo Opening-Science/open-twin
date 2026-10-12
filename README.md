@@ -128,7 +128,7 @@ Development and pull requests for this repository are hosted at
 | Name | Work |
 |---|---|
 | Peter Dike ([@CPD9](https://github.com/CPD9)) | Interpretation layer, Anchor biomarker ingest, the WHOOP connector, the Synthea cohort |
-| Martin Etzrodt ([@etzm](https://github.com/etzm)) | Shared FHIR core, verification gates, reconciliation, the FHIR R4, HL7 v2, VCF and OpenWearables packages, intended-use guidance |
+| Martin Etzrodt ([@etzm](https://github.com/etzm), [ORCID](https://orcid.org/0000-0003-1928-3904)) | Conceived open-twin as an open connector repository, in analogy to Bioconductor; shared FHIR core, verification gates, reconciliation, the FHIR R4, HL7 v2, VCF and OpenWearables packages, intended-use guidance |
 | Paul Matthias ([@PaulMatthiasVUSE](https://github.com/PaulMatthiasVUSE)) | Started the repository; maintenance, dependencies, security policy and review |
 | Robin Wilkening ([ORCID](https://orcid.org/0000-0002-8332-5016)) | Project lead; scientific direction and the original Anchor biomarker list |
 | Berk Yildizgorer ([@BerkYildizgorer](https://github.com/BerkYildizgorer)) | The first Oura, Google Health and VITRONIC connectors, with their mappers, tests and CI |
