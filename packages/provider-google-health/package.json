@@ -32,13 +32,13 @@
   "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
-    "@googleapis/health": "6.1.0",
+    "@googleapis/health": "6.2.0",
     "@open-twin/fhir-core": "workspace:*",
     "@types/fhir": "0.0.44",
-    "googleapis": "183.0.0"
+    "googleapis": "185.0.0"
   },
   "devDependencies": {
-    "@lhncbc/ucum-lhc": "7.1.9",
+    "@lhncbc/ucum-lhc": "7.1.10",
     "@rollup/plugin-swc": "0.4.1",
     "@types/node": "26.6.5",
     "jest-extended": "7.0.0",
