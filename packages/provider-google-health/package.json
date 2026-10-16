@@ -38,7 +38,7 @@
     "googleapis": "185.0.0"
   },
   "devDependencies": {
-    "@lhncbc/ucum-lhc": "7.1.9",
+    "@lhncbc/ucum-lhc": "7.1.10",
     "@rollup/plugin-swc": "0.4.1",
     "@types/node": "26.6.2",
     "jest-extended": "7.0.0",
