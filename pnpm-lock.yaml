@@ -260,8 +260,8 @@ importers:
   packages/provider-google-health:
     dependencies:
       '@googleapis/health':
-        specifier: 6.2.0
-        version: 6.2.0(supports-color@7.2.0)
+        specifier: 6.2.1
+        version: 6.2.1(supports-color@7.2.0)
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
@@ -269,8 +269,8 @@ importers:
         specifier: 0.0.44
         version: 0.0.44
       googleapis:
-        specifier: 185.0.0
-        version: 185.0.0(supports-color@7.2.0)
+        specifier: 186.0.0
+        version: 186.0.0(supports-color@7.2.0)
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: 7.1.10
@@ -676,8 +676,8 @@ packages:
   '@fast-csv/parse@4.3.6':
     resolution: {integrity: sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==}
 
-  '@googleapis/health@6.2.0':
-    resolution: {integrity: sha512-HaL64U2iEpM9qTBRmeU6McbFi6cLCod0ZtMAR7+2tm/AyXHTmXKw5Z28/6zJcSPwQPiT71Yoi86S9IiJwCLVkA==}
+  '@googleapis/health@6.2.1':
+    resolution: {integrity: sha512-s2vekKgQ8SugQ9wTo6j8N9h2GJCtl6l8p04ek1Tak7gKlO1c2JWDOITujqXtvSjfln5dywyY2XXVEpQcNJg2jg==}
     engines: {node: '>=22.0.0'}
 
   '@jest/diff-sequences@30.4.0':
@@ -1423,12 +1423,12 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
-  gaxios@7.3.1:
-    resolution: {integrity: sha512-kB3rzJV7d9juLZh8/56QTXCwQfxyhdOMdyYk1HdQKFtF8TJTDTZQJtixWIwXdE9Jji91mC41DUNpjleo4L4eAQ==}
-    engines: {node: '>=18'}
+  gaxios@8.3.1:
+    resolution: {integrity: sha512-h4/R7ay7JFXU5kmAkp/Y4Y4Vmm7m83tD579GUgfQQsRRGQ4TzSedyHla6XgTWohQuVffT3ldN4FF6uCqlRGaEA==}
+    engines: {node: '>=22'}
 
-  gcp-metadata@9.2.0:
-    resolution: {integrity: sha512-eV9lxydJ1sLtP0Kpkd/7RNHuD8ZXL16nqaa4MI4tUargdSBzlkCnZ33ykSQddJFe/hdc4Tmo5tUP31szLDct3Q==}
+  gcp-metadata@9.2.1:
+    resolution: {integrity: sha512-5/LvxarRKbGCA5LJ+ha2aV1iVm7/aALIW4PzeXnQR5dyXiNMWbeA4UOBnqERInLfH/xSFp0ZREcxodUzxhEw2Q==}
     engines: {node: '>=22'}
 
   get-intrinsic@1.3.0:
@@ -1443,20 +1443,20 @@ packages:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
-  google-auth-library@11.3.0:
-    resolution: {integrity: sha512-gZCyszARHj47WNcKrAcQtimDwtTZpydRZ3HSeb66hObfQU9uaG50ejsZ8LzGISIVAjpsZEouGVs65Q/XRau0Qg==}
+  google-auth-library@11.3.1:
+    resolution: {integrity: sha512-mQS0R2Ev/DKkzuWSYtDeq15uhDeaWuT2qzLYqJ41LmooxVKHmn5ut3pc6dlHY6wfHW/D7FBmOYjAtkjaD1A7qA==}
     engines: {node: '>=22'}
 
   google-logging-utils@2.1.0:
     resolution: {integrity: sha512-1R6uiq6XhXW2ZrcGtZpGgVDsYGzSmveVOn8Pp37qe1fbThHZ34e3t3eXj5mVu6PFSVx9fvB1KNVnYgVtq/BRcA==}
     engines: {node: '>=22'}
 
-  googleapis-common@9.3.0:
-    resolution: {integrity: sha512-jgSY53R77I1zIGJ0uRx29KFQYj7pMGKWSecaOQiOeCdHu/8wHSiEWpt0G7RW2fttc+jd9pukoXbmq2VryvLxCg==}
+  googleapis-common@9.3.1:
+    resolution: {integrity: sha512-wtv/e7JYgmtpIPcSez2EFD/Wx49DPsRX2rj15D7hTwc7tDsP82dcwoX/I4+zE38mu6S9PcghizzzADLf+ZMunA==}
     engines: {node: '>=22'}
 
-  googleapis@185.0.0:
-    resolution: {integrity: sha512-w/rO9+ank7JpAj65X6DzUoSLbxvHtsTf4F2kD9+8AScA3KEzDjeTFOUFVldDSePSuRSlpJkP/s36fMaqgFX3sw==}
+  googleapis@186.0.0:
+    resolution: {integrity: sha512-ljnYwbM1IX6xM0q5tQHqAtnFdHBC9rPa5jidpoQB7wRiqBYOs5hOQPUPidF454tNLO5LCwB06EvkPg/93E1OJw==}
     engines: {node: '>=22.0.0'}
 
   gopd@1.2.0:
@@ -1820,8 +1820,8 @@ packages:
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
-  qs@6.16.0:
-    resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
+  qs@6.16.1:
+    resolution: {integrity: sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg==}
     engines: {node: '>=0.6'}
 
   react-is@18.3.1:
@@ -2295,9 +2295,9 @@ snapshots:
       lodash.isundefined: 3.0.1
       lodash.uniq: 4.5.0
 
-  '@googleapis/health@6.2.0(supports-color@7.2.0)':
+  '@googleapis/health@6.2.1(supports-color@7.2.0)':
     dependencies:
-      googleapis-common: 9.3.0(supports-color@7.2.0)
+      googleapis-common: 9.3.1(supports-color@7.2.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -2927,7 +2927,7 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  gaxios@7.3.1(supports-color@7.2.0):
+  gaxios@8.3.1(supports-color@7.2.0):
     dependencies:
       extend: 3.0.2
       https-proxy-agent: 7.0.6(supports-color@7.2.0)
@@ -2935,9 +2935,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  gcp-metadata@9.2.0(supports-color@7.2.0):
+  gcp-metadata@9.2.1(supports-color@7.2.0):
     dependencies:
-      gaxios: 7.3.1(supports-color@7.2.0)
+      gaxios: 8.3.1(supports-color@7.2.0)
       google-logging-utils: 2.1.0
       json-bigint: 1.0.0
     transitivePeerDependencies:
@@ -2970,12 +2970,12 @@ snapshots:
       once: 1.4.0
       path-is-absolute: 1.0.1
 
-  google-auth-library@11.3.0(supports-color@7.2.0):
+  google-auth-library@11.3.1(supports-color@7.2.0):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
-      gaxios: 7.3.1(supports-color@7.2.0)
-      gcp-metadata: 9.2.0(supports-color@7.2.0)
+      gaxios: 8.3.1(supports-color@7.2.0)
+      gcp-metadata: 9.2.1(supports-color@7.2.0)
       google-logging-utils: 2.1.0
       jws: 4.0.1
     transitivePeerDependencies:
@@ -2983,21 +2983,21 @@ snapshots:
 
   google-logging-utils@2.1.0: {}
 
-  googleapis-common@9.3.0(supports-color@7.2.0):
+  googleapis-common@9.3.1(supports-color@7.2.0):
     dependencies:
       extend: 3.0.2
-      gaxios: 7.3.1(supports-color@7.2.0)
-      google-auth-library: 11.3.0(supports-color@7.2.0)
+      gaxios: 8.3.1(supports-color@7.2.0)
+      google-auth-library: 11.3.1(supports-color@7.2.0)
       google-logging-utils: 2.1.0
-      qs: 6.16.0
+      qs: 6.16.1
       url-template: 2.0.8
     transitivePeerDependencies:
       - supports-color
 
-  googleapis@185.0.0(supports-color@7.2.0):
+  googleapis@186.0.0(supports-color@7.2.0):
     dependencies:
-      google-auth-library: 11.3.0(supports-color@7.2.0)
-      googleapis-common: 9.3.0(supports-color@7.2.0)
+      google-auth-library: 11.3.1(supports-color@7.2.0)
+      googleapis-common: 9.3.1(supports-color@7.2.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -3307,7 +3307,7 @@ snapshots:
 
   process-nextick-args@2.0.1: {}
 
-  qs@6.16.0:
+  qs@6.16.1:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
