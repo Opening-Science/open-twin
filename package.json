@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@lhncbc/ucum-lhc": "7.1.10",
+    "@lhncbc/ucum-lhc": "8.0.1",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
     "tsx": "4.23.15",
