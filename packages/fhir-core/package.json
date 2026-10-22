@@ -52,7 +52,7 @@
     "@types/fhir": "0.0.44"
   },
   "devDependencies": {
-    "@lhncbc/ucum-lhc": "7.1.10",
+    "@lhncbc/ucum-lhc": "8.0.1",
     "@types/node": "26.6.2",
     "tsup": "9.0.0",
     "typescript": "5.9.3",
