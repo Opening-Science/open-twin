@@ -12,6 +12,7 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r exec tsc --noEmit",
     "verify": "tsx verify/run-verify.ts",
+    "ci:local": "tsx scripts/ci-local.ts",
     "emit-bundles": "tsx verify/emit-bundles.ts"
   },
   "devDependencies": {

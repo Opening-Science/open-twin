@@ -87,6 +87,7 @@ pnpm lint          # biome
 pnpm test          # every package
 pnpm typecheck     # tsc --noEmit, every package
 pnpm verify        # terminology + UCUM gates
+pnpm ci:local      # all of the above + the offline HL7 validator, as CI runs them
 
 # What CI actually validates against — the official HL7 validator.
 pnpm build && pnpm emit-bundles out/
