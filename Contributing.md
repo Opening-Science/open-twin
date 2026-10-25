@@ -99,7 +99,8 @@ version (`0.x.0`) may change behaviour; a patch version (`0.x.y`) only fixes.
   tags (`v*`) never move and are never deleted.
 - If a released version needs a fix after `main` has moved on, the fix lands
   on `main` first and is then cherry-picked onto a `release/X.Y` branch cut
-  from the tag, which is tagged `vX.Y.Z+1`.
+  from the tag, which is tagged with the next patch version (`v0.1.1` after
+  `v0.1.0`).
 - Release notes name any change a consumer must act on, such as a renamed
   export, a changed code system or a new required unit.
 
