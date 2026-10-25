@@ -64,9 +64,11 @@ deceased) and about 860 MB compressed per batch.
 
 `generate.sh` always writes to `tools/synthea/out/` and clears it first, so one
 checkout runs one batch at a time. To run batches in parallel, use one copy of
-`tools/synthea/` per worker. Sequentially:
+`tools/synthea/` per worker. Sequentially, stopping at the first failure so a
+partial batch is never archived:
 
 ```bash
+set -euo pipefail
 for i in $(seq 1 100); do
   SYNTHEA_POPULATION=10000 SYNTHEA_SEED=$((1000 + i)) SYNTHEA_CLINICIAN_SEED=$((2000 + i)) \
     ./tools/synthea/generate.sh
