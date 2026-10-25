@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
+  - 'tools/cohort-studio'
 
 allowBuilds:
   '@swc/core': true

@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **68**
+Count: **81**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
@@ -78,3 +78,16 @@ Count: **68**
 - `packages/provider-vitronic/src/config/config.ts`
 - `packages/provider-vitronic/src/config/constants.ts`
 - `packages/provider-vitronic/src/index.ts`
+- `tools/cohort-studio/src/catalog.ts`
+- `tools/cohort-studio/src/cli.ts`
+- `tools/cohort-studio/src/client/app.ts`
+- `tools/cohort-studio/src/conditions.ts`
+- `tools/cohort-studio/src/explore.ts`
+- `tools/cohort-studio/src/keep-module.ts`
+- `tools/cohort-studio/src/paths.ts`
+- `tools/cohort-studio/src/recipe.ts`
+- `tools/cohort-studio/src/repro-check.ts`
+- `tools/cohort-studio/src/runner.ts`
+- `tools/cohort-studio/src/server.ts`
+- `tools/cohort-studio/src/timing.ts`
+- `tools/cohort-studio/src/zip.ts`

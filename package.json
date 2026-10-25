@@ -12,7 +12,9 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r exec tsc --noEmit",
     "verify": "tsx verify/run-verify.ts",
-    "emit-bundles": "tsx verify/emit-bundles.ts"
+    "emit-bundles": "tsx verify/emit-bundles.ts",
+    "studio": "pnpm --filter @open-twin/cohort-studio start",
+    "cohort": "tsx tools/cohort-studio/src/cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

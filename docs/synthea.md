@@ -30,6 +30,25 @@ Override with `SYNTHEA_POPULATION`, `SYNTHEA_SEED`, `SYNTHEA_CLINICIAN_SEED`,
 `SYNTHEA_STATE`, `SYNTHEA_REFERENCE_DATE`, `SYNTHEA_END_DATE` (dates as
 `YYYYMMDD`).
 
+Optional cohort filters, all off by default:
+
+| Variable | Synthea flag | Meaning |
+|---|---|---|
+| `SYNTHEA_AGE` | `-a` | `MIN-MAX` age on the reference date, e.g. `40-75` |
+| `SYNTHEA_GENDER` | `-g` | `M` or `F` |
+| `SYNTHEA_CITY` | city argument | a city Synthea knows in `SYNTHEA_STATE` |
+| `SYNTHEA_KEEP_MODULE` | `-k` | keep module JSON; only people it keeps are written |
+| `SYNTHEA_MODULES_DIR` | `-d` | extra modules, e.g. Synthea Module Builder exports |
+| `SYNTHEA_OUT_DIR` | `exporter.baseDirectory` | output folder instead of `tools/synthea/out/` |
+
+The output folder is deleted and recreated on every run, so the script refuses
+a folder that holds anything it did not write. With a keep module or modules
+folder, the manifest records `keepModuleSha256` and `modulesDirSha256` (a hash
+over file contents and relative names) and the output folder gets copies
+(`keep-module.json`, `modules/`), so the folder alone is enough to rerun it. The
+manifest also records `city`, `age`, `gender` and `fhirContentSha256`, the
+checksum below.
+
 ## Reproducibility
 
 The same seeds, dates, population, state and Synthea version give the same
@@ -62,9 +81,9 @@ The recipe used so far is 100 batches: seeds 1001–1100, clinician seeds
 2001–2100, giving 1,000,000 living patients (about 1.15 million records with the
 deceased) and about 860 MB compressed per batch.
 
-`generate.sh` always writes to `tools/synthea/out/` and clears it first, so one
-checkout runs one batch at a time. To run batches in parallel, use one copy of
-`tools/synthea/` per worker. Sequentially:
+`generate.sh` writes to `tools/synthea/out/` and clears it first unless
+`SYNTHEA_OUT_DIR` names another folder; give each parallel batch its own
+`SYNTHEA_OUT_DIR`. Sequentially:
 
 ```bash
 for i in $(seq 1 100); do
@@ -94,6 +113,22 @@ generated in:
 
 A rerun with the same seeds produces the same patients with every timestamp
 shifted, and a slightly different set of deaths near the end of the simulation.
+
+## Cohort Studio
+
+[`tools/cohort-studio/`](../tools/cohort-studio/README.md) is a local web app on
+top of `generate.sh` (`pnpm studio`, then http://127.0.0.1:4400). A researcher
+picks population, place, ages, sex, dates and seeds, and clicks conditions
+together from a list read out of the JAR's own modules; the studio turns them
+into a keep module ("any of" or "all of"). Custom Module Builder modules can be
+added. The result is a recipe file with every input, the Synthea version, JAR
+and settings hashes and the keep-module and custom-module hashes. Each run goes
+through `generate.sh` into its own folder, and a finished run can be explored
+in the browser.
+
+`pnpm cohort <recipe.json>` reruns a recipe without the page, and
+`pnpm --filter @open-twin/cohort-studio repro` checks that one recipe run three
+times gives identical patient files. All people it produces are synthetic.
 
 ## CI without Java
 

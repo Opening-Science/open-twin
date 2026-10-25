@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cohort Studio</title>
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f4f2;
+        --surface: #fcfcfb;
+        --surface-2: #f0efeb;
+        --border: #d9d8d3;
+        --grid: #ecebe7;
+        --text: #0b0b0b;
+        --text-2: #4a4946;
+        --muted: #6b6a66;
+        --s1: #2a78d6;
+        --s2: #c4501f;
+        --accent: #1f66bd;
+        --accent-text: #ffffff;
+        --chip: #e6eef9;
+        --warn-bg: #fff4dc;
+        --warn-border: #e2b54b;
+        --err-bg: #fde8e6;
+        --err-border: #d7574a;
+        --ok-bg: #e5f4e8;
+        --ok-border: #4f9d61;
+        --focus: #1f66bd;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --bg: #111110;
+          --surface: #1a1a19;
+          --surface-2: #232321;
+          --border: #3a3a37;
+          --grid: #2a2a28;
+          --text: #ffffff;
+          --text-2: #c9c8be;
+          --muted: #a09f97;
+          --s1: #4f95ea;
+          --s2: #e0703f;
+          --accent: #5b9cf0;
+          --accent-text: #0b0b0b;
+          --chip: #1d2735;
+          --warn-bg: #352a12;
+          --warn-border: #a37b22;
+          --err-bg: #3a1a17;
+          --err-border: #c4554a;
+          --ok-bg: #16301d;
+          --ok-border: #4f9d61;
+          --focus: #8ab8f5;
+        }
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #111110;
+        --surface: #1a1a19;
+        --surface-2: #232321;
+        --border: #3a3a37;
+        --grid: #2a2a28;
+        --text: #ffffff;
+        --text-2: #c9c8be;
+        --muted: #a09f97;
+        --s1: #4f95ea;
+        --s2: #e0703f;
+        --accent: #5b9cf0;
+        --accent-text: #0b0b0b;
+        --chip: #1d2735;
+        --warn-bg: #352a12;
+        --warn-border: #a37b22;
+        --err-bg: #3a1a17;
+        --err-border: #c4554a;
+        --ok-bg: #16301d;
+        --ok-border: #4f9d61;
+        --focus: #8ab8f5;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      main {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 20px 16px 64px;
+      }
+      h1 {
+        font-size: 26px;
+        margin: 0;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 6px;
+      }
+      h3 {
+        font-size: 15px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0 0 8px;
+      }
+      a {
+        color: var(--accent);
+      }
+      :focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .sub {
+        color: var(--text-2);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .top {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .notice {
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: var(--chip);
+        border: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        min-width: 0;
+      }
+      fieldset.card {
+        margin-inline: 0;
+      }
+      legend {
+        font-weight: 600;
+        font-size: 16px;
+        padding: 0 6px;
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+      .grid > * {
+        min-width: 0;
+      }
+      .g2 {
+        grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+      }
+      .build {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+        align-items: start;
+      }
+      .build > aside {
+        position: sticky;
+        top: 8px;
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+      }
+      @media (max-width: 900px) {
+        .build {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .build > aside {
+          position: static;
+          max-height: none;
+        }
+      }
+      .fields {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      }
+      label,
+      .label {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .hint {
+        display: block;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      input[type="number"],
+      input[type="text"],
+      input[type="search"],
+      input[type="date"],
+      select,
+      textarea {
+        font: inherit;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        width: 100%;
+        min-width: 0;
+      }
+      input[type="file"] {
+        max-width: 100%;
+        font: inherit;
+        font-size: 14px;
+      }
+      textarea {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+        min-height: 140px;
+      }
+      .radios {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .radios label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 400;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 10px;
+        margin: 0;
+        cursor: pointer;
+        background: var(--surface);
+      }
+      .radios label:has(input:checked) {
+        background: var(--chip);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      button {
+        font: inherit;
+        font-size: 14px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        background: var(--surface-2);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      button.primary {
+        background: var(--accent);
+        color: var(--accent-text);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      button.primary:hover:not(:disabled) {
+        background: var(--accent);
+        filter: brightness(1.08);
+      }
+      button.link {
+        border: 0;
+        background: none;
+        color: var(--accent);
+        padding: 0;
+        text-decoration: underline;
+        text-align: left;
+        font-size: inherit;
+      }
+      .buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin: 20px 0 0;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+      }
+      .tab {
+        background: none;
+        border: 0;
+        border-radius: 0;
+        padding: 10px 14px;
+        font-size: 15px;
+        color: var(--text-2);
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+        white-space: nowrap;
+      }
+      .tab[aria-selected="true"] {
+        color: var(--text);
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      .seg {
+        display: inline-flex;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        flex-wrap: wrap;
+      }
+      .seg button {
+        border: 0;
+        border-radius: 0;
+        padding: 5px 10px;
+        font-size: 13px;
+        color: var(--text-2);
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--chip);
+        color: var(--text);
+        font-weight: 600;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .row > input[type="search"] {
+        flex: 1 1 200px;
+        width: auto;
+      }
+      .row > select {
+        width: auto;
+        flex: 0 1 auto;
+      }
+      pre {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.45;
+        overflow: auto;
+        max-height: 420px;
+        max-width: 100%;
+        margin: 8px 0 0;
+        white-space: pre;
+      }
+      pre.log,
+      pre.wrap {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      pre.log {
+        max-height: 320px;
+      }
+      code,
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12.5px;
+        overflow-wrap: anywhere;
+      }
+      details {
+        margin-top: 10px;
+      }
+      summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .msg {
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-top: 8px;
+        font-size: 14px;
+        border: 1px solid;
+      }
+      .msg ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .msg.warn {
+        background: var(--warn-bg);
+        border-color: var(--warn-border);
+      }
+      .msg.err {
+        background: var(--err-bg);
+        border-color: var(--err-border);
+      }
+      .msg.ok {
+        background: var(--ok-bg);
+        border-color: var(--ok-border);
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 8px 0;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--chip);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        padding: 2px 4px 2px 10px;
+        font-size: 13px;
+        max-width: 100%;
+      }
+      .chip span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .chip button {
+        padding: 0 7px;
+        border-radius: 99px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      details.group {
+        border-top: 1px solid var(--grid);
+        padding: 6px 0;
+        margin: 0;
+      }
+      .conds {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .conds li {
+        padding: 4px 0;
+      }
+      .conds label {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        font-weight: 400;
+        margin: 0;
+        cursor: pointer;
+      }
+      .conds input {
+        margin-top: 4px;
+        flex: none;
+      }
+      .pill {
+        display: inline-block;
+        font-size: 12px;
+        padding: 0 8px;
+        border-radius: 99px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text-2);
+        white-space: nowrap;
+      }
+      .tiles {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+        margin-top: 16px;
+      }
+      .tile {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        min-width: 0;
+      }
+      .tile b {
+        display: block;
+        font-size: 24px;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+      .tile b.mono {
+        font-size: 14px;
+      }
+      .tile span {
+        color: var(--text-2);
+        font-size: 13px;
+      }
+      .terms {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+        margin-top: 10px;
+      }
+      .terms div {
+        background: var(--chip);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      .terms b {
+        display: block;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--grid);
+        vertical-align: top;
+      }
+      th {
+        color: var(--text-2);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      th .sort {
+        border: 0;
+        background: none;
+        padding: 0;
+        font-weight: 600;
+        color: inherit;
+      }
+      td.n,
+      th.n {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .scroll {
+        position: relative;
+        overflow-x: auto;
+        max-width: 100%;
+      }
+      .pager {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .legend {
+        display: flex;
+        gap: 14px;
+        font-size: 13px;
+        color: var(--text-2);
+        margin-bottom: 6px;
+      }
+      .legend i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-right: 5px;
+        vertical-align: -1px;
+      }
+      svg {
+        display: block;
+        max-width: 100%;
+      }
+      svg text {
+        fill: var(--text-2);
+        font-size: 12px;
+      }
+      svg .val {
+        fill: var(--text);
+      }
+      .tip {
+        position: fixed;
+        pointer-events: none;
+        background: var(--text);
+        color: var(--surface);
+        font-size: 13px;
+        padding: 6px 9px;
+        border-radius: 6px;
+        opacity: 0;
+        transition: opacity 0.1s;
+        z-index: 10;
+        max-width: 280px;
+      }
+      .list {
+        max-height: 320px;
+        overflow: auto;
+        font-size: 14px;
+      }
+      .list div {
+        padding: 5px 0;
+        border-bottom: 1px solid var(--grid);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .list span:last-child {
+        color: var(--muted);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      progress {
+        width: 100%;
+        height: 14px;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        gap: 4px 12px;
+        font-size: 14px;
+        margin: 8px 0 0;
+      }
+      .kv dt {
+        color: var(--text-2);
+      }
+      .kv dd {
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .synthetic {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 1px 8px;
+        border-radius: 99px;
+        background: var(--warn-bg);
+        border: 1px solid var(--warn-border);
+        vertical-align: 2px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      [hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="top">
+          <div>
+            <h1>Cohort Studio</h1>
+            <p class="sub">Click a synthetic patient cohort together, run Synthea reproducibly, and look at what came out.</p>
+          </div>
+          <div>
+            <label for="theme" class="sr-only">Colour theme</label>
+            <select id="theme">
+              <option value="">Theme: system</option>
+              <option value="light">Theme: light</option>
+              <option value="dark">Theme: dark</option>
+            </select>
+          </div>
+        </div>
+        <p class="notice">
+          <b>Every person here is synthetic.</b> Synthea invents them from published statistics; no real person is in
+          this data. Use it for research and testing only. It says nothing about real patients and is not clinically
+          validated.
+        </p>
+        <p class="muted" id="pinLine">Loading…</p>
+      </header>
+
+      <section id="jarCard" class="card" hidden aria-labelledby="jarTitle">
+        <h2 id="jarTitle">Synthea is not downloaded yet</h2>
+        <p>
+          Cohort Studio needs the pinned Synthea release (about 200 MB, checked against the sha256 in
+          <code>tools/synthea/version.lock</code>). The condition list is read from it.
+        </p>
+        <div class="buttons"><button class="primary" id="prepare" type="button">Download Synthea</button></div>
+        <p class="muted" id="prepareStatus" role="status"></p>
+      </section>
+
+      <div class="tabs-wrap">
+        <div class="tabs" role="tablist" aria-label="Steps">
+          <button class="tab" role="tab" id="tab-build" aria-controls="panel-build" aria-selected="true" data-tab="build" type="button">
+            1. Build
+          </button>
+          <button class="tab"
+            role="tab"
+            id="tab-run"
+            aria-controls="panel-run"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="run"
+            type="button"
+          >
+            2. Run
+          </button>
+          <button class="tab"
+            role="tab"
+            id="tab-explore"
+            aria-controls="panel-explore"
+            aria-selected="false"
+            tabindex="-1"
+            data-tab="explore"
+            type="button"
+          >
+            3. Explore
+          </button>
+        </div>
+      </div>
+
+      <!-- BUILD -->
+      <section id="panel-build" role="tabpanel" aria-labelledby="tab-build">
+        <div class="build">
+          <form id="form" novalidate>
+            <fieldset class="card">
+              <legend>Who</legend>
+              <div class="fields">
+                <div>
+                  <label for="population"
+                    >People to keep
+                    <span class="hint">Living people at the end. People who died on the way are kept as extra records.</span></label
+                  >
+                  <input id="population" name="population" type="number" min="1" max="10000" step="1" inputmode="numeric" />
+                </div>
+                <div>
+                  <span class="label" id="sexLabel">Sex</span>
+                  <div class="radios" role="radiogroup" aria-labelledby="sexLabel">
+                    <label><input type="radio" name="sex" value="any" /> Any</label>
+                    <label><input type="radio" name="sex" value="F" /> Female</label>
+                    <label><input type="radio" name="sex" value="M" /> Male</label>
+                  </div>
+                </div>
+                <div>
+                  <label for="ageMin">Youngest age <span class="hint">Leave both ages empty for all ages.</span></label>
+                  <input id="ageMin" name="ageMin" type="number" min="0" max="140" step="1" inputmode="numeric" />
+                </div>
+                <div>
+                  <label for="ageMax">Oldest age <span class="hint">On the reference date.</span></label>
+                  <input id="ageMax" name="ageMax" type="number" min="0" max="140" step="1" inputmode="numeric" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="card">
+              <legend>Where and when</legend>
+              <div class="fields">
+                <div>
+                  <label for="state">US state</label>
+                  <select id="state" name="state"></select>
+                </div>
+                <div>
+                  <label for="city">City <span class="hint">Optional. Must be a place Synthea knows.</span></label>
+                  <input id="city" name="city" type="text" list="cityList" autocomplete="off" />
+                  <datalist id="cityList"></datalist>
+                </div>
+                <div>
+                  <label for="referenceDate"
+                    >Reference date <span class="hint">Synthea's "today". Fixed, never the real today.</span></label
+                  >
+                  <input id="referenceDate" name="referenceDate" type="date" />
+                </div>
+                <div>
+                  <label for="endDate">End date <span class="hint">When the simulation stops.</span></label>
+                  <input id="endDate" name="endDate" type="date" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="card">
+              <legend>Randomness</legend>
+              <p class="muted">The same seeds with the same recipe give the same people, file for file.</p>
+              <div class="fields">
+                <div>
+                  <label for="seed">Seed <span class="hint">Picks the people.</span></label>
+                  <input id="seed" name="seed" type="number" min="0" step="1" inputmode="numeric" />
+                </div>
+                <div>
+                  <label for="clinicianSeed">Clinician seed <span class="hint">Picks their doctors.</span></label>
+                  <input id="clinicianSeed" name="clinicianSeed" type="number" min="0" step="1" inputmode="numeric" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="card" aria-describedby="condIntro">
+              <legend>Conditions</legend>
+              <p id="condIntro" class="muted">
+                Keep only people who have these conditions when the simulation ends. The list is read from the Synthea
+                modules themselves (<span id="moduleCount">…</span>), so every entry is something Synthea can produce.
+                Leave it empty to keep everyone.
+              </p>
+              <div class="fields">
+                <div>
+                  <label for="condSearch">Search conditions</label>
+                  <input id="condSearch" type="search" placeholder="e.g. diabetes, asthma, fracture" autocomplete="off" />
+                </div>
+                <div>
+                  <span class="label" id="matchLabel">Keep people who have</span>
+                  <div class="radios" role="radiogroup" aria-labelledby="matchLabel">
+                    <label><input type="radio" name="match" value="any" /> Any of them</label>
+                    <label><input type="radio" name="match" value="all" /> All of them</label>
+                  </div>
+                </div>
+              </div>
+              <p id="condCount" role="status" style="margin-top: 10px"></p>
+              <div class="chips" id="chosenChips"></div>
+              <div id="condWarn"></div>
+              <div id="condGroups"></div>
+            </fieldset>
+
+            <fieldset class="card">
+              <legend>Custom modules</legend>
+              <p class="muted">
+                Optional. Add module files exported from the Synthea Module Builder. They run alongside the built-in
+                modules and are stored inside the recipe.
+              </p>
+              <label for="moduleFiles">Module files (.json)</label>
+              <input id="moduleFiles" type="file" accept=".json,application/json" multiple />
+              <div id="moduleErr" role="alert"></div>
+              <ul id="moduleList"></ul>
+            </fieldset>
+          </form>
+
+          <aside class="card" aria-labelledby="recipeTitle">
+            <h2 id="recipeTitle">Recipe</h2>
+            <p class="muted">Everything that decides which people come out. Download it to rerun the same cohort later.</p>
+            <div id="recipeMsgs" aria-live="polite"></div>
+            <dl class="kv" id="recipeFacts"></dl>
+            <div class="buttons">
+              <button class="primary" type="button" id="startRun">Start run</button>
+              <button type="button" id="downloadRecipe">Download recipe</button>
+              <button type="button" id="copyCommand">Copy command</button>
+            </div>
+            <div class="buttons">
+              <button type="button" id="loadRecipe">Load recipe file</button>
+              <input id="loadFile" type="file" accept=".json,application/json" hidden aria-label="Recipe file" />
+              <button type="button" id="pasteToggle" aria-expanded="false" aria-controls="pasteBox">Paste recipe</button>
+            </div>
+            <div id="pasteBox" hidden>
+              <label for="pasteText" style="margin-top: 10px">Paste recipe JSON</label>
+              <textarea id="pasteText" spellcheck="false"></textarea>
+              <div class="buttons"><button type="button" id="pasteApply">Use this recipe</button></div>
+            </div>
+            <p class="muted" id="copyStatus" role="status"></p>
+            <details>
+              <summary>Recipe JSON</summary>
+              <pre id="recipeJson"></pre>
+            </details>
+            <details>
+              <summary>Keep module (generated)</summary>
+              <pre id="keepJson"></pre>
+            </details>
+            <details>
+              <summary>Same run with generate.sh</summary>
+              <p class="muted">
+                The studio runs <code>tools/synthea/generate.sh</code> with these inputs; <code>keep.json</code> is the
+                keep module above. <span id="commandHelp"></span>
+              </p>
+              <pre id="generateCmd" class="wrap"></pre>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <!-- RUN -->
+      <section id="panel-run" role="tabpanel" aria-labelledby="tab-run" hidden>
+        <section class="card" aria-labelledby="runTitle">
+          <div class="row">
+            <h2 id="runTitle">No run yet</h2>
+            <button type="button" id="cancelRun" hidden>Cancel run</button>
+          </div>
+          <p id="runStatus" role="status"></p>
+          <div id="runProgressWrap" hidden>
+            <label for="runProgress" id="runProgressLabel">People kept so far</label>
+            <progress id="runProgress" max="1" value="0"></progress>
+          </div>
+          <div id="runResults"></div>
+          <details id="logDetails" open>
+            <summary>Synthea output</summary>
+            <pre class="log" id="runLog"></pre>
+          </details>
+          <details id="manifestDetails" hidden>
+            <summary>Manifest (recipe and results)</summary>
+            <pre id="manifestJson"></pre>
+          </details>
+        </section>
+        <section class="card" aria-labelledby="pastTitle">
+          <h2 id="pastTitle">Earlier runs</h2>
+          <p class="muted">Kept in <code>tools/cohort-studio/runs/</code>. Delete folders there to free space.</p>
+          <div class="scroll"><table id="pastRuns"></table></div>
+        </section>
+      </section>
+
+      <!-- EXPLORE -->
+      <section id="panel-explore" role="tabpanel" aria-labelledby="tab-explore" hidden>
+        <section class="card">
+          <label for="exploreRun">Cohort to explore</label>
+          <select id="exploreRun"></select>
+          <p class="muted" id="exploreLine" style="margin-top: 6px"></p>
+        </section>
+        <div id="exploreEmpty" class="card" hidden>
+          <p>No finished run yet. Build a recipe and run it first.</p>
+        </div>
+        <div id="explore" hidden>
+          <section class="card" aria-labelledby="whatTitle">
+            <h2 id="whatTitle">What am I looking at?</h2>
+            <p>
+              These are <b>made-up people</b>. Synthea is a simulator: it invents residents of the chosen state and lives
+              out their medical lives year by year (birth, check-ups, illnesses, prescriptions, hospital stays and
+              sometimes death) using published statistics, so the overall picture resembles a population. No real person
+              is in here, and nothing here describes real patients.
+            </p>
+            <p id="whatRecipe"></p>
+            <div class="terms">
+              <div><b>Encounter</b>Any contact with healthcare: a check-up, an emergency visit, a hospital stay, a call.</div>
+              <div><b>Condition</b>A diagnosis written in the record, e.g. "Hypertension" or "Viral sinusitis".</div>
+              <div><b>Observation</b>One measurement: a blood pressure reading, a weight, a lab value, a survey answer.</div>
+              <div><b>Medication request</b>A prescription. One medicine can be prescribed many times.</div>
+            </div>
+          </section>
+
+          <div class="tiles" id="tiles"></div>
+
+          <fieldset class="seg" id="exploreSeg" style="margin-top: 16px">
+            <legend class="sr-only">View</legend>
+            <button type="button" aria-pressed="true" data-view="overview">Population</button>
+            <button type="button" aria-pressed="false" data-view="people">People</button>
+          </fieldset>
+
+          <div id="view-overview">
+            <div class="grid g2">
+              <section class="card" aria-labelledby="ageTitle">
+                <h3 id="ageTitle">How old is everyone?</h3>
+                <p class="muted">Age on the end date for living people, age at death for the others.</p>
+                <div class="legend">
+                  <span><i style="background: var(--s1)"></i>Alive</span><span><i style="background: var(--s2)"></i>Died</span>
+                </div>
+                <div id="ageChart"></div>
+              </section>
+              <section class="card" aria-labelledby="encTitle">
+                <h3 id="encTitle">Kinds of healthcare visits</h3>
+                <p class="muted">All encounters in all records, by setting.</p>
+                <div id="encChart"></div>
+              </section>
+            </div>
+            <section class="card" aria-labelledby="topTitle">
+              <div class="row">
+                <div>
+                  <h3 id="topTitle">What is most common?</h3>
+                  <p class="muted" id="topNote"></p>
+                </div>
+                <fieldset class="seg" id="topSeg">
+                  <legend class="sr-only">Show</legend>
+                  <button type="button" aria-pressed="true" data-k="cond">Diagnoses</button>
+                  <button type="button" aria-pressed="false" data-k="meds">Medicines</button>
+                  <button type="button" aria-pressed="false" data-k="obs">Measurements</button>
+                </fieldset>
+              </div>
+              <div id="topChart"></div>
+            </section>
+            <section class="card" aria-labelledby="yearTitle">
+              <h3 id="yearTitle">Healthcare visits per year</h3>
+              <p class="muted">
+                Every encounter across all records, by year. The rise mostly reflects more of these people being alive
+                (and recorded) in recent years.
+              </p>
+              <div id="yearChart"></div>
+            </section>
+          </div>
+
+          <div id="view-people" hidden>
+            <section class="card" aria-labelledby="peopleTitle">
+              <h3 id="peopleTitle">People <span class="synthetic">synthetic</span></h3>
+              <div class="row">
+                <label for="q" class="sr-only">Search people</label>
+                <input type="search" id="q" placeholder="Search by name, city or diagnosis" />
+                <label for="fSex" class="sr-only">Sex</label>
+                <select id="fSex">
+                  <option value="">Everyone</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+                <label for="fAlive" class="sr-only">Alive or died</label>
+                <select id="fAlive">
+                  <option value="">Alive and died</option>
+                  <option value="alive">Alive</option>
+                  <option value="died">Died</option>
+                </select>
+              </div>
+              <p class="muted" id="count" role="status"></p>
+              <div class="scroll">
+                <table>
+                  <caption class="sr-only">
+                    Synthetic people in this cohort
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col"><button type="button" class="sort" data-s="name">Name</button></th>
+                      <th scope="col"><button type="button" class="sort" data-s="sex">Sex</button></th>
+                      <th scope="col" class="n"><button type="button" class="sort" data-s="age">Age</button></th>
+                      <th scope="col"><button type="button" class="sort" data-s="city">City</button></th>
+                      <th scope="col" class="n"><button type="button" class="sort" data-s="cond">Diagnoses</button></th>
+                      <th scope="col" class="n"><button type="button" class="sort" data-s="enc">Visits</button></th>
+                      <th scope="col"><button type="button" class="sort" data-s="died">Status</button></th>
+                    </tr>
+                  </thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+              <div class="pager">
+                <button type="button" id="prev">Previous</button><span class="muted" id="page"></span
+                ><button type="button" id="next">Next</button>
+              </div>
+            </section>
+            <section class="card" id="detail" hidden tabindex="-1" aria-label="One person's record"></section>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="tip" id="tip" aria-hidden="true"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

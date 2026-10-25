@@ -183,3 +183,6 @@ test.junit.xml
 # Synthea: recipe is committed; JAR cache and generated cohorts are not
 /tools/synthea/.cache/
 /tools/synthea/out/
+
+# Cohort Studio: one folder per run (recipe, inputs, Synthea output)
+/tools/cohort-studio/runs/

@@ -1,0 +1,25 @@
+{
+  "name": "@open-twin/cohort-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local web app to build a synthetic Synthea cohort from a recipe, run it reproducibly and explore the result",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "cohort": "tsx src/cli.ts",
+    "repro": "tsx src/repro-check.ts",
+    "lint": "biome ci",
+    "test": "vitest run"
+  },
+  "author": "Open Science Foundation",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

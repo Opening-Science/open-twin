@@ -119,6 +119,7 @@ for US audiences, the [US supplement](docs/US-USE.md).
 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | Dated architecture and review record |
 | [PROVENANCE.md](PROVENANCE.md) | Repository history |
 | [docs/synthea.md](docs/synthea.md) | Synthetic FHIR cohort generation |
+| [tools/cohort-studio](tools/cohort-studio/README.md) | Cohort Studio: click a synthetic Synthea cohort together, run it reproducibly, explore it |
 
 Development and pull requests for this repository are hosted at
 [Opening-Science/open-twin](https://github.com/Opening-Science/open-twin).
