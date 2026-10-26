@@ -124,6 +124,16 @@ simulate and discard many more people, and Synthea gives up after 1,000 tries
 per person. Estimates on the page use your own earlier runs once there are
 some.
 
+## Fonts
+
+The page is set in Selecta and ABC Diatype Semi Mono, the foundation's fonts.
+Both are commercial and are not in this repository. The page uses them when
+they are installed on your computer, or when their files are in
+`tools/cohort-studio/fonts/` (gitignored): `Selecta-Regular.woff2`,
+`Selecta-Medium.woff2`, `Selecta-Bold.woff2`, `ABCDiatypeSemiMono-Regular.woff2`
+and `ABCDiatypeSemiMono-Bold.woff2`. Without them it falls back to the system
+fonts.
+
 ## Development
 
 ```bash

@@ -5,6 +5,8 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: The page is TypeScript served with types stripped at request time (node:module stripTypeScriptTypes), so
  *         the client may only use erasable syntax: no enums, namespaces or parameter properties.
+ *         The brand fonts are commercial: /fonts.css points at local() copies and, only when present, the files in the
+ *         gitignored fonts/ folder.
  */
 import { createHash } from 'node:crypto';
 import { createWriteStream, existsSync, readFileSync, renameSync, statSync, unlinkSync } from 'node:fs';
@@ -16,7 +18,7 @@ import { pipeline } from 'node:stream/promises';
 import { type Catalog, loadCatalog } from './catalog.ts';
 import { GROUPS } from './conditions.ts';
 import { loadIndex, personDetail } from './explore.ts';
-import { CLIENT_DIR, JAR_PATH, RUNS_DIR, readSyntheaPin, STUDIO_DIR } from './paths.ts';
+import { CLIENT_DIR, FONTS_DIR, JAR_PATH, RUNS_DIR, readSyntheaPin, STUDIO_DIR } from './paths.ts';
 import {
   checkRecipe,
   cohortCommand,
@@ -34,6 +36,13 @@ import { estimateSeconds, timingSamples } from './timing.ts';
 const PORT = Number(process.env.COHORT_STUDIO_PORT ?? process.argv[2] ?? 4400);
 const HOST = '127.0.0.1';
 const MAX_BODY = 25_000_000;
+const FONTS: Array<[family: string, weight: number, file: string, local: string[]]> = [
+  ['Selecta', 400, 'Selecta-Regular', ['Selecta', 'Selecta Regular']],
+  ['Selecta', 500, 'Selecta-Medium', ['Selecta Medium']],
+  ['Selecta', 700, 'Selecta-Bold', ['Selecta Bold']],
+  ['ABCDiatypeSemiMono', 400, 'ABCDiatypeSemiMono-Regular', ['ABC Diatype Semi Mono', 'ABCDiatypeSemiMono-Regular']],
+  ['ABCDiatypeSemiMono', 700, 'ABCDiatypeSemiMono-Bold', ['ABC Diatype Semi Mono Bold', 'ABCDiatypeSemiMono-Bold']]
+];
 
 const pin = readSyntheaPin();
 const runner = new Runner();
@@ -128,6 +137,19 @@ function refuse(req: IncomingMessage): string | null {
   return null;
 }
 
+function fontFile(file: string): string | null {
+  const path = join(FONTS_DIR, `${file}.woff2`);
+  return existsSync(path) ? path : null;
+}
+
+function fontsCss(): string {
+  return FONTS.map(([family, weight, file, local]) => {
+    const src = local.map((l) => `local("${l}")`);
+    if (fontFile(file)) src.push(`url("/fonts/${file}.woff2") format("woff2")`);
+    return `@font-face{font-family:${family};font-weight:${weight};font-display:swap;src:${src.join(',')}}`;
+  }).join('\n');
+}
+
 let clientCache: { mtimeMs: number; js: string } | null = null;
 function clientScript(): string {
   const file = join(CLIENT_DIR, 'app.ts');
@@ -215,6 +237,18 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (method === 'GET' && path === '/app.js') {
     res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-store' });
     res.end(clientScript());
+    return;
+  }
+  if (method === 'GET' && path === '/fonts.css') {
+    res.writeHead(200, { 'content-type': 'text/css; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(fontsCss());
+    return;
+  }
+  const font = path.match(/^\/fonts\/([A-Za-z-]+)\.woff2$/)?.[1];
+  const fontPath = font && FONTS.some((f) => f[2] === font) ? fontFile(font) : null;
+  if (method === 'GET' && fontPath) {
+    res.writeHead(200, { 'content-type': 'font/woff2', 'cache-control': 'no-store' });
+    res.end(readFileSync(fontPath));
     return;
   }
   if (method === 'GET' && path === '/api/meta') return send(res, 200, meta());

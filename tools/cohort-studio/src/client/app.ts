@@ -217,8 +217,8 @@ for (const t of tabs) {
   t.addEventListener('keydown', (e) => {
     const i = tabs.indexOf(t);
     let next = -1;
-    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
-    else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + tabs.length) % tabs.length;
     else if (e.key === 'Home') next = 0;
     else if (e.key === 'End') next = tabs.length - 1;
     if (next >= 0) {
@@ -357,7 +357,7 @@ function renderRecipe(): void {
   const who = [
     plural(r.population, 'living person', 'living people'),
     r.sex === 'F' ? 'female' : r.sex === 'M' ? 'male' : 'any sex',
-    r.age ? `aged ${r.age.min}–${r.age.max}` : 'all ages'
+    r.age ? `aged ${r.age.min} to ${r.age.max}` : 'all ages'
   ].join(', ');
   const conds = r.conditions.chosen.length
     ? `${r.conditions.match === 'all' ? 'all of' : 'any of'} ${plural(r.conditions.chosen.length, 'condition', 'conditions')}`
@@ -883,7 +883,7 @@ function ageHist(host: HTMLElement, people: Person[]): void {
   const y = (v: number): number => T + (H - B - T) * (1 - v / top);
   const summary = bins
     .filter((b) => b.a + b.d > 0)
-    .map((b) => `${b.lo}–${b.lo + 9}: ${b.a} alive, ${b.d} died`)
+    .map((b) => `${b.lo} to ${b.lo + 9}: ${b.a} alive, ${b.d} died`)
     .join('; ');
   let s = `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Ages: ${summary}`)}">`;
   for (let v = 0; v <= top; v += step) {
@@ -892,7 +892,7 @@ function ageHist(host: HTMLElement, people: Person[]): void {
   bins.forEach((b, i) => {
     const x = Lft + i * bw + 2;
     const w = bw - 4;
-    const label = i === 10 ? '100+' : `${b.lo}–${b.lo + 9}`;
+    const label = i === 10 ? '100+' : `${b.lo} to ${b.lo + 9}`;
     const ya = y(b.a);
     const yd = y(b.a + b.d);
     const t = `<b>Age ${label}</b><br>Alive: ${fmt(b.a)}<br>Died: ${fmt(b.d)}`;
@@ -900,7 +900,7 @@ function ageHist(host: HTMLElement, people: Person[]): void {
       <rect x="${x - 2}" y="${T}" width="${bw}" height="${H - B - T}" fill="transparent"/>
       <rect x="${x}" y="${ya}" width="${w}" height="${H - B - ya}" fill="var(--s1)"/>
       ${b.d ? `<rect x="${x}" y="${yd}" width="${w}" height="${Math.max(0, ya - yd - 2)}" rx="3" fill="var(--s2)"/>` : ''}
-      <text x="${x + w / 2}" y="${H - 6}" text-anchor="middle" style="font-size:${bw < 34 ? 9 : 12}px">${i % (bw < 30 ? 2 : 1) === 0 ? label : ''}</text></g>`;
+      <text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${i === 10 ? '100+' : b.lo}</text></g>`;
   });
   host.innerHTML = `${s}</svg>`;
   bindTips(host);
@@ -1026,7 +1026,7 @@ function renderExplore(): void {
     `Synthea ${r.synthea.version} · ${r.city ? `${r.city}, ` : ''}${r.state} · seed ${r.seed} · ${fmt(P.length)} records · recipe ${r.recipeSha256.slice(0, 12)}…`;
   const conds = r.conditions.chosen.map((c) => c.display);
   el('whatRecipe').innerHTML =
-    `This cohort: Synthea kept simulating until <b>${fmt(r.population)}</b> ${r.age ? `people aged ${r.age.min}–${r.age.max}` : 'people'} ${conds.length ? `with ${r.conditions.match === 'all' ? 'all of' : 'at least one of'} <b>${esc(conds.join(', '))}</b> ` : ''}were alive on ${esc(r.endDate)}. People who died along the way ${conds.length ? 'and had the condition ' : ''}are kept too, which is why there are more records than living people. Each record runs from birth to ${esc(r.endDate)} (or death).`;
+    `This cohort: Synthea kept simulating until <b>${fmt(r.population)}</b> ${r.age ? `people aged ${r.age.min} to ${r.age.max}` : 'people'} ${conds.length ? `with ${r.conditions.match === 'all' ? 'all of' : 'at least one of'} <b>${esc(conds.join(', '))}</b> ` : ''}were alive on ${esc(r.endDate)}. People who died along the way ${conds.length ? 'and had the condition ' : ''}are kept too, which is why there are more records than living people. Each record runs from birth to ${esc(r.endDate)} (or death).`;
   const t = idx.resourceTotals;
   const avg = (k: string): number => (t[k] ?? 0) / n;
   const tiles: Array<[string, string]> = [

@@ -186,3 +186,6 @@ test.junit.xml
 
 # Cohort Studio: one folder per run (recipe, inputs, Synthea output)
 /tools/cohort-studio/runs/
+
+# Cohort Studio: commercial brand fonts, never committed
+/tools/cohort-studio/fonts/

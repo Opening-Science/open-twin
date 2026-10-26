@@ -16,6 +16,7 @@ export const GENERATE_SH = join(SYNTHEA_DIR, 'generate.sh');
 export const JAR_PATH = join(SYNTHEA_DIR, '.cache', 'synthea-with-dependencies.jar');
 export const RUNS_DIR = join(STUDIO_DIR, 'runs');
 export const CLIENT_DIR = join(STUDIO_DIR, 'src', 'client');
+export const FONTS_DIR = join(STUDIO_DIR, 'fonts');
 
 export type SyntheaPin = {
   version: string;
