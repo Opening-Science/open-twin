@@ -10,6 +10,10 @@ POPULATION="${SYNTHEA_POPULATION:-100}"
 SEED="${SYNTHEA_SEED:-42}"
 CLINICIAN_SEED="${SYNTHEA_CLINICIAN_SEED:-43}"
 STATE="${SYNTHEA_STATE:-Massachusetts}"
+# Synthea simulates up to "now" unless given dates, so without these two runs of
+# the same seed differ by however far apart they started. Read in UTC (see below).
+REFERENCE_DATE="${SYNTHEA_REFERENCE_DATE:-20260101}"
+END_DATE="${SYNTHEA_END_DATE:-20260101}"
 JAVA_MAJOR_REQUIRED=21
 
 CACHE_DIR="$ROOT/.cache"
@@ -52,7 +56,9 @@ ensure_jar() {
 write_manifest() {
   local patient_count config_sha
   patient_count="$(find "$OUT_DIR/fhir" -maxdepth 1 -type f -name '*.json' 2>/dev/null | wc -l | tr -d ' ')"
-  config_sha="$(shasum -a 256 "$PROPS" "$ROOT/version.lock" | shasum -a 256 | awk '{print $1}')"
+  # Hash file contents only. Hashing shasum's output also hashed the paths, so the
+  # same config gave a different hash in every checkout.
+  config_sha="$(cat "$PROPS" "$ROOT/version.lock" | shasum -a 256 | awk '{print $1}')"
   cat >"$OUT_DIR/manifest.json" <<EOF
 {
   "syntheaVersion": "$SYNTHEA_VERSION",
@@ -61,12 +67,31 @@ write_manifest() {
   "clinicianSeed": $CLINICIAN_SEED,
   "population": $POPULATION,
   "state": "$STATE",
+  "referenceDate": "$REFERENCE_DATE",
+  "endDate": "$END_DATE",
   "exporter": "fhir",
   "configHash": "$config_sha",
   "patientFileCount": $patient_count
 }
 EOF
 }
+
+# Synthea parses dates leniently (20260230 becomes 2 March), so reject anything
+# that is not a real calendar date rather than record a date Synthea didn't use.
+valid_date() {
+  [[ "$1" =~ ^[0-9]{8}$ ]] || return 1
+  local y=$((10#${1:0:4})) m=$((10#${1:4:2})) d=$((10#${1:6:2})) max
+  case "$m" in
+    1 | 3 | 5 | 7 | 8 | 10 | 12) max=31 ;;
+    4 | 6 | 9 | 11) max=30 ;;
+    2) max=$((y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) ? 29 : 28)) ;;
+    *) return 1 ;;
+  esac
+  ((d >= 1 && d <= max))
+}
+
+valid_date "$REFERENCE_DATE" || die "SYNTHEA_REFERENCE_DATE must be a real date as YYYYMMDD, got: $REFERENCE_DATE"
+valid_date "$END_DATE" || die "SYNTHEA_END_DATE must be a real date as YYYYMMDD, got: $END_DATE"
 
 require_java
 ensure_jar
@@ -75,14 +100,18 @@ ensure_jar
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
-echo "synthea: generating N=$POPULATION seed=$SEED clinicianSeed=$CLINICIAN_SEED ($SYNTHEA_VERSION)"
+echo "synthea: generating N=$POPULATION seed=$SEED clinicianSeed=$CLINICIAN_SEED reference=$REFERENCE_DATE end=$END_DATE ($SYNTHEA_VERSION)"
 (
   cd "$ROOT"
-  java -jar "$JAR" \
+  # Synthea reads the dates in the JVM's time zone; UTC keeps output the same on
+  # every machine.
+  java -Duser.timezone=UTC -jar "$JAR" \
     -c "$PROPS" \
     -s "$SEED" \
     -cs "$CLINICIAN_SEED" \
     -p "$POPULATION" \
+    -r "$REFERENCE_DATE" \
+    -e "$END_DATE" \
     "$STATE"
 )
 
