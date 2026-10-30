@@ -1,11 +1,19 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { citiesFromDemographics, csvFields } from '../src/catalog.ts';
-import { parseVersionLock } from '../src/paths.ts';
-import type { Recipe } from '../src/recipe.ts';
-import { cleanLine, contentChecksum, isPersonLine, parseRecordsLine, type RunRecord } from '../src/runner.ts';
+import { parseVersionLock, readSyntheaPin } from '../src/paths.ts';
+import { checkRecipe, defaultRecipeInput, type Recipe } from '../src/recipe.ts';
+import {
+  cleanLine,
+  contentChecksum,
+  isPersonLine,
+  parseRecordsLine,
+  Runner,
+  type RunRecord,
+  readRun
+} from '../src/runner.ts';
 import { estimateSeconds, timingSamples } from '../src/timing.ts';
 
 describe('contentChecksum', () => {
@@ -80,5 +88,40 @@ describe('estimateSeconds', () => {
   it('falls back to the measured baseline without earlier runs', () => {
     expect(estimateSeconds(recipe(null, 100), []).seconds).toBe(31);
     expect(estimateSeconds(recipe('k', 100), []).seconds).toBeNull();
+  });
+});
+
+describe('Runner', () => {
+  const runsDir = mkdtempSync(join(tmpdir(), 'cohort-runs-'));
+  const script = join(runsDir, 'fake-generate.sh');
+  writeFileSync(script, 'echo "gender=$SYNTHEA_GENDER"\n');
+  const recipe = (): Recipe => checkRecipe(defaultRecipeInput(), readSyntheaPin()).recipe as Recipe;
+  afterAll(() => rmSync(runsDir, { recursive: true, force: true }));
+
+  it('marks runs left as running by an earlier process as failed', () => {
+    const stale: RunRecord = {
+      runId: '20260101-120000-deadbeef',
+      status: 'running',
+      startedAt: '2026-01-01T12:00:00.000Z',
+      finishedAt: null,
+      elapsedMs: null,
+      recipe: recipe(),
+      results: null,
+      error: null
+    };
+    mkdirSync(join(runsDir, stale.runId));
+    writeFileSync(join(runsDir, stale.runId, 'run.json'), JSON.stringify(stale));
+    new Runner(runsDir, script);
+    expect(readRun(stale.runId, runsDir)?.status).toBe('failed');
+  });
+
+  it('does not pass inherited SYNTHEA_* variables to generate.sh', async () => {
+    process.env.SYNTHEA_GENDER = 'F';
+    const runner = new Runner(runsDir, script);
+    const lines: string[] = [];
+    const run = await runner.wait(runner.start(recipe()).runId, (l) => lines.push(l));
+    delete process.env.SYNTHEA_GENDER;
+    expect(lines).toContain('gender=');
+    expect(run.status).toBe('failed');
   });
 });

@@ -111,11 +111,11 @@ export function readRun(runId: string, runsDir: string = RUNS_DIR): RunRecord | 
   return existsSync(file) ? (JSON.parse(readFileSync(file, 'utf8')) as RunRecord) : null;
 }
 
-export function listRuns(): RunRecord[] {
-  if (!existsSync(RUNS_DIR)) return [];
-  return readdirSync(RUNS_DIR)
+export function listRuns(runsDir: string = RUNS_DIR): RunRecord[] {
+  if (!existsSync(runsDir)) return [];
+  return readdirSync(runsDir)
     .filter(isRunId)
-    .map((id) => readRun(id))
+    .map((id) => readRun(id, runsDir))
     .filter((r): r is RunRecord => r !== null)
     .sort((a, b) => b.runId.localeCompare(a.runId));
 }
@@ -148,7 +148,14 @@ export class Runner {
   constructor(
     private readonly runsDir: string = RUNS_DIR,
     private readonly script: string = GENERATE_SH
-  ) {}
+  ) {
+    for (const record of listRuns(runsDir)) {
+      if (record.status !== 'running') continue;
+      record.status = 'failed';
+      record.error = 'The studio stopped before this run finished.';
+      this.save(join(runsDir, record.runId), record);
+    }
+  }
 
   get current(): RunRecord | null {
     return this.active?.record ?? null;
@@ -173,8 +180,9 @@ export class Runner {
       error: null
     };
     this.save(runDir, record);
+    const inherited = Object.entries(process.env).filter(([k]) => !k.startsWith('SYNTHEA_'));
     const child = spawn('bash', [this.script], {
-      env: { ...process.env, ...env },
+      env: { ...Object.fromEntries(inherited), ...env },
       detached: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });
@@ -206,11 +214,17 @@ export class Runner {
     };
     if (child.stdout) onText(child.stdout, false);
     if (child.stderr) onText(child.stderr, true);
-    child.on('close', (code, signal) => {
+    let done = false;
+    const finish = (code: number | null, signal: NodeJS.Signals | null, spawnError?: Error): void => {
+      if (done) return;
+      done = true;
       const finished = new Date();
       record.finishedAt = finished.toISOString();
       record.elapsedMs = finished.getTime() - now.getTime();
-      if (record.status === 'cancelled') {
+      if (spawnError) {
+        record.status = 'failed';
+        record.error = `generate.sh could not start: ${spawnError.message}`;
+      } else if (record.status === 'cancelled') {
         record.error = 'Cancelled.';
       } else if (code === 0) {
         try {
@@ -230,7 +244,9 @@ export class Runner {
       this.active = null;
       this.emit(active, { type: 'status', run: record });
       active.listeners.clear();
-    });
+    };
+    child.on('error', (e) => finish(null, null, e));
+    child.on('close', finish);
     return record;
   }
 
@@ -252,6 +268,17 @@ export class Runner {
       }
     }, 5000).unref();
     return true;
+  }
+
+  /** Stops the active run before the process exits; the record is saved now because 'close' may never arrive. */
+  shutdown(): void {
+    const a = this.active;
+    if (!a) return;
+    this.cancel(a.record.runId);
+    a.record.finishedAt = new Date().toISOString();
+    a.record.error = 'The studio stopped before this run finished.';
+    writeFileSync(join(this.runsDir, a.record.runId, 'log.txt'), `${a.log.join('\n')}\n`);
+    this.save(join(this.runsDir, a.record.runId), a.record);
   }
 
   /** Replays the log so far, then follows the run. Returns an unsubscribe function. */

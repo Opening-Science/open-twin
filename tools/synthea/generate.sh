@@ -21,6 +21,8 @@ GENDER="${SYNTHEA_GENDER:-}"             # M or F
 CITY="${SYNTHEA_CITY:-}"                 # a city Synthea knows in $STATE
 KEEP_MODULE="${SYNTHEA_KEEP_MODULE:-}"   # keep module JSON: only people it keeps are written
 MODULES_DIR="${SYNTHEA_MODULES_DIR:-}"   # extra modules (e.g. Module Builder exports)
+KEEP_SHA=""
+MODULES_SHA=""
 JAVA_MAJOR_REQUIRED=21
 
 CACHE_DIR="$ROOT/.cache"
@@ -49,6 +51,10 @@ json_string_or_null() {
   if [[ -n "$1" ]]; then printf '"%s"' "$1"; else printf 'null'; fi
 }
 
+abs_path() {
+  if [[ -d "$1" ]]; then (cd "$1" && pwd -P); else echo "$(cd "$(dirname "$1")" && pwd -P)/$(basename "$1")"; fi
+}
+
 validate_filters() {
   if [[ -n "$AGE" ]]; then
     [[ "$AGE" =~ ^([0-9]{1,3})-([0-9]{1,3})$ ]] || die "SYNTHEA_AGE must be MIN-MAX, e.g. 40-75, got: $AGE"
@@ -59,29 +65,47 @@ validate_filters() {
   [[ -z "$CITY" || "$CITY" =~ ^[A-Za-z][A-Za-z\ .\'-]*$ ]] || die "SYNTHEA_CITY must be a city name, got: $CITY"
   [[ -z "$KEEP_MODULE" || -f "$KEEP_MODULE" ]] || die "SYNTHEA_KEEP_MODULE is not a file: $KEEP_MODULE"
   [[ -z "$MODULES_DIR" || -d "$MODULES_DIR" ]] || die "SYNTHEA_MODULES_DIR is not a folder: $MODULES_DIR"
+  [[ -z "$KEEP_MODULE" ]] || KEEP_MODULE="$(abs_path "$KEEP_MODULE")"
+  [[ -z "$MODULES_DIR" ]] || MODULES_DIR="$(abs_path "$MODULES_DIR")"
   return 0
 }
 
-# The output folder is deleted and recreated on every run. Refuse folders that
-# hold anything this script did not write, so a mistyped SYNTHEA_OUT_DIR cannot
-# delete unrelated files. Only the chosen folder itself is ever removed.
+# The output folder is deleted and recreated on every run. Only a folder this
+# script created (it leaves a marker) or an empty one is deleted, so a mistyped
+# SYNTHEA_OUT_DIR cannot remove unrelated files.
 prepare_out_dir() {
   [[ -n "$OUT_DIR" ]] || die "SYNTHEA_OUT_DIR is empty"
   mkdir -p "$OUT_DIR"
-  OUT_DIR="$(cd "$OUT_DIR" && pwd)"
+  OUT_DIR="$(cd "$OUT_DIR" && pwd -P)"
   case "$OUT_DIR" in
-    / | "$HOME" | "$ROOT" | "$(cd "$ROOT/../.." && pwd)") die "refusing to use $OUT_DIR as the output folder" ;;
+    / | "$HOME" | "$ROOT" | "$(cd "$ROOT/../.." && pwd -P)") die "refusing to use $OUT_DIR as the output folder" ;;
   esac
-  local entry
-  for entry in "$OUT_DIR"/* "$OUT_DIR"/.[!.]*; do
-    [[ -e "$entry" ]] || continue
-    case "$(basename "$entry")" in
-      fhir | metadata | x12 | modules | manifest.json | keep-module.json) ;;
-      *) die "$OUT_DIR holds files this script did not write ($(basename "$entry")); use an empty folder" ;;
-    esac
+  local input
+  for input in "$KEEP_MODULE" "$MODULES_DIR"; do
+    [[ -n "$input" && "$input/" == "$OUT_DIR/"* ]] && die "$input is inside the output folder, which is deleted first"
   done
+  if [[ ! -e "$OUT_DIR/.synthea-out" && -n "$(find "$OUT_DIR" -mindepth 1 -print -quit)" ]]; then
+    die "$OUT_DIR was not created by this script; use an empty folder"
+  fi
   rm -rf "$OUT_DIR"
   mkdir -p "$OUT_DIR"
+  : >"$OUT_DIR/.synthea-out"
+}
+
+# Copies of the inputs go into the output folder before Synthea starts and are
+# what it reads, so the manifest hashes describe exactly the files used.
+snapshot_inputs() {
+  if [[ -n "$KEEP_MODULE" ]]; then
+    cp "$KEEP_MODULE" "$OUT_DIR/keep-module.json"
+    KEEP_MODULE="$OUT_DIR/keep-module.json"
+    KEEP_SHA="$(sha256_of <"$KEEP_MODULE")"
+  fi
+  if [[ -n "$MODULES_DIR" ]]; then
+    mkdir "$OUT_DIR/modules"
+    cp -RL "$MODULES_DIR/." "$OUT_DIR/modules"
+    MODULES_DIR="$OUT_DIR/modules"
+    MODULES_SHA="$(modules_hash "$MODULES_DIR")"
+  fi
 }
 
 # Hash over file contents and names relative to the folder, never absolute paths,
@@ -114,8 +138,9 @@ ensure_jar() {
   if [[ ! -f "$JAR" ]]; then
     command -v curl >/dev/null 2>&1 || die "curl is required to download the Synthea JAR"
     echo "synthea: downloading $SYNTHEA_VERSION …"
-    curl -fsSL -o "$JAR.partial" "$SYNTHEA_JAR_URL"
-    mv "$JAR.partial" "$JAR"
+    local tmp="$JAR.partial.$$"
+    curl -fsSL -o "$tmp" "$SYNTHEA_JAR_URL" || { rm -f "$tmp"; die "download failed: $SYNTHEA_JAR_URL"; }
+    mv -f "$tmp" "$JAR"
   fi
   local actual
   actual="$(sha256_of <"$JAR")"
@@ -124,20 +149,11 @@ ensure_jar() {
 }
 
 write_manifest() {
-  local patient_count config_sha keep_sha="" modules_sha="" content_sha
+  local patient_count config_sha content_sha
   patient_count="$(find "$OUT_DIR/fhir" -maxdepth 1 -type f -name '*.json' 2>/dev/null | wc -l | tr -d ' ')"
   # Hash file contents only. Hashing shasum's output also hashed the paths, so the
   # same config gave a different hash in every checkout.
   config_sha="$(cat "$PROPS" "$ROOT/version.lock" | sha256_of)"
-  # Copies of the inputs next to the manifest, so the output folder alone can be rerun.
-  if [[ -n "$KEEP_MODULE" ]]; then
-    cp "$KEEP_MODULE" "$OUT_DIR/keep-module.json"
-    keep_sha="$(sha256_of <"$KEEP_MODULE")"
-  fi
-  if [[ -n "$MODULES_DIR" ]]; then
-    cp -R "$MODULES_DIR/." "$OUT_DIR/modules"
-    modules_sha="$(modules_hash "$MODULES_DIR")"
-  fi
   content_sha="$(fhir_content_hash)"
   cat >"$OUT_DIR/manifest.json" <<EOF
 {
@@ -152,8 +168,8 @@ write_manifest() {
   "city": $(json_string_or_null "$CITY"),
   "age": $(json_string_or_null "$AGE"),
   "gender": $(json_string_or_null "$GENDER"),
-  "keepModuleSha256": $(json_string_or_null "$keep_sha"),
-  "modulesDirSha256": $(json_string_or_null "$modules_sha"),
+  "keepModuleSha256": $(json_string_or_null "$KEEP_SHA"),
+  "modulesDirSha256": $(json_string_or_null "$MODULES_SHA"),
   "exporter": "fhir",
   "configHash": "$config_sha",
   "patientFileCount": $patient_count,
@@ -185,12 +201,13 @@ ensure_jar
 [[ -f "$PROPS" ]] || die "missing $PROPS"
 
 prepare_out_dir
+snapshot_inputs
 
 filters=()
 [[ -n "$AGE" ]] && filters+=(-a "$AGE")
 [[ -n "$GENDER" ]] && filters+=(-g "$GENDER")
-[[ -n "$KEEP_MODULE" ]] && filters+=(-k "$(cd "$(dirname "$KEEP_MODULE")" && pwd)/$(basename "$KEEP_MODULE")")
-[[ -n "$MODULES_DIR" ]] && filters+=(-d "$(cd "$MODULES_DIR" && pwd)")
+[[ -n "$KEEP_MODULE" ]] && filters+=(-k "$KEEP_MODULE")
+[[ -n "$MODULES_DIR" ]] && filters+=(-d "$MODULES_DIR")
 place=("$STATE")
 [[ -n "$CITY" ]] && place+=("$CITY")
 
