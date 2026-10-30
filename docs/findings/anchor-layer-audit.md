@@ -11,15 +11,15 @@ Reference intervals and interpretive bands are different kinds. A prior workbook
 headline ("31 markers with an interval") **conflated** them; that source number was
 wrong for abstention purposes and is corrected here rather than quietly reused.
 
-| Metric                                                 | Value | Notes                                                           |
-| ------------------------------------------------------ | ----: | --------------------------------------------------------------- |
-| Biomarkers                                             |    67 | expected 67                                                     |
-| Reference intervals (`record_kind=reference_interval`) |    44 | core-owned only (workbook RI rows for non-core ids skipped: 49) |
-| Interpretive bands (`record_kind=interpretive_band`)   |     5 | expected 5                                                      |
-| `counts.markers_with_reference_interval`               |    30 | measured assay intervals only                                   |
-| `counts.markers_with_interpretive_band_only`           |     1 | band(s), no reference interval                                  |
-| `counts.markers_with_neither`                          |    36 | abstain — no measured interval                                  |
-| Property mismatches (molar LOINC + mass unit)          |     3 | expected 3                                                      |
+| Metric | Value | Notes |
+|---|---:|---|
+| Biomarkers | 67 | expected 67 |
+| Reference intervals (`record_kind=reference_interval`) | 44 | core-owned only (workbook RI rows for non-core ids skipped: 49) |
+| Interpretive bands (`record_kind=interpretive_band`) | 5 | expected 5 |
+| `counts.markers_with_reference_interval` | 30 | measured assay intervals only |
+| `counts.markers_with_interpretive_band_only` | 1 | band(s), no reference interval |
+| `counts.markers_with_neither` | 36 | abstain — no measured interval |
+| Property mismatches (molar LOINC + mass unit) | 3 | expected 3 |
 
 Superseded conflated headline (do not use): "31 with interval / 36 without" mixed RI∨band.
 Prior artefact revision published 93 RI rows including non-core orphan ids; this tip publishes core-owned intervals only.
