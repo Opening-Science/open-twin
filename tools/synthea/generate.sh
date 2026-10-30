@@ -162,8 +162,22 @@ write_manifest() {
 EOF
 }
 
-[[ "$REFERENCE_DATE" =~ ^[0-9]{8}$ ]] || die "SYNTHEA_REFERENCE_DATE must be YYYYMMDD, got: $REFERENCE_DATE"
-[[ "$END_DATE" =~ ^[0-9]{8}$ ]] || die "SYNTHEA_END_DATE must be YYYYMMDD, got: $END_DATE"
+# Synthea parses dates leniently (20260230 becomes 2 March), so reject anything
+# that is not a real calendar date rather than record a date Synthea didn't use.
+valid_date() {
+  [[ "$1" =~ ^[0-9]{8}$ ]] || return 1
+  local y=$((10#${1:0:4})) m=$((10#${1:4:2})) d=$((10#${1:6:2})) max
+  case "$m" in
+    1 | 3 | 5 | 7 | 8 | 10 | 12) max=31 ;;
+    4 | 6 | 9 | 11) max=30 ;;
+    2) max=$((y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) ? 29 : 28)) ;;
+    *) return 1 ;;
+  esac
+  ((d >= 1 && d <= max))
+}
+
+valid_date "$REFERENCE_DATE" || die "SYNTHEA_REFERENCE_DATE must be a real date as YYYYMMDD, got: $REFERENCE_DATE"
+valid_date "$END_DATE" || die "SYNTHEA_END_DATE must be a real date as YYYYMMDD, got: $END_DATE"
 validate_filters
 
 require_java

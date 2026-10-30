@@ -83,9 +83,11 @@ deceased) and about 860 MB compressed per batch.
 
 `generate.sh` writes to `tools/synthea/out/` and clears it first unless
 `SYNTHEA_OUT_DIR` names another folder; give each parallel batch its own
-`SYNTHEA_OUT_DIR`. Sequentially:
+`SYNTHEA_OUT_DIR`. Sequentially, stopping at the first failure so a partial
+batch is never archived:
 
 ```bash
+set -euo pipefail
 for i in $(seq 1 100); do
   SYNTHEA_POPULATION=10000 SYNTHEA_SEED=$((1000 + i)) SYNTHEA_CLINICIAN_SEED=$((2000 + i)) \
     ./tools/synthea/generate.sh
