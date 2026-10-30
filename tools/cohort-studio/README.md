@@ -32,7 +32,7 @@ against the sha256 in `tools/synthea/version.lock`.
    from the JAR at start-up, not stored in this repository), grouped and
    searchable. Choosing conditions generates a keep module (GMF v2): "any of"
    is an `Or`, "all of" an `And` of `Active Condition` checks. A condition
-   marked *can end* is one Synthea may resolve; only people who still have it
+   marked _can end_ is one Synthea may resolve; only people who still have it
    at the end are kept. Module Builder exports can be added as custom modules
    (passed to Synthea with `-d`).
    The recipe panel shows the exact recipe, its hash, a time estimate, the

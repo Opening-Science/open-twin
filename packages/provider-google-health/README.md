@@ -7,11 +7,11 @@ Maps the **Google Health API v4** (`health.googleapis.com/v4`) into HL7 FHIR R4 
 **This package does not talk to Health Connect.** Three different things share
 confusingly similar names, and only one of them is what this code calls:
 
-| | What it is | Reachable from Node.js? |
-|---|---|---|
-| **Health Connect** | An on-device Android API (`androidx.health.connect`). No cloud REST surface. | **No** |
-| **Google Fit REST API** | `www.googleapis.com/fitness/v1`. Sign-ups closed 1 May 2024; supported until the end of 2026. | Yes, but not used here |
-| **Google Health API v4** | `health.googleapis.com/v4`. **This is what this package calls.** | Yes |
+|                          | What it is                                                                                    | Reachable from Node.js? |
+| ------------------------ | --------------------------------------------------------------------------------------------- | ----------------------- |
+| **Health Connect**       | An on-device Android API (`androidx.health.connect`). No cloud REST surface.                  | **No**                  |
+| **Google Fit REST API**  | `www.googleapis.com/fitness/v1`. Sign-ups closed 1 May 2024; supported until the end of 2026. | Yes, but not used here  |
+| **Google Health API v4** | `health.googleapis.com/v4`. **This is what this package calls.**                              | Yes                     |
 
 Google describes the Google Health API as **the next generation of the Fitbit Web
 API**, covering data from Fitbit, Pixel Watch and third-party devices and apps. Its own
@@ -19,7 +19,7 @@ error catalogue makes the lineage explicit:
 
 > `ACCOUNT_NOT_LINKED` · 400 · The Google account is not linked to a Fitbit account.
 
-Four consequences that should inform a product decision *before* you integrate:
+Four consequences that should inform a product decision _before_ you integrate:
 
 1. **A user with only on-device Health Connect data and no linked Fitbit account gets
    nothing from this connector.** The data source is the Fitbit/Google-account cloud
@@ -38,10 +38,10 @@ about the Google Health API, not about Health Connect.
 
 ## What it does
 
-* **Token exchange** — fetches an `access_token` from an initial authorisation code.
-* **Data retrieval** — lists data points per type, **following `nextPageToken`** so a
+- **Token exchange** — fetches an `access_token` from an initial authorisation code.
+- **Data retrieval** — lists data points per type, **following `nextPageToken`** so a
   window wider than one page is not silently truncated.
-* **FHIR R4 mapping** — 36 mappers across the four record categories (daily, sample,
+- **FHIR R4 mapping** — 36 mappers across the four record categories (daily, sample,
   interval, session), emitting a `collection` (or `transaction`) Bundle.
 
 Terminology, units, identifiers, subject linkage and the error taxonomy all come from
@@ -91,7 +91,11 @@ const { responses, issues } = await getDataTypes({
 });
 
 // 4. A FHIR R4 bundle.
-const { bundle, issues: bundleIssues, unmapped } = await getFhirBundleFromGoogleHealthData({
+const {
+  bundle,
+  issues: bundleIssues,
+  unmapped
+} = await getFhirBundleFromGoogleHealthData({
   client,
   types: ['heart-rate', 'steps', 'sleep'],
   start_date: '2026-07-01T00:00:00Z',
@@ -122,17 +126,17 @@ date, or an unknown time zone. No thrown error ever carries a response body.
 
 ### `unmapped`
 
-A non-empty `unmapped` array means a data type this package *declares* it can request
+A non-empty `unmapped` array means a data type this package _declares_ it can request
 arrived and was dropped — a defect in this package, reported rather than swallowed. Keys
 belonging to data types the package never declares are ignored silently.
 
 ## Known gaps
 
-* `total-calories` and `calories-in-heart-rate-zone` are **not** supported. They are not
+- `total-calories` and `calories-in-heart-rate-zone` are **not** supported. They are not
   `DataPoint` members: they exist only on the rollup endpoints (`dataPoints:rollUp` /
   `dataPoints:dailyRollUp`) and need a separate code path.
-* `food` and `foodMeasurementUnit` are real `DataPoint` members with no mapper yet.
-* Several measures carry codes from this project's own code system rather than LOINC or
+- `food` and `foodMeasurementUnit` are real `DataPoint` members with no mapper yet.
+- Several measures carry codes from this project's own code system rather than LOINC or
   SNOMED, marked in the source with `TODO(clinical-review):`. They cover heart-rate
   variability, skin-temperature derivations, session mean heart rate and the ECG. Each
   names what needs sign-off. A local code is recoverable; a wrong standard code silently
@@ -146,9 +150,9 @@ associated with Fitbit LLC, Google LLC or Alphabet Inc.
 
 ## Trademarks
 
-* "Fitbit" and "Google" are trademarks of Google LLC.
-* All product names, logos and brands are the property of their respective owners.
-* The use of these names, trademarks and brands does not imply endorsement, sponsorship
+- "Fitbit" and "Google" are trademarks of Google LLC.
+- All product names, logos and brands are the property of their respective owners.
+- The use of these names, trademarks and brands does not imply endorsement, sponsorship
   or affiliation.
 
 ## License

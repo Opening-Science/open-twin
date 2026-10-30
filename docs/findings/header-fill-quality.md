@@ -29,7 +29,7 @@ review.
 
 ## Pattern 2 — GOVERNED BY line shape vs CONVENTIONS.md
 
-**154 of 155** headers write `GOVERNED BY:` **without** the leading ` * ` that
+**154 of 155** headers write `GOVERNED BY:` **without** the leading `*` that
 `docs/CONVENTIONS.md` shows inside the block comment.
 
 `check-headers` accepts that form because its field regex makes the asterisk

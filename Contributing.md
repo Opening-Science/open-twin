@@ -23,6 +23,18 @@ pnpm test
 pnpm verify
 ```
 
+Or run all of the above, plus the offline HL7 FHIR validator that CI runs, in one
+command. It needs a JDK 21 for the validator; it fetches the validator jar version
+pinned in `.github/workflows/verify.yml` and caches it under `~/.cache/open-twin`.
+
+```bash
+pnpm ci:local              # every blocking CI job, in CI order
+pnpm ci:local --tx         # also the advisory tx.fhir.org terminology tier
+pnpm ci:local --no-validator
+```
+
+A stage skipped with `--no-validator` is reported as such; that run does not match CI.
+
 Create an issue before starting a feature. Report non-security defects through
 the issue tracker using the bug-report form. Branch from `main` using
 `<issue-number>-<slug>` and open a pull request to `main`.

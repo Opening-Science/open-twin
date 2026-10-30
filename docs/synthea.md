@@ -32,14 +32,14 @@ Override with `SYNTHEA_POPULATION`, `SYNTHEA_SEED`, `SYNTHEA_CLINICIAN_SEED`,
 
 Optional cohort filters, all off by default:
 
-| Variable | Synthea flag | Meaning |
-|---|---|---|
-| `SYNTHEA_AGE` | `-a` | `MIN-MAX` age on the reference date, e.g. `40-75` |
-| `SYNTHEA_GENDER` | `-g` | `M` or `F` |
-| `SYNTHEA_CITY` | city argument | a city Synthea knows in `SYNTHEA_STATE` |
-| `SYNTHEA_KEEP_MODULE` | `-k` | keep module JSON; only people it keeps are written |
-| `SYNTHEA_MODULES_DIR` | `-d` | extra modules, e.g. Synthea Module Builder exports |
-| `SYNTHEA_OUT_DIR` | `exporter.baseDirectory` | output folder instead of `tools/synthea/out/` |
+| Variable              | Synthea flag             | Meaning                                            |
+| --------------------- | ------------------------ | -------------------------------------------------- |
+| `SYNTHEA_AGE`         | `-a`                     | `MIN-MAX` age on the reference date, e.g. `40-75`  |
+| `SYNTHEA_GENDER`      | `-g`                     | `M` or `F`                                         |
+| `SYNTHEA_CITY`        | city argument            | a city Synthea knows in `SYNTHEA_STATE`            |
+| `SYNTHEA_KEEP_MODULE` | `-k`                     | keep module JSON; only people it keeps are written |
+| `SYNTHEA_MODULES_DIR` | `-d`                     | extra modules, e.g. Synthea Module Builder exports |
+| `SYNTHEA_OUT_DIR`     | `exporter.baseDirectory` | output folder instead of `tools/synthea/out/`      |
 
 The output folder is deleted and recreated on every run, so the script refuses
 a folder that holds anything it did not write. With a keep module or modules

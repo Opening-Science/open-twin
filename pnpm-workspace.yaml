@@ -1,8 +1,8 @@
 packages:
-  - 'packages/*'
-  - 'tools/cohort-studio'
+  - "packages/*"
+  - "tools/cohort-studio"
 
 allowBuilds:
-  '@swc/core': true
+  "@swc/core": true
   core-js: false
   esbuild: true

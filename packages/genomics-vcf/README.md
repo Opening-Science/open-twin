@@ -30,20 +30,20 @@ Cardinality disagreements and type violations are reported, never silently coerc
 
 **Emits** one `Observation` per ALT allele per record:
 
-| Element | LOINC | Source |
-|---|---|---|
-| `Observation.code` | 69548-6 Genetic variant assessment | fixed by the profile |
-| `Observation.value[x]` | LL1971-2: LA9633-4 / LA9634-2 / LA18198-4 / LA11884-6 | GT for the selected sample |
-| chromosome identifier | 48000-4, answers LL2938-0 | CHROM |
-| reference sequence assembly | 62374-4, answers LL1040-6 | `##reference` / `##contig` `assembly=` |
-| genomic ref allele | 69547-8 | REF |
-| genomic alt allele | 69551-0 | one ALT |
-| genomic allele start-end | 81254-5 (`Range`) | POS and REF length |
-| genomic coordinate system | 92822-6, answers LL5323-2 | the option you chose |
-| allelic state | 53034-5, answers LL381-5 | GT |
-| allelic read depth | 82121-5 | FORMAT `AD`, element for this ALT |
-| sample variant allelic frequency | 81258-6 | FORMAT `AF` only (see below) |
-| discrete genetic variant | 81252-9 | ID column, rsIDs only |
+| Element                          | LOINC                                                 | Source                                 |
+| -------------------------------- | ----------------------------------------------------- | -------------------------------------- |
+| `Observation.code`               | 69548-6 Genetic variant assessment                    | fixed by the profile                   |
+| `Observation.value[x]`           | LL1971-2: LA9633-4 / LA9634-2 / LA18198-4 / LA11884-6 | GT for the selected sample             |
+| chromosome identifier            | 48000-4, answers LL2938-0                             | CHROM                                  |
+| reference sequence assembly      | 62374-4, answers LL1040-6                             | `##reference` / `##contig` `assembly=` |
+| genomic ref allele               | 69547-8                                               | REF                                    |
+| genomic alt allele               | 69551-0                                               | one ALT                                |
+| genomic allele start-end         | 81254-5 (`Range`)                                     | POS and REF length                     |
+| genomic coordinate system        | 92822-6, answers LL5323-2                             | the option you chose                   |
+| allelic state                    | 53034-5, answers LL381-5                              | GT                                     |
+| allelic read depth               | 82121-5                                               | FORMAT `AD`, element for this ALT      |
+| sample variant allelic frequency | 81258-6                                               | FORMAT `AF` only (see below)           |
+| discrete genetic variant         | 81252-9                                               | ID column, rsIDs only                  |
 
 Every code was verified twice before it was written down: against
 `tx.fhir.org` (HL7's terminology server, LOINC 2.82, on 2026-07-26) for the concept
@@ -56,7 +56,7 @@ so it can be repeated rather than trusted.
 VCF POS is **1-based and inclusive**; the variant spans `POS .. POS + REF.length - 1`.
 
 The IG does **not** require 0-based interbase coordinates. It requires the sender to
-*declare* which system the `exact-start-end` Range uses, through component 92822-6
+_declare_ which system the `exact-start-end` Range uses, through component 92822-6
 bound to LOINC answer list LL5323-2, whose three members are `LA30100-4` 0-based
 interval counting, `LA30101-2` 0-based character counting and `LA30102-0` 1-based
 character counting. The IG's own worked examples use 1-based character counting.
@@ -127,17 +127,17 @@ convert it without an explicit `subject` rather than inventing one.
 Named explicitly, because a silently-unsupported construct is worse than a refused
 one. Each of these is skipped and counted under its own kind in `summary`.
 
-| Not supported | Behaviour |
-|---|---|
-| **Structural variants** — symbolic ALTs (`<DEL>`, `<DUP>`, `<INS>`, `<CNV>`) | skipped, `alt-symbolic-unsupported` |
-| **Breakends** (`A[chr2:321682[`) | skipped, `alt-breakend-unsupported` |
-| **gVCF reference blocks** (`<NON_REF>`, `<*>`, `END=` with no ALT) | skipped, `gvcf-reference-block-skipped` |
-| **Spanning deletions** (`*` ALT) | skipped, `alt-spanning-deletion-skipped`; other ALTs on the line are still mapped |
-| **Multi-sample joint calls** | one bundle is one subject: pass `sampleId`, or a `ConnectorError` is thrown |
-| **Phasing** | `\|` is parsed and `VcfGenotype.phased` reports it, but no phase information reaches FHIR. The IG's `sequence-phase-relationship` profile is not emitted |
-| **BCF, bgzip, tabix** | plain text only; decompress before calling |
-| **Normalisation / left-alignment** | REF and ALT are emitted verbatim, VCF padding base included, exactly as the file has them |
-| **Liftover between builds** | never; the build is reported, not converted |
+| Not supported                                                                | Behaviour                                                                                                                                                |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Structural variants** — symbolic ALTs (`<DEL>`, `<DUP>`, `<INS>`, `<CNV>`) | skipped, `alt-symbolic-unsupported`                                                                                                                      |
+| **Breakends** (`A[chr2:321682[`)                                             | skipped, `alt-breakend-unsupported`                                                                                                                      |
+| **gVCF reference blocks** (`<NON_REF>`, `<*>`, `END=` with no ALT)           | skipped, `gvcf-reference-block-skipped`                                                                                                                  |
+| **Spanning deletions** (`*` ALT)                                             | skipped, `alt-spanning-deletion-skipped`; other ALTs on the line are still mapped                                                                        |
+| **Multi-sample joint calls**                                                 | one bundle is one subject: pass `sampleId`, or a `ConnectorError` is thrown                                                                              |
+| **Phasing**                                                                  | `\|` is parsed and `VcfGenotype.phased` reports it, but no phase information reaches FHIR. The IG's `sequence-phase-relationship` profile is not emitted |
+| **BCF, bgzip, tabix**                                                        | plain text only; decompress before calling                                                                                                               |
+| **Normalisation / left-alignment**                                           | REF and ALT are emitted verbatim, VCF padding base included, exactly as the file has them                                                                |
+| **Liftover between builds**                                                  | never; the build is reported, not converted                                                                                                              |
 
 Components the IG defines that this connector does not emit, and why:
 

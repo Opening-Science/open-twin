@@ -85,18 +85,18 @@ scope that could not be fetched does not discard the scopes that could.
 
 ### What the mapping asserts
 
-| BodyLoop | FHIR | Unit |
-|---|---|---|
-| `angles.*`, `rotation.*` | `Observation.valueQuantity` / `component` | `deg` — the API reports **radians**, which are converted (D10) |
-| `position`, `distances.*`, `height`, `circumferences.*` | `component` / `valueQuantity` | `m` (D10) |
-| `areas.*` | `component` | `m2` |
-| `normal.*` | `component` | `1` — a surface normal is a direction vector, not an angle |
-| `properties` `body.height` | `valueQuantity` | `m` (D15) |
-| `properties` `body.surface` | `valueQuantity` | `m2` (D15) |
-| `properties` `body.volume` | `valueQuantity` | `m3` (D15) — not litre |
-| `properties` `body.mass` | `valueQuantity` | `kg` (D15) |
-| `properties` `body.bmi` | `valueQuantity` | `kg/m2` (D15) — scanner figure, not recomputed |
-| other `properties[].value` | `value[x]` | none — unknown paths stay unitless (D15) |
+| BodyLoop                                                | FHIR                                      | Unit                                                           |
+| ------------------------------------------------------- | ----------------------------------------- | -------------------------------------------------------------- |
+| `angles.*`, `rotation.*`                                | `Observation.valueQuantity` / `component` | `deg` — the API reports **radians**, which are converted (D10) |
+| `position`, `distances.*`, `height`, `circumferences.*` | `component` / `valueQuantity`             | `m` (D10)                                                      |
+| `areas.*`                                               | `component`                               | `m2`                                                           |
+| `normal.*`                                              | `component`                               | `1` — a surface normal is a direction vector, not an angle     |
+| `properties` `body.height`                              | `valueQuantity`                           | `m` (D15)                                                      |
+| `properties` `body.surface`                             | `valueQuantity`                           | `m2` (D15)                                                     |
+| `properties` `body.volume`                              | `valueQuantity`                           | `m3` (D15) — not litre                                         |
+| `properties` `body.mass`                                | `valueQuantity`                           | `kg` (D15)                                                     |
+| `properties` `body.bmi`                                 | `valueQuantity`                           | `kg/m2` (D15) — scanner figure, not recomputed                 |
+| other `properties[].value`                              | `value[x]`                                | none — unknown paths stay unitless (D15)                       |
 
 Measurement paths are published as codes in the Foundation-controlled CodeSystem
 `http://opentwin.ch/fhir/CodeSystem/vitronic`. No LOINC or SNOMED CT code is

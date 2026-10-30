@@ -200,11 +200,11 @@ wrong. They are UCUM `1`.
 
 **Context.** Three Anchor-core markers bind molar LOINC FSNs to mass source units:
 
-| biomarker_id | name_de | LOINC | unit_source |
-|---|---|---|---|
-| BM-060 | Bor | 52914-9 Boron [Moles/volume] in Serum or Plasma | µg/l |
-| BM-186 | Kupfer | 14665-4 Copper [Moles/volume] in Serum or Plasma | µg/l |
-| BM-405 | Vitamin K | 58793-1 Phytonadione [Moles/volume] in Serum or Plasma | ng/l |
+| biomarker_id | name_de   | LOINC                                                  | unit_source |
+| ------------ | --------- | ------------------------------------------------------ | ----------- |
+| BM-060       | Bor       | 52914-9 Boron [Moles/volume] in Serum or Plasma        | µg/l        |
+| BM-186       | Kupfer    | 14665-4 Copper [Moles/volume] in Serum or Plasma       | µg/l        |
+| BM-405       | Vitamin K | 58793-1 Phytonadione [Moles/volume] in Serum or Plasma | ng/l        |
 
 `scripts/compile-anchor-layer.ts` detects exactly these three (D-e) and exits
 non-zero. It does **not** auto-fix.
@@ -226,7 +226,7 @@ closed so CI cannot green-wash the mismatch.
 
 **CI before Martin decides.** Package `build` is `tsup` of the loader only — it
 does **not** run the compiler and does **not** require exit 0 from D-e. Package
-`test` *does* invoke the compiler and asserts exit 1 plus the three mismatch IDs
+`test` _does_ invoke the compiler and asserts exit 1 plus the three mismatch IDs
 (and a meta-test that module-resolution failure does not satisfy that assertion).
 So CI stays green on `build`/`test` while `compile` remains intentionally red
 until D11 is accepted. The published artefact on the branch is the committed
@@ -278,10 +278,10 @@ and EU product boundary; schema constants do not establish regulatory status.
 
 **Decision.** Every interpretation document **must** carry:
 
-| Field | Value |
-|---|---|
-| `intended_use` | `research_hypothesis_generation_n_of_1` |
-| `not_for_diagnostic_use` | `true` |
+| Field                    | Value                                   |
+| ------------------------ | --------------------------------------- |
+| `intended_use`           | `research_hypothesis_generation_n_of_1` |
+| `not_for_diagnostic_use` | `true`                                  |
 
 These are schema constants. Any other value is non-conformant. A recommendation
 engine — if built — requires a separate intended-purpose decision and appropriate
@@ -302,12 +302,12 @@ intended use requires a new decision, contract version and product assessment.
 **Decision.** OpenTwin is four layers. Each layer owns one interface and must not
 reach into another layer’s vocabulary to do that layer’s job:
 
-| Layer | Owns | Must not |
-|---|---|---|
-| **Terminology** | Code systems, UCUM, allowlists, review records | Invent codes; publish SNOMED in artefacts |
-| **Ingestion** | Connectors and shared FHIR builders → R4 Bundles | Score, interpret, or assign anatomy systems |
-| **Interpretation** | Anchor artefact, rules, interpretation document | Emit recommendations; extend `SystemId` |
-| **Geometry / XR** | Anatomy, materials, XR rendering (`open-twin-openXR`) | Score, map terminology, or invent `SystemId` values |
+| Layer              | Owns                                                  | Must not                                            |
+| ------------------ | ----------------------------------------------------- | --------------------------------------------------- |
+| **Terminology**    | Code systems, UCUM, allowlists, review records        | Invent codes; publish SNOMED in artefacts           |
+| **Ingestion**      | Connectors and shared FHIR builders → R4 Bundles      | Score, interpret, or assign anatomy systems         |
+| **Interpretation** | Anchor artefact, rules, interpretation document       | Emit recommendations; extend `SystemId`             |
+| **Geometry / XR**  | Anatomy, materials, XR rendering (`open-twin-openXR`) | Score, map terminology, or invent `SystemId` values |
 
 Cross-repo: visualisation consumes an already-shaped interpretation /
 `HealthTwinData` surface. Scoring and code→system assignment are **out of scope**
@@ -332,13 +332,13 @@ Crossing a layer boundary requires an explicit decision, not a convenience impor
 strings exactly carry the SI unit in the table. Any other path stays a Quantity
 with a value and no unit. Matching is exact: `body.mass` is not `body.mass_index`.
 
-| `property_path` | UCUM |
-|---|---|
-| `body.height` | `m` |
-| `body.surface` | `m2` |
-| `body.volume` | `m3` |
-| `body.mass` | `kg` |
-| `body.bmi` | `kg/m2` |
+| `property_path` | UCUM    |
+| --------------- | ------- |
+| `body.height`   | `m`     |
+| `body.surface`  | `m2`    |
+| `body.volume`   | `m3`    |
+| `body.mass`     | `kg`    |
+| `body.bmi`      | `kg/m2` |
 
 `body.bmi` is the scanner-reported figure. It is not recomputed from mass and
 height — those do not agree on this device.
@@ -361,15 +361,15 @@ defects rather than a consequence of them. The reviewer should be recruited now,
 parallel with the code work, not after it.
 
 - **LOINC 103213-5 "Duration in bed"** is a genuine LOINC modelling anomaly, verified
-  against two independent sources: the component says *duration*, the property is
+  against two independent sources: the component says _duration_, the property is
   `NRat` and the example unit is `/h`. Those cannot both be right. `/h` is
   dimensionally meaningless for a duration, so `min` is emitted pending a term-change
   request to Regenstrief. A reviewer must confirm or overrule that.
-- **LOINC 2339-0 vs 15074-8 (glucose).** 2339-0 is *mass* concentration (mg/dL);
+- **LOINC 2339-0 vs 15074-8 (glucose).** 2339-0 is _mass_ concentration (mg/dL);
   15074-8 is substance concentration (mmol/L). Both have `UNITSREQUIRED = Y`. Sending
   mmol/L under 2339-0 is the same class of property mismatch as the VO₂max defect.
   Nobody has recorded which one Google Health actually sends.
-- **LOINC 11524-6 "EKG study"** has scale `Doc` — it is a *document* code. If it is on
+- **LOINC 11524-6 "EKG study"** has scale `Doc` — it is a _document_ code. If it is on
   an Observation carrying a number, it is wrong.
 - **Sleep efficiency, vascular age and temperature deviation** have no standard
   concept in either LOINC or SNOMED CT. Verified twice, including an exhaustive

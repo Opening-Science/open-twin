@@ -45,7 +45,7 @@ const stored = tokenHandler.getTokens();
 // Passing only tokens treats expires_in as seconds from now; use it for fresh tokens, not restores.
 
 // Returns the access token. If token is expired, refreshes and returns it.
-await tokenHandler.getAccessToken()
+await tokenHandler.getAccessToken();
 
 // After a refresh, getTokens() returns the rotated pair and new expiresAt for re-persist.
 
