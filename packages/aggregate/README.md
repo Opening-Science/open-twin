@@ -16,17 +16,17 @@ Two rules hold it together, and both are about not destroying evidence:
 
 When more than one connector reports the same **measure** on the same **day**, the
 aggregator consults `reliabilityFor` in `@open-twin/fhir-core` — graded validation
-evidence per *(source, measure)* pair, with citations — and either:
+evidence per _(source, measure)_ pair, with citations — and either:
 
-- emits a **derived Observation** carrying `derivedFrom` pointing at *every* source
+- emits a **derived Observation** carrying `derivedFrom` pointing at _every_ source
   it considered (not only the winner) and `method` stating the policy in prose, or
 - **abstains**, recording why. The abstentions are the substance:
-  - *energy expenditure* abstains outright — published MAPE above 30% for every
+  - _energy expenditure_ abstains outright — published MAPE above 30% for every
     brand tested, so naming a winner would present a confidence nobody has earned;
-  - *equally graded sources* abstain rather than break a tie on array order;
-  - *several same-day readings from the preferred source* abstain because the
+  - _equally graded sources_ abstain rather than break a tie on array order;
+  - _several same-day readings from the preferred source_ abstain because the
     reliability evidence ranks connectors, not readings within one connector;
-  - *a single reporting source* is not a disagreement, so nothing is asserted.
+  - _a single reporting source_ is not a disagreement, so nothing is asserted.
 
 A selection nobody can audit is indistinguishable from a guess, which is why the
 policy prose and the citation ride inside the bundle.
@@ -43,7 +43,7 @@ import { aggregate } from '@open-twin/aggregate';
 
 const { bundle, reconciliations } = aggregate({
   sources: [
-    { bundle: ouraBundle },          // connector read from meta.tag when present
+    { bundle: ouraBundle }, // connector read from meta.tag when present
     { connector: 'google-health', bundle: googleBundle }
   ],
   subjectKey: 'user-42',
@@ -73,8 +73,8 @@ an unresolved `urn:uuid:undefined` provenance reference.
 
 `reliability.ts` in `@open-twin/fhir-core` records what the validation literature
 says, per source and measure — not a preference order. That distinction does real
-work: sleep *duration* selects google-health over Oura, because Oura's `good` grade
-is for sleep–wake *detection* and it has no published total-sleep-time finding at
+work: sleep _duration_ selects google-health over Oura, because Oura's `good` grade
+is for sleep–wake _detection_ and it has no published total-sleep-time finding at
 all. Extending the table is a citation, not an opinion.
 
 ## Verification

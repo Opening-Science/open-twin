@@ -18,8 +18,8 @@ double-counting against G1.
 
 After reconciliation (same source scan):
 
-| Bucket | Count |
-|---|---:|
-| COVERED BY G1 APPROVED (not MISSING) | 31 |
+| Bucket                                   |                  Count |
+| ---------------------------------------- | ---------------------: |
+| COVERED BY G1 APPROVED (not MISSING)     |                     31 |
 | True MISSING (not approved on allowlist) | 20 (15 LOINC + 5 UCUM) |
-| UNVERIFIED Anchor stubs on disk (G2a) | 67 |
+| UNVERIFIED Anchor stubs on disk (G2a)    |                     67 |

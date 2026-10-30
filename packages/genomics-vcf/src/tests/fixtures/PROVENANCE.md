@@ -7,12 +7,12 @@ up stops being an oracle.
 
 ## `hiseq-na12878.trimmed.vcf`
 
-| | |
-|---|---|
-| Source | `https://raw.githubusercontent.com/samtools/htsjdk/master/src/test/resources/htsjdk/variant/HiSeq.10000.vcf` |
-| Repository | samtools/htsjdk, `src/test/resources/htsjdk/variant/` |
-| Retrieved | 2026-07-26 |
-| Sample | NA12878 — a publicly distributed, consented CEPH/HapMap cell line (GIAB reference material), not a patient record |
+|            |                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| Source     | `https://raw.githubusercontent.com/samtools/htsjdk/master/src/test/resources/htsjdk/variant/HiSeq.10000.vcf`      |
+| Repository | samtools/htsjdk, `src/test/resources/htsjdk/variant/`                                                             |
+| Retrieved  | 2026-07-26                                                                                                        |
+| Sample     | NA12878 — a publicly distributed, consented CEPH/HapMap cell line (GIAB reference material), not a patient record |
 
 Kept: the entire header except the two `##UnifiedGenotyper=` and `##VariantFiltration=`
 lines, which are multi-kilobyte GATK command lines containing absolute paths into the
@@ -33,12 +33,12 @@ What this file demonstrates, and why it was chosen over a tidier one:
 
 ## `dbsnp-135-b37.trimmed.vcf`
 
-| | |
-|---|---|
-| Source | `https://raw.githubusercontent.com/samtools/htsjdk/master/src/test/resources/htsjdk/variant/dbsnp_135.b37.1000.vcf` |
-| Repository | samtools/htsjdk, `src/test/resources/htsjdk/variant/` |
-| Retrieved | 2026-07-26 |
-| Content | dbSNP build 135, sites only. A public variant database, not an individual's genome |
+|            |                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| Source     | `https://raw.githubusercontent.com/samtools/htsjdk/master/src/test/resources/htsjdk/variant/dbsnp_135.b37.1000.vcf` |
+| Repository | samtools/htsjdk, `src/test/resources/htsjdk/variant/`                                                               |
+| Retrieved  | 2026-07-26                                                                                                          |
+| Content    | dbSNP build 135, sites only. A public variant database, not an individual's genome                                  |
 
 Kept: the header except the `##LeftAlignVariants=` GATK command line and all but the
 first two `##contig` lines. Kept: 10 of the 1000 data lines.

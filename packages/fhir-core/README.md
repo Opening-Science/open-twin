@@ -11,17 +11,17 @@ exports enforce.
 
 ## Modules
 
-| module | what it settles |
-|---|---|
-| `systems.ts` | Canonical system URIs (`SYSTEMS.*`), profiles, categories. A code system URI you do not control is not a code system. |
-| `units.ts` | The UCUM table (`UCUM.*`, `LOINC_UNITS`). `Quantity.unit` carries **UCUM's own name** for `Quantity.code`, so the two halves cannot drift. |
-| `identity.ts` | One subject convention (D1), deterministic ids (D2), `minimalPatient` to answer a minted reference. |
-| `observation.ts` | `createObservation`, and `numericComponent` — which **requires** a unit and falls back to `dataAbsentReason`. |
-| `bundle.ts` | `buildBundle`: lowercase `urn:uuid:` fullUrls, connector provenance tag, `collection` or `transaction` form. |
-| `provenance.ts` | `Device`, the `METHOD` vocabulary, `derivedObservation` for values computed from other Observations. |
-| `reliability.ts` | Graded validation evidence per **(source, measure)** pair, with citations. Read by `@open-twin/aggregate`. |
-| `referenceRange.ts` | Anchor-layer intervals on the Observation, each carrying its source. |
-| `errors.ts` | `ConnectorError` — status, operation and code. **Never a response body**: these are health payloads and errors end up in logs. |
+| module              | what it settles                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `systems.ts`        | Canonical system URIs (`SYSTEMS.*`), profiles, categories. A code system URI you do not control is not a code system.                      |
+| `units.ts`          | The UCUM table (`UCUM.*`, `LOINC_UNITS`). `Quantity.unit` carries **UCUM's own name** for `Quantity.code`, so the two halves cannot drift. |
+| `identity.ts`       | One subject convention (D1), deterministic ids (D2), `minimalPatient` to answer a minted reference.                                        |
+| `observation.ts`    | `createObservation`, and `numericComponent` — which **requires** a unit and falls back to `dataAbsentReason`.                              |
+| `bundle.ts`         | `buildBundle`: lowercase `urn:uuid:` fullUrls, connector provenance tag, `collection` or `transaction` form.                               |
+| `provenance.ts`     | `Device`, the `METHOD` vocabulary, `derivedObservation` for values computed from other Observations.                                       |
+| `reliability.ts`    | Graded validation evidence per **(source, measure)** pair, with citations. Read by `@open-twin/aggregate`.                                 |
+| `referenceRange.ts` | Anchor-layer intervals on the Observation, each carrying its source.                                                                       |
+| `errors.ts`         | `ConnectorError` — status, operation and code. **Never a response body**: these are health payloads and errors end up in logs.             |
 
 ## Usage
 

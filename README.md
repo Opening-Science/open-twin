@@ -66,27 +66,27 @@ Automated npm publishing is disabled; use the source checkout.
 
 Ten connector and core library packages (names use the `@open-twin/` scope):
 
-| package | direction | source |
-|---|---|---|
-| [`fhir-core`](packages/fhir-core) | — | the shared contract: systems, units, identity, provenance, errors |
-| [`aggregate`](packages/aggregate) | — | cross-source reconciliation |
-| [`provider-oura`](packages/provider-oura) | vendor → FHIR | Oura Ring v2 API |
-| [`provider-whoop`](packages/provider-whoop) | vendor → FHIR | WHOOP Developer API v2 |
-| [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | Google Health API v4 |
-| [`provider-vitronic`](packages/provider-vitronic) | vendor → FHIR | VITRONIC BodyLoop body scanner |
-| [`open-wearables`](packages/provider-open-wearables) | vendor → FHIR | OpenWearables normalised schema |
-| [`fhir-r4`](packages/fhir-r4) | FHIR → FHIR | foreign R4 bundles: validation + normalisation |
-| [`hl7v2`](packages/hl7v2) | HL7 v2 → FHIR | ORU/ADT messages |
-| [`genomics-vcf`](packages/genomics-vcf) | VCF → FHIR | variant calls, Genomics Reporting IG |
+| package                                                     | direction     | source                                                            |
+| ----------------------------------------------------------- | ------------- | ----------------------------------------------------------------- |
+| [`fhir-core`](packages/fhir-core)                           | —             | the shared contract: systems, units, identity, provenance, errors |
+| [`aggregate`](packages/aggregate)                           | —             | cross-source reconciliation                                       |
+| [`provider-oura`](packages/provider-oura)                   | vendor → FHIR | Oura Ring v2 API                                                  |
+| [`provider-whoop`](packages/provider-whoop)                 | vendor → FHIR | WHOOP Developer API v2                                            |
+| [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | Google Health API v4                                              |
+| [`provider-vitronic`](packages/provider-vitronic)           | vendor → FHIR | VITRONIC BodyLoop body scanner                                    |
+| [`open-wearables`](packages/provider-open-wearables)        | vendor → FHIR | OpenWearables normalised schema                                   |
+| [`fhir-r4`](packages/fhir-r4)                               | FHIR → FHIR   | foreign R4 bundles: validation + normalisation                    |
+| [`hl7v2`](packages/hl7v2)                                   | HL7 v2 → FHIR | ORU/ADT messages                                                  |
+| [`genomics-vcf`](packages/genomics-vcf)                     | VCF → FHIR    | variant calls, Genomics Reporting IG                              |
 
 Four more workspace packages are research modules:
 
-| package | role |
-|---|---|
-| [`anchor-layer`](packages/anchor-layer) | versioned Anchor biomarker catalogue and reference ranges |
-| [`provider-anchor`](packages/provider-anchor) | lab biomarker measurements → FHIR R4 Observations |
-| [`interpreter`](packages/interpreter) | evaluates a YAML rule pack over biomarker observations |
-| [`interpretation-contract`](packages/interpretation-contract) | schema and validator for the document open-twin-xr reads |
+| package                                                       | role                                                      |
+| ------------------------------------------------------------- | --------------------------------------------------------- |
+| [`anchor-layer`](packages/anchor-layer)                       | versioned Anchor biomarker catalogue and reference ranges |
+| [`provider-anchor`](packages/provider-anchor)                 | lab biomarker measurements → FHIR R4 Observations         |
+| [`interpreter`](packages/interpreter)                         | evaluates a YAML rule pack over biomarker observations    |
+| [`interpretation-contract`](packages/interpretation-contract) | schema and validator for the document open-twin-xr reads  |
 
 Package READMEs document their APIs and supported inputs.
 
@@ -109,29 +109,29 @@ for US audiences, the [US supplement](docs/US-USE.md).
 
 ## Documentation
 
-| Read | For |
-|---|---|
-| [ONBOARDING.md](ONBOARDING.md) | Setup, verification and first contribution |
-| [DECISIONS.md](DECISIONS.md) | Shared identity, terminology, units and interpretation rules |
-| [docs/00-MAP.md](docs/00-MAP.md) | Detailed documentation map |
-| [Contributing.md](Contributing.md) | Contribution and review workflow |
-| [CLAUDE.md](CLAUDE.md) | Coding-agent instructions |
-| [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | Dated architecture and review record |
-| [PROVENANCE.md](PROVENANCE.md) | Repository history |
-| [docs/synthea.md](docs/synthea.md) | Synthetic FHIR cohort generation |
+| Read                                 | For                                                          |
+| ------------------------------------ | ------------------------------------------------------------ |
+| [ONBOARDING.md](ONBOARDING.md)       | Setup, verification and first contribution                   |
+| [DECISIONS.md](DECISIONS.md)         | Shared identity, terminology, units and interpretation rules |
+| [docs/00-MAP.md](docs/00-MAP.md)     | Detailed documentation map                                   |
+| [Contributing.md](Contributing.md)   | Contribution and review workflow                             |
+| [CLAUDE.md](CLAUDE.md)               | Coding-agent instructions                                    |
+| [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | Dated architecture and review record                         |
+| [PROVENANCE.md](PROVENANCE.md)       | Repository history                                           |
+| [docs/synthea.md](docs/synthea.md)   | Synthetic FHIR cohort generation                             |
 
 Development and pull requests for this repository are hosted at
 [Opening-Science/open-twin](https://github.com/Opening-Science/open-twin).
 
 ## People
 
-| Name | Work |
-|---|---|
-| Peter Dike ([@CPD9](https://github.com/CPD9)) | Interpretation layer, Anchor biomarker ingest, the WHOOP connector, the Synthea cohort |
+| Name                                                                                              | Work                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Peter Dike ([@CPD9](https://github.com/CPD9))                                                     | Interpretation layer, Anchor biomarker ingest, the WHOOP connector, the Synthea cohort                                                                                                                            |
 | Martin Etzrodt ([@etzm](https://github.com/etzm), [ORCID](https://orcid.org/0000-0003-1928-3904)) | Conceived open-twin as an open connector repository, in analogy to Bioconductor; shared FHIR core, verification gates, reconciliation, the FHIR R4, HL7 v2, VCF and OpenWearables packages, intended-use guidance |
-| Paul Matthias ([@PaulMatthiasVUSE](https://github.com/PaulMatthiasVUSE)) | Started the repository; maintenance, dependencies, security policy and review |
-| Robin Wilkening ([ORCID](https://orcid.org/0000-0002-8332-5016)) | Project lead; scientific direction and the original Anchor biomarker list |
-| Berk Yildizgorer ([@BerkYildizgorer](https://github.com/BerkYildizgorer)) | The first Oura, Google Health and VITRONIC connectors, with their mappers, tests and CI |
+| Paul Matthias ([@PaulMatthiasVUSE](https://github.com/PaulMatthiasVUSE))                          | Started the repository; maintenance, dependencies, security policy and review                                                                                                                                     |
+| Robin Wilkening ([ORCID](https://orcid.org/0000-0002-8332-5016))                                  | Project lead; scientific direction and the original Anchor biomarker list                                                                                                                                         |
+| Berk Yildizgorer ([@BerkYildizgorer](https://github.com/BerkYildizgorer))                         | The first Oura, Google Health and VITRONIC connectors, with their mappers, tests and CI                                                                                                                           |
 
 ## Licence and independence
 
