@@ -70,23 +70,23 @@ corroboration, not as a primary contract: it is prose about the code.
 benign — `percent` vs `%`, `celsius` vs `°C`, `brpm` vs `breaths/min`. The
 dimensional ones are not:
 
-| Series type | Source A declares | Source B sends | Consequence of trusting the wrong one |
-|---|---|---|---|
-| `blood_alcohol_content` | `mg_dl` | `g/dL` | a factor of 1000 |
-| `walking_step_length` | `cm` | `m` (0.72) | a factor of 100; 0.72 cm is not a step |
-| `running_stride_length` | `cm` | `m` (1.24) | a factor of 100 |
-| `insulin_delivery` | `count` | `IU` | doses read as a count |
-| `physical_effort` | `score` | `MET·min` | a bounded score read as an energy-time product |
-| `stair_ascent_speed` / `stair_descent_speed` | `m_per_s` | `floors/min` | incommensurable |
-| `peripheral_perfusion_index` | `score` | `%` | — |
-| `atrial_fibrillation_burden` | `count` | `%` | a burden fraction read as an event count |
-| `electrodermal_activity` | `count` | `S` | siemens read as a count |
-| `sleeping_breathing_disturbances` | `count` | `count/h` | a count read as a rate |
-| `breathing_disturbance_index` | `score` | `count/h` | — |
-| `garmin_body_battery` | `percent` | `score` | both 0-100, so the error is invisible |
-| `garmin_skin_temperature` | `celsius`, enum comment says *deviation from baseline* | `°C`, example is an absolute 35.8 | `Cel` vs `K` |
-| `uv_exposure` | `count` | `J/m²` | — |
-| `nike_fuel` | `count` | `NikeFuel` | a proprietary index with no UCUM expression |
+| Series type                                  | Source A declares                                      | Source B sends                    | Consequence of trusting the wrong one          |
+| -------------------------------------------- | ------------------------------------------------------ | --------------------------------- | ---------------------------------------------- |
+| `blood_alcohol_content`                      | `mg_dl`                                                | `g/dL`                            | a factor of 1000                               |
+| `walking_step_length`                        | `cm`                                                   | `m` (0.72)                        | a factor of 100; 0.72 cm is not a step         |
+| `running_stride_length`                      | `cm`                                                   | `m` (1.24)                        | a factor of 100                                |
+| `insulin_delivery`                           | `count`                                                | `IU`                              | doses read as a count                          |
+| `physical_effort`                            | `score`                                                | `MET·min`                         | a bounded score read as an energy-time product |
+| `stair_ascent_speed` / `stair_descent_speed` | `m_per_s`                                              | `floors/min`                      | incommensurable                                |
+| `peripheral_perfusion_index`                 | `score`                                                | `%`                               | —                                              |
+| `atrial_fibrillation_burden`                 | `count`                                                | `%`                               | a burden fraction read as an event count       |
+| `electrodermal_activity`                     | `count`                                                | `S`                               | siemens read as a count                        |
+| `sleeping_breathing_disturbances`            | `count`                                                | `count/h`                         | a count read as a rate                         |
+| `breathing_disturbance_index`                | `score`                                                | `count/h`                         | —                                              |
+| `garmin_body_battery`                        | `percent`                                              | `score`                           | both 0-100, so the error is invisible          |
+| `garmin_skin_temperature`                    | `celsius`, enum comment says _deviation from baseline_ | `°C`, example is an absolute 35.8 | `Cel` vs `K`                                   |
+| `uv_exposure`                                | `count`                                                | `J/m²`                            | —                                              |
+| `nike_fuel`                                  | `count`                                                | `NikeFuel`                        | a proprietary index with no UCUM expression    |
 
 Source C sides with B on the spellings and adds one more discrepancy of its own: it
 documents a `recovery_score` timeseries type that is **absent from the `SeriesType`
@@ -108,11 +108,11 @@ map it. Publishing a thousand-fold error under a standard LOINC code is not.
 
 ## 2. Endpoints this connector parses
 
-| Endpoint | Response model | Source |
-|---|---|---|
-| `GET /api/v1/users/{user_id}/timeseries` | `PaginatedResponse[TimeSeriesSample]` | [timeseries.py#L17-L36](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/timeseries.py#L17-L36) |
-| `GET /api/v1/users/{user_id}/events/sleep` | `PaginatedResponse[SleepSession]` | [events.py#L43-L67](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/events.py#L43-L67) |
-| `GET /api/v1/users/{user_id}/events/workouts` | `PaginatedResponse[Workout]` | [events.py#L21-L40](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/events.py#L21-L40) |
+| Endpoint                                      | Response model                        | Source                                                                                                                                                                |
+| --------------------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/users/{user_id}/timeseries`      | `PaginatedResponse[TimeSeriesSample]` | [timeseries.py#L17-L36](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/timeseries.py#L17-L36) |
+| `GET /api/v1/users/{user_id}/events/sleep`    | `PaginatedResponse[SleepSession]`     | [events.py#L43-L67](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/events.py#L43-L67)         |
+| `GET /api/v1/users/{user_id}/events/workouts` | `PaginatedResponse[Workout]`          | [events.py#L21-L40](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/api/routes/v1/events.py#L21-L40)         |
 
 Authentication is documented as the header `X-Open-Wearables-API-Key`
 (<https://docs.openwearables.io/architecture/data-types>). **Unverified** — this
@@ -125,15 +125,15 @@ package ships no HTTP client, so nothing here has been exercised against a serve
 Source:
 [data_point_responses.py#L11-L20](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/schemas/responses/activity/data_point_responses.py#L11-L20)
 
-| Field | Declared type | Unit status | Mapped to |
-|---|---|---|---|
-| `timestamp` | `datetime` | n/a | `Observation.effectiveDateTime`, re-expressed in `zone_offset` |
-| `zone_offset` | `ZoneOffset` (`^[+-]\d{2}:\d{2}$`, [dates.py#L30-L40](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/utils/dates.py#L30-L40)) | n/a | the offset of `effectiveDateTime` (D7) |
-| `type` | `SeriesType` | n/a | selects `Observation.code`, `category`, unit and profile |
-| `value` | `float \| int` | see §4 | `Observation.valueQuantity.value` |
-| `unit` | `str` | **not trusted** | validated against §4, never used to scale |
-| `source` | `SourceMetadata \| None` | n/a | a `Device` resource, referenced from `Observation.device` |
-| `is_daily_total` | `bool \| None` | n/a | selects the 24-hour code where one exists |
+| Field            | Declared type                                                                                                                                                                           | Unit status     | Mapped to                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------- |
+| `timestamp`      | `datetime`                                                                                                                                                                              | n/a             | `Observation.effectiveDateTime`, re-expressed in `zone_offset` |
+| `zone_offset`    | `ZoneOffset` (`^[+-]\d{2}:\d{2}$`, [dates.py#L30-L40](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/utils/dates.py#L30-L40)) | n/a             | the offset of `effectiveDateTime` (D7)                         |
+| `type`           | `SeriesType`                                                                                                                                                                            | n/a             | selects `Observation.code`, `category`, unit and profile       |
+| `value`          | `float \| int`                                                                                                                                                                          | see §4          | `Observation.valueQuantity.value`                              |
+| `unit`           | `str`                                                                                                                                                                                   | **not trusted** | validated against §4, never used to scale                      |
+| `source`         | `SourceMetadata \| None`                                                                                                                                                                | n/a             | a `Device` resource, referenced from `Observation.device`      |
+| `is_daily_total` | `bool \| None`                                                                                                                                                                          | n/a             | selects the 24-hour code where one exists                      |
 
 `source.provider` is **free text, not the `ProviderName` enum**: the service builds
 it as `data_source.source or "unknown"`
@@ -161,62 +161,62 @@ Everything under `local` is `http://opentwin.ch/fhir/CodeSystem/open-wearables` 
 carries `TODO(clinical-review):` in the source. **No standard code is claimed for
 any of them.** That is not a claim that none exists — only that none was verified.
 
-| Series type | Declared unit | Accepted on the wire | FHIR code | UCUM | R4 profile |
-|---|---|---|---|---|---|
-| `heart_rate` | `bpm` | `bpm` | LOINC 8867-4 | `/min` | yes |
-| `resting_heart_rate` | `bpm` | `bpm` | LOINC 40443-4 + LOINC 8867-4 | `/min` | yes |
-| `respiratory_rate` | `brpm` | `brpm`, `breaths/min` | LOINC 9279-1 | `/min` | yes |
-| `oxygen_saturation` | `percent` | `percent`, `%` | LOINC 59408-5 + LOINC 2708-6 | `%` | yes |
-| `body_temperature` | `celsius` | `celsius`, `°C` | LOINC 8310-5 | `Cel` | yes |
-| `height` | `cm` | `cm` | LOINC 8302-2 | `cm` | yes |
-| `weight` | `kg` | `kg` | LOINC 29463-7 | `kg` | yes |
-| `body_fat_percentage` | `percent` | `percent`, `%` | LOINC 41982-0 | `%` | — |
-| `vo2_max` | `ml_kg_min` | `ml_kg_min`, `mL/kg/min` | LOINC 94122-9 | `mL/kg/min` | — |
-| `exercise_time` | `minutes` | `minutes`, `min` | LOINC 55411-3 | `min` | — |
-| `steps` | `count` | `count` | LOINC 55423-8 | `{steps}` | — |
-| `steps` (daily total) | `count` | `count` | LOINC 41950-7 | `{steps}/d` | — |
-| `energy` | `kcal` | `kcal` | LOINC 41981-2 | `kcal` | — |
-| `energy` (daily total) | `kcal` | `kcal` | local `energy-burned-24h` | `kcal` | — |
-| `heart_rate_variability_sdnn` | `ms` | `ms` | local `hrv-sdnn` | `ms` | — |
-| `heart_rate_variability_rmssd` | `ms` | `ms` | local `hrv-rmssd` | `ms` | — |
-| `heart_rate_recovery_one_minute` | `bpm` | `bpm` | local `heart-rate-recovery-1min` | `/min` | — |
-| `walking_heart_rate_average` | `bpm` | `bpm` | local `walking-heart-rate-average` | `/min` | — |
-| `skin_temperature` | `celsius` | `celsius`, `°C` | local `skin-temperature` | `Cel` | — |
-| `skin_temperature_deviation` | `celsius` | `celsius`, `°C` | local `skin-temperature-deviation` | `K` | — |
-| `skin_temperature_trend_deviation` | `celsius` | `celsius`, `°C` | local `skin-temperature-trend-deviation` | `K` | — |
-| `lean_body_mass` | `kg` | `kg` | local `lean-body-mass` | `kg` | — |
-| `body_fat_mass` | `kg` | `kg` | local `body-fat-mass` | `kg` | — |
-| `skeletal_muscle_mass` | `kg` | `kg` | local `skeletal-muscle-mass` | `kg` | — |
-| `waist_circumference` | `cm` | `cm` | local `waist-circumference` | `cm` | — |
-| `cardiovascular_age` | `years` | `years` | local `cardiovascular-age` | `a` | — |
-| `garmin_fitness_age` | `years` | `years` | local `garmin-fitness-age` | `a` | — |
-| `basal_energy` | `kcal` | `kcal` | local `basal-energy` | `kcal` | — |
-| `active_time` | `minutes` | `minutes`, `min` | local `active-time` | `min` | — |
-| `stand_time` | `minutes` | `minutes`, `min` | local `stand-time` | `min` | — |
-| `flights_climbed` | `count` | `count` | local `flights-climbed` | `{count}` | — |
-| `distance_walking_running` | `meters` | `meters`, `m` | local `distance-walking-running` | `m` | — |
-| `distance_cycling` | `meters` | `meters`, `m` | local `distance-cycling` | `m` | — |
-| `distance_swimming` | `meters` | `meters`, `m` | local `distance-swimming` | `m` | — |
-| `distance_downhill_snow_sports` | `meters` | `meters`, `m` | local `distance-downhill-snow-sports` | `m` | — |
-| `distance_other` | `meters` | `meters`, `m` | local `distance-other` | `m` | — |
-| `six_minute_walk_test_distance` | `meters` | `meters`, `m` | local `six-minute-walk-test-distance` | `m` | — |
-| `underwater_depth` | `meters` | `meters`, `m` | local `underwater-depth` | `m` | — |
-| `speed` | `m_per_s` | `m_per_s`, `m/s` | local `speed` | `m/s` | — |
-| `walking_speed` | `m_per_s` | `m_per_s`, `m/s` | local `walking-speed` | `m/s` | — |
-| `running_speed` | `m_per_s` | `m_per_s`, `m/s` | local `running-speed` | `m/s` | — |
-| `running_ground_contact_time` | `ms` | `ms` | local `running-ground-contact-time` | `ms` | — |
-| `running_vertical_oscillation` | `cm` | `cm` | local `running-vertical-oscillation` | `cm` | — |
-| `swimming_stroke_count` | `count` | `count` | local `swimming-stroke-count` | `{count}` | — |
-| `push_count` | `count` | `count` | local `push-count` | `{count}` | — |
-| `time_in_daylight` | `minutes` | `minutes`, `min` | local `time-in-daylight` | `min` | — |
-| `walking_double_support_percentage` | `percent` | `percent`, `%` | local `walking-double-support-percentage` | `%` | — |
-| `walking_asymmetry_percentage` | `percent` | `percent`, `%` | local `walking-asymmetry-percentage` | `%` | — |
-| `walking_steadiness` | `percent` | `percent`, `%` | local `walking-steadiness` | `%` | — |
-| `average_met` | `met` | `met`, `MET` | local `average-met` | `{MET}` | — |
-| `garmin_stress_level` | `score` | `score` | local `garmin-stress-level` | `{score}` | — |
-| `workout_effort_score` | `score` | `score` | local `workout-effort-score` | `{score}` | — |
-| `estimated_workout_effort_score` | `score` | `score` | local `estimated-workout-effort-score` | `{score}` | — |
-| `number_of_times_fallen` | `count` | `count` | local `number-of-times-fallen` | `{count}` | — |
+| Series type                         | Declared unit | Accepted on the wire     | FHIR code                                 | UCUM        | R4 profile |
+| ----------------------------------- | ------------- | ------------------------ | ----------------------------------------- | ----------- | ---------- |
+| `heart_rate`                        | `bpm`         | `bpm`                    | LOINC 8867-4                              | `/min`      | yes        |
+| `resting_heart_rate`                | `bpm`         | `bpm`                    | LOINC 40443-4 + LOINC 8867-4              | `/min`      | yes        |
+| `respiratory_rate`                  | `brpm`        | `brpm`, `breaths/min`    | LOINC 9279-1                              | `/min`      | yes        |
+| `oxygen_saturation`                 | `percent`     | `percent`, `%`           | LOINC 59408-5 + LOINC 2708-6              | `%`         | yes        |
+| `body_temperature`                  | `celsius`     | `celsius`, `°C`          | LOINC 8310-5                              | `Cel`       | yes        |
+| `height`                            | `cm`          | `cm`                     | LOINC 8302-2                              | `cm`        | yes        |
+| `weight`                            | `kg`          | `kg`                     | LOINC 29463-7                             | `kg`        | yes        |
+| `body_fat_percentage`               | `percent`     | `percent`, `%`           | LOINC 41982-0                             | `%`         | —          |
+| `vo2_max`                           | `ml_kg_min`   | `ml_kg_min`, `mL/kg/min` | LOINC 94122-9                             | `mL/kg/min` | —          |
+| `exercise_time`                     | `minutes`     | `minutes`, `min`         | LOINC 55411-3                             | `min`       | —          |
+| `steps`                             | `count`       | `count`                  | LOINC 55423-8                             | `{steps}`   | —          |
+| `steps` (daily total)               | `count`       | `count`                  | LOINC 41950-7                             | `{steps}/d` | —          |
+| `energy`                            | `kcal`        | `kcal`                   | LOINC 41981-2                             | `kcal`      | —          |
+| `energy` (daily total)              | `kcal`        | `kcal`                   | local `energy-burned-24h`                 | `kcal`      | —          |
+| `heart_rate_variability_sdnn`       | `ms`          | `ms`                     | local `hrv-sdnn`                          | `ms`        | —          |
+| `heart_rate_variability_rmssd`      | `ms`          | `ms`                     | local `hrv-rmssd`                         | `ms`        | —          |
+| `heart_rate_recovery_one_minute`    | `bpm`         | `bpm`                    | local `heart-rate-recovery-1min`          | `/min`      | —          |
+| `walking_heart_rate_average`        | `bpm`         | `bpm`                    | local `walking-heart-rate-average`        | `/min`      | —          |
+| `skin_temperature`                  | `celsius`     | `celsius`, `°C`          | local `skin-temperature`                  | `Cel`       | —          |
+| `skin_temperature_deviation`        | `celsius`     | `celsius`, `°C`          | local `skin-temperature-deviation`        | `K`         | —          |
+| `skin_temperature_trend_deviation`  | `celsius`     | `celsius`, `°C`          | local `skin-temperature-trend-deviation`  | `K`         | —          |
+| `lean_body_mass`                    | `kg`          | `kg`                     | local `lean-body-mass`                    | `kg`        | —          |
+| `body_fat_mass`                     | `kg`          | `kg`                     | local `body-fat-mass`                     | `kg`        | —          |
+| `skeletal_muscle_mass`              | `kg`          | `kg`                     | local `skeletal-muscle-mass`              | `kg`        | —          |
+| `waist_circumference`               | `cm`          | `cm`                     | local `waist-circumference`               | `cm`        | —          |
+| `cardiovascular_age`                | `years`       | `years`                  | local `cardiovascular-age`                | `a`         | —          |
+| `garmin_fitness_age`                | `years`       | `years`                  | local `garmin-fitness-age`                | `a`         | —          |
+| `basal_energy`                      | `kcal`        | `kcal`                   | local `basal-energy`                      | `kcal`      | —          |
+| `active_time`                       | `minutes`     | `minutes`, `min`         | local `active-time`                       | `min`       | —          |
+| `stand_time`                        | `minutes`     | `minutes`, `min`         | local `stand-time`                        | `min`       | —          |
+| `flights_climbed`                   | `count`       | `count`                  | local `flights-climbed`                   | `{count}`   | —          |
+| `distance_walking_running`          | `meters`      | `meters`, `m`            | local `distance-walking-running`          | `m`         | —          |
+| `distance_cycling`                  | `meters`      | `meters`, `m`            | local `distance-cycling`                  | `m`         | —          |
+| `distance_swimming`                 | `meters`      | `meters`, `m`            | local `distance-swimming`                 | `m`         | —          |
+| `distance_downhill_snow_sports`     | `meters`      | `meters`, `m`            | local `distance-downhill-snow-sports`     | `m`         | —          |
+| `distance_other`                    | `meters`      | `meters`, `m`            | local `distance-other`                    | `m`         | —          |
+| `six_minute_walk_test_distance`     | `meters`      | `meters`, `m`            | local `six-minute-walk-test-distance`     | `m`         | —          |
+| `underwater_depth`                  | `meters`      | `meters`, `m`            | local `underwater-depth`                  | `m`         | —          |
+| `speed`                             | `m_per_s`     | `m_per_s`, `m/s`         | local `speed`                             | `m/s`       | —          |
+| `walking_speed`                     | `m_per_s`     | `m_per_s`, `m/s`         | local `walking-speed`                     | `m/s`       | —          |
+| `running_speed`                     | `m_per_s`     | `m_per_s`, `m/s`         | local `running-speed`                     | `m/s`       | —          |
+| `running_ground_contact_time`       | `ms`          | `ms`                     | local `running-ground-contact-time`       | `ms`        | —          |
+| `running_vertical_oscillation`      | `cm`          | `cm`                     | local `running-vertical-oscillation`      | `cm`        | —          |
+| `swimming_stroke_count`             | `count`       | `count`                  | local `swimming-stroke-count`             | `{count}`   | —          |
+| `push_count`                        | `count`       | `count`                  | local `push-count`                        | `{count}`   | —          |
+| `time_in_daylight`                  | `minutes`     | `minutes`, `min`         | local `time-in-daylight`                  | `min`       | —          |
+| `walking_double_support_percentage` | `percent`     | `percent`, `%`           | local `walking-double-support-percentage` | `%`         | —          |
+| `walking_asymmetry_percentage`      | `percent`     | `percent`, `%`           | local `walking-asymmetry-percentage`      | `%`         | —          |
+| `walking_steadiness`                | `percent`     | `percent`, `%`           | local `walking-steadiness`                | `%`         | —          |
+| `average_met`                       | `met`         | `met`, `MET`             | local `average-met`                       | `{MET}`     | —          |
+| `garmin_stress_level`               | `score`       | `score`                  | local `garmin-stress-level`               | `{score}`   | —          |
+| `workout_effort_score`              | `score`       | `score`                  | local `workout-effort-score`              | `{score}`   | —          |
+| `estimated_workout_effort_score`    | `score`       | `score`                  | local `estimated-workout-effort-score`    | `{score}`   | —          |
+| `number_of_times_fallen`            | `count`       | `count`                  | local `number-of-times-fallen`            | `{count}`   | —          |
 
 ### 4.0 The repository's terminology gate cannot see most of this table
 
@@ -244,7 +244,7 @@ shared change.
 - `time_in_daylight` — the unit is corroborated (`minutes` in A, `min` in B), but
   source C notes the type is defined and not currently produced by any provider, so
   this mapping has never had a value to carry.
-- `energy` as a **daily total** — the unit is confirmed, but the *concept* is not.
+- `energy` as a **daily total** — the unit is confirmed, but the _concept_ is not.
   LOINC 41979-6 "Calories burned in 24 hour" is the right code and is absent from
   the shared `LOINC_UNITS` table; choosing its unit here would be the per-connector
   unit drift D4 exists to prevent. A vendor-local `energy-burned-24h` is emitted
@@ -281,49 +281,49 @@ Refusals are in the code, not only in this document: `UNRESOLVED_SERIES` in
 members of the platform's `SeriesType` enum is either mapped or listed here, so
 "declined" can never be confused with "overlooked".
 
-| Series type | Reason | Detail |
-|---|---|---|
-| `blood_alcohol_content` | unit-conflict | Declared mg_dl in series_types.py; example payload sends g/dL. A factor of 1000 apart. |
-| `walking_step_length` | unit-conflict | Declared cm; example payload sends 0.72 m. 0.72 cm is not a step length. |
-| `running_stride_length` | unit-conflict | Declared cm; example payload sends 1.24 m. 1.24 cm is not a stride. |
-| `physical_effort` | unit-conflict | Declared score; example payload sends MET·min. A score and an energy-time product are not the same axis. |
-| `stair_ascent_speed` | unit-conflict | Declared m_per_s; example payload sends floors/min. |
-| `stair_descent_speed` | unit-conflict | Declared m_per_s; example payload sends floors/min. |
-| `peripheral_perfusion_index` | unit-conflict | Declared score; example payload sends %. |
-| `garmin_body_battery` | unit-conflict | Declared percent; example payload sends score. Both are 0-100, which is what makes the confusion durable. |
-| `atrial_fibrillation_burden` | unit-conflict | Declared count; example payload sends %. |
-| `electrodermal_activity` | unit-conflict | Declared count; example payload sends S (siemens). |
-| `insulin_delivery` | unit-conflict | Declared count; example payload sends IU. Refusing an insulin dose is the only safe reading of that. |
-| `uv_exposure` | unit-conflict | Declared count; example payload sends J/m². |
-| `nike_fuel` | unit-conflict | Declared count; example payload sends NikeFuel, a proprietary index with no UCUM expression. |
-| `sleeping_breathing_disturbances` | unit-conflict | Declared count; example payload sends count/h. A count and a rate are different quantities. |
-| `breathing_disturbance_index` | unit-conflict | Declared score; example payload sends count/h. |
-| `garmin_skin_temperature` | unit-conflict | The enum comment calls it a deviation from baseline; the example payload is an absolute 35.8 °C. Deviation and absolute need different UCUM codes (K vs Cel). |
-| `blood_pressure_systolic` | no-ucum-code | Both sources agree on mmHg. @open-twin/fhir-core has no mm[Hg] entry and this package may not add one. |
-| `blood_pressure_diastolic` | no-ucum-code | Both sources agree on mmHg. @open-twin/fhir-core has no mm[Hg] entry and this package may not add one. |
-| `blood_glucose` | no-ucum-code | Both sources agree on mg/dL. No mg/dL entry in @open-twin/fhir-core, and DECISIONS.md records that the LOINC code for mass vs substance concentration is itself unresolved. |
-| `body_mass_index` | no-ucum-code | Both sources agree on kg/m². No kg/m2 entry in @open-twin/fhir-core. |
-| `power` | no-ucum-code | watts. No W entry in @open-twin/fhir-core. |
-| `running_power` | no-ucum-code | watts. No W entry in @open-twin/fhir-core. |
-| `cadence` | no-ucum-code | rpm. No entry in @open-twin/fhir-core, and "revolutions per minute" for a running cadence is really steps per minute — the denominator is agreed, the numerator is not. |
-| `forced_vital_capacity` | no-ucum-code | liters. No L entry in @open-twin/fhir-core. |
-| `forced_expiratory_volume_1` | no-ucum-code | liters. No L entry in @open-twin/fhir-core. |
-| `peak_expiratory_flow_rate` | no-ucum-code | L/min. No entry in @open-twin/fhir-core. |
-| `hydration` | no-ucum-code | mL. No mL entry in @open-twin/fhir-core. |
-| `environmental_audio_exposure` | no-ucum-code | Declared dB; example payload sends dBASPL. No dB entry in @open-twin/fhir-core either. |
-| `headphone_audio_exposure` | no-ucum-code | Declared dB; example payload sends dBASPL. No dB entry in @open-twin/fhir-core either. |
-| `environmental_sound_reduction` | no-ucum-code | dB. No dB entry in @open-twin/fhir-core. |
-| `weather_temperature` | not-a-patient-observation | Ambient weather, not a property of the subject. It belongs on the encounter context, not on an Observation about the patient. |
-| `weather_humidity` | not-a-patient-observation | Ambient weather, not a property of the subject. |
-| `air_temperature` | not-a-patient-observation | Ambient air, not a property of the subject. |
-| `water_temperature` | not-a-patient-observation | Ambient water, not a property of the subject. |
-| `latitude` | not-a-patient-observation | Position. Publishing it as a patient Observation would put a location trace in a clinical record. |
-| `longitude` | not-a-patient-observation | Position. Publishing it as a patient Observation would put a location trace in a clinical record. |
-| `elevation` | not-a-patient-observation | Position. Part of a location trace. |
-| `running_vertical_ratio` | single-source | Declared percent in series_types.py and mentioned nowhere else — no example payload, no docs table entry. One source is not a contract. |
-| `running_stance_time_balance` | single-source | Declared percent in series_types.py and mentioned nowhere else. A left/right balance percentage also needs a side, which the sample carries nowhere. |
-| `inhaler_usage` | wrong-fhir-element | Both sources agree on count, but a count of inhaler doses is a medication administration, not an observation about the body. MedicationAdministration is the right resource and this connector does not build one. |
-| `number_of_alcoholic_beverages` | wrong-fhir-element | Both sources agree on count. The correct FHIR category is social-history, which the shared CATEGORY table in @open-twin/fhir-core does not offer; filing substance use under survey or activity misfiles it more damagingly than omitting it. |
+| Series type                       | Reason                    | Detail                                                                                                                                                                                                                                        |
+| --------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `blood_alcohol_content`           | unit-conflict             | Declared mg_dl in series_types.py; example payload sends g/dL. A factor of 1000 apart.                                                                                                                                                        |
+| `walking_step_length`             | unit-conflict             | Declared cm; example payload sends 0.72 m. 0.72 cm is not a step length.                                                                                                                                                                      |
+| `running_stride_length`           | unit-conflict             | Declared cm; example payload sends 1.24 m. 1.24 cm is not a stride.                                                                                                                                                                           |
+| `physical_effort`                 | unit-conflict             | Declared score; example payload sends MET·min. A score and an energy-time product are not the same axis.                                                                                                                                      |
+| `stair_ascent_speed`              | unit-conflict             | Declared m_per_s; example payload sends floors/min.                                                                                                                                                                                           |
+| `stair_descent_speed`             | unit-conflict             | Declared m_per_s; example payload sends floors/min.                                                                                                                                                                                           |
+| `peripheral_perfusion_index`      | unit-conflict             | Declared score; example payload sends %.                                                                                                                                                                                                      |
+| `garmin_body_battery`             | unit-conflict             | Declared percent; example payload sends score. Both are 0-100, which is what makes the confusion durable.                                                                                                                                     |
+| `atrial_fibrillation_burden`      | unit-conflict             | Declared count; example payload sends %.                                                                                                                                                                                                      |
+| `electrodermal_activity`          | unit-conflict             | Declared count; example payload sends S (siemens).                                                                                                                                                                                            |
+| `insulin_delivery`                | unit-conflict             | Declared count; example payload sends IU. Refusing an insulin dose is the only safe reading of that.                                                                                                                                          |
+| `uv_exposure`                     | unit-conflict             | Declared count; example payload sends J/m².                                                                                                                                                                                                   |
+| `nike_fuel`                       | unit-conflict             | Declared count; example payload sends NikeFuel, a proprietary index with no UCUM expression.                                                                                                                                                  |
+| `sleeping_breathing_disturbances` | unit-conflict             | Declared count; example payload sends count/h. A count and a rate are different quantities.                                                                                                                                                   |
+| `breathing_disturbance_index`     | unit-conflict             | Declared score; example payload sends count/h.                                                                                                                                                                                                |
+| `garmin_skin_temperature`         | unit-conflict             | The enum comment calls it a deviation from baseline; the example payload is an absolute 35.8 °C. Deviation and absolute need different UCUM codes (K vs Cel).                                                                                 |
+| `blood_pressure_systolic`         | no-ucum-code              | Both sources agree on mmHg. @open-twin/fhir-core has no mm[Hg] entry and this package may not add one.                                                                                                                                        |
+| `blood_pressure_diastolic`        | no-ucum-code              | Both sources agree on mmHg. @open-twin/fhir-core has no mm[Hg] entry and this package may not add one.                                                                                                                                        |
+| `blood_glucose`                   | no-ucum-code              | Both sources agree on mg/dL. No mg/dL entry in @open-twin/fhir-core, and DECISIONS.md records that the LOINC code for mass vs substance concentration is itself unresolved.                                                                   |
+| `body_mass_index`                 | no-ucum-code              | Both sources agree on kg/m². No kg/m2 entry in @open-twin/fhir-core.                                                                                                                                                                          |
+| `power`                           | no-ucum-code              | watts. No W entry in @open-twin/fhir-core.                                                                                                                                                                                                    |
+| `running_power`                   | no-ucum-code              | watts. No W entry in @open-twin/fhir-core.                                                                                                                                                                                                    |
+| `cadence`                         | no-ucum-code              | rpm. No entry in @open-twin/fhir-core, and "revolutions per minute" for a running cadence is really steps per minute — the denominator is agreed, the numerator is not.                                                                       |
+| `forced_vital_capacity`           | no-ucum-code              | liters. No L entry in @open-twin/fhir-core.                                                                                                                                                                                                   |
+| `forced_expiratory_volume_1`      | no-ucum-code              | liters. No L entry in @open-twin/fhir-core.                                                                                                                                                                                                   |
+| `peak_expiratory_flow_rate`       | no-ucum-code              | L/min. No entry in @open-twin/fhir-core.                                                                                                                                                                                                      |
+| `hydration`                       | no-ucum-code              | mL. No mL entry in @open-twin/fhir-core.                                                                                                                                                                                                      |
+| `environmental_audio_exposure`    | no-ucum-code              | Declared dB; example payload sends dBASPL. No dB entry in @open-twin/fhir-core either.                                                                                                                                                        |
+| `headphone_audio_exposure`        | no-ucum-code              | Declared dB; example payload sends dBASPL. No dB entry in @open-twin/fhir-core either.                                                                                                                                                        |
+| `environmental_sound_reduction`   | no-ucum-code              | dB. No dB entry in @open-twin/fhir-core.                                                                                                                                                                                                      |
+| `weather_temperature`             | not-a-patient-observation | Ambient weather, not a property of the subject. It belongs on the encounter context, not on an Observation about the patient.                                                                                                                 |
+| `weather_humidity`                | not-a-patient-observation | Ambient weather, not a property of the subject.                                                                                                                                                                                               |
+| `air_temperature`                 | not-a-patient-observation | Ambient air, not a property of the subject.                                                                                                                                                                                                   |
+| `water_temperature`               | not-a-patient-observation | Ambient water, not a property of the subject.                                                                                                                                                                                                 |
+| `latitude`                        | not-a-patient-observation | Position. Publishing it as a patient Observation would put a location trace in a clinical record.                                                                                                                                             |
+| `longitude`                       | not-a-patient-observation | Position. Publishing it as a patient Observation would put a location trace in a clinical record.                                                                                                                                             |
+| `elevation`                       | not-a-patient-observation | Position. Part of a location trace.                                                                                                                                                                                                           |
+| `running_vertical_ratio`          | single-source             | Declared percent in series_types.py and mentioned nowhere else — no example payload, no docs table entry. One source is not a contract.                                                                                                       |
+| `running_stance_time_balance`     | single-source             | Declared percent in series_types.py and mentioned nowhere else. A left/right balance percentage also needs a side, which the sample carries nowhere.                                                                                          |
+| `inhaler_usage`                   | wrong-fhir-element        | Both sources agree on count, but a count of inhaler doses is a medication administration, not an observation about the body. MedicationAdministration is the right resource and this connector does not build one.                            |
+| `number_of_alcoholic_beverages`   | wrong-fhir-element        | Both sources agree on count. The correct FHIR category is social-history, which the shared CATEGORY table in @open-twin/fhir-core does not offer; filing substance use under survey or activity misfiles it more damagingly than omitting it. |
 
 `no-ucum-code` is the cheapest category to clear: each needs one entry in the `UCUM`
 table in `@open-twin/fhir-core`, which this connector may not edit. They are listed
@@ -338,21 +338,21 @@ Source:
 stage summary at
 [summaries.py#L43-L47](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/schemas/responses/activity/summaries.py#L43-L47).
 
-| Field | Declared unit | Status | Mapped to | UCUM |
-|---|---|---|---|---|
-| `id` | — | — | `Observation.id` seed and `Identifier.value` | — |
-| `start_time` / `end_time` | — | — | `Observation.effectivePeriod` | — |
-| `zone_offset` | — | — | the offset of both period ends | — |
-| `duration_seconds` | seconds | **confirmed by the field name and by the `int` column type**; not otherwise corroborated | component `sleep-session-duration` | `min` after ÷60 |
-| `sleep_duration_seconds` | seconds | same | `Observation.valueQuantity`, LOINC 93832-4 | `min` after ÷60 |
-| `efficiency_percent` | percent | confirmed: the field is `Field(None, ge=0, le=100)` on the sibling `SleepSummary` | component `sleep-efficiency` | `%` |
-| `stages.deep_minutes` | minutes | confirmed by field name; example payload sends 90 for a 510-minute night, which is consistent with minutes and not with seconds | component, LOINC 93831-6 | `min` |
-| `stages.light_minutes` | minutes | same | component, LOINC 93830-8 | `min` |
-| `stages.rem_minutes` | minutes | same | component, LOINC 93829-0 | `min` |
-| `stages.awake_minutes` | minutes | same | component `sleep-awake-duration` | `min` |
-| `is_nap` | — | — | component `sleep-session-kind` = `nap` \| `main-sleep` | — |
-| `source` | — | — | `Device` | — |
-| `sleep_stage_intervals` | — | — | **parsed, not mapped** | — |
+| Field                     | Declared unit | Status                                                                                                                          | Mapped to                                              | UCUM            |
+| ------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------- |
+| `id`                      | —             | —                                                                                                                               | `Observation.id` seed and `Identifier.value`           | —               |
+| `start_time` / `end_time` | —             | —                                                                                                                               | `Observation.effectivePeriod`                          | —               |
+| `zone_offset`             | —             | —                                                                                                                               | the offset of both period ends                         | —               |
+| `duration_seconds`        | seconds       | **confirmed by the field name and by the `int` column type**; not otherwise corroborated                                        | component `sleep-session-duration`                     | `min` after ÷60 |
+| `sleep_duration_seconds`  | seconds       | same                                                                                                                            | `Observation.valueQuantity`, LOINC 93832-4             | `min` after ÷60 |
+| `efficiency_percent`      | percent       | confirmed: the field is `Field(None, ge=0, le=100)` on the sibling `SleepSummary`                                               | component `sleep-efficiency`                           | `%`             |
+| `stages.deep_minutes`     | minutes       | confirmed by field name; example payload sends 90 for a 510-minute night, which is consistent with minutes and not with seconds | component, LOINC 93831-6                               | `min`           |
+| `stages.light_minutes`    | minutes       | same                                                                                                                            | component, LOINC 93830-8                               | `min`           |
+| `stages.rem_minutes`      | minutes       | same                                                                                                                            | component, LOINC 93829-0                               | `min`           |
+| `stages.awake_minutes`    | minutes       | same                                                                                                                            | component `sleep-awake-duration`                       | `min`           |
+| `is_nap`                  | —             | —                                                                                                                               | component `sleep-session-kind` = `nap` \| `main-sleep` | —               |
+| `source`                  | —             | —                                                                                                                               | `Device`                                               | —               |
+| `sleep_stage_intervals`   | —             | —                                                                                                                               | **parsed, not mapped**                                 | —               |
 
 Two decisions worth arguing with:
 
@@ -379,20 +379,20 @@ bed for time asleep, or zero, are both worse than saying nothing.
 Source:
 [events.py#L14-L28](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/schemas/responses/activity/events.py#L14-L28).
 
-| Field | Declared unit | Status | Mapped to | UCUM |
-|---|---|---|---|---|
-| `id` | — | — | `Observation.id` seed and `Identifier.value` | — |
-| `type` | — | — | component `workout-type`, as a code | — |
-| `name` | — | — | component `workout-label`, `valueString` | — |
-| `start_time` / `end_time` / `zone_offset` | — | — | `Observation.effectivePeriod` | — |
-| `duration_seconds` | seconds | confirmed by field name and by the example payload (3600 for an 08:00-09:00 run) | `Observation.valueQuantity`, LOINC 55411-3 | `min` after ÷60 |
-| `calories_kcal` | kcal | confirmed by field name and example | component, LOINC 41981-2 | `kcal` |
-| `distance_meters` | metres | confirmed by field name and example (8500 for a 60-minute run) | component `workout-distance` | `m` |
-| `elevation_gain_meters` | metres | confirmed by field name and example | component `workout-elevation-gain` | `m` |
-| `avg_heart_rate_bpm` | bpm | confirmed by field name and example | component `workout-heart-rate-average` | `/min` |
-| `max_heart_rate_bpm` | bpm | same | component `workout-heart-rate-maximum` | `/min` |
-| `avg_pace_sec_per_km` | s/km | confirmed by field name and example (424 s/km against 8500 m in 3600 s = 424 s/km, which checks out arithmetically) | **not mapped** | — |
-| `source` | — | — | `Device` | — |
+| Field                                     | Declared unit | Status                                                                                                              | Mapped to                                    | UCUM            |
+| ----------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------- |
+| `id`                                      | —             | —                                                                                                                   | `Observation.id` seed and `Identifier.value` | —               |
+| `type`                                    | —             | —                                                                                                                   | component `workout-type`, as a code          | —               |
+| `name`                                    | —             | —                                                                                                                   | component `workout-label`, `valueString`     | —               |
+| `start_time` / `end_time` / `zone_offset` | —             | —                                                                                                                   | `Observation.effectivePeriod`                | —               |
+| `duration_seconds`                        | seconds       | confirmed by field name and by the example payload (3600 for an 08:00-09:00 run)                                    | `Observation.valueQuantity`, LOINC 55411-3   | `min` after ÷60 |
+| `calories_kcal`                           | kcal          | confirmed by field name and example                                                                                 | component, LOINC 41981-2                     | `kcal`          |
+| `distance_meters`                         | metres        | confirmed by field name and example (8500 for a 60-minute run)                                                      | component `workout-distance`                 | `m`             |
+| `elevation_gain_meters`                   | metres        | confirmed by field name and example                                                                                 | component `workout-elevation-gain`           | `m`             |
+| `avg_heart_rate_bpm`                      | bpm           | confirmed by field name and example                                                                                 | component `workout-heart-rate-average`       | `/min`          |
+| `max_heart_rate_bpm`                      | bpm           | same                                                                                                                | component `workout-heart-rate-maximum`       | `/min`          |
+| `avg_pace_sec_per_km`                     | s/km          | confirmed by field name and example (424 s/km against 8500 m in 3600 s = 424 s/km, which checks out arithmetically) | **not mapped**                               | —               |
+| `source`                                  | —             | —                                                                                                                   | `Device`                                     | —               |
 
 `type` is a free string in the response model — the platform's own comment on the
 field reads `# Should be WorkoutType enum ideally` — so it is carried as a code

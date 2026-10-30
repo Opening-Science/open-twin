@@ -1,4 +1,5 @@
 ---
+
 vocabulary: LOINC
 code: "718-7"
 binds_to: "Hämoglobin"

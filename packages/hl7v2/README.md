@@ -20,26 +20,26 @@ reports rather than throws (DECISIONS.md D6).
 
 **Message types**
 
-| Message | Trigger events | Structure |
-| --- | --- | --- |
-| `ORU^R01` | R01 | `ORU_R01` |
+| Message                         | Trigger events                            | Structure |
+| ------------------------------- | ----------------------------------------- | --------- |
+| `ORU^R01`                       | R01                                       | `ORU_R01` |
 | `ADT^A01`, `ADT^A04`, `ADT^A08` | A01 (admit), A04 (register), A08 (update) | `ADT_A01` |
 
 Anything else — ORM, OML, MDM, SIU, VXU, ADT triggers other than those three — is
 **refused** and reported as a `not-supported` issue with an empty bundle. The segment
 groupings differ between message structures, and reading an ORM as an ORU attaches an
-*order* to a patient as though it were a *result*.
+_order_ to a patient as though it were a _result_.
 
 **Segments**
 
-| Segment | Target | Fields mapped |
-| --- | --- | --- |
-| MSH | `Bundle` | MSH-1/-2 (delimiters), MSH-7 (`Bundle.timestamp`), MSH-9 (dispatch), MSH-10 (`Bundle.id` seed) |
-| PID | `Patient` | PID-3, PID-5, PID-7, PID-8, PID-29, PID-30 |
-| PV1 | `Encounter` | PV1-2, PV1-19, PV1-44, PV1-45 |
-| OBR | `DiagnosticReport` | OBR-2, OBR-3, OBR-4, OBR-7, OBR-8, OBR-22, OBR-25 |
-| OBX | `Observation` | OBX-1..OBX-3, OBX-5..OBX-8, OBX-11, OBX-14, OBX-17, OBX-20, OBX-21 |
-| NTE | `Observation.note` | NTE-3, NTE-6 — when the NTE follows an OBX |
+| Segment | Target             | Fields mapped                                                                                  |
+| ------- | ------------------ | ---------------------------------------------------------------------------------------------- |
+| MSH     | `Bundle`           | MSH-1/-2 (delimiters), MSH-7 (`Bundle.timestamp`), MSH-9 (dispatch), MSH-10 (`Bundle.id` seed) |
+| PID     | `Patient`          | PID-3, PID-5, PID-7, PID-8, PID-29, PID-30                                                     |
+| PV1     | `Encounter`        | PV1-2, PV1-19, PV1-44, PV1-45                                                                  |
+| OBR     | `DiagnosticReport` | OBR-2, OBR-3, OBR-4, OBR-7, OBR-8, OBR-22, OBR-25                                              |
+| OBX     | `Observation`      | OBX-1..OBX-3, OBX-5..OBX-8, OBX-11, OBX-14, OBX-17, OBX-20, OBX-21                             |
+| NTE     | `Observation.note` | NTE-3, NTE-6 — when the NTE follows an OBX                                                     |
 
 Every other segment in a supported message (EVN, PD1, NK1, PV2, ORC, AL1, IN1, IN3,
 PRT, SPM, TQ1, …) is **ignored silently**. They are present in the fixtures and the
@@ -79,12 +79,12 @@ Terminology v2 table `v2-nnnn`. Everything else — `L`, `99zzz` ("local general
 an unrecognised name, or no coding system at all — is a **local** code and is published
 under `http://opentwin.ch/fhir/CodeSystem/hl7v2-local`.
 
-`SNM` and `SNM3` are deliberately *not* mapped to SNOMED CT: table 0396 defines them as
+`SNM` and `SNM3` are deliberately _not_ mapped to SNOMED CT: table 0396 defines them as
 SNOMED 2nd edition and SNOMED International 1993, which are different code systems with
 different identifiers.
 
 CWE's alternate triplets (CWE.4–6, CWE.10–12) become additional `Coding` entries, so a
-message that carries a local code *and* its LOINC equivalent keeps both, each under the
+message that carries a local code _and_ its LOINC equivalent keeps both, each under the
 right system.
 
 Local codes from two different senders are different codes that may collide on the same
@@ -92,13 +92,13 @@ identifier. Pass `localCodeSystem` per sender if you exchange with more than one
 
 ### OBX-2 drives the value type
 
-| OBX-2 | Result |
-| --- | --- |
-| `NM` | `valueQuantity` |
-| `ST`, `TX`, `FT` | `valueString` |
-| `CE`, `CWE`, `CF`, `CNE`, `IS` | `valueCodeableConcept` |
-| `DT`, `DTM`, `TS` | `valueDateTime` |
-| anything else | `dataAbsentReason` **and a reported issue** |
+| OBX-2                          | Result                                      |
+| ------------------------------ | ------------------------------------------- |
+| `NM`                           | `valueQuantity`                             |
+| `ST`, `TX`, `FT`               | `valueString`                               |
+| `CE`, `CWE`, `CF`, `CNE`, `IS` | `valueCodeableConcept`                      |
+| `DT`, `DTM`, `TS`              | `valueDateTime`                             |
+| anything else                  | `dataAbsentReason` **and a reported issue** |
 
 `SN`, `NA`, `NR`, `DR`, `TM`, `ED`, `RP`, `EI` and `VR` are not implemented. They are
 reported, never approximated: rendering `SN` `<0.10` as the number `0.10` states a
@@ -122,14 +122,14 @@ When OBX-3 carries a LOINC code that `@open-twin/fhir-core` binds to a canonical
 (D4), the value is **converted** into that unit — `1.9 m` under LOINC 8302-2 becomes
 `190 cm`. A unit that is valid UCUM but not commensurable with the canonical one (a
 height in kilograms) is rejected as a self-contradictory message rather than converted
-away. The conversion is keyed on the *LOINC coding*, so the same digits arriving under a
+away. The conversion is keyed on the _LOINC coding_, so the same digits arriving under a
 local coding system are left alone.
 
 ### Timestamps keep the offset the sender gave, and never gain one they did not
 
-FHIR R4 says of `dateTime`: *"If hours and minutes are specified, a time zone SHALL be
-populated"* and *"Seconds must be provided due to schema type constraints but may be
-zero-filled"*.
+FHIR R4 says of `dateTime`: _"If hours and minutes are specified, a time zone SHALL be
+populated"_ and _"Seconds must be provided due to schema type constraints but may be
+zero-filled"_.
 
 - Offset present → preserved: `20150602100012.43+0100` → `2015-06-02T10:00:12.43+01:00`.
 - Minutes but no seconds, with an offset → seconds zero-filled, which the specification
@@ -137,12 +137,12 @@ zero-filled"*.
 - **No offset → narrowed to the date.** `20150601135800` becomes `2015-06-01`, not
   `2015-06-01T13:58:00Z`. Appending `Z` asserts UTC for a local wall clock and moves the
   instant by up to fourteen hours, across a date boundary (DECISIONS.md D7).
-- Hour precision only → narrowed to the date. Zero-filling *minutes* is not sanctioned
+- Hour precision only → narrowed to the date. Zero-filling _minutes_ is not sanctioned
   and would be up to 59 minutes wrong.
 - `Bundle.timestamp` and `DiagnosticReport.issued` are `instant`, which needs both
   seconds and an offset. Without one they are omitted (`issued`) or fall back to the
-  integrator's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: *"MSH-7 does
-  not require a time offset while Bundle.timestamp does."*
+  integrator's `timestamp` (`Bundle.timestamp`). The IG raises exactly this: _"MSH-7 does
+  not require a time offset while Bundle.timestamp does."_
 
 ### PID-8 is mapped, not passed through
 
@@ -191,7 +191,7 @@ sent is not when the height was measured.
 - **No performer, no device.** OBX-15, OBX-16, OBX-18 and OBX-23..25 are not mapped.
 - **Order-level NTE is not converted.** The IG's ORU_R01 message map gives the NTE that
   follows an OBR no target, and R4's `DiagnosticReport` has no `note` element. It is
-  reported as an issue rather than dropped silently. NTE segments following an OBX *are*
+  reported as an issue rather than dropped silently. NTE segments following an OBX _are_
   converted, to `Observation.note`.
 - **No `Observation.category` except for vital signs.** The IG says category depends on
   MSH-9.2, MSH-3 and the code system ontology, and declines to specify it. So does this.
@@ -237,7 +237,7 @@ sent is not when the height was measured.
    example places `201506011605` in OBX-20 (Observation Site) in two of its three OBX
    segments, where the first segment puts the same value in OBX-19 (Date/Time of the
    Analysis). The connector maps what the message says, so those two Observations get a
-   `bodySite` whose code is a timestamp. It is emitted under the *local* code system, so
+   `bodySite` whose code is a timestamp. It is emitted under the _local_ code system, so
    nothing false is claimed about a standard terminology, and the fixture was not
    quietly corrected. Second-guessing field positions is how a mapper starts inventing.
 

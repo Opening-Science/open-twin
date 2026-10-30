@@ -50,13 +50,13 @@ the product. Everything in this repo exists to make those files correct.
 `pnpm verify` runs every registered gate and reports blocking and advisory results
 separately. A passing exit status can include advisory failures.
 
-| Gate | Role | Typical |
-|---|---|---|
-| `verify/check-terminology.mjs` (allowlist) | Merge-blocking | PASS when no rejected/unknown FHIR codes |
-| `verify/check-units.mjs` | Merge-blocking | PASS |
-| Module headers / docs integrity | Merge-blocking | PASS when headers/docs intact |
-| Review-record gate (G2) | **Advisory** | Review debt remains — see `docs/findings/verify-baseline.md` |
-| Canary suite | Blocks on `ACCEPTED`; documented findings do not block | PASS can include four known semantic gaps |
+| Gate                                       | Role                                                   | Typical                                                      |
+| ------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------ |
+| `verify/check-terminology.mjs` (allowlist) | Merge-blocking                                         | PASS when no rejected/unknown FHIR codes                     |
+| `verify/check-units.mjs`                   | Merge-blocking                                         | PASS                                                         |
+| Module headers / docs integrity            | Merge-blocking                                         | PASS when headers/docs intact                                |
+| Review-record gate (G2)                    | **Advisory**                                           | Review debt remains — see `docs/findings/verify-baseline.md` |
+| Canary suite                               | Blocks on `ACCEPTED`; documented findings do not block | PASS can include four known semantic gaps                    |
 
 Do not “fix” intentional red by bulk-approving allowlists or deleting canaries.
 See `docs/findings/verify-baseline.md` for G1 vs G2a (67 UNVERIFIED Anchor stubs)
@@ -65,13 +65,13 @@ agreement — it is not an implementation detail.
 
 ## Reading order
 
-| # | read | to learn |
-|---|---|---|
-| 1 | [README.md](README.md) | what the packages are and how they relate |
-| 2 | [CLAUDE.md](CLAUDE.md) | the ground rules — written for AI sessions, equally binding advice for humans |
-| 3 | [DECISIONS.md](DECISIONS.md) | the cross-cutting decisions, each with the defect that forced it |
-| 4 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | the measured state: test data per connector, defect history, what is not built |
-| 5 | the README of the package you will touch | its API and its verification story |
+| #   | read                                     | to learn                                                                       |
+| --- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| 1   | [README.md](README.md)                   | what the packages are and how they relate                                      |
+| 2   | [CLAUDE.md](CLAUDE.md)                   | the ground rules — written for AI sessions, equally binding advice for humans  |
+| 3   | [DECISIONS.md](DECISIONS.md)             | the cross-cutting decisions, each with the defect that forced it               |
+| 4   | [BUILD-SUMMARY.md](BUILD-SUMMARY.md)     | the measured state: test data per connector, defect history, what is not built |
+| 5   | the README of the package you will touch | its API and its verification story                                             |
 
 ## The traps (each has already caught someone)
 
@@ -85,12 +85,12 @@ agreement — it is not an implementation detail.
   yourself. Re-verify against a second source; this repo has already recorded one
   wrong such claim (end of DECISIONS.md).
 - **Assuming units.** VITRONIC sends radians; Oura sends seconds; Google Health
-  sends millimetres, grams, and int64 fields as JSON *strings*. Check the payload,
+  sends millimetres, grams, and int64 fields as JSON _strings_. Check the payload,
   not the docs.
 - **Zero-filling missing data.** Missing is `dataAbsentReason`, never `0`.
   `numericComponent` in fhir-core does this for you and requires a unit.
 - **Describing `provider-google-health` as a Health Connect connector.** It calls
-  `health.googleapis.com/v4` — the next-generation *Fitbit* Web API. Health
+  `health.googleapis.com/v4` — the next-generation _Fitbit_ Web API. Health
   Connect is on-device Android, unreachable from Node.
 - **Payload in an error.** Use `ConnectorError`. No response bodies, ever.
 
