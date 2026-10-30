@@ -118,7 +118,9 @@ for US audiences, the [US supplement](docs/US-USE.md).
 | [CLAUDE.md](CLAUDE.md)               | Coding-agent instructions                                    |
 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | Dated architecture and review record                         |
 | [PROVENANCE.md](PROVENANCE.md)       | Repository history                                           |
-| [docs/synthea.md](docs/synthea.md)   | Synthetic FHIR cohort generation                             |
+| [opentwin-synthea][synthea]          | Synthetic FHIR cohort generation                             |
+
+[synthea]: https://github.com/Opening-Science/opentwin-synthea
 
 Development and pull requests for this repository are hosted at
 [Opening-Science/open-twin](https://github.com/Opening-Science/open-twin).
