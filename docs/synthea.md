@@ -41,12 +41,14 @@ Optional cohort filters, all off by default:
 | `SYNTHEA_MODULES_DIR` | `-d` | extra modules, e.g. Synthea Module Builder exports |
 | `SYNTHEA_OUT_DIR` | `exporter.baseDirectory` | output folder instead of `tools/synthea/out/` |
 
-The output folder is deleted and recreated on every run, so the script refuses
-a folder that holds anything it did not write. With a keep module or modules
-folder, the manifest records `keepModuleSha256` and `modulesDirSha256` (a hash
-over file contents and relative names) and the output folder gets copies
-(`keep-module.json`, `modules/`), so the folder alone is enough to rerun it. The
-manifest also records `city`, `age`, `gender` and `fhirContentSha256`, the
+The output folder is deleted and recreated on every run, so the script only
+accepts an empty folder or one it created earlier (it leaves a `.synthea-out`
+marker). A keep module or modules folder is copied into the output folder
+(`keep-module.json`, `modules/`) before Synthea starts and Synthea reads the
+copies, so `keepModuleSha256` and `modulesDirSha256` (a hash over file contents
+and relative names) describe exactly what the run used. Rerunning needs those
+copies plus this checkout: the script, `version.lock` and `synthea.properties`.
+The manifest also records `city`, `age`, `gender` and `fhirContentSha256`, the
 checksum below.
 
 ## Reproducibility

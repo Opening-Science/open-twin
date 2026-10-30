@@ -4,7 +4,7 @@
  * GOVERNED BY: docs/synthea.md
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readSyntheaPin } from './paths.ts';
 import { checkRecipe } from './recipe.ts';
@@ -16,11 +16,16 @@ const usage = 'Usage: pnpm cohort <recipe.json> [--out <empty folder>]';
 async function main(): Promise<number> {
   const args = process.argv.slice(2);
   const base = process.env.INIT_CWD ?? process.cwd();
-  const file = args.find((a) => !a.startsWith('--'));
   const outIndex = args.indexOf('--out');
-  const outDir = outIndex >= 0 ? args[outIndex + 1] : undefined;
+  const outArg = outIndex >= 0 ? args[outIndex + 1] : undefined;
+  const outDir = outArg ? resolve(base, outArg) : undefined;
+  const file = args.find((a, i) => !a.startsWith('--') && i !== outIndex + 1);
   if (!file || (outIndex >= 0 && !outDir)) {
     out(usage);
+    return 2;
+  }
+  if (outDir && existsSync(outDir) && readdirSync(outDir).length > 0) {
+    out(`error: ${outDir} is not empty`);
     return 2;
   }
   const checked = checkRecipe(JSON.parse(readFileSync(resolve(base, file), 'utf8')), readSyntheaPin());
@@ -30,7 +35,13 @@ async function main(): Promise<number> {
     return 1;
   }
   const runner = new Runner();
-  const started = runner.start(checked.recipe, outDir ? resolve(base, outDir) : undefined);
+  for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+    process.on(signal, () => {
+      runner.shutdown();
+      process.exit(130);
+    });
+  }
+  const started = runner.start(checked.recipe, outDir);
   out(`Run ${started.runId}: recipe ${checked.recipe.recipeSha256}`);
   const run = await runner.wait(started.runId, (line) => {
     if (isPersonLine(line) || parseRecordsLine(line) || line.startsWith('synthea:')) out(line);

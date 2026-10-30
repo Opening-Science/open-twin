@@ -7,10 +7,10 @@
  *         the client may only use erasable syntax: no enums, namespaces or parameter properties.
  */
 import { createHash } from 'node:crypto';
-import { createWriteStream, existsSync, readFileSync, renameSync, statSync, unlinkSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync, renameSync, statSync, unlinkSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { stripTypeScriptTypes } from 'node:module';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { type Catalog, loadCatalog } from './catalog.ts';
@@ -64,6 +64,7 @@ async function downloadJar(): Promise<void> {
   download = { state: 'downloading', received: 0, total: 0, error: null };
   const partial = `${JAR_PATH}.partial`;
   try {
+    mkdirSync(dirname(JAR_PATH), { recursive: true });
     const res = await fetch(pin.jarUrl);
     if (!(res.ok && res.body)) throw new Error(`download failed with HTTP ${res.status}`);
     download.total = Number(res.headers.get('content-length') ?? 0);
@@ -284,3 +285,9 @@ server.listen(PORT, HOST, () => {
       '  Every person generated here is synthetic. Press Ctrl+C to stop.\n'
   );
 });
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, () => {
+    runner.shutdown();
+    process.exit(0);
+  });
+}

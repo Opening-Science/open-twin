@@ -128,7 +128,8 @@ jobs:
 
   # The package list is derived from the workspace rather than hardcoded. A fixed
   # list silently stopped covering four packages the moment they were added — they
-  # were never type-checked or tested in CI, and nothing said so.
+  # were never type-checked or tested in CI, and nothing said so. A path filter did
+  # the same to tools/cohort-studio, so every workspace member but the root is in.
   packages:
     name: Enumerate workspace packages
     runs-on: ubuntu-latest
@@ -144,8 +145,9 @@ jobs:
         run: |
           list=$(pnpm -r --depth -1 list --json \
             | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{
-                const dirs=JSON.parse(d).map(p=>p.path).filter(p=>p.includes("/packages/"));
-                console.log(JSON.stringify(dirs.map(p=>p.split("/packages/")[1])));
+                const root=process.cwd()+"/";
+                const dirs=JSON.parse(d).map(p=>p.path).filter(p=>p.startsWith(root));
+                console.log(JSON.stringify(dirs.map(p=>p.slice(root.length))));
               })')
           echo "list=$list" >> "$GITHUB_OUTPUT"
           echo "Matrix: $list"
@@ -175,11 +177,11 @@ jobs:
       - run: pnpm -r build
 
       - name: Type check ${{ matrix.package }}
-        working-directory: packages/${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
         run: npx tsc --noEmit
 
       - name: Test ${{ matrix.package }}
-        working-directory: packages/${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
         run: npx vitest run
 
   fhir-validate:
