@@ -81,14 +81,16 @@ reaches it through a short-lived branch and one pull request.
   outstanding, tx.fhir.org terminology) are reported but do not block.
 - Sign off every commit (`git commit -s`) and sign it. The sign-off certifies
   the [Developer Certificate of Origin](https://developercertificate.org/): you
-  wrote the change or have the right to submit it under the MIT licence.
+  wrote the change or have the right to submit it under the MIT licence. This is
+  a maintainer rule; no check enforces the sign-off yet.
 - Pull requests are **squash-merged**, so the pull request title becomes the
   commit on `main`. Write it like a commit subject: `type(#issue): summary`,
   where `type` is one of `feat`, `fix`, `docs`, `refactor`, `test`, `chore` or
   `perf`.
-- `main` is protected: no direct pushes, no force pushes, signed commits and
-  one approving review. A maintainer merges only when every blocking check is
-  green.
+- `main` is protected: changes arrive only by pull request with one approving
+  review, commits must be signed, and force pushes and deletion are blocked. The
+  ruleset requires no status checks, so merging only when every blocking check
+  is green is a maintainer rule.
 
 ## Releases
 
