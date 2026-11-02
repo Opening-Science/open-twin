@@ -2,9 +2,9 @@
 
 Status: binding for `interpretation-contract.v0.2`.
 
-`confidence` on a state is **rule-support**. It answers: *how completely,
-recently, and strongly did the evidence support applying this rule?* It does
-**not** answer: *how likely is disease?* A renderer that shows it as risk is
+`confidence` on a state is **rule-support**. It answers: _how completely,
+recently, and strongly did the evidence support applying this rule?_ It does
+**not** answer: _how likely is disease?_ A renderer that shows it as risk is
 non-conformant (D-j).
 
 Reference implementation (normative for this repository):
@@ -23,11 +23,11 @@ An empty contributing list makes the state **invalid** (see reject fixture
 `empty-contributing`); confidence is **not computed** for that state. Division
 by zero is therefore outside the contract.
 
-| Factor | Symbol | Definition |
-|---|---|---|
-| Completeness | $C$ | Exact rational $\dfrac{n_{\mathrm{present}}}{n_{\mathrm{contributing}}}$ where $n_{\mathrm{present}}$ counts contributors with `status = present` and $n_{\mathrm{contributing}} = \|\texttt{contributing}\| \ge 1$. Never approximate $C$ in binary float before the product. |
-| Recency | $R$ | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. Exact decimal string in $[0, 1]$. |
-| Rule strength | $S$ | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. **API boundary:** $R$ and $S$ are exact decimal strings only (e.g. `"0.8"`, `"0.00015"`) — never IEEE-754 numbers and never a pre-built rational object (`0.1 + 0.2` is non-conformant input). |
+| Factor        | Symbol | Definition                                                                                                                                                                                                                                                                                                                                                               |
+| ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Completeness  | $C$    | Exact rational $\dfrac{n_{\mathrm{present}}}{n_{\mathrm{contributing}}}$ where $n_{\mathrm{present}}$ counts contributors with `status = present` and $n_{\mathrm{contributing}} = \|\texttt{contributing}\| \ge 1$. Never approximate $C$ in binary float before the product.                                                                                           |
+| Recency       | $R$    | If no contributor has `status = present`, $R = 0$. Otherwise $R = \min_{c:\texttt{present}} r(\Delta t_c)$ with $\Delta t_c$ from the elapsed-day procedure below. Exact decimal string in $[0, 1]$.                                                                                                                                                                     |
+| Rule strength | $S$    | Author-declared constant for the rule that emitted the state, in $[0, 1]$. Recorded in the rule registry (not in this contract). Default for an unregistered rule is $0$. **API boundary:** $R$ and $S$ are exact decimal strings only (e.g. `"0.8"`, `"0.00015"`) — never IEEE-754 numbers and never a pre-built rational object (`0.1 + 0.2` is non-conformant input). |
 
 ### Elapsed-day procedure $\Delta t$
 
@@ -45,25 +45,25 @@ use the host zone and change $\Delta t$.
 
 So $30.0 \le$ fractional days $< 31.0$ yields $\Delta t = 30$. A 30.5-day span floors to $30$, not $31$.
 
-| Age $\Delta t$ (integer days) | $r$ |
-|---|---:|
-| $\Delta t \le 30$ | $1.0$ |
-| $30 < \Delta t \le 90$ | $0.7$ |
-| $90 < \Delta t \le 180$ | $0.4$ |
-| $\Delta t > 180$ | $0.1$ |
+| Age $\Delta t$ (integer days)                    |              $r$ |
+| ------------------------------------------------ | ---------------: |
+| $\Delta t \le 30$                                |            $1.0$ |
+| $30 < \Delta t \le 90$                           |            $0.7$ |
+| $90 < \Delta t \le 180$                          |            $0.4$ |
+| $\Delta t > 180$                                 |            $0.1$ |
 | `observed_at` missing on a `present` contributor | treat as $r = 0$ |
 
 Boundary vectors (after clamp + floor):
 
 | $\Delta t$ | $r$ |
-|---:|---:|
-| 0 | 1.0 |
-| 30 | 1.0 |
-| 31 | 0.7 |
-| 90 | 0.7 |
-| 91 | 0.4 |
-| 180 | 0.4 |
-| 181 | 0.1 |
+| ---------: | --: |
+|          0 | 1.0 |
+|         30 | 1.0 |
+|         31 | 0.7 |
+|         90 | 0.7 |
+|         91 | 0.4 |
+|        180 | 0.4 |
+|        181 | 0.1 |
 
 ### Rounding and serialization
 
@@ -91,11 +91,11 @@ Canonical serialization of the rounded value: fixed-point decimal string with **
 Document `as_of = 2026-07-28T00:00:00Z`. Rule strength $S = 0.8$.
 Contributing markers the rule read:
 
-| biomarker_id | status | observed_at | $\Delta t$ (days) | $r$ |
-|---|---|---|---:|---:|
-| BM-072 | present | 2026-07-01T00:00:00Z | 27 | 1.0 |
-| BM-190 | present | 2026-04-01T00:00:00Z | 118 | 0.4 |
-| BM-200 | missing | — | — | — |
+| biomarker_id | status  | observed_at          | $\Delta t$ (days) | $r$ |
+| ------------ | ------- | -------------------- | ----------------: | --: |
+| BM-072       | present | 2026-07-01T00:00:00Z |                27 | 1.0 |
+| BM-190       | present | 2026-04-01T00:00:00Z |               118 | 0.4 |
+| BM-200       | missing | —                    |                 — |   — |
 
 - $C = 2/3$ (exact).
 - $R = \min(1.0, 0.4) = 0.4$.

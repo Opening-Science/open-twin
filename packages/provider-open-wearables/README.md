@@ -33,7 +33,7 @@ is confirmed or assumed is recorded in
 [`docs/open-wearables-contract.md`](./docs/open-wearables-contract.md), together
 with a ranked list of what must be re-checked the moment someone can run a server.
 
-The FHIR side *is* verified. The bundle this package builds from its fixtures is
+The FHIR side _is_ verified. The bundle this package builds from its fixtures is
 registered in `verify/bundles.manifest.ts` and passes the HL7 validator with zero
 errors.
 
@@ -124,8 +124,8 @@ import { buildOpenWearablesBundle } from '@open-twin/open-wearables';
 
 const { bundle, issues } = buildOpenWearablesBundle(
   {
-    userId: '…',                 // the Open Wearables user id, never an email
-    timeseries: timeseriesBody,  // the raw response body, unparsed
+    userId: '…', // the Open Wearables user id, never an email
+    timeseries: timeseriesBody, // the raw response body, unparsed
     sleepSessions: sleepBody,
     workouts: workoutsBody
   },

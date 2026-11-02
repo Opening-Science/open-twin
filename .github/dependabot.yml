@@ -16,22 +16,22 @@ updates:
       # TypeScript 7 breaks `tsup --dts`, which builds every package through the
       # TypeScript compiler API (#184, #196). Lift once tsup supports TS 7.
       - dependency-name: typescript
-        update-types: ['version-update:semver-major']
+        update-types: [ "version-update:semver-major" ]
     groups:
       typescript-toolchain:
         patterns:
           - typescript
-          - '@types/node'
+          - "@types/node"
           - tsx
           - tsup
           - vitest
           - jest-extended
-          - '@rollup/plugin-swc'
+          - "@rollup/plugin-swc"
           - reflect-metadata
       fhir-and-units:
         patterns:
-          - '@types/fhir'
-          - '@lhncbc/ucum-lhc'
+          - "@types/fhir"
+          - "@lhncbc/ucum-lhc"
       schema-validation:
         patterns:
           - ajv
@@ -40,7 +40,7 @@ updates:
           - zod
       google-health-client:
         patterns:
-          - '@googleapis/health'
+          - "@googleapis/health"
           - googleapis
 
   - package-ecosystem: github-actions
@@ -52,4 +52,4 @@ updates:
     groups:
       actions:
         patterns:
-          - '*'
+          - "*"

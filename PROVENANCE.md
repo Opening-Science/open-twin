@@ -62,16 +62,16 @@ first on `Opening-Science/open-twin` (#68–75), then again here after the move.
 26 July 2026 exists only in this repository — including the merge-conflict resolution
 on the three connector-fix branches. Do not review them, and do not merge them.
 
-| Here | Stale equivalent on Opening-Science | Branch |
-|---|---|---|
-| #1 | #68 | `open-twin/foundation` |
-| #2 | #69 | `open-twin/fix-oura` |
-| #3 | #70 | `open-twin/fix-google-health` |
-| #4 | #71 | `open-twin/fix-vitronic` |
-| #5 | #72 | `open-twin/add-hl7v2` |
-| #6 | #73 | `open-twin/add-genomics-vcf` |
-| #7 | #74 | `open-twin/add-open-wearables` |
-| #8 | #75 | `open-twin/add-fhir-r4` |
+| Here | Stale equivalent on Opening-Science | Branch                         |
+| ---- | ----------------------------------- | ------------------------------ |
+| #1   | #68                                 | `open-twin/foundation`         |
+| #2   | #69                                 | `open-twin/fix-oura`           |
+| #3   | #70                                 | `open-twin/fix-google-health`  |
+| #4   | #71                                 | `open-twin/fix-vitronic`       |
+| #5   | #72                                 | `open-twin/add-hl7v2`          |
+| #6   | #73                                 | `open-twin/add-genomics-vcf`   |
+| #7   | #74                                 | `open-twin/add-open-wearables` |
+| #8   | #75                                 | `open-twin/add-fhir-r4`        |
 
 ### For the Opening-Science team: how to copy this back
 

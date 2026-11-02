@@ -30,24 +30,24 @@ Accepts unknown input and reports selected structural errors as
 `{ ok, issues, outcome }`, with a FHIR `OperationOutcome`. Integrators must bound
 input size and depth and handle exceptions from malformed or excessive input.
 
-| rule | what it catches |
-| --- | --- |
-| `ot-not-an-object`, `ot-missing-resource-type`, `ot-unknown-resource-type` | it is not a resource, or claims a type R4 does not define |
-| `ot-missing-required-element` | a top-level element the base R4 definition declares `min: 1` |
-| `ot-invalid-id` | `Resource.id` outside `[A-Za-z0-9\-\.]{1,64}` |
-| `ot-invalid-bundle-type` | `Bundle.type` outside its required binding |
-| `ot-entry-not-an-object`, `ot-entry-empty` | an entry that cannot be read; an entry with no resource, request or response |
-| `ot-fullurl-missing`, `ot-fullurl-relative` | an entry nothing can reference |
-| `ot-fullurl-uuid`, `ot-fullurl-oid` | a `urn:uuid:` that is not a lowercase RFC 4122 UUID; a malformed `urn:oid:` |
-| `ot-fullurl-id-mismatch` | a RESTful fullUrl addressing a different resource than it carries |
-| `bdl-7`, `bdl-8` | duplicate fullUrl; version-specific fullUrl |
-| `obs-6` | `dataAbsentReason` beside a `value[x]` |
-| `ot-choice-type` | two spellings of `value[x]` at once |
-| `ot-component-data-absent-reason` | the same contradiction on a component (warning — see below) |
-| `ot-reference-malformed`, `ot-reference-unresolved-urn`, `ot-reference-unresolved-contained`, `ot-reference-external` | reference resolution inside the bundle |
-| `ot-reference-conditional` | a `Type?query` search URI, which R4 permits in a transaction and only there |
-| `ot-quantity-no-code`, `ot-quantity-no-system`, `ot-ucum-invalid` | UCUM |
-| `ot-unit-policy`, `ot-unit-dimension` | decision D4, one unit per LOINC concept |
+| rule                                                                                                                  | what it catches                                                              |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `ot-not-an-object`, `ot-missing-resource-type`, `ot-unknown-resource-type`                                            | it is not a resource, or claims a type R4 does not define                    |
+| `ot-missing-required-element`                                                                                         | a top-level element the base R4 definition declares `min: 1`                 |
+| `ot-invalid-id`                                                                                                       | `Resource.id` outside `[A-Za-z0-9\-\.]{1,64}`                                |
+| `ot-invalid-bundle-type`                                                                                              | `Bundle.type` outside its required binding                                   |
+| `ot-entry-not-an-object`, `ot-entry-empty`                                                                            | an entry that cannot be read; an entry with no resource, request or response |
+| `ot-fullurl-missing`, `ot-fullurl-relative`                                                                           | an entry nothing can reference                                               |
+| `ot-fullurl-uuid`, `ot-fullurl-oid`                                                                                   | a `urn:uuid:` that is not a lowercase RFC 4122 UUID; a malformed `urn:oid:`  |
+| `ot-fullurl-id-mismatch`                                                                                              | a RESTful fullUrl addressing a different resource than it carries            |
+| `bdl-7`, `bdl-8`                                                                                                      | duplicate fullUrl; version-specific fullUrl                                  |
+| `obs-6`                                                                                                               | `dataAbsentReason` beside a `value[x]`                                       |
+| `ot-choice-type`                                                                                                      | two spellings of `value[x]` at once                                          |
+| `ot-component-data-absent-reason`                                                                                     | the same contradiction on a component (warning — see below)                  |
+| `ot-reference-malformed`, `ot-reference-unresolved-urn`, `ot-reference-unresolved-contained`, `ot-reference-external` | reference resolution inside the bundle                                       |
+| `ot-reference-conditional`                                                                                            | a `Type?query` search URI, which R4 permits in a transaction and only there  |
+| `ot-quantity-no-code`, `ot-quantity-no-system`, `ot-ucum-invalid`                                                     | UCUM                                                                         |
+| `ot-unit-policy`, `ot-unit-dimension`                                                                                 | decision D4, one unit per LOINC concept                                      |
 
 The required-element table is generated from `hl7.fhir.r4.core#4.0.1` by
 `tools/generate-spec-tables.mjs`, so it says what the specification says rather than
@@ -135,14 +135,14 @@ stating plainly. The recording keeps errors only, since that is what the compari
 turns on; the warning-level quotes below come from a second run of the same fixtures
 with `-level` left at its default:
 
-| fixture | what the validator says |
-| --- | --- |
-| `ucum-bare-steps` | `Warning - Unable to validate code 'steps' in system 'http://unitsofmeasure.org' because the validator is running without terminology services`. Under `-tx n/a` it **cannot check UCUM at all**. |
-| `unit-policy-height-in-inches` | No error. `[in_i]` is in the required binding of the HL7 `bodyheight` profile — see below. |
-| `unit-policy-seconds-under-a-minutes-code` | No error. `s` is valid UCUM and no R4 profile fixes a unit for LOINC 93832-4. |
-| `unit-dimension-mismatch` | No error, for the same reason. |
-| `quantity-without-a-system` | No error. `Quantity.system` is 0..1 in R4. |
-| `dangling-urn-reference` | `Warning - URN reference is not locally contained within the bundle` — below the error level CI gates on. |
+| fixture                                    | what the validator says                                                                                                                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ucum-bare-steps`                          | `Warning - Unable to validate code 'steps' in system 'http://unitsofmeasure.org' because the validator is running without terminology services`. Under `-tx n/a` it **cannot check UCUM at all**. |
+| `unit-policy-height-in-inches`             | No error. `[in_i]` is in the required binding of the HL7 `bodyheight` profile — see below.                                                                                                        |
+| `unit-policy-seconds-under-a-minutes-code` | No error. `s` is valid UCUM and no R4 profile fixes a unit for LOINC 93832-4.                                                                                                                     |
+| `unit-dimension-mismatch`                  | No error, for the same reason.                                                                                                                                                                    |
+| `quantity-without-a-system`                | No error. `Quantity.system` is 0..1 in R4.                                                                                                                                                        |
+| `dangling-urn-reference`                   | `Warning - URN reference is not locally contained within the bundle` — below the error level CI gates on.                                                                                         |
 
 They are not one thing, and lumping them together would hide the only one that
 matters:
@@ -249,7 +249,7 @@ Three sample inputs, all fetched from `hl7.org/fhir/R4/` and embedded verbatim:
   a `Patient/pat2` that is not in the bundle, an Organization that is not either, and
   a narrative naming the patient and their medical record number in free text.
 
-`HL7_LIPIDS_BUNDLE` is deliberately *not* registered for the validator: its
+`HL7_LIPIDS_BUNDLE` is deliberately _not_ registered for the validator: its
 `Identifier.system` is `http://acme.com/lab/reports`, which the validator rejects with
 `Example URLs are not allowed in this context`. Normalisation does not repair that,
 because rewriting an identifier system to please a validator is the silent corruption
@@ -278,7 +278,7 @@ so the reason stays on the record.
    sending system's record. A receiver treating `versionId` as belonging to the new id
    would be misled, and nobody has checked whether any receiver does.
 5. **Only the first LOINC coding the policy covers is checked.** An Observation
-   carrying two LOINC codes that `LOINC_UNITS` binds to *different* units is not
+   carrying two LOINC codes that `LOINC_UNITS` binds to _different_ units is not
    reported as a conflict. No such pair exists in `LOINC_UNITS` today; if one is added,
    this becomes wrong quietly.
 6. **The required-element table is R4 base only**, and nothing in CI checks that the

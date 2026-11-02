@@ -1,4 +1,5 @@
 ---
+
 vocabulary: LOINC
 code: "777-3"
 binds_to: "Thrombozyten"

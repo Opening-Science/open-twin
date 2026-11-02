@@ -11,18 +11,18 @@ verify current remotes before pushing.
 A pnpm monorepo of health-data connectors that translate vendor APIs and clinical
 formats into FHIR R4 bundles, plus a reconciliation layer over them.
 
-| Package | Source |
-|---|---|
-| `@open-twin/fhir-core` | Shared FHIR building blocks, terminology systems, unit policy |
-| `@open-twin/aggregate` | Cross-source reconciliation; abstains without evidence |
-| `@open-twin/provider-oura` | Oura Ring v2 API |
-| `@open-twin/provider-whoop` | WHOOP Developer API v2 |
-| `@open-twin/provider-google-health` | **Google Health API v4** — see the warning below |
-| `@open-twin/provider-vitronic` | VITRONIC BodyLoop body scanner |
+| Package                                                         | Source                                                                      |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `@open-twin/fhir-core`                                          | Shared FHIR building blocks, terminology systems, unit policy               |
+| `@open-twin/aggregate`                                          | Cross-source reconciliation; abstains without evidence                      |
+| `@open-twin/provider-oura`                                      | Oura Ring v2 API                                                            |
+| `@open-twin/provider-whoop`                                     | WHOOP Developer API v2                                                      |
+| `@open-twin/provider-google-health`                             | **Google Health API v4** — see the warning below                            |
+| `@open-twin/provider-vitronic`                                  | VITRONIC BodyLoop body scanner                                              |
 | [`@open-twin/open-wearables`](packages/provider-open-wearables) | OpenWearables normalised schema (never verified against a running instance) |
-| `@open-twin/fhir-r4` | Foreign FHIR R4 bundles: validation + normalisation |
-| `@open-twin/hl7v2` | HL7 v2.x ORU/ADT messages |
-| `@open-twin/genomics-vcf` | VCF variant calls via the Genomics Reporting IG |
+| `@open-twin/fhir-r4`                                            | Foreign FHIR R4 bundles: validation + normalisation                         |
+| `@open-twin/hl7v2`                                              | HL7 v2.x ORU/ADT messages                                                   |
+| `@open-twin/genomics-vcf`                                       | VCF variant calls via the Genomics Reporting IG                             |
 
 MIT licensed, developed under the Open Science Foundation.
 
@@ -37,7 +37,7 @@ path and the traps), `DECISIONS.md` (before touching any mapper), `BUILD-SUMMARY
 
 **`provider-google-health` does not talk to Google Health Connect.** It calls
 `health.googleapis.com/v4`, which Google documents as the next generation of the
-*Fitbit* Web API; its error catalogue includes `ACCOUNT_NOT_LINKED — The Google
+_Fitbit_ Web API; its error catalogue includes `ACCOUNT_NOT_LINKED — The Google
 account is not linked to a Fitbit account`, and part of the surface returns
 `API_PRIVATE_PREVIEW_ACCESS_DENIED`. Health Connect is a separate, on-device Android
 API with no cloud REST surface, unreachable from Node. Do not describe this connector
@@ -52,7 +52,7 @@ carried radians labelled as degrees, an invalid UCUM code, six sleep durations w
 unit at all, and five LOINC/SNOMED codes that mean something other than what the
 mapper sends. The tests passed because they assert what the code produces, not what
 FHIR requires — and several asserted the defect as intended. One was literally named
-*"defaults the root valueQuantity to 0 when score is missing"*.
+_"defaults the root valueQuantity to 0 when score is missing"_.
 
 So when you fix a mapper, expect to change its test in the same commit, and say in the
 message that the previous assertion was wrong. Do not leave a test asserting the old
@@ -69,7 +69,7 @@ behaviour with a skip on it.
    See the end of `DECISIONS.md`.
 3. **Units must match the data, not just the code.** Check what the API actually
    sends. VITRONIC returns radians; Oura returns seconds; Google Health returns
-   millimetres and grams, with int64 fields arriving as JSON *strings*.
+   millimetres and grams, with int64 fields arriving as JSON _strings_.
 4. **Missing data is not zero.** Use `dataAbsentReason`. `numericComponent` in
    `@open-twin/fhir-core` does this for you and requires a unit — that is deliberate.
 5. **Never put an API response body into an error message.** These are health
@@ -87,6 +87,7 @@ pnpm lint          # biome
 pnpm test          # every package
 pnpm typecheck     # tsc --noEmit, every package
 pnpm verify        # terminology + UCUM gates
+pnpm ci:local      # all of the above + the offline HL7 validator, as CI runs them
 
 # What CI actually validates against — the official HL7 validator.
 pnpm build && pnpm emit-bundles out/

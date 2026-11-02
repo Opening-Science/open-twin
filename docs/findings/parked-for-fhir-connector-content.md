@@ -4,7 +4,7 @@
 provider-anchor / Anchor `SYSTEMS` + lab UCUM in `@open-twin/fhir-core`).
 
 **Why this file exists.** On `open-twin/module-headers`, `packages/fhir-core/src/systems.ts`
-and `packages/fhir-core/src/units.ts` were Method-B *upstream-untouched*, so a
+and `packages/fhir-core/src/units.ts` were Method-B _upstream-untouched_, so a
 wholesale snapshot checkout looked safe. Snapshot bodies also carried **P6 content
 beyond the header**: Anchor code-system / identifier URIs and lab UCUM table
 entries (including known ugly UCUM display names from the library). That content
