@@ -281,9 +281,10 @@ Enforced by `reader-core/src/testing/conformance.ts`, a shared vitest suite each
 package imports:
 
 1. `descriptor` equals the registry entry (id, version, kind, domains, dataTypes, auth).
-2. `isThisType` is true for the reader's own fixtures, false for every other registered
-   reader's fixtures, and makes no network call (asserted with a throwing `fetch` stubbed
-   on `globalThis`).
+2. `isThisType` is true for the reader's own fixtures and makes no network call (asserted
+   with a throwing `fetch` stubbed on `globalThis`). For every other reader's fixtures the
+   suite asserts that `OpenTwinReader` binds the expected reader by priority, not that
+   `isThisType` is false, because `fhir-r4` accepts any FHIR Bundle.
 3. `open` with an invalid config throws `ConnectorError` code `validation`; `open` never
    fetches health data.
 4. `read` on the fixtures returns a bundle that passes `validateFhir` (fhir-r4), the UCUM
@@ -400,7 +401,11 @@ Each adapter is `packages/<pkg>/src/reader.ts`, exported as `<Name>Reader` and
 `createReader()`, extending `HealthDataReader` and wrapping the existing functions without
 changing them. Each adds `src/tests/reader.conformance.test.ts`, an `expected.json` per
 fixture, a registry entry and a five-line "Reader API" section in the package README.
-Adapters always pass `host.now()` as the bundle timestamp.
+Adapters always pass `host.now()` as the bundle timestamp. OAuth readers (Oura, WHOOP, Google Health) require a
+per-wearer `tokenKey` and throw `validation` without one; there is no default key, because
+several wearers can share one OAuth client. A request window must carry an offset: date-based
+APIs take their dates in the window's own offset and receive that offset (Oura `utc_offset`),
+never a silent UTC.
 
 | Package                | `isThisType`                                                         | `open`                                                                                                                                                                                                    | `read` wraps                                                                                                                                                                                                                       |
 | ---------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -607,20 +612,20 @@ Phase 1 is 1 to 12. Phase 2 is 13 to 16. Phase 3 is 17.
 
 Where draft 0.1 differed from the code at `34f12d6`, and how this draft resolves it.
 
-| Draft 0.1 said                                                                       | The code has                                                                                                                                                                                     | Resolution                                                                                       |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| `ConnectorError` codes `config` and `unsupported-input`, constructed from one object | Codes are `auth`, `rate_limit`, `not_found`, `validation`, `transport`, `unsupported`, `server`, `unknown`; the constructor is `(message, { code, connector, ... })` (`fhir-core/src/errors.ts`) | Use `validation` (operation `open`) and `unsupported`; fhir-core is unchanged                    |
-| `OuraRingAppConfig.parse(...)`                                                       | Vendor configs (`OuraRingAppConfig`, `WhoopAppConfig`, `GoogleHealthAppConfig`, `BodyLoopClientConfig`) are TypeScript types, not zod schemas                                                    | Each adapter defines its zod config schema in `reader.ts`                                        |
-| Readers must not call the global `fetch`                                             | No provider accepts an injected fetch; Google Health goes through `googleapis`                                                                                                                   | Phase 1 tests stub `globalThis.fetch`; injection in the providers is a phase 3 item              |
-| `getOuraData(window, types, ...)`, then `getFhirBundleFromOuraData(data, ...)`       | Both take `(request: RequestParams, tokenHandler, options)`; `getFhirBundleFromOuraData` fetches and maps in one call; `sandbox` is an option, not a config field                                | Adapter table and appendix use the real signatures                                               |
-| `fhir-core referenceRange`                                                           | The function is `referenceInterval`                                                                                                                                                              | Renamed in 5.E                                                                                   |
-| `provider-open-wearables` with `parse` and `seriesMap` builders                      | Package name `@open-twin/open-wearables`; `parseOrThrow`, `buildOpenWearablesBundle`, `SERIES_MAP`                                                                                               | Renamed in 5.B and 5.C                                                                           |
-| `TokenStore` and `CursorStore` exist (D8)                                            | They exist only as prose in `DECISIONS.md`                                                                                                                                                       | `reader-core` defines them for the first time                                                    |
-| Every fixture has a `PROVENANCE.md`                                                  | Only provider-oura and genomics-vcf have one                                                                                                                                                     | Each adapter PR adds the missing file (see #190)                                                 |
-| Bundles are deterministic per request                                                | WHOOP (`bundleKey` `whoop                                                                                                                                                                        | <subjectKey>                                                                                     | recovery,cycle,sleep`) and Google Health (`google-health | <subjectKey>`) leave the window out, so different windows share one `Bundle.id`; Oura, WHOOP, Google Health and VCF fall back to `new Date()` when no timestamp is passed | Conformance rule 6 also checks distinct windows; the WHOOP and Google Health adapter PRs fix the key and change the tests that asserted it; adapters always pass `timestamp` |
-| VITRONIC builder takes `subjectKey` and `timestamp`                                  | `BundleOptions` is `{ subject? }`; the key is `proband/<id>` and the timestamp comes from viatar meta                                                                                            | The adapter passes `subject`; fixtures carry meta, so output stays reproducible                  |
-| The flow ends at a twin adapter for open-twin-xr; aggregate is a phase 2 wrapper     | twin-llm calls connectors directly and does not use `@open-twin/aggregate`                                                                                                                       | `ReconcilingReader` moves to phase 1 as the hand-off to twin-llm; the twin adapter stays phase 2 |
-| CLI documented in `ONBOARDING.md`                                                    | `ONBOARDING.md` is maintained separately                                                                                                                                                         | Documented in `packages/cli/README.md` and `docs/registry.md`                                    |
+| Draft 0.1 said                                                                       | The code has                                                                                                                                                                                                                                                                 | Resolution                                                                                                                                                                   |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ConnectorError` codes `config` and `unsupported-input`, constructed from one object | Codes are `auth`, `rate_limit`, `not_found`, `validation`, `transport`, `unsupported`, `server`, `unknown`; the constructor is `(message, { code, connector, ... })` (`fhir-core/src/errors.ts`)                                                                             | Use `validation` (operation `open`) and `unsupported`; fhir-core is unchanged                                                                                                |
+| `OuraRingAppConfig.parse(...)`                                                       | Vendor configs (`OuraRingAppConfig`, `WhoopAppConfig`, `GoogleHealthAppConfig`, `BodyLoopClientConfig`) are TypeScript types, not zod schemas                                                                                                                                | Each adapter defines its zod config schema in `reader.ts`                                                                                                                    |
+| Readers must not call the global `fetch`                                             | No provider accepts an injected fetch; Google Health goes through `googleapis`                                                                                                                                                                                               | Phase 1 tests stub `globalThis.fetch`; injection in the providers is a phase 3 item                                                                                          |
+| `getOuraData(window, types, ...)`, then `getFhirBundleFromOuraData(data, ...)`       | Both take `(request: RequestParams, tokenHandler, options)`; `getFhirBundleFromOuraData` fetches and maps in one call; `sandbox` is an option, not a config field                                                                                                            | Adapter table and appendix use the real signatures                                                                                                                           |
+| `fhir-core referenceRange`                                                           | The function is `referenceInterval`                                                                                                                                                                                                                                          | Renamed in 5.E                                                                                                                                                               |
+| `provider-open-wearables` with `parse` and `seriesMap` builders                      | Package name `@open-twin/open-wearables`; `parseOrThrow`, `buildOpenWearablesBundle`, `SERIES_MAP`                                                                                                                                                                           | Renamed in 5.B and 5.C                                                                                                                                                       |
+| `TokenStore` and `CursorStore` exist (D8)                                            | They exist only as prose in `DECISIONS.md`                                                                                                                                                                                                                                   | `reader-core` defines them for the first time                                                                                                                                |
+| Every fixture has a `PROVENANCE.md`                                                  | Only provider-oura and genomics-vcf have one                                                                                                                                                                                                                                 | Each adapter PR adds the missing file (see #190)                                                                                                                             |
+| Bundles are deterministic per request                                                | WHOOP (`bundleKey` `whoop\|<subjectKey>\|recovery,cycle,sleep`) and Google Health (`google-health\|<subjectKey>`) leave the window out, so different windows share one `Bundle.id`; Oura, WHOOP, Google Health and VCF fall back to `new Date()` when no timestamp is passed | Conformance rule 6 also checks distinct windows; the WHOOP and Google Health adapter PRs fix the key and change the tests that asserted it; adapters always pass `timestamp` |
+| VITRONIC builder takes `subjectKey` and `timestamp`                                  | `BundleOptions` is `{ subject? }`; the key is `proband/<id>` and the timestamp comes from viatar meta                                                                                                                                                                        | The adapter passes `subject`; fixtures carry meta, so output stays reproducible                                                                                              |
+| The flow ends at a twin adapter for open-twin-xr; aggregate is a phase 2 wrapper     | twin-llm calls connectors directly and does not use `@open-twin/aggregate`                                                                                                                                                                                                   | `ReconcilingReader` moves to phase 1 as the hand-off to twin-llm; the twin adapter stays phase 2                                                                             |
+| CLI documented in `ONBOARDING.md`                                                    | `ONBOARDING.md` is maintained separately                                                                                                                                                                                                                                     | Documented in `packages/cli/README.md` and `docs/registry.md`                                                                                                                |
 
 ---
 
@@ -686,7 +691,13 @@ export class OuraReader extends HealthDataReader {
         operation: 'open'
       });
     this.config = parsed.data;
-    this.tokenKey = input.tokenKey ?? `oura:${this.config.clientId}`;
+    if (!input.tokenKey)
+      throw new ConnectorError('OuraReader needs a per-wearer tokenKey', {
+        code: 'validation',
+        connector: 'oura',
+        operation: 'open'
+      });
+    this.tokenKey = input.tokenKey;
     this.tokens = new TokenHandler(this.config, input.authorizationCode ?? '');
     const stored = await this.loadTokens(this.tokenKey);
     if (stored)
@@ -715,7 +726,8 @@ export class OuraReader extends HealthDataReader {
     const request = {
       types: req.types ?? this.descriptor.dataTypes,
       start_date: req.window?.start.slice(0, 10),
-      end_date: req.window?.end.slice(0, 10)
+      end_date: req.window?.end.slice(0, 10),
+      utc_offset: req.window ? offsetOf(req.window.start) : undefined
     };
     const { bundle, issues } = await getFhirBundleFromOuraData(request, this.tokens, {
       sandbox: this.config.sandbox,
@@ -748,5 +760,5 @@ export class OuraReader extends HealthDataReader {
 export const createReader = () => new OuraReader();
 ```
 
-`toIssue` maps Oura's issue shape to `Issue`. The exact option and issue types come from
+`toIssue` maps Oura's issue shape to `Issue`; `offsetOf` returns the window's UTC offset (`Z` as `+00:00`). The exact option and issue types come from
 `packages/provider-oura/src/index.ts` when implementing.
