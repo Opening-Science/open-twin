@@ -51,7 +51,7 @@ const secrets = Object.fromEntries(
 );
 
 describeReaderConformance(() => new FhirR4Reader(), {
-  registryEntry: FHIR_R4_DESCRIPTOR,
+  descriptor: FHIR_R4_DESCRIPTOR,
   fixtures,
   invalidInput: { kind: 'file', text: '{"resourceType":"Patient","id":"x"}' },
   validate: validateFhir,
@@ -97,16 +97,10 @@ describe('FhirR4Reader beyond the shared suite', () => {
     expect(codes).toContain('unknown-type');
   });
 
-  it('rejects text that is JSON but not a Bundle, and text that is not JSON, at open', async () => {
-    await expect(
-      new FhirR4Reader().open({ kind: 'file', text: '{"resourceType":"Observation"}' })
-    ).rejects.toMatchObject({
-      code: 'validation',
-      operation: 'open'
-    });
-    await expect(new FhirR4Reader().open({ kind: 'file', text: '{' })).rejects.toMatchObject({ code: 'validation' });
+  it('does not claim a non-bundle or an api input, and rejects text that is not JSON', async () => {
     expect(new FhirR4Reader().isThisType({ kind: 'file', text: '{"resourceType":"Observation"}' })).toBe(false);
     expect(new FhirR4Reader().isThisType({ kind: 'api', sourceId: 'fhir-r4', config: {} })).toBe(false);
+    await expect(new FhirR4Reader().open({ kind: 'file', text: '{' })).rejects.toMatchObject({ code: 'validation' });
   });
 
   it('throws validation at read when the bundle cannot be normalised', async () => {

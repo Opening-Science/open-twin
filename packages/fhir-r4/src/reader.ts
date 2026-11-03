@@ -1,13 +1,12 @@
 /**
- * WHAT: FhirR4Reader, the IHealthDataReader adapter over validateFhir and normaliseBundle: sniffs a JSON Bundle, normalises it under the caller's subject key, and reports every validation finding as an issue.
- * NOT:  Does not change validation or normalisation; both are called as they are. Does not apply a request window or a types filter, because a foreign bundle is read whole; both are reported as issues instead of silently dropped.
+ * WHAT: FhirR4Reader, the IHealthDataReader adapter over normaliseBundle: sniffs a JSON Bundle, normalises it under the caller's subject key, and reports every validation finding as an issue.
+ * NOT:  Does not change validation or normalisation. Does not apply a window or a types filter: a foreign bundle is read whole, and both are reported instead.
  * GOVERNED BY: DECISIONS.md#d16; DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
- * GOTCHA: when the caller supplies no subject and the bundle carries exactly one Patient, that Patient becomes the subject under its normalised id, so its demographics survive. With no Patient, or several, the D1 fallback mints an empty one; a foreign Patient is then reported as orphaned.
  */
-import { readFileSync } from 'node:fs';
-import { deterministicId } from '@open-twin/fhir-core';
 import {
+  fileJson,
+  fileText,
   HealthDataReader,
   type Issue,
   type ReaderDescriptor,
@@ -18,15 +17,15 @@ import {
 } from '@open-twin/reader-core';
 import type { Reference } from 'fhir/r4';
 import type { FhirIssue } from './issues';
-import { normaliseBundle } from './normalise/normalise';
+import { normaliseBundle, normalisedEntryId } from './normalise/normalise';
 
-export const FHIR_R4_CONNECTOR = { connector: 'fhir-r4', version: '0.1.0' } as const;
+const CONNECTOR = { connector: 'fhir-r4', version: '0.1.0' } as const;
+const SOURCE: ReaderMetadata['source'] = { id: CONNECTOR.connector, apiVersion: '4.0.1' };
 
-/** Must equal the entry in registry/connectors.json; verify/check-registry.ts compares them. */
 export const FHIR_R4_DESCRIPTOR: ReaderDescriptor = {
-  id: FHIR_R4_CONNECTOR.connector,
+  id: CONNECTOR.connector,
   name: 'Foreign FHIR R4 bundles',
-  version: FHIR_R4_CONNECTOR.version,
+  version: CONNECTOR.version,
   kind: 'file',
   domains: ['clinical-record', 'lab', 'synthetic'],
   dataTypes: ['bundle'],
@@ -36,28 +35,12 @@ export const FHIR_R4_DESCRIPTOR: ReaderDescriptor = {
   vendorDocs: 'https://hl7.org/fhir/R4/bundle.html'
 };
 
-const BUNDLE_SNIFF = /"resourceType"\s*:\s*"Bundle"/;
-
 interface JsonObject {
   [key: string]: unknown;
 }
 
 const isObject = (value: unknown): value is JsonObject =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
-
-function textOf(input: ReaderInput): string | undefined {
-  if (input.kind !== 'file') return undefined;
-  if (input.text !== undefined) return input.text;
-  if (input.bytes) return new TextDecoder().decode(input.bytes);
-  if (input.path) {
-    try {
-      return readFileSync(input.path, 'utf8');
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-}
 
 function toIssue(finding: FhirIssue): Issue {
   return {
@@ -68,35 +51,17 @@ function toIssue(finding: FhirIssue): Issue {
   };
 }
 
-/**
- * The id normaliseBundle will give the entry: its fullUrl, else its RESTful address,
- * else its position. Replicated here so the subject can point at the bundle's own
- * Patient before normalisation runs.
- */
-function normalisedId(connector: string, subjectKey: string, entry: JsonObject, index: number): string {
-  const resource = isObject(entry.resource) ? entry.resource : {};
-  const address = typeof resource.id === 'string' ? `Patient/${resource.id}` : undefined;
-  const sourceKey = typeof entry.fullUrl === 'string' ? entry.fullUrl : (address ?? `entry-${index}`);
-  return deterministicId({ connector, subjectKey, recordId: sourceKey, measure: 'Patient' });
-}
-
 export class FhirR4Reader extends HealthDataReader {
   readonly descriptor: ReaderDescriptor = FHIR_R4_DESCRIPTOR;
   private bundle: JsonObject | undefined;
 
   override isThisType(input: ReaderInput): boolean {
-    const text = textOf(input);
-    return text !== undefined && BUNDLE_SNIFF.test(text);
+    const text = fileText(input);
+    return text !== undefined && /"resourceType"\s*:\s*"Bundle"/.test(text);
   }
 
   protected override onOpen(input: ReaderInput): Promise<void> {
-    const text = textOf(input);
-    let json: unknown;
-    try {
-      json = text === undefined ? undefined : JSON.parse(text);
-    } catch {
-      json = undefined;
-    }
+    const json = fileJson(input);
     if (!isObject(json) || json.resourceType !== 'Bundle') {
       throw this.fail('The input is not a FHIR Bundle in JSON', 'validation', 'open');
     }
@@ -106,13 +71,17 @@ export class FhirR4Reader extends HealthDataReader {
 
   describe(): Promise<ReaderMetadata> {
     return Promise.resolve({
-      source: { id: this.descriptor.id, apiVersion: '4.0.1' },
+      source: SOURCE,
       dataTypes: this.descriptor.dataTypes,
       capabilities: { incremental: false, sandbox: false, write: false }
     });
   }
 
-  /** The bundle's own Patient as the subject, when there is exactly one and the caller named none. */
+  /**
+   * With no caller subject and exactly one Patient in the bundle, that Patient is the
+   * subject under its normalised id, so its demographics survive. Otherwise the D1
+   * fallback mints an empty one.
+   */
   private subjectFromBundle(bundle: JsonObject, subjectKey: string): Reference | undefined {
     const entries = Array.isArray(bundle.entry) ? bundle.entry : [];
     const patients = entries
@@ -120,7 +89,8 @@ export class FhirR4Reader extends HealthDataReader {
       .filter(({ entry }) => isObject(entry) && isObject(entry.resource) && entry.resource.resourceType === 'Patient');
     const only = patients.length === 1 ? patients[0] : undefined;
     if (!only || !isObject(only.entry)) return undefined;
-    return { reference: `urn:uuid:${normalisedId(this.descriptor.id, subjectKey, only.entry, only.index)}` };
+    const entry = only.entry as { fullUrl?: string; resource?: JsonObject };
+    return { reference: `urn:uuid:${normalisedEntryId(this.descriptor.id, subjectKey, 'Patient', entry, only.index)}` };
   }
 
   read(request: ReadRequest): Promise<ReadResult> {
@@ -128,11 +98,8 @@ export class FhirR4Reader extends HealthDataReader {
   }
 
   private readOpened(request: ReadRequest): ReadResult {
-    this.requireOpen();
-    const bundle = this.bundle;
-    if (!bundle) throw this.fail('read called before open', 'validation', 'read');
+    const bundle = this.opened(this.bundle);
     const issues: Issue[] = [];
-
     if (request.window) {
       issues.push(
         this.issue(
@@ -142,14 +109,11 @@ export class FhirR4Reader extends HealthDataReader {
         )
       );
     }
-    for (const type of request.types ?? []) {
-      if (!this.descriptor.dataTypes.includes(type)) {
-        issues.push(
-          this.issue('warning', 'unknown-type', 'A requested type is not one this reader supports and was ignored.')
-        );
-      }
+    if (request.types?.some((type) => !this.descriptor.dataTypes.includes(type))) {
+      issues.push(
+        this.issue('warning', 'unknown-type', 'A requested type is not one this reader supports and was ignored.')
+      );
     }
-
     const fromBundle = request.subject ? undefined : this.subjectFromBundle(bundle, request.subjectKey);
     if (fromBundle) {
       issues.push(
@@ -161,13 +125,12 @@ export class FhirR4Reader extends HealthDataReader {
       );
     }
 
-    const timestamp = this.now();
     const result = normaliseBundle(bundle, {
-      connector: { ...FHIR_R4_CONNECTOR },
+      connector: { ...CONNECTOR },
       subjectKey: request.subjectKey,
       subject: request.subject ?? fromBundle,
       unresolvedUrnPolicy: 'preserve',
-      timestamp,
+      timestamp: this.now(),
       bundleKey: this.bundleKeyFor(request)
     });
     issues.push(...result.issues.map(toIssue));
@@ -179,11 +142,7 @@ export class FhirR4Reader extends HealthDataReader {
         'read'
       );
     }
-    return {
-      bundle: result.bundle,
-      issues,
-      provenance: this.provenanceFor(result.bundle, { id: this.descriptor.id, apiVersion: '4.0.1' })
-    };
+    return { bundle: result.bundle, issues, provenance: this.provenanceFor(result.bundle, SOURCE) };
   }
 }
 
