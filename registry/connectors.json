@@ -4,6 +4,7 @@
     {
       "id": "oura",
       "package": "@open-twin/provider-oura",
+      "export": "OuraReader",
       "name": "Oura Ring API v2",
       "version": "0.1.0",
       "kind": "api",

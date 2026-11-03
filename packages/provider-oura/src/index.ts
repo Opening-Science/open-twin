@@ -21,6 +21,14 @@ export { OuraRingAppConfig } from './config/config';
 export type { SupportedScope } from './config/constants';
 export type { OuraBundleResult, OuraDataResult, OuraRequestOptions } from './fhir/bundleBuilder';
 export type { OuraMapperContext } from './fhir/mappers/shared';
+export {
+  createReader,
+  OURA_DESCRIPTOR,
+  OuraReader,
+  OuraReaderConfig,
+  type OuraReaderConfigInput,
+  offsetOf
+} from './reader';
 export { TokenHandler } from './utils/tokenUtils';
 export type { ListScope, OuraTypedData } from './utils/typeUtils';
 
