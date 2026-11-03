@@ -30,8 +30,7 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
-            "description": "Human-readable name of the source."
+            "minLength": 1
           },
           "version": {
             "type": "string",
@@ -79,7 +78,6 @@
             "description": "The request types the reader supports."
           },
           "suffixes": {
-            "description": "File readers: recognised suffixes.",
             "type": "array",
             "items": {
               "type": "string",
@@ -87,7 +85,6 @@
             }
           },
           "mediaTypes": {
-            "description": "File readers: recognised media types.",
             "type": "array",
             "items": {
               "type": "string",
@@ -136,7 +133,6 @@
             "minLength": 1
           },
           "fixturesProvenance": {
-            "description": "Repository path of the PROVENANCE.md beside the fixtures.",
             "type": "string",
             "minLength": 1
           },
@@ -147,7 +143,7 @@
               "type": "string",
               "minLength": 1
             },
-            "description": "Names in verify/bundles.manifest.ts that the HL7 validator checks for this package."
+            "description": "Names in verify/bundles.manifest.ts."
           }
         },
         "required": [

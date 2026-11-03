@@ -11,12 +11,13 @@ scores nothing and interprets nothing.
 
 ## What is here
 
-| Module      | Purpose                                                                                             |
-| ----------- | --------------------------------------------------------------------------------------------------- |
-| `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result       |
-| `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                                |
-| `base.ts`   | `HealthDataReader` and `OAuthReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores |
-| `testing/`  | `describeReaderConformance`, `describeTokenBridge`, `summarise`, host test doubles                  |
+| Module        | Purpose                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `types.ts`    | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result       |
+| `reader.ts`   | `IHealthDataReader`, `ReaderWrapper`                                                                |
+| `base.ts`     | `HealthDataReader` and `OAuthReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores |
+| `registry.ts` | `loadRegistry`, `descriptorOf`, `resolveReader`, the generated schema and table                     |
+| `testing/`    | `describeReaderConformance`, `describeTokenBridge`, `summarise`, host test doubles                  |
 
 The delegating reader, other wrappers and the CLI follow in their own pull requests.
 

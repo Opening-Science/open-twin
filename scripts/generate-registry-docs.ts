@@ -1,5 +1,5 @@
 /**
- * WHAT: Writes registry/connectors.schema.json, the connector table in docs/registry.md and the one in README.md from registry/connectors.json. With --check, reports which of them are stale instead.
+ * WHAT: Writes registry/connectors.schema.json, the connector table in docs/registry.md and the one in README.md from registry/connectors.json; verify/check-registry.ts fails while they are stale.
  * NOT:  Does not validate the registry beyond loading it; verify/check-registry.ts holds the gate rules.
  * GOVERNED BY: DECISIONS.md#d16
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
@@ -53,16 +53,6 @@ export function staleRegistryFiles(root: string = ROOT): string[] {
 }
 
 function main(): void {
-  if (process.argv.includes('--check')) {
-    const stale = staleRegistryFiles();
-    if (stale.length === 0) {
-      console.log('generate-registry-docs: up to date');
-      return;
-    }
-    console.error(`generate-registry-docs: stale, run \`pnpm exec tsx ${GENERATOR}\`:`);
-    for (const path of stale) console.error(`  ${path}`);
-    process.exit(1);
-  }
   for (const file of generatedRegistryFiles()) {
     writeFileSync(join(ROOT, file.path), file.content);
     console.log(`wrote ${file.path}`);
