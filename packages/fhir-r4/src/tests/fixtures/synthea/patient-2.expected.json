@@ -1,0 +1,17 @@
+{
+  "resourceTypes": {
+    "Observation": 5,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|29463-7": 1,
+    "http://loinc.org|39156-5": 1,
+    "http://loinc.org|59576-9": 1,
+    "http://loinc.org|72514-3": 1,
+    "http://loinc.org|8302-2": 1
+  },
+  "absentValues": 0,
+  "codeSetSha256": "a803316978ab86cddbd898044b546674220339b0702ef1db810bd041d9d3dd98",
+  "firstEffective": "2017-02-11T04:29:26+01:00",
+  "lastEffective": "2017-02-11T04:29:26+01:00"
+}

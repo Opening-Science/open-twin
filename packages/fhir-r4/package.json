@@ -38,6 +38,7 @@
   "dependencies": {
     "@lhncbc/ucum-lhc": "8.0.1",
     "@open-twin/fhir-core": "workspace:*",
+    "@open-twin/reader-core": "workspace:*",
     "@types/fhir": "0.0.44",
     "zod": "4.6.7"
   },
