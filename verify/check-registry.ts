@@ -37,6 +37,8 @@ interface WorkspacePackage {
   name: string;
   version: string;
   dir: string;
+  /** The built entry point from the exports map, relative to the package. */
+  entry: string;
 }
 
 function workspacePackages(): WorkspacePackage[] {
@@ -44,8 +46,17 @@ function workspacePackages(): WorkspacePackage[] {
   for (const name of readdirSync(join(ROOT, 'packages'))) {
     const manifest = join(ROOT, 'packages', name, 'package.json');
     if (!existsSync(manifest)) continue;
-    const json = JSON.parse(readFileSync(manifest, 'utf8')) as { name: string; version: string };
-    out.push({ name: json.name, version: json.version, dir: `packages/${name}` });
+    const json = JSON.parse(readFileSync(manifest, 'utf8')) as {
+      name: string;
+      version: string;
+      exports?: Record<string, { import?: string }>;
+    };
+    out.push({
+      name: json.name,
+      version: json.version,
+      dir: `packages/${name}`,
+      entry: json.exports?.['.']?.import ?? 'dist/index.js'
+    });
   }
   return out;
 }
@@ -66,13 +77,10 @@ async function checkEntry(entry: RegistryEntry, pkg: WorkspacePackage, bundleNam
   if (!entry.docs.startsWith(`${pkg.dir}/`)) problems.push(`${entry.id}: docs path is not under ${pkg.dir}`);
   if (entry.export) {
     try {
-      const reader = await resolveReader(
-        entry,
-        () => import(pathToFileURL(join(ROOT, pkg.dir, 'dist', 'index.js')).href)
-      );
+      const reader = await resolveReader(entry, () => import(pathToFileURL(join(ROOT, pkg.dir, pkg.entry)).href));
       problems.push(...checkDescriptor(reader, descriptorOf(entry)).map((v) => `${entry.id}: ${v}`));
     } catch (error) {
-      problems.push(`${entry.id}: could not resolve ${entry.export} from ${pkg.dir}/dist (${String(error)})`);
+      problems.push(`${entry.id}: could not resolve ${entry.export} from ${pkg.dir}/${pkg.entry} (${String(error)})`);
     }
   }
   return problems;
@@ -85,6 +93,9 @@ async function main(): Promise<void> {
   const byName = new Map(packages.map((p) => [p.name, p]));
   const bundleNames = new Set(BUNDLE_CASES.map((c) => c.name));
 
+  for (const name of NOT_A_CONNECTOR) {
+    if (!byName.has(name)) problems.push(`NOT_A_CONNECTOR names ${name}, which is not in the workspace`);
+  }
   for (const pkg of packages) {
     if (NOT_A_CONNECTOR.has(pkg.name)) continue;
     if (!registry.entries.some((e) => e.package === pkg.name)) {

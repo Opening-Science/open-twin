@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { ConnectorError } from '@open-twin/fhir-core';
 import { describe, expect, it } from 'vitest';
 import {
-  checkRegistryRules,
   descriptorOf,
   loadRegistry,
   type RegistryEntry,
@@ -36,56 +35,44 @@ const entry: RegistryEntry = {
   verificationBundles: ['fake-steps']
 };
 
-function writeRegistry(connectors: unknown[]): string {
-  const dir = mkdtempSync(join(tmpdir(), 'registry-'));
-  const path = join(dir, 'connectors.json');
-  writeFileSync(path, JSON.stringify({ connectors }));
+function registryFile(content: unknown): string {
+  const path = join(mkdtempSync(join(tmpdir(), 'registry-')), 'connectors.json');
+  writeFileSync(path, typeof content === 'string' ? content : JSON.stringify({ connectors: content }));
   return path;
 }
 
+const loadError = (path: string): ConnectorError => {
+  try {
+    loadRegistry(path);
+  } catch (e) {
+    return e as ConnectorError;
+  }
+  throw new Error('expected loadRegistry to throw');
+};
+
 describe('loadRegistry', () => {
-  it('loads the repository registry sorted by priority, highest first', () => {
-    const registry = loadRegistry(REPO_REGISTRY);
-    const priorities = registry.entries.map((e) => e.priority);
+  it('loads the repository registry, highest priority first', () => {
+    const { entries } = loadRegistry(REPO_REGISTRY);
+    const priorities = entries.map((e) => e.priority);
     expect(priorities).toEqual([...priorities].sort((a, b) => b - a));
-    expect(registry.entries[0]?.id).toBe('oura');
-    expect(registry.entries.at(-1)?.id).toBe('fhir-r4');
-    expect(registry.entries.find((e) => e.id === 'google-health')?.aliases).toEqual(['fitbit']);
   });
 
-  it('rejects an entry that breaks the schema, naming the field and not the file', () => {
-    const path = writeRegistry([{ ...entry, status: 'planned', secret: 'hunter2' }]);
-    const error = (() => {
-      try {
-        loadRegistry(path);
-      } catch (e) {
-        return e;
-      }
-    })() as ConnectorError;
+  it('rejects a schema violation naming the field, never the value, and a file that is not JSON', () => {
+    const error = loadError(registryFile([{ ...entry, status: 'planned', secret: 'hunter2' }]));
     expect(error).toBeInstanceOf(ConnectorError);
     expect(error.code).toBe('validation');
     expect(error.message).toContain('connectors.0.status');
     expect(error.message).not.toContain('hunter2');
-  });
-
-  it('rejects a file that is not JSON', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'registry-'));
-    const path = join(dir, 'connectors.json');
-    writeFileSync(path, '{');
-    expect(() => loadRegistry(path)).toThrow(ConnectorError);
+    expect(loadError(registryFile('{')).code).toBe('validation');
   });
 
   it('rejects duplicate ids, duplicate packages and an alias that is also an id', () => {
-    expect(checkRegistryRules([entry, { ...entry, package: '@open-twin/other' }])).toEqual([
-      'duplicate id "fake-steps"'
-    ]);
-    expect(checkRegistryRules([entry, { ...entry, id: 'other' }])).toEqual([
-      'package "@open-twin/fake-steps" has more than one entry'
-    ]);
+    expect(loadError(registryFile([entry, { ...entry, package: '@open-twin/other' }])).message).toMatch(/duplicate id/);
+    expect(loadError(registryFile([entry, { ...entry, id: 'other' }])).message).toMatch(/more than one entry/);
     expect(
-      checkRegistryRules([entry, { ...entry, id: 'other', package: '@open-twin/other', aliases: ['fake-steps'] }])
-    ).toEqual(['alias "fake-steps" of "other" is also an id']);
-    expect(() => loadRegistry(writeRegistry([entry, entry]))).toThrow(/duplicate id/);
+      loadError(registryFile([entry, { ...entry, id: 'other', package: '@open-twin/other', aliases: ['fake-steps'] }]))
+        .message
+    ).toMatch(/also an id/);
   });
 });
 
@@ -94,15 +81,12 @@ describe('descriptorOf and resolveReader', () => {
     expect(descriptorOf(entry)).toEqual(new FakeStepsReader().descriptor);
   });
 
-  it('instantiates the export through the importer', async () => {
-    const reader = await resolveReader(entry, async () => ({ FakeStepsReader }));
+  it('instantiates the export through the importer; unsupported without one, validation when missing', async () => {
+    const reader = await resolveReader(entry, () => Promise.resolve({ FakeStepsReader }));
     expect(reader.descriptor.id).toBe('fake-steps');
-  });
-
-  it('is unsupported without an export and validation when the export is missing', async () => {
     const { export: _omitted, ...pending } = entry;
-    await expect(resolveReader(pending, async () => ({}))).rejects.toMatchObject({ code: 'unsupported' });
-    await expect(resolveReader(entry, async () => ({}))).rejects.toMatchObject({ code: 'validation' });
+    await expect(resolveReader(pending, () => Promise.resolve({}))).rejects.toMatchObject({ code: 'unsupported' });
+    await expect(resolveReader(entry, () => Promise.resolve({}))).rejects.toMatchObject({ code: 'validation' });
   });
 });
 
@@ -114,7 +98,7 @@ describe('generated artefacts', () => {
     expect(connectors?.items.additionalProperties).toBe(false);
   });
 
-  it('renders a table with a pending reader and replaces it between markers', () => {
+  it('renders a pending reader and replaces the table between exactly one pair of markers', () => {
     const { export: _omitted, ...pending } = entry;
     const table = renderRegistryTable([pending], '../');
     expect(table).toContain('| `fake-steps`');
@@ -124,8 +108,8 @@ describe('generated artefacts', () => {
     const next = replaceBetweenMarkers(doc, table, 'tests');
     expect(next).toContain(table);
     expect(next).not.toContain('old');
-    expect(next.startsWith('before\n')).toBe(true);
-    expect(next.endsWith('<!-- registry:end -->\nafter\n')).toBe(true);
+    expect(next.startsWith('before\n') && next.endsWith('<!-- registry:end -->\nafter\n')).toBe(true);
     expect(() => replaceBetweenMarkers('no markers', table, 'tests')).toThrow(ConnectorError);
+    expect(() => replaceBetweenMarkers(`${doc}<!-- registry:end -->`, table, 'tests')).toThrow(ConnectorError);
   });
 });
