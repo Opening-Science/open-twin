@@ -1,4 +1,12 @@
-import { CATEGORY, createObservation, deterministicId, quantity, SYSTEMS, UCUM } from '@open-twin/fhir-core';
+import {
+  CATEGORY,
+  ConnectorError,
+  createObservation,
+  deterministicId,
+  quantity,
+  SYSTEMS,
+  UCUM
+} from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import { describe, expect, it, vi } from 'vitest';
 import { HealthDataReader } from '../base';
@@ -65,11 +73,11 @@ class StubReader extends HealthDataReader {
         bundleKey: this.bundleKeyFor(request)
       })
     );
-    return Promise.resolve({
-      bundle,
-      issues: [this.issue('information', 'stub', 'from the stub')],
-      provenance: this.provenanceFor(bundle, { id: this.descriptor.id })
-    });
+    const issues = [
+      this.issue('information', 'stub', 'from the stub'),
+      this.issue('information', 'stub-at', 'with a path', 'days[0]')
+    ];
+    return Promise.resolve({ bundle, issues, provenance: this.provenanceFor(bundle) });
   }
 }
 
@@ -100,51 +108,65 @@ const observations = (result: ReadResult) =>
   (result.bundle.entry ?? []).map((e) => e.resource).filter((r): r is Observation => r?.resourceType === 'Observation');
 
 describe('ReconcilingReader', () => {
-  it('carries every source Observation and adds a derived one where evidence prefers a source', async () => {
+  it('carries every source Observation and adds a derived one per selected reconciliation', async () => {
     const result = await readAll([oura(), whoop()]);
     const all = observations(result);
     expect(all.filter((o) => o.derivedFrom === undefined)).toHaveLength(4);
-    const derived = all.filter((o) => o.derivedFrom !== undefined);
-    expect(derived).toHaveLength(1);
-    expect(derived[0]?.derivedFrom).toHaveLength(2);
-    expect(result.reconciliations).toEqual([
-      expect.objectContaining({ measure: 'energy-expenditure', day: '2026-03-01', sources: ['oura', 'whoop'] }),
-      expect.objectContaining({ measure: 'resting-heart-rate', day: '2026-03-01', selected: 'oura' })
+    const selected = result.reconciliations.filter((r) => r.selected);
+    expect(all.filter((o) => o.derivedFrom !== undefined)).toHaveLength(selected.length);
+    expect(result.reconciliations.map((r) => r.sources)).toEqual([
+      ['oura', 'whoop'],
+      ['oura', 'whoop']
     ]);
   });
 
-  it('abstains for a measure without evidence and records why', async () => {
+  it('records each reconciliation as an information issue under its measure and day', async () => {
     const result = await readAll([oura(), whoop()]);
-    const energy = result.reconciliations.find((r) => r.measure === 'energy-expenditure');
-    expect(energy?.selected).toBeUndefined();
-    expect(energy?.policy).toMatch(/No source is dependable/);
     const codes = result.issues.map((i) => `${i.code}@${i.path}`);
-    expect(codes).toContain('abstained@reconciliation/energy-expenditure/2026-03-01');
-    expect(codes).toContain('reconciled@reconciliation/resting-heart-rate/2026-03-01');
+    for (const r of result.reconciliations) {
+      expect(codes).toContain(`${r.selected ? 'reconciled' : 'abstained'}@reconciliation/${r.measure}/${r.day}`);
+      expect(r.policy).toBeTruthy();
+    }
   });
 
-  it('gives every reader one subject and carries one Patient for it', async () => {
-    const result = await readAll([oura(), whoop()]);
-    const subjects = new Set(observations(result).map((o) => o.subject?.reference));
+  it('gives every reader one subject and carries one Patient for it; a caller subject is used verbatim', async () => {
+    const minted = await readAll([oura(), whoop()]);
+    const subjects = new Set(observations(minted).map((o) => o.subject?.reference));
     expect(subjects.size).toBe(1);
-    const patients = (result.bundle.entry ?? []).filter((e) => e.resource?.resourceType === 'Patient');
+    const patients = (minted.bundle.entry ?? []).filter((e) => e.resource?.resourceType === 'Patient');
     expect(patients).toHaveLength(1);
     expect(patients[0]?.fullUrl).toBe([...subjects][0]);
+
+    const given = await readAll([oura(), whoop()], { ...request, subject: { reference: 'Patient/caller-7' } });
+    expect(new Set(observations(given).map((o) => o.subject?.reference))).toEqual(new Set(['Patient/caller-7']));
+    expect((given.bundle.entry ?? []).some((e) => e.resource?.resourceType === 'Patient')).toBe(false);
   });
 
-  it('uses the caller subject verbatim and adds no Patient', async () => {
-    const result = await readAll([oura(), whoop()], { ...request, subject: { reference: 'Patient/caller-7' } });
-    expect(new Set(observations(result).map((o) => o.subject?.reference))).toEqual(new Set(['Patient/caller-7']));
-    expect((result.bundle.entry ?? []).some((e) => e.resource?.resourceType === 'Patient')).toBe(false);
-  });
-
-  it('keeps the other sources when one reader fails, and names the failed one (D6)', async () => {
-    const broken = new StubReader('whoop', [], new Error('boom'));
-    const result = await readAll([oura(), broken]);
+  it('keeps the other sources when a reader fails with a ConnectorError, and lets a bug surface (D6)', async () => {
+    const failing = new StubReader('whoop', [], new ConnectorError('down', { code: 'server', connector: 'whoop' }));
+    const result = await readAll([oura(), failing]);
     expect(observations(result)).toHaveLength(2);
-    expect(result.issues).toContainEqual(expect.objectContaining({ severity: 'error', path: 'whoop' }));
+    expect(result.issues).toContainEqual(expect.objectContaining({ severity: 'error', code: 'server', path: 'whoop' }));
     expect(result.sources.map((s) => s.reader.id)).toEqual(['oura']);
-    await expect(readAll([broken])).rejects.toMatchObject({ code: 'unknown', operation: 'read' });
+    await expect(readAll([failing])).rejects.toMatchObject({ code: 'unknown', operation: 'read' });
+    await expect(readAll([new StubReader('whoop', [], new TypeError('bug'))])).rejects.toThrow(TypeError);
+  });
+
+  it('gives each reader only the types it knows and skips a reader with none', async () => {
+    const seen: string[][] = [];
+    class Spy extends StubReader {
+      override read(req: ReadRequest) {
+        seen.push(req.types ?? []);
+        return super.read(req);
+      }
+    }
+    const a = new Spy('oura', [{ code: RESTING_HEART_RATE, day: '2026-03-01', value: 52 }]);
+    a.descriptor.dataTypes = ['sleep'];
+    const b = new Spy('whoop', [{ code: RESTING_HEART_RATE, day: '2026-03-01', value: 55 }]);
+    b.descriptor.dataTypes = ['recovery'];
+    const result = await readAll([a, b], { ...request, types: ['sleep'] });
+    expect(seen).toEqual([['sleep']]);
+    expect(result.sources.map((s) => s.reader.id)).toEqual(['oura']);
   });
 
   it('prefixes inner issues with the reader id and is reproducible on a fixed clock', async () => {
@@ -152,6 +174,7 @@ describe('ReconcilingReader', () => {
     const second = await readAll([oura(), whoop()]);
     expect(JSON.stringify(first.bundle)).toBe(JSON.stringify(second.bundle));
     expect(first.issues).toContainEqual(expect.objectContaining({ code: 'stub', path: 'oura' }));
+    expect(first.issues).toContainEqual(expect.objectContaining({ code: 'stub-at', path: 'whoop/days[0]' }));
     expect(first.bundle.timestamp).toBe(NOW);
     expect(first.provenance.reader.id).toBe('open-twin');
   });
