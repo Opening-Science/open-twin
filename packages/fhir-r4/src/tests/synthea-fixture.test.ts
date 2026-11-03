@@ -18,7 +18,7 @@ interface SyntheaFixture {
 
 function loadBundles(): SyntheaFixture[] {
   return readdirSync(fixtureDir)
-    .filter((name) => name.endsWith('.json'))
+    .filter((name) => /^patient-\d+\.json$/.test(name))
     .sort()
     .map((name) => ({ name, bundle: JSON.parse(readFileSync(join(fixtureDir, name), 'utf8')) }));
 }
