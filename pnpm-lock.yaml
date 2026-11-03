@@ -453,6 +453,9 @@ importers:
 
   packages/reader-core:
     dependencies:
+      '@open-twin/aggregate':
+        specifier: workspace:*
+        version: link:../aggregate
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core

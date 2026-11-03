@@ -38,6 +38,7 @@
   "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
+    "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-core": "workspace:*",
     "@types/fhir": "0.0.44",
     "zod": "4.6.7"

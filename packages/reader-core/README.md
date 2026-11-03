@@ -91,6 +91,24 @@ What the suite does and does not establish:
 `src/tests/fake-reader.test.ts` shows every rule failing on a deliberately broken reader
 and passing on the correct one.
 
+## Reconciling several readers
+
+`ReconcilingReader` takes opened readers and reads one request from all of them, then
+hands the bundles to `@open-twin/aggregate`. The result is one bundle that carries every
+source Observation, plus a derived Observation wherever published evidence prefers one
+source. Where it does not, the aggregator abstains and says why. Each reconciliation and
+abstention is both an information issue and a typed entry in `reconciliations`. This is
+what twin-llm reads.
+
+```ts
+const reader = new ReconcilingReader([oura, whoop]); // open oura and whoop first
+await reader.open({ kind: 'api', sourceId: 'open-twin', config: {} }, { now });
+const { bundle, reconciliations, issues } = await reader.read({ subjectKey, window });
+```
+
+With no caller subject the wrapper mints one subject for every reader and adds the
+Patient itself; otherwise each connector would mint its own and nothing would match.
+
 ## Intended use
 
 Research and non-medical consumer wellness only; see [INTENDED-USE](../../docs/INTENDED-USE.md).

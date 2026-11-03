@@ -10,3 +10,4 @@ export * from './registry';
 export * from './testing/expected';
 export { checkDescriptor } from './testing/rules';
 export * from './types';
+export * from './wrappers/reconciling';
