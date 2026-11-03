@@ -9,6 +9,8 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `OuraReader` in `@open-twin/provider-oura`: the first API reader, with the host
+  `TokenStore` bridged to the token handler and a per-wearer token key (#238).
 - `FhirR4Reader` in `@open-twin/fhir-r4`: the first reader adapter, run through the
   conformance suite over the Synthea fixtures (#236).
 - `registry/connectors.json`, the single source of truth for the nine connectors,
