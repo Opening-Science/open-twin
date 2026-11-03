@@ -161,13 +161,7 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
 
   for (const view of views) {
     if (!view.resource || !view.resourceType) continue;
-    const sourceKey = view.fullUrl ?? addressOf(view.resourceType, view.resource) ?? `entry-${view.index}`;
-    const id = deterministicId({
-      connector: options.connector.connector,
-      subjectKey: options.subjectKey,
-      recordId: sourceKey,
-      measure: view.resourceType
-    });
+    const id = normalisedEntryId(options.connector.connector, options.subjectKey, view.resourceType, view, view.index);
     assigned.push({ view, id });
     indexResource(referenceIndex, view.fullUrl, view.resourceType, view.resource, id);
   }
@@ -247,6 +241,23 @@ export function normaliseBundle(input: unknown, options: NormaliseOptions): Norm
 
 /** Resource types whose whole meaning depends on knowing who they are about. */
 const SUBJECT_EXPECTED = new Set(['Observation', 'DiagnosticReport', 'Condition', 'Procedure', 'MedicationStatement']);
+
+/**
+ * The id normalisation gives an entry: from its fullUrl, else its RESTful address, else
+ * its position. Exported so a caller can name an entry before normalising (the reader
+ * points the subject at the bundle's own Patient this way).
+ */
+export function normalisedEntryId(
+  connector: string,
+  subjectKey: string,
+  resourceType: string,
+  entry: { fullUrl?: string; resource?: JsonObject },
+  index: number
+): string {
+  const address = entry.resource ? addressOf(resourceType, entry.resource) : undefined;
+  const sourceKey = entry.fullUrl ?? address ?? `entry-${index}`;
+  return deterministicId({ connector, subjectKey, recordId: sourceKey, measure: resourceType });
+}
 
 function addressOf(resourceType: string, resource: JsonObject): string | undefined {
   return typeof resource.id === 'string' ? `${resourceType}/${resource.id}` : undefined;
