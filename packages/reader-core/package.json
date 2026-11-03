@@ -39,7 +39,8 @@
   "license": "MIT",
   "dependencies": {
     "@open-twin/fhir-core": "workspace:*",
-    "@types/fhir": "0.0.44"
+    "@types/fhir": "0.0.44",
+    "zod": "4.6.7"
   },
   "peerDependencies": {
     "vitest": ">=3.0.0"
@@ -53,8 +54,7 @@
     "@types/node": "26.6.6",
     "tsup": "9.0.0",
     "typescript": "5.9.3",
-    "vitest": "5.1.0",
-    "zod": "4.6.7"
+    "vitest": "5.1.0"
   },
   "repository": {
     "type": "git",
