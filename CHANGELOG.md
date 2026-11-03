@@ -10,7 +10,7 @@ under [Releases](Contributing.md#releases).
 ### Added
 
 - `WhoopReader` in `@open-twin/provider-whoop`, and the first end-to-end
-  reconciliation over the real Oura and WHOOP readers (#243).
+  reconciliation over the real Oura and WHOOP readers (#244).
 - `ReconcilingReader` in `@open-twin/reader-core`: reads one request from several
   readers and returns one bundle reconciled by `aggregate`, with every reconciliation
   and abstention recorded. This is the hand-off twin-llm consumes (#241).
@@ -36,7 +36,7 @@ under [Releases](Contributing.md#releases).
 ### Changed
 
 - The WHOOP bundle key now includes the window, so two syncs of different windows
-  no longer share one `Bundle.id` (#243).
+  no longer share one `Bundle.id` (#244).
 - The Synthea recipe and Cohort Studio moved, with their history, to
   [opentwin-synthea](https://github.com/Opening-Science/opentwin-synthea)
   (#228). The recipe there includes the reproducibility fix from #218.
