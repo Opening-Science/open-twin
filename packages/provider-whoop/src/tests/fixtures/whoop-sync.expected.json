@@ -14,7 +14,6 @@
     "http://opentwin.ch/fhir/CodeSystem/whoop|spo2": 1
   },
   "absentValues": 1,
-  "codeSetSha256": "74bc9b0cfa30c29951a3f866b61c610093bac1fecd5cc653a4cfbccee2efc7d3",
   "firstEffective": "2026-06-19T22:00:00.000Z",
   "lastEffective": "2026-06-20T08:00:00.000Z"
 }
