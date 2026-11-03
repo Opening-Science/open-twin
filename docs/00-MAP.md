@@ -25,6 +25,7 @@ Cross-cutting decisions live in root [`DECISIONS.md`](../DECISIONS.md) — not u
 | [findings/anchor-layer-audit.md](findings/anchor-layer-audit.md)                                         | engineer                     | Anchor compile counts / D-e mismatches                                                  |
 | [findings/canary-suite.md](findings/canary-suite.md)                                                     | architect                    | Deliberately-wrong canaries and uncaught findings                                       |
 | [findings/synthea-coverage.md](findings/synthea-coverage.md)                                             | engineer                     | Anchor×Synthea inventory; P7 consumer intersection                                      |
+| [specs/reader-architecture.md](specs/reader-architecture.md)                                             | architect                    | Reader interface, registry or hand-off to consumers changes                             |
 
 Later branches land `strategy/`. This branch lands `contracts/` (interpretation schema + confidence). Terminology and runbooks already on main.
 
