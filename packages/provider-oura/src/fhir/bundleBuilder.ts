@@ -228,7 +228,8 @@ export function buildOuraBundle(
       context.subjectKey,
       [...request.types].sort().join(','),
       request.start_date ?? '',
-      request.end_date ?? ''
+      request.end_date ?? '',
+      request.utc_offset ?? ''
     ].join('|')
   });
 }

@@ -20,7 +20,6 @@
     "http://opentwin.ch/fhir/CodeSystem/oura|workout": 6
   },
   "absentValues": 31,
-  "codeSetSha256": "77210556ccab6faddd4251aa6556e74d56b2bdf7744aec15363c42fd60fce65d",
   "firstEffective": "2021-01-01",
   "lastEffective": "2026-07-25T00:00:00.000+00:00"
 }
