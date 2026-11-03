@@ -9,6 +9,10 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `registry/connectors.json`, the single source of truth for the nine connectors,
+  with its generated JSON Schema, `loadRegistry` in `@open-twin/reader-core`, the
+  blocking `check-registry` gate and the generated tables in README and
+  `docs/registry.md` (#234).
 - `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
   host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
 - `@open-twin/reader-core`: the `HealthDataReader` base class adapters extend
