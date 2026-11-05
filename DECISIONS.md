@@ -372,7 +372,9 @@ consumer (twin-llm today) calls each one directly, pins a commit and never reach
 `aggregate`. Bio-Formats showed what one reader interface, a registry and a delegator
 buy: a tool that reads any format it has a reader for, and a conformance suite that
 makes every reader pay the same price. The spec is `docs/specs/reader-architecture.md`
-(#229).
+(#229). `reader-core/src/testing` enforces the eight conformance rules there, except
+the delegator half of rule 2, which lands with `delegate.ts`; each enforced rule is
+shown to fail on a deliberately wrong reader.
 
 **Trade-off.** One more package in the build, and during phase 1 the adapters double
 the public surface: the existing entry points stay until phase 3 retires them with a

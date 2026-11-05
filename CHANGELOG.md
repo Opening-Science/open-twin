@@ -15,6 +15,8 @@ under [Releases](Contributing.md#releases).
   (#251).
 - `@open-twin/reader-core`: the eight conformance rules as plain checks, and
   `summarise`, which an adapter's `expected.json` records (#252).
+- `@open-twin/reader-core/testing`: `describeReaderConformance`, the suite each
+  adapter runs over its fixtures (#253).
 
 ### Changed
 
