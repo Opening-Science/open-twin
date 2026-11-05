@@ -6,4 +6,5 @@
  */
 export { type ConformanceOptions, describeReaderConformance } from './conformance';
 export { type ExpectedSummary, summarise } from './expected';
+export { describeTokenBridge, memoryTokenStore, replayFetch } from './hosts';
 export { type ConformanceFixture, type FhirBundleValidator, withGlobalFetch } from './rules';

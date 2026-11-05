@@ -11,16 +11,20 @@ scores nothing and interprets nothing.
 
 ## What is here
 
-| Module      | Purpose                                                                                       |
-| ----------- | --------------------------------------------------------------------------------------------- |
-| `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result |
-| `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                          |
-| `base.ts`   | `HealthDataReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores             |
-| `testing/`  | `describeReaderConformance`, `summarise`, the rule checks                                     |
+| Module      | Purpose                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result       |
+| `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                                |
+| `base.ts`   | `HealthDataReader` and `OAuthReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores |
+| `testing/`  | `describeReaderConformance`, `describeTokenBridge`, `summarise`, host test doubles                  |
 
-`OAuthReader`, wrappers and the CLI follow in their own pull requests.
+The delegating reader, other wrappers and the CLI follow in their own pull requests.
 
 ## Writing an adapter
+
+An API reader behind OAuth 2.0 extends `OAuthReader` instead: give it `configSchema` and
+`tokenHandlerFor(config, code)`, and open and close are done. It requires a per-wearer
+`tokenKey` with no default; `describeTokenBridge` tests that behaviour.
 
 ```ts
 import { HealthDataReader, type ReaderDescriptor, type ReadRequest, type ReadResult } from '@open-twin/reader-core';
