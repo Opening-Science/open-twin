@@ -14,7 +14,7 @@ under [Releases](Contributing.md#releases).
 - `@open-twin/reader-core`: the `HealthDataReader` base class adapters extend
   (#251).
 - `@open-twin/reader-core`: the eight conformance rules as plain checks, and
-  `summarise`, which an adapter's `expected.json` records (#PR3).
+  `summarise`, which an adapter's `expected.json` records (#252).
 
 ### Changed
 
