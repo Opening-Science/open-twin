@@ -64,12 +64,13 @@ CI also runs the official HL7 validator; a local validator run requires Java 21.
 
 Automated npm publishing is disabled; use the source checkout.
 
-Ten connector and core library packages (names use the `@open-twin/` scope):
+Eleven connector and core library packages (names use the `@open-twin/` scope):
 
 | package                                                     | direction     | source                                                            |
 | ----------------------------------------------------------- | ------------- | ----------------------------------------------------------------- |
 | [`fhir-core`](packages/fhir-core)                           | —             | the shared contract: systems, units, identity, provenance, errors |
 | [`aggregate`](packages/aggregate)                           | —             | cross-source reconciliation                                       |
+| [`reader-core`](packages/reader-core)                       | —             | one reader interface, base class and conformance harness          |
 | [`provider-oura`](packages/provider-oura)                   | vendor → FHIR | Oura Ring v2 API                                                  |
 | [`provider-whoop`](packages/provider-whoop)                 | vendor → FHIR | WHOOP Developer API v2                                            |
 | [`provider-google-health`](packages/provider-google-health) | vendor → FHIR | Google Health API v4                                              |
