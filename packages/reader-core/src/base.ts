@@ -1,5 +1,5 @@
 /**
- * WHAT: HealthDataReader, the shared implementation adapters extend, plus the small helpers every adapter needs: file text, config parsing, issue mapping, subject, bundle key, fetchJson, host stores.
+ * WHAT: HealthDataReader and OAuthReader, the shared implementations adapters extend, plus the small helpers every adapter needs: file text, config parsing, issue mapping, subject, bundle key, fetchJson, host stores.
  * NOT:  Does not map any vendor format and persists nothing itself; tokens and cursors go through the host stores (D8).
  * GOVERNED BY: DECISIONS.md#d16; DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6; DECISIONS.md#d8
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
@@ -302,5 +302,76 @@ export abstract class HealthDataReader implements IHealthDataReader {
   /** A `ConnectorError` for this reader. The message explains; only the cause's class name is kept. */
   protected fail(message: string, code: ConnectorErrorCode, operation: string, cause?: unknown): ConnectorError {
     return new ConnectorError(message, { code, connector: this.descriptor.id, operation, cause: safeCause(cause) });
+  }
+}
+
+/** What the vendor token handlers (Oura, WHOOP) already expose. */
+export interface OAuthTokenBridge {
+  setTokens(
+    tokens: { access_token: string; refresh_token: string; expires_in: number; token_type: 'bearer' },
+    expiresAt?: number
+  ): void;
+  getTokens(): { tokens: { access_token: string; refresh_token?: string }; expiresAt: number } | undefined;
+  /** Exchanges the authorization code the handler was built with. */
+  authenticate(): Promise<void>;
+}
+
+/**
+ * An API reader behind OAuth 2.0: the config is parsed in the reader, a per-wearer
+ * `tokenKey` is required with no default (wearers can share one client), tokens are
+ * restored from the host store at open and saved at close, and a code is exchanged
+ * when given and nothing is stored.
+ */
+export abstract class OAuthReader<C> extends HealthDataReader {
+  protected abstract readonly configSchema: Parser<C>;
+  protected abstract tokenHandlerFor(config: C, authorizationCode: string): OAuthTokenBridge;
+
+  protected config: C | undefined;
+  protected tokens: OAuthTokenBridge | undefined;
+  private tokenKey: string | undefined;
+
+  protected override async onOpen(input: ReaderInput): Promise<void> {
+    if (input.kind !== 'api' || input.sourceId !== this.descriptor.id) {
+      throw this.fail(`An api input with sourceId "${this.descriptor.id}" is required`, 'validation', 'open');
+    }
+
+    const config = this.parseConfig(this.configSchema, input.config);
+
+    if (!input.tokenKey)
+      throw this.fail('A per-wearer tokenKey is required; there is no default', 'validation', 'open');
+
+    const tokens = this.tokenHandlerFor(config, input.authorizationCode ?? '');
+
+    const stored = await this.loadTokens(input.tokenKey);
+
+    if (stored) {
+      tokens.setTokens(
+        {
+          access_token: stored.accessToken,
+          refresh_token: stored.refreshToken ?? '',
+          expires_in: 0,
+          token_type: 'bearer'
+        },
+        Date.parse(stored.expiresAt)
+      );
+    } else if (input.authorizationCode) {
+      await tokens.authenticate();
+    }
+
+    this.config = config;
+    this.tokens = tokens;
+    this.tokenKey = input.tokenKey;
+  }
+
+  protected override async onClose(): Promise<void> {
+    const current = this.tokens?.getTokens();
+
+    if (!current || !this.tokenKey) return;
+
+    await this.saveTokens(this.tokenKey, {
+      accessToken: current.tokens.access_token,
+      refreshToken: current.tokens.refresh_token,
+      expiresAt: new Date(current.expiresAt).toISOString()
+    });
   }
 }
