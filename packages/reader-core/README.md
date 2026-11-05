@@ -1,7 +1,9 @@
 # @open-twin/reader-core
 
 One interface over every open-twin connector. An adapter in each ingestion package
-extends `HealthDataReader`. Decision [D16](../../DECISIONS.md#d16);
+extends `HealthDataReader`, and the shared conformance suite makes every reader pay the
+same price: the eight rules of the reader architecture spec, run over the package's own
+fixtures. Decision [D16](../../DECISIONS.md#d16);
 specification `docs/specs/reader-architecture.md` (#229).
 
 **Layer (D14):** the ingestion layer's interface. This package maps no vendor format,
@@ -14,8 +16,9 @@ scores nothing and interprets nothing.
 | `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result |
 | `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                          |
 | `base.ts`   | `HealthDataReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores             |
+| `testing/`  | `describeReaderConformance`, `summarise`, the rule checks                                     |
 
-The conformance suite, `OAuthReader`, wrappers and the CLI follow in their own pull requests.
+`OAuthReader`, wrappers and the CLI follow in their own pull requests.
 
 ## Writing an adapter
 
@@ -45,6 +48,43 @@ Rules the base class leaves to the adapter: every Observation carries the connec
 meta tag (`connectorMeta` from fhir-core), units are `UCUM.*`, missing data is
 `dataAbsentReason` and never 0, source offsets are kept (D7), and no error or issue ever
 quotes a response body, a token, a name or an e-mail.
+
+## Running the conformance suite
+
+In the adapter package's tests:
+
+```ts
+import { validateFhir } from '@open-twin/fhir-r4';
+import { describeReaderConformance } from '@open-twin/reader-core/testing';
+
+describeReaderConformance(() => new ExampleReader(), {
+  descriptor, // descriptorOf(the entry in registry/connectors.json)
+  fixtures: [{ name, input, host, request, expected }],
+  invalidInput, // open must reject it with ConnectorError 'validation'
+  validate: validateFhir, // rule 4
+  secrets: { 'access token': '...', 'wearer id': '...' } // rule 7
+});
+```
+
+`expected.json` is generated with `summarise` from a run the author has checked, never
+written by hand. It pins counts per resource type and per code, the effective range and
+the number of value-less Observations.
+
+What the suite does and does not establish:
+
+- Rule 2 checks the reader's own fixtures only. The other half, that the delegator binds
+  the expected reader for every other reader's fixtures, lands with `delegate.ts`.
+- Rule 4 runs the validator the adapter injects. The HL7 validator, the UCUM gate and the
+  terminology gate still run over `verify/bundles.manifest.ts` in CI; register the
+  fixture bundle there.
+- Rule 5 cannot tell a genuine 0 from 0-for-missing; rule 8 catches it only when the
+  fixture contains a missing value, so include one.
+- Rule 6 checks distinct windows only when the fixture request has a window.
+- Rule 7 checks serialised issues, provenance and log lines against the `secrets` you
+  list, plus e-mail addresses and token fields. It cannot know a name you did not list.
+
+`src/tests/fake-reader.test.ts` shows every rule failing on a deliberately broken reader
+and passing on the correct one.
 
 ## Intended use
 

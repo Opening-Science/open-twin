@@ -1,0 +1,9 @@
+{
+  "format": "fake-steps",
+  "user": "wearer-1",
+  "days": [
+    { "date": "2026-03-01", "steps": 8200 },
+    { "date": "2026-03-02", "steps": null },
+    { "date": "2026-03-03", "steps": 10450 }
+  ]
+}
