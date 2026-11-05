@@ -11,6 +11,8 @@ under [Releases](Contributing.md#releases).
 
 - `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
   host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
+- `@open-twin/reader-core`: the `HealthDataReader` base class adapters extend
+  (#PR).
 
 ### Changed
 
