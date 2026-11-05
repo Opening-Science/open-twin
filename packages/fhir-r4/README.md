@@ -22,6 +22,15 @@ const { bundle, outcome } = normaliseBundle(payload, {
 });
 ```
 
+## Reader API
+
+`FhirR4Reader` (also `createReader()`) implements `IHealthDataReader` from
+`@open-twin/reader-core`: `isThisType` sniffs JSON for `"resourceType": "Bundle"`,
+`open` parses it, and `read` runs `normaliseBundle` under the request's subject key,
+returning every validation finding as an issue. With no caller subject and exactly one
+Patient in the bundle, that Patient is the subject; a window or a types filter is
+reported, not applied. Registry id `fhir-r4` ([docs/registry.md](../../docs/registry.md)).
+
 ## What it does
 
 ### 1. Validation — `validateFhir(input, { units? })`

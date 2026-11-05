@@ -9,6 +9,8 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `FhirR4Reader` in `@open-twin/fhir-r4`: the first reader adapter, run through the
+  conformance suite over the Synthea fixtures (#236).
 - `registry/connectors.json`, the single source of truth for the nine connectors,
   with its generated JSON Schema, `loadRegistry` in `@open-twin/reader-core`, the
   blocking `check-registry` gate and the generated tables in README and
