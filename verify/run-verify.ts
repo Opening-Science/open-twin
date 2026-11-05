@@ -60,6 +60,11 @@ export const GATES: Gate[] = [
     args: ['exec', 'tsx', 'verify/check-canaries.ts']
   },
   {
+    id: 'connector-registry (verify/check-registry.ts)',
+    command: 'pnpm',
+    args: ['exec', 'tsx', 'verify/check-registry.ts']
+  },
+  {
     id: 'verify-ci-equivalence (verify/check-verify-equivalence.ts)',
     command: 'pnpm',
     args: ['exec', 'tsx', 'verify/check-verify-equivalence.ts']

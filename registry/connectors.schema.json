@@ -1,0 +1,172 @@
+{
+  "$id": "https://github.com/Opening-Science/open-twin/registry/connectors.schema.json",
+  "title": "open-twin connector registry",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "connectors": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Registry id, kebab-case. Equals the connector code in Bundle.meta.tag."
+          },
+          "package": {
+            "type": "string",
+            "pattern": "^@open-twin\\/[a-z0-9-]+$",
+            "description": "The workspace package that implements the reader."
+          },
+          "export": {
+            "description": "The reader class the package exports. Absent while the adapter is still to be written.",
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]*Reader$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$",
+            "description": "Equals the package.json version; verify/check-registry.ts checks it."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "api",
+              "file"
+            ]
+          },
+          "auth": {
+            "type": "string",
+            "enum": [
+              "oauth2",
+              "basic",
+              "bearer",
+              "none"
+            ]
+          },
+          "domains": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "wearable",
+                "body-scan",
+                "lab",
+                "clinical-record",
+                "genomics",
+                "synthetic"
+              ]
+            }
+          },
+          "dataTypes": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "The request types the reader supports."
+          },
+          "suffixes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\.[a-z0-9.]+$"
+            }
+          },
+          "mediaTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "aliases": {
+            "description": "Naming history only, never a second id.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "must-have",
+              "nice-to-have",
+              "research",
+              "deprecated"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "Higher is asked first by the delegator; generic readers sit last."
+          },
+          "maintainer": {
+            "type": "string",
+            "pattern": "^github:[A-Za-z0-9-]+$"
+          },
+          "docs": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Repository path of the package README."
+          },
+          "vendorDocs": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fixtures": {
+            "description": "Repository path of the fixture directory.",
+            "type": "string",
+            "minLength": 1
+          },
+          "fixturesProvenance": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verificationBundles": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Names in verify/bundles.manifest.ts."
+          }
+        },
+        "required": [
+          "id",
+          "package",
+          "name",
+          "version",
+          "kind",
+          "auth",
+          "domains",
+          "dataTypes",
+          "status",
+          "priority",
+          "maintainer",
+          "docs",
+          "verificationBundles"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "connectors"
+  ],
+  "additionalProperties": false
+}

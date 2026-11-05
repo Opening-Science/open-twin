@@ -81,6 +81,7 @@ Count: **77**
 - `packages/reader-core/src/base.ts`
 - `packages/reader-core/src/index.ts`
 - `packages/reader-core/src/reader.ts`
+- `packages/reader-core/src/registry.ts`
 - `packages/reader-core/src/testing/conformance.ts`
 - `packages/reader-core/src/testing/expected.ts`
 - `packages/reader-core/src/testing/hosts.ts`

@@ -83,6 +83,10 @@ jobs:
       - name: Canary suite
         run: pnpm exec tsx verify/check-canaries.ts
 
+      # Imports each registered package's dist to compare descriptors, so it runs after the build.
+      - name: Connector registry
+        run: pnpm exec tsx verify/check-registry.ts
+
       - name: Local/CI verify gate equivalence
         run: pnpm exec tsx verify/check-verify-equivalence.ts
 

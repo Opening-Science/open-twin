@@ -19,7 +19,12 @@
     "lineWidth": 120,
     "attributePosition": "auto",
     "bracketSpacing": true,
-    "includes": ["**", "!packages/anchor-layer/data/**", "!packages/interpreter/fixtures/golden/**/expected.json"]
+    "includes": [
+      "**",
+      "!packages/anchor-layer/data/**",
+      "!packages/interpreter/fixtures/golden/**/expected.json",
+      "!registry/connectors.schema.json"
+    ]
   },
   "javascript": {
     "formatter": {
