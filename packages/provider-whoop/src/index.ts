@@ -26,6 +26,7 @@ export {
   type WhoopDataResult,
   type WhoopRequestOptions
 } from './fhir/bundleBuilder';
+export { createReader, WhoopReader } from './reader';
 export type { WhoopWindow } from './utils/fetchWhoopData';
 export { TokenHandler } from './utils/tokenUtils';
 

@@ -33,11 +33,14 @@
   "license": "MIT",
   "dependencies": {
     "@open-twin/fhir-core": "workspace:*",
+    "@open-twin/reader-core": "workspace:*",
     "@types/fhir": "0.0.44",
     "zod": "4.6.7"
   },
   "devDependencies": {
     "@lhncbc/ucum-lhc": "8.0.1",
+    "@open-twin/fhir-r4": "workspace:*",
+    "@open-twin/provider-oura": "workspace:*",
     "@rollup/plugin-swc": "0.4.1",
     "@types/node": "26.6.6",
     "jest-extended": "7.0.0",
