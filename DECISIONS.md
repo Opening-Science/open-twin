@@ -354,6 +354,30 @@ wrong unit (the original issue’s litres for volume) is silently interpretable.
 covered by the units-allowlist waiver on the mapper file. Extending the table
 is a D15 amendment, not a local guess.
 
+<a id="d16"></a>
+## D16 — Reader interface and registry
+
+**Decision.** Every ingestion package exposes its connector through one interface,
+`IHealthDataReader` in `@open-twin/reader-core`, by extending `HealthDataReader`.
+Static facts about a reader live in its `descriptor`, which must equal its entry in
+the registry (`registry/connectors.json`, the single source of truth for what exists).
+The delegating reader is the only place that chooses a reader for an input. State
+lives in host-implemented `TokenStore` and `CursorStore` (restating D8): the library
+defines the interfaces and never a store. `reader-core` depends on `fhir-core` only;
+the FHIR validation in its conformance suite is injected by the adapter package, so
+`fhir-r4` can itself be a reader without a dependency cycle.
+
+**Why.** The connectors are nine libraries with nine entry-point signatures. A
+consumer (twin-llm today) calls each one directly, pins a commit and never reaches
+`aggregate`. Bio-Formats showed what one reader interface, a registry and a delegator
+buy: a tool that reads any format it has a reader for, and a conformance suite that
+makes every reader pay the same price. The spec is `docs/specs/reader-architecture.md`
+(#229).
+
+**Trade-off.** One more package in the build, and during phase 1 the adapters double
+the public surface: the existing entry points stay until phase 3 retires them with a
+decision entry of their own.
+
 ## Still open — needs a named clinical reviewer
 
 These cannot be settled by research, and they are the root cause of the terminology

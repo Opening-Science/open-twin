@@ -445,6 +445,28 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@types/node@26.6.6)(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
+  packages/reader-core:
+    dependencies:
+      '@open-twin/fhir-core':
+        specifier: workspace:*
+        version: link:../fhir-core
+      '@types/fhir':
+        specifier: 0.0.44
+        version: 0.0.44
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.6
+        version: 26.6.6
+      tsup:
+        specifier: 9.0.0
+        version: 9.0.0(@swc/core@1.15.43)(postcss@8.5.15)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.0)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 5.1.0
+        version: 5.1.0(@types/node@26.6.6)(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
+
 packages:
 
   '@apidevtools/json-schema-ref-parser@11.9.3':

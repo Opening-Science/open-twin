@@ -7,6 +7,11 @@ under [Releases](Contributing.md#releases).
 
 ## [Unreleased]
 
+### Added
+
+- `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
+  host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
+
 ### Changed
 
 - The Synthea recipe and Cohort Studio moved, with their history, to
