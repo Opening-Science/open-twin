@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Pull request descriptions are written by the author (Contributing.md); reviews stay on.
+reviews:
+  high_level_summary: false
