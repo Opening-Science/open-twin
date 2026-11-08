@@ -38,6 +38,7 @@
     {
       "id": "google-health",
       "package": "@open-twin/provider-google-health",
+      "export": "GoogleHealthReader",
       "name": "Google Health API v4",
       "version": "0.1.0",
       "kind": "api",

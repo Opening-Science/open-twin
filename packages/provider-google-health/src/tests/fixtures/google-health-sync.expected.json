@@ -1,0 +1,18 @@
+{
+  "resourceTypes": {
+    "Observation": 8,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|29463-7": 1,
+    "http://loinc.org|55423-8": 1,
+    "http://loinc.org|8302-2": 1,
+    "http://loinc.org|8867-4": 1,
+    "http://opentwin.ch/fhir/CodeSystem/google-health|distance": 1,
+    "http://opentwin.ch/fhir/CodeSystem/google-health|sleep": 1,
+    "http://opentwin.ch/fhir/CodeSystem/google-health|sleep-stage": 2
+  },
+  "absentValues": 1,
+  "firstEffective": "2026-07-06T23:58:00.000+02:00",
+  "lastEffective": "2026-07-07T09:51:29.000+02:00"
+}

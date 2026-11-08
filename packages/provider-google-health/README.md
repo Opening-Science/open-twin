@@ -137,6 +137,14 @@ A non-empty `unmapped` array means a data type this package _declares_ it can re
 arrived and was dropped — a defect in this package, reported rather than swallowed. Keys
 belonging to data types the package never declares are ignored silently.
 
+## Reader API
+
+`GoogleHealthReader` (also `createReader()`) implements `IHealthDataReader` from
+`@open-twin/reader-core`. `open` takes an `api` input with the config (`clientId`,
+`clientSecret`, `redirectUri`, `timeZone`, optional `scopes`) and a per-wearer `tokenKey`;
+tokens are restored from `host.tokenStore` and saved back at `close`. `read` needs a window
+and passes `host.fetch` to googleapis. Registry id `google-health` ([docs/registry.md](../../docs/registry.md)).
+
 ## Known gaps
 
 - `total-calories` and `calories-in-heart-rate-zone` are **not** supported. They are not

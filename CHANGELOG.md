@@ -9,6 +9,8 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `GoogleHealthReader` in `@open-twin/provider-google-health`, on `OAuthReader`,
+  run through the conformance suite over replayed Google Health responses (#PR).
 - `WhoopReader` in `@open-twin/provider-whoop`, and the first end-to-end
   reconciliation over the real Oura and WHOOP readers (#244).
 - `ReconcilingReader` in `@open-twin/reader-core`: reads one request from several
