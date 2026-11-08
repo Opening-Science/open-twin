@@ -38,7 +38,7 @@ under [Releases](Contributing.md#releases).
 - `GoogleHealthClient` takes an optional `fetch`, which googleapis would otherwise
   ignore, and can restore and return its credentials. The Google Health bundle key
   now includes the types, the window and the time zone, so two syncs of different
-  windows no longer share one `Bundle.id` (#PR).
+  windows no longer share one `Bundle.id` (#259).
 - The WHOOP bundle key now includes the window, so two syncs of different windows
   no longer share one `Bundle.id` (#244).
 - The Synthea recipe and Cohort Studio moved, with their history, to
