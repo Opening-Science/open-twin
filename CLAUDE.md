@@ -15,6 +15,7 @@ formats into FHIR R4 bundles, plus a reconciliation layer over them.
 | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `@open-twin/fhir-core`                                          | Shared FHIR building blocks, terminology systems, unit policy               |
 | `@open-twin/aggregate`                                          | Cross-source reconciliation; abstains without evidence                      |
+| `@open-twin/reader-core`                                        | One reader interface over every connector, plus the conformance harness     |
 | `@open-twin/provider-oura`                                      | Oura Ring v2 API                                                            |
 | `@open-twin/provider-whoop`                                     | WHOOP Developer API v2                                                      |
 | `@open-twin/provider-google-health`                             | **Google Health API v4** — see the warning below                            |

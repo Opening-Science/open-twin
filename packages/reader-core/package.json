@@ -1,0 +1,57 @@
+{
+  "name": "@open-twin/reader-core",
+  "version": "0.1.0",
+  "description": "One reader interface over every open-twin connector",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch --dts",
+    "format": "biome check --write",
+    "lint": "biome ci",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "fhir",
+    "reader",
+    "connector",
+    "open-twin"
+  ],
+  "author": "Open Science Foundation",
+  "license": "MIT",
+  "dependencies": {
+    "@open-twin/fhir-core": "workspace:*",
+    "@types/fhir": "0.0.44"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsup": "9.0.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Opening-Science/open-twin.git",
+    "directory": "packages/reader-core"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
+}
