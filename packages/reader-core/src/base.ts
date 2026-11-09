@@ -44,6 +44,7 @@ export abstract class HealthDataReader implements IHealthDataReader {
 
   protected input: ReaderInput | undefined;
   protected host: HostServices = {};
+  private opening = false;
 
   /** API readers match their id; file readers override this with a content sniff. */
   isThisType(input: ReaderInput): Promise<boolean> | boolean {
@@ -51,10 +52,11 @@ export abstract class HealthDataReader implements IHealthDataReader {
   }
 
   async open(input: ReaderInput, host: HostServices = {}): Promise<void> {
-    if (this.input !== undefined) {
+    if (this.input !== undefined || this.opening) {
       throw this.fail('The reader is already open; use one instance per connection', 'validation', 'open');
     }
 
+    this.opening = true;
     this.host = host;
 
     try {
@@ -62,6 +64,8 @@ export abstract class HealthDataReader implements IHealthDataReader {
     } catch (error) {
       this.host = {};
       throw error;
+    } finally {
+      this.opening = false;
     }
 
     this.input = input;
