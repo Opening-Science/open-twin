@@ -38,6 +38,22 @@ describe('HealthDataReader', () => {
       await expect(reader.open(api, { fetch: ok })).resolves.toBeUndefined();
     });
 
+    it('rejects a second open that starts while the first is still running', async () => {
+      const slowCursor = { load: () => new Promise<undefined>((resolve) => setTimeout(resolve, 10)), save: vi.fn() };
+      const reader = buildHealthDataReader();
+      const first = reader.open(api, { fetch: ok, cursorStore: slowCursor });
+
+      await expect(reader.open(api, { fetch: ok })).rejects.toThrow(/one instance per connection/);
+      await expect(first).resolves.toBeUndefined();
+    });
+
+    it('fails read after close', async () => {
+      const reader = await openHealthDataReader({ fetch: ok });
+      await reader.close();
+
+      await expect(reader.read(request)).rejects.toMatchObject({ code: 'validation' });
+    });
+
     it('stays closed after a failed open, so it can be opened again', async () => {
       const reader = buildHealthDataReader();
 
@@ -77,6 +93,19 @@ describe('HealthDataReader', () => {
       const error = await readError(() => Promise.reject(new TypeError('socket to https://h/?token=1')));
 
       expect(error).toMatchObject({ code: 'transport', cause: 'TypeError' });
+    });
+
+    it('keeps no cause name that is not a plain class name', async () => {
+      const odd = Object.assign(new Error('x'), { name: 'https://h/?token=1' });
+      const error = await readError(() => Promise.reject(odd));
+
+      expect(error.cause).toBe('Error');
+    });
+
+    it('is validation when ok is not a boolean', async () => {
+      const error = await readError(async () => Response.json({ ok: 'false' }));
+
+      expect(error.code).toBe('validation');
     });
 
     it('is validation when the body is not JSON or not the shape, and quotes neither', async () => {
