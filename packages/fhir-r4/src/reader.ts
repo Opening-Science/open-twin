@@ -60,12 +60,16 @@ export class FhirR4Reader extends HealthDataReader {
     return text !== undefined && /"resourceType"\s*:\s*"Bundle"/.test(text);
   }
 
-  protected override onOpen(input: ReaderInput): Promise<void> {
+  protected onOpen(input: ReaderInput): Promise<void> {
     const json = fileJson(input);
     if (!isObject(json) || json.resourceType !== 'Bundle') {
       throw this.fail('The input is not a FHIR Bundle in JSON', 'validation', 'open');
     }
     this.bundle = json;
+    return Promise.resolve();
+  }
+
+  protected onClose(): Promise<void> {
     return Promise.resolve();
   }
 
@@ -98,7 +102,10 @@ export class FhirR4Reader extends HealthDataReader {
   }
 
   private readOpened(request: ReadRequest): ReadResult {
-    const bundle = this.opened(this.bundle);
+    const { bundle } = this;
+
+    if (!bundle) throw this.fail('read called before open', 'validation', 'read');
+
     const issues: Issue[] = [];
     if (request.window) {
       issues.push(
