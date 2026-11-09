@@ -8,9 +8,9 @@
 import { readFileSync } from 'node:fs';
 import { ConnectorError } from '@open-twin/fhir-core';
 import { z } from 'zod';
-import { failedPaths } from './base';
 import type { IHealthDataReader } from './reader';
 import { AUTH_KINDS, DATA_DOMAINS, READER_KINDS, type ReaderDescriptor } from './types';
+import { failedFieldPaths } from './utils/parser';
 
 const ID = /^[a-z][a-z0-9-]*$/;
 const SEMVER = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
@@ -100,7 +100,7 @@ export function loadRegistry(path: string): Registry {
   }
   const parsed = RegistrySchema.safeParse(json);
   if (!parsed.success) {
-    throw registryError(`The registry does not match its schema at: ${failedPaths(parsed.error)}`, 'loadRegistry');
+    throw registryError(`The registry does not match its schema at: ${failedFieldPaths(parsed.error)}`, 'loadRegistry');
   }
   const violations = crossEntryViolations(parsed.data.connectors);
   if (violations.length > 0)
