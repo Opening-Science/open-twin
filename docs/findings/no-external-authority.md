@@ -9,7 +9,6 @@ review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
 
-
 Count: **89**
 
 - `packages/aggregate/src/aggregate.ts`
