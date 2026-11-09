@@ -6,12 +6,14 @@
  * GOTCHA: Oura takes dates in the wearer's own offset, so a window must carry one offset on both ends; a silent +00:00 shifts heart-rate windows.
  */
 import {
-  issueFromOutcome,
+  type Issue,
+  issueFromOperationOutcome,
   OAuthReader,
   type ReaderDescriptor,
   type ReaderMetadata,
   type ReadRequest,
-  type ReadResult
+  type ReadResult,
+  withConnectorTag
 } from '@open-twin/reader-core';
 import { z } from 'zod';
 import type { RequestParams } from './api/schemas/client';
@@ -69,9 +71,11 @@ export class OuraReader extends OAuthReader<z.infer<typeof OuraReaderConfig>> {
   }
 
   async read(request: ReadRequest): Promise<ReadResult> {
-    const config = this.opened(this.config);
-    const tokens = this.opened(this.tokens) as TokenHandler;
-    const issues = [];
+    if (!this.config || !this.tokens) throw this.fail('read called before open', 'validation', 'read');
+
+    const config = this.config;
+    const tokens = this.tokens as TokenHandler;
+    const issues: Issue[] = [];
 
     const requested = request.types ?? this.descriptor.dataTypes;
     const types = requested.filter(isScope);
@@ -101,8 +105,8 @@ export class OuraReader extends OAuthReader<z.infer<typeof OuraReaderConfig>> {
       subjectKey: request.subjectKey,
       timestamp: this.now()
     });
-    issues.push(...(result.issues?.issue ?? []).map(issueFromOutcome));
-    const bundle = this.withConnectorTag(result.bundle);
+    issues.push(...(result.issues?.issue ?? []).map(issueFromOperationOutcome));
+    const bundle = withConnectorTag(result.bundle, this.connector);
     return { bundle, issues, provenance: this.provenanceFor(bundle, SOURCE) };
   }
 }
