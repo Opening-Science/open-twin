@@ -1,4 +1,5 @@
 import {
+  buildBundle,
   CATEGORY,
   connectorMeta,
   createObservation,
@@ -9,8 +10,9 @@ import {
 } from '@open-twin/fhir-core';
 import type { Observation } from 'fhir/r4';
 import { z } from 'zod';
-import { fileJson, fileText, HealthDataReader } from '../base';
+import { HealthDataReader } from '../base';
 import type { Issue, ReaderDescriptor, ReaderInput, ReaderMetadata, ReadRequest, ReadResult } from '../types';
+import { fileJson, fileText } from '../utils/fileInput';
 
 /** A code system that exists only in these tests. Never a LOINC or SNOMED code. */
 export const FAKE_STEPS_SYSTEM = 'urn:open-twin:test:fake-steps';
@@ -75,7 +77,7 @@ export class FakeStepsReader extends HealthDataReader {
     return text !== undefined && /"format"\s*:\s*"fake-steps"/.test(text);
   }
 
-  protected override async onOpen(input: ReaderInput): Promise<void> {
+  protected async onOpen(input: ReaderInput): Promise<void> {
     if (this.defect === 'fetches-in-open') await (this.host.fetch ?? globalThis.fetch)('https://example.invalid/');
 
     const parsed = StepsFile.safeParse(fileJson(input));
@@ -93,6 +95,10 @@ export class FakeStepsReader extends HealthDataReader {
     throw this.fail('The input is not a fake-steps file', 'validation', 'open');
   }
 
+  protected onClose(): Promise<void> {
+    return Promise.resolve();
+  }
+
   describe(): Promise<ReaderMetadata> {
     return Promise.resolve({
       source: { id: this.descriptor.id },
@@ -107,8 +113,10 @@ export class FakeStepsReader extends HealthDataReader {
   }
 
   private mapDays(request: ReadRequest): ReadResult {
-    const file = this.opened(this.file);
-    const input = this.opened(this.input);
+    const { file, input } = this;
+
+    if (!file || !input) throw this.fail('read called before open', 'validation', 'read');
+
     const { id, version } = this.descriptor;
     const subject = this.subjectFor(request);
     const subjectReference = this.defect === 'wrong-subject' ? { reference: 'Patient/example' } : subject.reference;
@@ -173,8 +181,10 @@ export class FakeStepsReader extends HealthDataReader {
         : this.defect === 'window-ignored'
           ? `${id}|${request.subjectKey}`
           : this.bundleKeyFor(request);
-    const bundle = this.bundleFrom({
+    const bundle = buildBundle({
+      connector: this.connector,
       resources: [...(subject.patient ? [subject.patient] : []), ...observations],
+      timestamp: this.now(),
       bundleKey
     });
 
