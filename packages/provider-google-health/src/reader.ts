@@ -7,13 +7,14 @@
  */
 import {
   type Issue,
-  issueFromOutcome,
+  issueFromOperationOutcome,
   OAuthReader,
   type OAuthTokenBridge,
   type ReaderDescriptor,
   type ReaderMetadata,
   type ReadRequest,
-  type ReadResult
+  type ReadResult,
+  withConnectorTag
 } from '@open-twin/reader-core';
 import { z } from 'zod';
 import { GoogleHealthClient } from './api/client';
@@ -102,8 +103,10 @@ export class GoogleHealthReader extends OAuthReader<GoogleHealthReaderConfig> {
   }
 
   async read(request: ReadRequest): Promise<ReadResult> {
-    const config = this.opened(this.config);
-    const { client } = this.opened(this.tokens) as GoogleHealthTokens;
+    if (!this.config || !this.tokens) throw this.fail('read called before open', 'validation', 'read');
+
+    const config = this.config;
+    const { client } = this.tokens as GoogleHealthTokens;
 
     if (!request.window) throw this.fail('Google Health needs a request window', 'validation', 'read');
 
@@ -129,13 +132,13 @@ export class GoogleHealthReader extends OAuthReader<GoogleHealthReaderConfig> {
       subject: request.subject,
       timestamp: this.now()
     });
-    issues.push(...(result.issues?.issue ?? []).map(issueFromOutcome));
+    issues.push(...(result.issues?.issue ?? []).map(issueFromOperationOutcome));
 
     if (result.unmapped.length > 0) {
       issues.push(this.issue('warning', 'unmapped-type', 'A declared type arrived and the mapper dropped it.'));
     }
 
-    const bundle = this.withConnectorTag(result.bundle);
+    const bundle = withConnectorTag(result.bundle, this.connector);
     return { bundle, issues, provenance: this.provenanceFor(bundle, SOURCE) };
   }
 }
