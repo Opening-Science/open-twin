@@ -10,6 +10,8 @@ This is an inventory, not a licence to invent authority.
 
 
 
+Count: **90**
+
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
 - `packages/aggregate/src/measure.ts`
