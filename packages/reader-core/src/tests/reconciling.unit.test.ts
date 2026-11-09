@@ -1,4 +1,5 @@
 import {
+  buildBundle,
   CATEGORY,
   ConnectorError,
   createObservation,
@@ -11,6 +12,7 @@ import type { Observation } from 'fhir/r4';
 import { describe, expect, it, vi } from 'vitest';
 import { HealthDataReader } from '../base';
 import type { ReaderDescriptor, ReaderMetadata, ReadRequest, ReadResult } from '../types';
+import { withConnectorTag } from '../utils/connectorTag';
 import { ReconcilingReader } from '../wrappers/reconciling';
 
 const RESTING_HEART_RATE = '40443-4';
@@ -42,6 +44,14 @@ class StubReader extends HealthDataReader {
       auth: 'none'
     };
   }
+  protected onOpen(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  protected onClose(): Promise<void> {
+    return Promise.resolve();
+  }
+
   describe(): Promise<ReaderMetadata> {
     return Promise.resolve({
       source: { id: this.descriptor.id },
@@ -67,11 +77,14 @@ class StubReader extends HealthDataReader {
         valueQuantity: quantity(reading.value, reading.code === ENERGY ? UCUM.KILOCALORIE : UCUM.PER_MINUTE)
       })
     );
-    const bundle = this.withConnectorTag(
-      this.bundleFrom({
+    const bundle = withConnectorTag(
+      buildBundle({
+        connector: this.connector,
         resources: [...(subject.patient ? [subject.patient] : []), ...observations],
+        timestamp: this.now(),
         bundleKey: this.bundleKeyFor(request)
-      })
+      }),
+      this.connector
     );
     const issues = [
       this.issue('information', 'stub', 'from the stub'),
@@ -143,12 +156,13 @@ describe('ReconcilingReader', () => {
   });
 
   it('keeps the other sources when a reader fails with a ConnectorError, and lets a bug surface (D6)', async () => {
-    const failing = new StubReader('whoop', [], new ConnectorError('down', { code: 'server', connector: 'whoop' }));
-    const result = await readAll([oura(), failing]);
+    const failing = () =>
+      new StubReader('whoop', [], new ConnectorError('down', { code: 'server', connector: 'whoop' }));
+    const result = await readAll([oura(), failing()]);
     expect(observations(result)).toHaveLength(2);
     expect(result.issues).toContainEqual(expect.objectContaining({ severity: 'error', code: 'server', path: 'whoop' }));
     expect(result.sources.map((s) => s.reader.id)).toEqual(['oura']);
-    await expect(readAll([failing])).rejects.toMatchObject({ code: 'unknown', operation: 'read' });
+    await expect(readAll([failing()])).rejects.toMatchObject({ code: 'unknown', operation: 'read' });
     await expect(readAll([new StubReader('whoop', [], new TypeError('bug'))])).rejects.toThrow(TypeError);
   });
 
