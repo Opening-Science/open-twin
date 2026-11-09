@@ -26,7 +26,7 @@ const ProbeConfig: Parser<{ url: string }> = {
 
 const Payload: Parser<{ ok: boolean }> = {
   safeParse: (data) =>
-    typeof data === 'object' && data !== null && 'ok' in data
+    typeof data === 'object' && data !== null && typeof (data as { ok?: unknown }).ok === 'boolean'
       ? { success: true, data: data as { ok: boolean } }
       : { success: false, error: { issues: [{ path: ['ok'] }] } }
 };
@@ -61,7 +61,7 @@ class ProbeReader extends HealthDataReader {
   }
 
   async read(request: ReadRequest): Promise<ReadResult> {
-    if (!this.config) throw this.fail('read called before open', 'validation', 'read');
+    if (!this.input || !this.config) throw this.fail('read called before open', 'validation', 'read');
 
     const payload = await this.fetchJson(this.config.url, Payload, 'GET probe');
     const subject = this.subjectFor(request);
