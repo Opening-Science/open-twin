@@ -85,6 +85,7 @@ Count: **83**
 - `packages/provider-whoop/src/reader.ts`
 - `packages/reader-core/src/base.ts`
 - `packages/reader-core/src/index.ts`
+- `packages/reader-core/src/oauthReader.ts`
 - `packages/reader-core/src/reader.ts`
 - `packages/reader-core/src/registry.ts`
 - `packages/reader-core/src/testing/conformance.ts`
@@ -93,4 +94,4 @@ Count: **83**
 - `packages/reader-core/src/testing/index.ts`
 - `packages/reader-core/src/testing/rules.ts`
 - `packages/reader-core/src/types.ts`
-- `packages/reader-core/src/wrappers/reconciling.ts`
+Count: **81**

@@ -6,10 +6,18 @@
  * GOTCHA: with no caller subject the wrapper mints one subject for every inner reader and carries the Patient itself, because each connector would otherwise mint its own and aggregate refuses to reconcile across subjects.
  */
 import { AGGREGATOR, aggregate, type Reconciliation, type SourceBundle } from '@open-twin/aggregate';
-import { ConnectorError } from '@open-twin/fhir-core';
+import { buildBundle, ConnectorError } from '@open-twin/fhir-core';
 import { HealthDataReader } from '../base';
 import type { IHealthDataReader, ReaderWrapper } from '../reader';
-import type { Issue, ReaderDescriptor, ReaderMetadata, ReadProvenance, ReadRequest, ReadResult } from '../types';
+import type {
+  Issue,
+  ReaderDescriptor,
+  ReaderInput,
+  ReaderMetadata,
+  ReadProvenance,
+  ReadRequest,
+  ReadResult
+} from '../types';
 
 export interface ReconcilingReadResult extends ReadResult {
   /** One per measure and day that more than one source reported: selected, or abstained with the reason. */
@@ -90,7 +98,8 @@ export class ReconcilingReader extends HealthDataReader implements ReaderWrapper
     if (subject.patient) {
       sources.push({
         connector: this.descriptor.id,
-        bundle: this.bundleFrom({
+        bundle: buildBundle({
+          connector: this.connector,
           resources: [subject.patient],
           bundleKey: `${this.descriptor.id}|patient|${request.subjectKey}`,
           timestamp
@@ -116,7 +125,12 @@ export class ReconcilingReader extends HealthDataReader implements ReaderWrapper
     };
   }
 
-  protected override async onClose(): Promise<void> {
+  /** The inner readers arrive open; the wrapper itself has nothing to open. */
+  protected onOpen(_input: ReaderInput): Promise<void> {
+    return Promise.resolve();
+  }
+
+  protected async onClose(): Promise<void> {
     for (const reader of this.inner) await reader.close();
   }
 }
