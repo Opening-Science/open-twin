@@ -6,12 +6,14 @@
  * GOTCHA: WHOOP has no type parameter; every read fetches recovery, cycle and sleep, and a narrower request is reported, not applied.
  */
 import {
-  issueFromOutcome,
+  type Issue,
+  issueFromOperationOutcome,
   OAuthReader,
   type ReaderDescriptor,
   type ReaderMetadata,
   type ReadRequest,
-  type ReadResult
+  type ReadResult,
+  withConnectorTag
 } from '@open-twin/reader-core';
 import { z } from 'zod';
 import { WHOOP_SCOPES } from './api/client';
@@ -59,9 +61,11 @@ export class WhoopReader extends OAuthReader<z.infer<typeof WhoopReaderConfig>> 
   }
 
   async read(request: ReadRequest): Promise<ReadResult> {
-    const tokens = this.opened(this.tokens) as TokenHandler;
+    if (!this.tokens) throw this.fail('read called before open', 'validation', 'read');
+
+    const tokens = this.tokens as TokenHandler;
     if (!request.window) throw this.fail('WHOOP needs a request window', 'validation', 'read');
-    const issues = [];
+    const issues: Issue[] = [];
     if (request.types) {
       const known = request.types.filter((type) => (DATA_TYPES as readonly string[]).includes(type));
       if (known.length < request.types.length) {
@@ -83,8 +87,8 @@ export class WhoopReader extends OAuthReader<z.infer<typeof WhoopReaderConfig>> 
       subjectKey: request.subjectKey,
       timestamp: this.now()
     });
-    issues.push(...(result.issues?.issue ?? []).map(issueFromOutcome));
-    const bundle = this.withConnectorTag(result.bundle);
+    issues.push(...(result.issues?.issue ?? []).map(issueFromOperationOutcome));
+    const bundle = withConnectorTag(result.bundle, this.connector);
     return { bundle, issues, provenance: this.provenanceFor(bundle, SOURCE) };
   }
 }
