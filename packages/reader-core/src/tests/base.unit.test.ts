@@ -1,234 +1,175 @@
 import { ConnectorError } from '@open-twin/fhir-core';
-import { describe, expect, it, vi } from 'vitest';
-import { fileJson, fileText, HealthDataReader, issueFromOutcome, subjectIdentifierSystem } from '../base';
-import type { ReaderDescriptor, ReaderInput, ReaderMetadata, ReadRequest, ReadResult } from '../types';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import type { HealthDataReader } from '../base';
+import type { ReaderInput, ReadRequest, StoredTokens } from '../types';
+import { subjectIdentifierSystem } from '../utils/subject';
+import { buildHealthDataReader, openHealthDataReader, PROBE_STORE_KEY, PROBE_URL } from './buildHealthDataReader';
 
-const descriptor: ReaderDescriptor = {
-  id: 'probe',
-  name: 'Probe',
-  version: '0.1.0',
-  kind: 'api',
-  domains: ['wearable'],
-  dataTypes: ['a', 'b'],
-  auth: 'bearer'
-};
+const api: ReaderInput = { kind: 'api', sourceId: 'probe', config: { url: PROBE_URL } };
+const request: ReadRequest = { subjectKey: 'u1' };
+const ok = async () => Response.json({ ok: true });
 
-const Shape = {
-  safeParse: (data: unknown) =>
-    typeof data === 'object' && data !== null && 'ok' in data
-      ? { success: true as const, data: data as { ok: boolean } }
-      : { success: false as const, error: { issues: [{ path: ['ok'] }] } }
-};
-
-/** The protected helpers made public under their own names, so each can be exercised alone. */
-class Probe extends HealthDataReader {
-  readonly descriptor = descriptor;
-  describe(): Promise<ReaderMetadata> {
-    return Promise.resolve({
-      source: { id: 'probe' },
-      dataTypes: [],
-      capabilities: { incremental: false, sandbox: false, write: false }
-    });
-  }
-  read(): Promise<ReadResult> {
-    return Promise.reject(new Error('not under test'));
-  }
-  public override fetchJson<T>(
-    url: string,
-    schema: {
-      safeParse: (
-        d: unknown
-      ) => { success: true; data: T } | { success: false; error: { issues: Array<{ path: PropertyKey[] }> } };
-    },
-    operation = 'GET probe'
-  ) {
-    return super.fetchJson(url, schema, operation);
-  }
-  public override subjectFor(request: ReadRequest) {
-    return super.subjectFor(request);
-  }
-  public override bundleKeyFor(request: ReadRequest) {
-    return super.bundleKeyFor(request);
-  }
-  public override bundleFrom(options: Parameters<HealthDataReader['bundleFrom']>[0]) {
-    return super.bundleFrom(options);
-  }
-  public override withConnectorTag(bundle: Parameters<HealthDataReader['withConnectorTag']>[0]) {
-    return super.withConnectorTag(bundle);
-  }
-  public override opened<T>(state: T | undefined) {
-    return super.opened(state);
-  }
-  public override parseConfig<T>(schema: Parameters<HealthDataReader['parseConfig']>[0], config: unknown) {
-    return super.parseConfig(schema, config) as T;
-  }
-  public override fail(message: string, code: ConnectorError['code'], operation: string, cause?: unknown) {
-    return super.fail(message, code, operation, cause);
-  }
-  public override loadCursor(key: string) {
-    return super.loadCursor(key);
-  }
-}
-
-const api: ReaderInput = { kind: 'api', sourceId: 'probe', config: {} };
 const response = (status: number, body: string, headers: Record<string, string> = {}) =>
   new Response(body, { status, headers: { 'content-type': 'application/json', ...headers } });
 
-describe('file inputs', () => {
-  it('reads text, bytes or a path, and parses JSON or gives undefined', () => {
-    expect(fileText({ kind: 'file', text: 'x' })).toBe('x');
-    expect(fileText({ kind: 'file', bytes: new TextEncoder().encode('y') })).toBe('y');
-    expect(fileText({ kind: 'file', path: '/nowhere/none.json' })).toBeUndefined();
-    expect(fileText(api)).toBeUndefined();
-    expect(fileJson({ kind: 'file', text: '{"a":1}' })).toEqual({ a: 1 });
-    expect(fileJson({ kind: 'file', text: '{' })).toBeUndefined();
-  });
-});
+async function readError(fetch: typeof globalThis.fetch): Promise<ConnectorError> {
+  const reader = await openHealthDataReader({ fetch });
+  return (await reader.read(request).catch((error: unknown) => error)) as ConnectorError;
+}
 
-describe('open and read order', () => {
-  it('matches an api input by id only, and exposes the input only once onOpen succeeded', async () => {
-    const probe = new Probe();
-    expect(await probe.isThisType(api)).toBe(true);
-    expect(await probe.isThisType({ kind: 'api', sourceId: 'other', config: {} })).toBe(false);
-    expect(() => probe.opened(undefined)).toThrow(ConnectorError);
-    await probe.open(api);
-    expect(probe.opened('state')).toBe('state');
-  });
+describe('HealthDataReader', () => {
+  describe('lifecycle', () => {
+    it('matches an api input by its id only', async () => {
+      const reader = buildHealthDataReader();
 
-  it('parseConfig names the failed field and never the value', () => {
-    const probe = new Probe();
-    expect(probe.parseConfig(Shape, { ok: true })).toEqual({ ok: true });
-    expect(() => probe.parseConfig(Shape, { secret: 'hunter2' })).toThrow(/invalid at: ok/);
-    expect(() => probe.parseConfig(Shape, { secret: 'hunter2' })).not.toThrow(/hunter2/);
-  });
-
-  it('fail keeps only the cause class name', () => {
-    const error = new Probe().fail('x', 'transport', 'op', new TypeError('socket to https://h/?token=1'));
-    expect(error.cause).toBe('TypeError');
-    expect(new Probe().fail('x', 'unknown', 'op').cause).toBeUndefined();
-  });
-});
-
-describe('fetchJson', () => {
-  it('returns the parsed body through the host fetch and logs the operation only', async () => {
-    const fetch = vi.fn(async () => response(200, '{"ok":true}'));
-    const logger = { debug: vi.fn(), warn: vi.fn() };
-    const probe = new Probe();
-    await probe.open(api, { fetch, logger });
-    expect(await probe.fetchJson('https://example.invalid/v1?token=abc', Shape, 'GET v1')).toEqual({ ok: true });
-    expect(JSON.stringify(logger.debug.mock.calls)).not.toContain('token=abc');
-    expect(logger.debug).toHaveBeenCalledWith('request', { reader: 'probe', operation: 'GET v1' });
-  });
-
-  it('maps an HTTP failure by status and reads Retry-After, without the body', async () => {
-    const probe = new Probe();
-    await probe.open(api, { fetch: async () => response(429, '{"secret":"body-text"}', { 'retry-after': '7' }) });
-    const error = (await probe
-      .fetchJson('https://example.invalid/v1', Shape, 'GET things')
-      .catch((e: unknown) => e)) as ConnectorError;
-    expect(error).toBeInstanceOf(ConnectorError);
-    expect(error).toMatchObject({ code: 'rate_limit', status: 429, operation: 'GET things', retryAfterSeconds: 7 });
-    expect(String(error)).not.toContain('body-text');
-  });
-
-  it('is transport when fetch rejects, validation when the body is not JSON or not the shape; no body survives', async () => {
-    const probe = new Probe();
-    await probe.open(api, { fetch: () => Promise.reject(new TypeError('socket hang up')) });
-    const transport = (await probe
-      .fetchJson('https://example.invalid/v1', Shape)
-      .catch((e: unknown) => e)) as ConnectorError;
-    expect(transport).toMatchObject({ code: 'transport', cause: 'TypeError' });
-
-    await probe.open(api, { fetch: async () => response(200, '<html>') });
-    const notJson = (await probe
-      .fetchJson('https://example.invalid/v1', Shape)
-      .catch((e: unknown) => e)) as ConnectorError;
-    expect(notJson).toMatchObject({ code: 'validation', cause: 'SyntaxError' });
-    expect(JSON.stringify({ m: notJson.message, c: notJson.cause })).not.toContain('<html>');
-
-    await probe.open(api, { fetch: async () => response(200, '{"nope":1}') });
-    const wrong = (await probe
-      .fetchJson('https://example.invalid/v1', Shape)
-      .catch((e: unknown) => e)) as ConnectorError;
-    expect(wrong.code).toBe('validation');
-    expect(String(wrong)).not.toContain('nope');
-  });
-});
-
-describe('subject, key, bundle and tag helpers', () => {
-  it('uses the caller reference verbatim, else mints a urn:uuid with its Patient (D1)', () => {
-    const probe = new Probe();
-    expect(probe.subjectFor({ subjectKey: 'u1', subject: { reference: 'Patient/42' } })).toEqual({
-      reference: { reference: 'Patient/42' }
+      expect(await reader.isThisType(api)).toBe(true);
+      expect(await reader.isThisType({ ...api, sourceId: 'other' })).toBe(false);
     });
-    const minted = probe.subjectFor({ subjectKey: 'u1' });
-    expect(minted.reference.reference).toBe(`urn:uuid:${minted.patient?.id}`);
-    expect(minted.patient?.identifier).toEqual([{ system: subjectIdentifierSystem('probe'), value: 'u1' }]);
+
+    it('fails read before open with validation', async () => {
+      await expect(buildHealthDataReader().read(request)).rejects.toMatchObject({ code: 'validation' });
+    });
+
+    it('serves one connection: a second open fails until close', async () => {
+      const reader = await openHealthDataReader({ fetch: ok });
+
+      await expect(reader.open(api)).rejects.toThrow(/one instance per connection/);
+      await reader.close();
+      await expect(reader.open(api, { fetch: ok })).resolves.toBeUndefined();
+    });
+
+    it('stays closed after a failed open, so it can be opened again', async () => {
+      const reader = buildHealthDataReader();
+
+      await expect(reader.open({ ...api, config: { secret: 'hunter2' } })).rejects.toThrow(/invalid at: url/);
+      await expect(reader.open(api, { fetch: ok })).resolves.toBeUndefined();
+    });
+
+    it('names the failed config field and never its value', async () => {
+      await expect(buildHealthDataReader().open({ ...api, config: { secret: 'hunter2' } })).rejects.not.toThrow(
+        /hunter2/
+      );
+    });
   });
 
-  it('keys a bundle by subject, type set and window, so windows differ and type order does not', () => {
-    const probe = new Probe();
+  describe('fetchJson', () => {
+    it('reads through the host fetch and logs the operation only', async () => {
+      const fetch = vi.fn(ok);
+      const logger = { debug: vi.fn(), warn: vi.fn() };
+      const reader = await openHealthDataReader({ fetch, logger });
+
+      await reader.read(request);
+
+      expect(fetch).toHaveBeenCalledOnce();
+      expect(logger.debug).toHaveBeenCalledWith('request', { reader: 'probe', operation: 'GET probe' });
+      expect(JSON.stringify(logger.debug.mock.calls)).not.toContain('token=abc');
+    });
+
+    it('maps an HTTP failure by status and reads Retry-After, without the body', async () => {
+      const error = await readError(async () => response(429, '{"secret":"body-text"}', { 'retry-after': '7' }));
+
+      expect(error).toBeInstanceOf(ConnectorError);
+      expect(error).toMatchObject({ code: 'rate_limit', status: 429, operation: 'GET probe', retryAfterSeconds: 7 });
+      expect(String(error)).not.toContain('body-text');
+    });
+
+    it('is transport when fetch rejects, and keeps only the class name of the cause', async () => {
+      const error = await readError(() => Promise.reject(new TypeError('socket to https://h/?token=1')));
+
+      expect(error).toMatchObject({ code: 'transport', cause: 'TypeError' });
+    });
+
+    it('is validation when the body is not JSON or not the shape, and quotes neither', async () => {
+      const notJson = await readError(async () => response(200, '<html>'));
+      const wrongShape = await readError(async () => response(200, '{"nope":1}'));
+
+      expect(notJson).toMatchObject({ code: 'validation', cause: 'SyntaxError' });
+      expect(JSON.stringify({ m: notJson.message, c: notJson.cause })).not.toContain('<html>');
+      expect(wrongShape.code).toBe('validation');
+      expect(String(wrongShape)).not.toContain('nope');
+    });
+  });
+
+  describe('subjectFor', () => {
+    let reader: HealthDataReader;
+
+    beforeAll(async () => {
+      reader = await openHealthDataReader({ fetch: ok });
+    });
+
+    it('uses the caller reference as given and adds no Patient', async () => {
+      const { bundle } = await reader.read({ ...request, subject: { reference: 'Patient/42' } });
+
+      expect(bundle.entry ?? []).toHaveLength(0);
+    });
+
+    it('mints a urn:uuid and carries the Patient it points at (D1)', async () => {
+      const { bundle } = await reader.read(request);
+      const patient = bundle.entry?.[0];
+
+      expect(patient?.fullUrl).toBe(`urn:uuid:${patient?.resource?.id}`);
+      expect(patient?.resource).toMatchObject({
+        identifier: [{ system: subjectIdentifierSystem('probe'), value: 'u1' }]
+      });
+    });
+  });
+
+  describe('bundleKeyFor', () => {
     const window = { start: '2026-01-01T00:00:00+01:00', end: '2026-01-02T00:00:00+01:00' };
-    expect(probe.bundleKeyFor({ subjectKey: 'u1', types: ['b', 'a'], window })).toBe(
-      probe.bundleKeyFor({ subjectKey: 'u1', types: ['a', 'b'], window })
-    );
-    expect(
-      probe.bundleFrom({ resources: [], bundleKey: probe.bundleKeyFor({ subjectKey: 'u1', window }) }).id
-    ).not.toBe(probe.bundleFrom({ resources: [], bundleKey: probe.bundleKeyFor({ subjectKey: 'u1' }) }).id);
-  });
 
-  it('stamps the bundle with the host clock and the connector tag', async () => {
-    const probe = new Probe();
-    await probe.open(api, { now: () => '2026-05-05T05:05:05Z' });
-    const bundle = probe.bundleFrom({ resources: [], bundleKey: 'k' });
-    expect(bundle.timestamp).toBe('2026-05-05T05:05:05Z');
-    expect(bundle.meta?.tag?.[0]).toMatchObject({ code: 'probe', version: '0.1.0' });
-  });
+    let reader: HealthDataReader;
 
-  it('tags every resource, replaces a stale tag of its own, keeps other tags, and leaves the bundle id alone', () => {
-    const system = 'http://opentwin.ch/fhir/CodeSystem/connector';
-    const bundle = {
-      resourceType: 'Bundle' as const,
-      type: 'collection' as const,
-      id: 'b1',
-      entry: [
-        { fullUrl: 'urn:uuid:a', resource: { resourceType: 'Patient' as const, id: 'a' } },
-        {
-          fullUrl: 'urn:uuid:b',
-          resource: { resourceType: 'Patient' as const, id: 'b', meta: { tag: [{ system: 'urn:other', code: 'x' }] } }
-        },
-        {
-          fullUrl: 'urn:uuid:c',
-          resource: {
-            resourceType: 'Patient' as const,
-            id: 'c',
-            meta: { tag: [{ system, code: 'probe', version: '0.0.1' }] }
-          }
-        }
-      ]
-    };
-    const tagged = new Probe().withConnectorTag(bundle);
-    const tagsOf = (i: number) => tagged.entry?.[i]?.resource?.meta?.tag ?? [];
-    expect(tagsOf(0)).toEqual([{ system, code: 'probe', version: '0.1.0' }]);
-    expect(tagsOf(1)).toEqual([
-      { system: 'urn:other', code: 'x' },
-      { system, code: 'probe', version: '0.1.0' }
-    ]);
-    expect(tagsOf(2)).toEqual([{ system, code: 'probe', version: '0.1.0' }]);
-    expect(tagged.id).toBe('b1');
-    expect(bundle.entry[0]?.resource.meta).toBeUndefined();
-  });
-
-  it('maps a vendor outcome issue, and reads a cursor from the host or gives undefined', async () => {
-    expect(issueFromOutcome({ severity: 'fatal', code: 'not-found', diagnostics: 'gone' })).toEqual({
-      severity: 'error',
-      code: 'not-found',
-      details: 'gone'
+    beforeAll(async () => {
+      reader = await openHealthDataReader({ fetch: ok });
     });
-    expect(issueFromOutcome({ severity: 'warning', code: 'throttled' }).details).toMatch(/vendor/);
-    const probe = new Probe();
-    await probe.open(api, { cursorStore: { load: () => Promise.resolve('c-1'), save: () => Promise.resolve() } });
-    expect(await probe.loadCursor('k')).toBe('c-1');
-    expect(await new Probe().loadCursor('k')).toBeUndefined();
+
+    it('ignores the order of the types and changes with the window', async () => {
+      const idOf = async (r: ReadRequest) => (await reader.read(r)).bundle.id;
+
+      expect(await idOf({ ...request, types: ['b', 'a'], window })).toBe(
+        await idOf({ ...request, types: ['a', 'b'], window })
+      );
+      expect(await idOf({ ...request, window })).not.toBe(await idOf(request));
+    });
+  });
+
+  describe('host clock and stores', () => {
+    it('stamps the bundle and the provenance with the host clock', async () => {
+      const reader = await openHealthDataReader({ fetch: ok, now: () => '2026-05-05T05:05:05Z' });
+      const { bundle, provenance } = await reader.read(request);
+
+      expect(bundle.timestamp).toBe('2026-05-05T05:05:05Z');
+      expect(provenance.retrievedAt).toBe('2026-05-05T05:05:05Z');
+    });
+
+    it('restores a cursor at open and saves the new one at close', async () => {
+      const saved = new Map<string, string>([[PROBE_STORE_KEY, 'c-1']]);
+      const cursorStore = {
+        load: async (key: string) => await Promise.resolve(saved.get(key)),
+        save: async (key: string, cursor: string) => {
+          await Promise.resolve(saved.set(key, cursor));
+        }
+      };
+      const reader = await openHealthDataReader({ fetch: ok, cursorStore });
+
+      expect((await reader.read(request)).cursor).toBe('c-1');
+
+      await reader.read({ ...request, window: { start: '2026-01-01T00:00:00Z', end: '2026-01-02T00:00:00Z' } });
+      await reader.close();
+
+      expect(saved.get(PROBE_STORE_KEY)).toBe('2026-01-02T00:00:00Z');
+    });
+
+    it('loads and saves tokens through the host store, and works without one', async () => {
+      const tokens: StoredTokens = { accessToken: 'a', expiresAt: '2099-01-01T00:00:00Z' };
+      const tokenStore = { load: vi.fn(async () => await Promise.resolve(tokens)), save: vi.fn(), clear: vi.fn() };
+      const withStore = await openHealthDataReader({ fetch: ok, tokenStore });
+      const withoutStore = await openHealthDataReader({ fetch: ok });
+
+      await withStore.close();
+      await withoutStore.close();
+
+      expect(tokenStore.save).toHaveBeenCalledWith(PROBE_STORE_KEY, tokens);
+    });
   });
 });
