@@ -64,6 +64,15 @@ const { bundle } = await getFhirBundleFromWhoopData(window, tokenHandler, {
 Tokens are held in memory only; persist the pair and its absolute expiry in your app.
 `expiresAt` is an absolute timestamp in epoch milliseconds.
 
+## Reader API
+
+`WhoopReader` (also `createReader()`) implements `IHealthDataReader` from
+`@open-twin/reader-core`. `open` takes an `api` input with the config (`clientId`,
+`clientSecret`, `redirectUri`, optional `scopes`) and a per-wearer `tokenKey`; tokens
+are restored from `host.tokenStore` and saved back at `close`. `read` needs a window and
+fetches recovery, cycle and sleep together through `getFhirBundleFromWhoopData` with
+`host.now()` as the timestamp. Registry id `whoop` ([docs/registry.md](../../docs/registry.md)).
+
 ## Scope
 
 v1 mappers: recovery (score, HRV, resting HR, SpO₂), cycle strain and average HR, sleep (performance, efficiency, time in bed). Workouts are not mapped yet.

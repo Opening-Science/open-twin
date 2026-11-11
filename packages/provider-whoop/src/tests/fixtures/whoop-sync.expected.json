@@ -1,0 +1,19 @@
+{
+  "resourceTypes": {
+    "Observation": 9,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|103213-5": 1,
+    "http://loinc.org|8867-4": 2,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|day-strain": 1,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|hrv-rmssd": 1,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|recovery-score": 1,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|sleep-efficiency": 1,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|sleep-performance": 1,
+    "http://opentwin.ch/fhir/CodeSystem/whoop|spo2": 1
+  },
+  "absentValues": 1,
+  "firstEffective": "2026-06-19T22:00:00.000Z",
+  "lastEffective": "2026-06-20T08:00:00.000Z"
+}

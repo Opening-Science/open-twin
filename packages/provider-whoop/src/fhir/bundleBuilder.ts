@@ -57,7 +57,7 @@ function resolveContext(options: WhoopRequestOptions): WhoopMapperContext {
   };
 }
 
-export function buildWhoopBundle(data: WhoopSyncPayload, options: WhoopRequestOptions): Bundle {
+export function buildWhoopBundle(data: WhoopSyncPayload, options: WhoopRequestOptions, window?: WhoopWindow): Bundle {
   const context = resolveContext(options);
   const mapped: FhirResource[] = [
     ...mapWhoopRecoveryToFHIR(data.recovery, context),
@@ -87,7 +87,14 @@ export function buildWhoopBundle(data: WhoopSyncPayload, options: WhoopRequestOp
     connector: CONNECTOR,
     resources,
     timestamp: options.timestamp ?? new Date().toISOString(),
-    bundleKey: [CONNECTOR.connector, context.subjectKey, 'recovery,cycle,sleep'].join('|')
+    // The window is part of the key, so two syncs of different windows never share a Bundle.id.
+    bundleKey: [
+      CONNECTOR.connector,
+      context.subjectKey,
+      'recovery,cycle,sleep',
+      window?.start ?? '',
+      window?.end ?? ''
+    ].join('|')
   });
 }
 
@@ -113,7 +120,7 @@ export async function getFhirBundleFromWhoopData(
     });
   }
   const { data, errors } = await fetchWhoopSyncPayload(window, tokenHandler);
-  return { bundle: buildWhoopBundle(data, options), issues: collectIssues(errors) };
+  return { bundle: buildWhoopBundle(data, options, window), issues: collectIssues(errors) };
 }
 
 export function buildWhoopBundleFromPayload(data: WhoopSyncPayload, options: WhoopRequestOptions): Bundle {

@@ -107,6 +107,7 @@
     {
       "id": "whoop",
       "package": "@open-twin/provider-whoop",
+      "export": "WhoopReader",
       "name": "WHOOP Developer API v2",
       "version": "0.1.0",
       "kind": "api",
