@@ -13,6 +13,9 @@ under [Releases](Contributing.md#releases).
   host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
 - `@open-twin/reader-core`: the `HealthDataReader` base class adapters extend
   (#251).
+- `@open-twin/reader-core`: the eight conformance rules as vitest assertions,
+  `checkDescriptor` for the registry gate, and `summarise`, which an adapter's
+  `expected.json` records (#252).
 
 ### Changed
 
