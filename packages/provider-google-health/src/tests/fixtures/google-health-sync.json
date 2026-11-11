@@ -1,0 +1,158 @@
+{
+  "distance": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "device": {
+            "displayName": "MobileTrack"
+          },
+          "platform": "FITBIT",
+          "recordingMethod": "DERIVED"
+        },
+        "distance": {
+          "interval": {
+            "endTime": "2026-07-07T07:52:29Z",
+            "endUtcOffset": "7200s",
+            "startTime": "2026-07-07T07:51:29Z",
+            "startUtcOffset": "7200s"
+          },
+          "millimeters": "44286"
+        }
+      }
+    ]
+  },
+  "heart-rate": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "application": {
+            "packageName": "com.sec.android.app.shealth"
+          },
+          "platform": "HEALTH_CONNECT",
+          "recordingMethod": "UNKNOWN"
+        },
+        "heartRate": {
+          "beatsPerMinute": "73",
+          "metadata": {
+            "motionContext": "RESTING"
+          },
+          "sampleTime": {
+            "physicalTime": "2026-07-07T05:40:29.354Z",
+            "utcOffset": "7200s"
+          }
+        }
+      }
+    ]
+  },
+  "height": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "platform": "FITBIT",
+          "recordingMethod": "AUTO_DETECTED"
+        },
+        "height": {
+          "heightMillimeters": "1750",
+          "sampleTime": {
+            "physicalTime": "2026-07-07T07:33:14.417Z",
+            "utcOffset": "7200s"
+          }
+        }
+      }
+    ]
+  },
+  "sleep": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "platform": "FITBIT",
+          "recordingMethod": "AUTO_DETECTED"
+        },
+        "sleep": {
+          "interval": {
+            "endTime": "2026-07-07T05:31:00Z",
+            "endUtcOffset": "7200s",
+            "startTime": "2026-07-06T21:58:00Z",
+            "startUtcOffset": "7200s"
+          },
+          "metadata": {
+            "externalId": "48291736"
+          },
+          "stages": [
+            {
+              "endTime": "2026-07-06T22:41:00Z",
+              "endUtcOffset": "7200s",
+              "startTime": "2026-07-06T21:58:00Z",
+              "startUtcOffset": "7200s",
+              "type": "LIGHT"
+            },
+            {
+              "endTime": "2026-07-06T23:29:00Z",
+              "endUtcOffset": "7200s",
+              "startTime": "2026-07-06T22:41:00Z",
+              "startUtcOffset": "7200s",
+              "type": "DEEP"
+            }
+          ],
+          "summary": {
+            "minutesAfterWakeUp": "4",
+            "minutesAsleep": "392",
+            "minutesAwake": "61",
+            "minutesInSleepPeriod": "453",
+            "minutesToFallAsleep": "9",
+            "stagesSummary": [
+              {
+                "count": "4",
+                "minutes": "71",
+                "type": "DEEP"
+              },
+              {
+                "count": "6",
+                "minutes": "96",
+                "type": "REM"
+              }
+            ]
+          },
+          "type": "stages"
+        }
+      }
+    ]
+  },
+  "steps": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "platform": "FITBIT",
+          "recordingMethod": "DERIVED"
+        },
+        "steps": {
+          "count": "",
+          "interval": {
+            "endTime": "2026-07-07T07:52:29Z",
+            "endUtcOffset": "7200s",
+            "startTime": "2026-07-07T07:51:29Z",
+            "startUtcOffset": "7200s"
+          }
+        }
+      }
+    ]
+  },
+  "weight": {
+    "dataPoints": [
+      {
+        "dataSource": {
+          "platform": "FITBIT",
+          "recordingMethod": "MANUAL_ENTRY"
+        },
+        "name": "users/8338456149191909237/dataTypes/weight/dataPoints/233475372306809440",
+        "weight": {
+          "sampleTime": {
+            "physicalTime": "2026-07-07T07:33:14.417Z",
+            "utcOffset": "7200s"
+          },
+          "weightGrams": 86000
+        }
+      }
+    ]
+  }
+}

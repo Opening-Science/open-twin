@@ -21,6 +21,7 @@ export {
 } from './api/record_types';
 export type { BuildBundleOptions, BundleResult } from './fhir/bundleBuilder';
 export { buildBundleFromResponses, mapDataPointToFHIR } from './fhir/bundleBuilder';
+export { createReader, GoogleHealthReader } from './reader';
 export type { GetDataTypesRequest, GetDataTypesResult, GetFhirBundleRequest, GetFhirBundleResult } from './sync';
 export { getDataTypes, getFhirBundleFromGoogleHealthData } from './sync';
 // biome-ignore lint/style/useExportType: Exposing the type and GoogleHealthClient class is necessary for external usage

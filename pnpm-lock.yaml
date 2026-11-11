@@ -271,16 +271,25 @@ importers:
       '@open-twin/fhir-core':
         specifier: workspace:*
         version: link:../fhir-core
+      '@open-twin/reader-core':
+        specifier: workspace:*
+        version: link:../reader-core
       '@types/fhir':
         specifier: 0.0.44
         version: 0.0.44
       googleapis:
         specifier: 189.0.0
         version: 189.0.0(supports-color@7.2.0)
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
     devDependencies:
       '@lhncbc/ucum-lhc':
         specifier: 8.0.1
         version: 8.0.1
+      '@open-twin/fhir-r4':
+        specifier: workspace:*
+        version: link:../fhir-r4
       '@rollup/plugin-swc':
         specifier: 0.4.1
         version: 0.4.1(@swc/core@1.15.43)(rollup@4.64.6)
