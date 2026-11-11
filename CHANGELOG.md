@@ -18,6 +18,8 @@ under [Releases](Contributing.md#releases).
   `expected.json` records (#252).
 - `@open-twin/reader-core/testing`: `describeReaderConformance`, the suite each
   adapter runs over its fixtures (#253).
+- `@open-twin/reader-core`: `OAuthReader` with a required per-wearer token key,
+  and the host test doubles on the testing entry (#254).
 
 ### Changed
 

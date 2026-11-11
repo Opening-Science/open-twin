@@ -5,6 +5,7 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 export * from './base';
+export * from './oauthReader';
 export * from './reader';
 export { type ExpectedSummary, summarise } from './testing/expected';
 export * from './types';
