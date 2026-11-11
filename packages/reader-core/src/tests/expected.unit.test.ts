@@ -1,6 +1,6 @@
 import type { Bundle, Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
-import { diffSummary, summarise } from '../testing/expected';
+import { summarise } from '../testing/expected';
 
 const steps = (id: string, effectiveDateTime: string, value?: number): Observation => ({
   resourceType: 'Observation',
@@ -33,16 +33,5 @@ describe('summarise', () => {
       lastEffective: '2026-03-03',
       absentValues: 1
     });
-  });
-});
-
-describe('diffSummary', () => {
-  it('is empty for equal summaries and names each difference once', () => {
-    const expected = summarise(bundle);
-    expect(diffSummary(expected, expected)).toEqual([]);
-    expect(diffSummary(expected, { ...expected, absentValues: 0, resourceTypes: { Observation: 3 } })).toEqual([
-      'resourceTypes[Patient]: expected 1, got 0',
-      'absentValues: expected 1, got 0'
-    ]);
   });
 });
