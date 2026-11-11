@@ -91,6 +91,7 @@ Count: **86**
 - `packages/reader-core/src/testing/rules.ts`
 - `packages/reader-core/src/types.ts`
 - `packages/reader-core/src/utils/connectorTag.ts`
+- `packages/reader-core/src/utils/descriptor.ts`
 - `packages/reader-core/src/utils/errorCause.ts`
 - `packages/reader-core/src/utils/fileInput.ts`
 - `packages/reader-core/src/utils/operationOutcome.ts`
