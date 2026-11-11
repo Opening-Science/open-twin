@@ -7,10 +7,10 @@
 export * from './base';
 export * from './oauthReader';
 export * from './reader';
-export * from './testing/expected';
-export { checkDescriptor } from './testing/rules';
+export { type ExpectedSummary, summarise } from './testing/expected';
 export * from './types';
 export * from './utils/connectorTag';
+export * from './utils/descriptor';
 export * from './utils/fileInput';
 export * from './utils/operationOutcome';
 export * from './utils/parser';
