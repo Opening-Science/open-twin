@@ -30,16 +30,33 @@ export interface GetTypesResult {
   window: QueryWindow;
 }
 
+export interface GoogleHealthClientOptions {
+  /** googleapis loads node-fetch by default and ignores the global fetch. */
+  fetch?: typeof fetch;
+}
+
 export class GoogleHealthClient {
   private client: health_v4.Health;
   private oauth2Client: Auth.OAuth2Client;
   private config: GoogleHealthAppConfig;
+  private readonly fetchImplementation: typeof fetch | undefined;
 
-  constructor(config: GoogleHealthAppConfig) {
+  constructor(config: GoogleHealthAppConfig, options: GoogleHealthClientOptions = {}) {
     this.config = config;
-    this.client = health('v4');
+    this.fetchImplementation = options.fetch;
+    this.client = health(this.healthOptions());
 
     this.oauth2Client = new google.auth.OAuth2(this.config.clientId, this.config.clientSecret, this.config.redirectUri);
+  }
+
+  private healthOptions(auth?: Auth.OAuth2Client): health_v4.Options {
+    const options: health_v4.Options = { version: 'v4' };
+
+    if (auth) options.auth = auth;
+
+    if (this.fetchImplementation) options.fetchImplementation = this.fetchImplementation;
+
+    return options;
   }
 
   getAuthUrl(): string {
@@ -55,14 +72,18 @@ export class GoogleHealthClient {
   async initialize(code: string) {
     const { tokens } = await this.oauth2Client.getToken(code);
 
-    this.oauth2Client.setCredentials(tokens);
-
-    const healthOptions: health_v4.Options = {
-      version: 'v4',
-      auth: this.oauth2Client
-    };
-    this.client = health(healthOptions);
+    this.restoreCredentials(tokens);
     return tokens;
+  }
+
+  restoreCredentials(credentials: Auth.Credentials): void {
+    this.oauth2Client.setCredentials(credentials);
+    this.client = health(this.healthOptions(this.oauth2Client));
+  }
+
+  /** May differ from what was restored: googleapis refreshes an expired access token. */
+  getCredentials(): Auth.Credentials {
+    return this.oauth2Client.credentials;
   }
 
   getClient(): health_v4.Health {

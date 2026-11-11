@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **89**
+Count: **90**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
@@ -31,6 +31,7 @@ Count: **89**
 - `packages/provider-google-health/src/config/config.ts`
 - `packages/provider-google-health/src/config/constants.ts`
 - `packages/provider-google-health/src/index.ts`
+- `packages/provider-google-health/src/sync.ts`
 - `packages/provider-open-wearables/src/api/parse.ts`
 - `packages/provider-open-wearables/src/api/schemas/common.ts`
 - `packages/provider-open-wearables/src/api/schemas/events.ts`

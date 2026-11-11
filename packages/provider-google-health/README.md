@@ -116,6 +116,13 @@ derived from the subject's local date, never from a UTC instant. Pass the wearer
 zone; it defaults to `UTC`. Without it, a wearer at UTC+13 loses the current local day
 from every daily query.
 
+### Host fetch and stored credentials
+
+googleapis loads its own fetch and ignores the global one. Pass a `fetch` as the second
+constructor argument to route every request through it. `restoreCredentials` takes
+tokens a host kept from an earlier session; `getCredentials` returns them after a
+refresh, for the host to save back.
+
 ### Partial failure
 
 `getDataTypes` and `getFhirBundleFromGoogleHealthData` do not throw when one data type
