@@ -3,22 +3,21 @@ import { join } from 'node:path';
 import type { Observation } from 'fhir/r4';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_NOW, describeReaderConformance } from '../testing/conformance';
-import type { ExpectedSummary } from '../testing/expected';
+import { type ExpectedSummary, summarise } from '../testing/expected';
 import {
   type ConformanceFixture,
-  checkDescriptor,
-  checkDeterminism,
-  checkExpected,
-  checkIsThisType,
-  checkNoLeak,
-  checkObservations,
-  checkOpenDoesNotFetch,
-  checkOpenRejectsInvalid,
-  checkValidates,
+  expectDeterministic,
+  expectIsThisTypeAccepts,
+  expectNoLeak,
+  expectObservations,
+  expectOpenDoesNotFetch,
+  expectOpenRejectsInvalid,
+  expectValidBundle,
   type FhirBundleValidator,
   runFixture
 } from '../testing/rules';
 import type { ReaderInput } from '../types';
+import { checkDescriptor } from '../utils/descriptor';
 import { type Defect, FAKE_STEPS_DESCRIPTOR, FakeStepsReader } from './fake-reader';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
@@ -78,29 +77,25 @@ describe('each deliberately broken reader fails the rule that covers its defect'
   });
 
   it('rule 2: isThisType that touches the network', async () => {
-    const violations = await checkIsThisType(make('network-in-is-this-type')(), fixture);
-    expect(violations).toContain('rule 2: isThisType threw; it must be side-effect free');
-    expect(violations).toContain('rule 2: isThisType called fetch 1 time(s)');
+    await expect(expectIsThisTypeAccepts(make('network-in-is-this-type')(), fixture)).rejects.toThrow(
+      'rule 2: isThisType called fetch'
+    );
   });
 
   it('rule 3: open that accepts any input', async () => {
-    expect(await checkOpenRejectsInvalid(make('accepts-any-input'), invalidInput, secrets)).toEqual([
+    await expect(expectOpenRejectsInvalid(make('accepts-any-input'), invalidInput, secrets)).rejects.toThrow(
       'rule 3: open accepted an invalid input'
-    ]);
+    );
   });
 
   it('rule 3: open that fetches', async () => {
-    const violations = await checkOpenDoesNotFetch(make('fetches-in-open'), fixture);
-    expect(violations).toContain('rule 3: open called fetch 1 time(s)');
+    await expect(expectOpenDoesNotFetch(make('fetches-in-open'), fixture)).rejects.toThrow('rule 3: open called fetch');
   });
 
   it('rule 4: a bundle the validator rejects', async () => {
     const run = await runFixture(make('no-status'), fixture, { now: DEFAULT_NOW });
-    expect(checkValidates(run.result.bundle, structural)).toEqual([
-      'rule 4: Bundle.entry[1].resource: Observation has no status',
-      'rule 4: Bundle.entry[2].resource: Observation has no status',
-      'rule 4: Bundle.entry[3].resource: Observation has no status'
-    ]);
+
+    expect(() => expectValidBundle(run.result.bundle, structural)).toThrow('rule 4: the validator reported errors');
   });
 
   it.each<[Defect, string]>([
@@ -110,7 +105,8 @@ describe('each deliberately broken reader fails the rule that covers its defect'
     ['no-ucum', 'rule 5: Bundle.entry[1].valueQuantity.system is not UCUM']
   ])('rule 5: %s', async (defect, violation) => {
     const run = await runFixture(make(defect), fixture, { now: DEFAULT_NOW });
-    expect(checkObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).toContain(violation);
+
+    expect(() => expectObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).toThrow(violation);
   });
 
   it('rule 5: a panel with components and no root value is accepted (FHIR allows it)', async () => {
@@ -121,35 +117,43 @@ describe('each deliberately broken reader fails the rule that covers its defect'
     const { valueQuantity: _value, ...panel } = observation;
     panel.component = [{ code: observation.code, valueQuantity: observation.valueQuantity }];
     if (entry) entry.resource = panel as Observation;
-    expect(checkObservations(bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).toEqual([]);
+
+    expect(() => expectObservations(bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).not.toThrow();
   });
 
   it('rule 5: a caller-supplied subject that the reader ignores', async () => {
     const request = { ...fixture.request, subject: { reference: 'Patient/caller-supplied' } };
     const run = await runFixture(make('wrong-subject'), fixture, { now: DEFAULT_NOW, request });
-    expect(checkObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, request)).toContain(
+
+    expect(() => expectObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, request)).toThrow(
       "rule 5: Bundle.entry[0] subject is not the caller's (D1)"
     );
   });
 
   it('rule 6: a bundle id that changes between runs', async () => {
-    expect(await checkDeterminism(make('random-id'), fixture, DEFAULT_NOW)).toEqual([
+    await expect(expectDeterministic(make('random-id'), fixture, DEFAULT_NOW)).rejects.toThrow(
       'rule 6: two reads with the same request and clock gave different bundles'
-    ]);
+    );
   });
 
   it('rule 6: a bundle id that ignores the window', async () => {
-    expect(await checkDeterminism(make('window-ignored'), fixture, DEFAULT_NOW)).toEqual([
+    await expect(expectDeterministic(make('window-ignored'), fixture, DEFAULT_NOW)).rejects.toThrow(
       'rule 6: two requests with different windows share one Bundle.id'
-    ]);
+    );
   });
 
-  it('rule 7: an issue and a log line that carry the wearer id', async () => {
+  it('rule 7: an issue that carries the wearer id', async () => {
     const run = await runFixture(make('leaks-payload'), fixture, { now: DEFAULT_NOW });
-    expect(checkNoLeak(run, secrets)).toEqual([
-      'rule 7: an issue carries the secret "wearer id"',
-      'rule 7: a log line carries the secret "wearer id"'
-    ]);
+
+    expect(() => expectNoLeak(run, secrets)).toThrow('rule 7: an issue leaks');
+  });
+
+  it('rule 7: a log line that carries the wearer id', async () => {
+    const run = await runFixture(make('leaks-payload'), fixture, { now: DEFAULT_NOW });
+
+    expect(() => expectNoLeak({ ...run, result: { ...run.result, issues: [] } }, secrets)).toThrow(
+      'rule 7: a log line leaks'
+    );
   });
 
   it('rule 7: an e-mail address in an issue is caught without a secrets list', () => {
@@ -161,21 +165,25 @@ describe('each deliberately broken reader fails the rule that covers its defect'
       },
       logs: []
     };
-    expect(checkNoLeak(run)).toEqual(['rule 7: an issue carries an e-mail address']);
+
+    expect(() => expectNoLeak(run)).toThrow('rule 7: an issue leaks');
   });
 
   it('rule 8: an extra Observation changes the counts', async () => {
     const run = await runFixture(make('extra-observation'), fixture, { now: DEFAULT_NOW });
-    expect(checkExpected(run.result.bundle, expected)).toEqual([
-      'rule 8: resourceTypes[Observation]: expected 3, got 4',
-      'rule 8: observationCodes[urn:open-twin:test:fake-steps|daily-steps]: expected 3, got 4'
-    ]);
+
+    expect(summarise(run.result.bundle)).toMatchObject({
+      resourceTypes: { Observation: 4 },
+      observationCodes: { 'urn:open-twin:test:fake-steps|daily-steps': 4 }
+    });
+    expect(summarise(run.result.bundle)).not.toEqual(expected);
   });
 
   it('rule 8: 0 written for a missing value is caught through absentValues, not through rule 5', async () => {
     const run = await runFixture(make('zero-for-missing'), fixture, { now: DEFAULT_NOW });
-    expect(checkObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).toEqual([]);
-    expect(checkExpected(run.result.bundle, expected)).toEqual(['rule 8: absentValues: expected 1, got 0']);
+
+    expect(() => expectObservations(run.result.bundle, FAKE_STEPS_DESCRIPTOR, fixture.request)).not.toThrow();
+    expect(summarise(run.result.bundle)).toEqual({ ...expected, absentValues: 0 });
   });
 });
 
