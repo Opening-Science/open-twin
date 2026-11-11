@@ -1,0 +1,16 @@
+{
+  "resourceTypes": {
+    "Observation": 5,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|29463-7": 1,
+    "http://loinc.org|39156-5": 1,
+    "http://loinc.org|59576-9": 1,
+    "http://loinc.org|72514-3": 1,
+    "http://loinc.org|8302-2": 1
+  },
+  "absentValues": 0,
+  "firstEffective": "2016-11-13T22:33:18+01:00",
+  "lastEffective": "2016-11-13T22:33:18+01:00"
+}

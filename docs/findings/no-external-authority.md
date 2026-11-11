@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **86**
+Count: **87**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
@@ -21,6 +21,7 @@ Count: **86**
 - `packages/fhir-core/src/reliability.ts`
 - `packages/fhir-r4/src/index.ts`
 - `packages/fhir-r4/src/issues.ts`
+- `packages/fhir-r4/src/reader.ts`
 - `packages/genomics-vcf/src/index.ts`
 - `packages/genomics-vcf/src/issues.ts`
 - `packages/hl7v2/src/index.ts`

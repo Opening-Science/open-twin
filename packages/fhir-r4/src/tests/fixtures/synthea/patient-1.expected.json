@@ -1,0 +1,16 @@
+{
+  "resourceTypes": {
+    "Observation": 5,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|72514-3": 1,
+    "http://loinc.org|79892-6": 1,
+    "http://loinc.org|79893-4": 1,
+    "http://snomed.info/sct|413077008": 1,
+    "http://snomed.info/sct|413078003": 1
+  },
+  "absentValues": 0,
+  "firstEffective": "2017-01-24T03:33:25+01:00",
+  "lastEffective": "2017-02-24T06:35:42+01:00"
+}
