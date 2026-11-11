@@ -8,17 +8,17 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { IHealthDataReader } from '../reader';
 import type { ReaderDescriptor, ReaderInput } from '../types';
+import { checkDescriptor } from '../utils/descriptor';
+import { summarise } from './expected';
 import {
   type ConformanceFixture,
-  checkDescriptor,
-  checkDeterminism,
-  checkExpected,
-  checkIsThisType,
-  checkNoLeak,
-  checkObservations,
-  checkOpenDoesNotFetch,
-  checkOpenRejectsInvalid,
-  checkValidates,
+  expectDeterministic,
+  expectIsThisTypeAccepts,
+  expectNoLeak,
+  expectObservations,
+  expectOpenDoesNotFetch,
+  expectOpenRejectsInvalid,
+  expectValidBundle,
   type FhirBundleValidator,
   type FixtureRun,
   runFixture
@@ -46,7 +46,7 @@ export function describeReaderConformance(factory: () => IHealthDataReader, opti
     });
 
     it('rule 3: open rejects an invalid input with ConnectorError validation and no fetch', async () => {
-      expect(await checkOpenRejectsInvalid(factory, options.invalidInput, secrets)).toEqual([]);
+      await expectOpenRejectsInvalid(factory, options.invalidInput, secrets);
     });
 
     for (const fixture of options.fixtures) {
@@ -57,25 +57,27 @@ export function describeReaderConformance(factory: () => IHealthDataReader, opti
         });
 
         it('rule 2: isThisType accepts the fixture without the network', async () => {
-          expect(await checkIsThisType(factory(), fixture)).toEqual([]);
+          await expectIsThisTypeAccepts(factory(), fixture);
         });
         it('rule 3: open does not fetch', async () => {
-          expect(await checkOpenDoesNotFetch(factory, fixture)).toEqual([]);
+          await expectOpenDoesNotFetch(factory, fixture);
         });
         it('rule 4: the bundle validates', () => {
-          expect(checkValidates(run.result.bundle, options.validate)).toEqual([]);
+          expectValidBundle(run.result.bundle, options.validate);
         });
         it('rule 5: every Observation is tagged, linked, identified and in UCUM', () => {
-          expect(checkObservations(run.result.bundle, options.descriptor, fixture.request)).toEqual([]);
+          expectObservations(run.result.bundle, options.descriptor, fixture.request);
         });
         it('rule 6: the same request and clock give identical bundles; another window another id', async () => {
-          expect(await checkDeterminism(factory, fixture, now)).toEqual([]);
+          await expectDeterministic(factory, fixture, now);
         });
         it('rule 7: no issue, provenance entry or log line carries a secret', () => {
-          expect(checkNoLeak(run, secrets)).toEqual([]);
+          expectNoLeak(run, secrets);
         });
         it('rule 8: the summary equals expected.json', () => {
-          expect(checkExpected(run.result.bundle, fixture.expected)).toEqual([]);
+          expect(summarise(run.result.bundle), 'rule 8: the summary differs from expected.json').toEqual(
+            fixture.expected
+          );
         });
       });
     }
