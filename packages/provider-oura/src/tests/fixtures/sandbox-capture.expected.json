@@ -1,0 +1,25 @@
+{
+  "resourceTypes": {
+    "Device": 1,
+    "Observation": 73,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "http://loinc.org|8867-4": 6,
+    "http://loinc.org|94122-9": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|activity-score": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|daily-stress": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|readiness-score": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|resilience-level": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|rest-mode": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|ring-configuration": 1,
+    "http://opentwin.ch/fhir/CodeSystem/oura|session": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|sleep-score": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|spo2-daily-summary": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|vascular-age": 6,
+    "http://opentwin.ch/fhir/CodeSystem/oura|workout": 6
+  },
+  "absentValues": 31,
+  "firstEffective": "2021-01-01",
+  "lastEffective": "2026-07-25T00:00:00.000+00:00"
+}

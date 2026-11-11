@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **87**
+Count: **88**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
@@ -59,6 +59,7 @@ Count: **87**
 - `packages/provider-oura/src/config/config.ts`
 - `packages/provider-oura/src/config/constants.ts`
 - `packages/provider-oura/src/index.ts`
+- `packages/provider-oura/src/reader.ts`
 - `packages/provider-oura/src/utils/clientUtils.ts`
 - `packages/provider-oura/src/utils/errorMessageHandler.ts`
 - `packages/provider-oura/src/utils/objectUtils.ts`
