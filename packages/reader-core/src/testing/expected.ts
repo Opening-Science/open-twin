@@ -7,7 +7,7 @@
  */
 import type { Bundle, Observation, Resource } from 'fhir/r4';
 
-const isObservation = (resource: Resource | undefined): resource is Observation =>
+export const isObservation = (resource: Resource | undefined): resource is Observation =>
   resource?.resourceType === 'Observation';
 
 export interface ExpectedSummary {
@@ -39,8 +39,8 @@ function effectiveOf(observation: Observation): string | undefined {
 export function summarise(bundle: Bundle): ExpectedSummary {
   const resourceTypes = new Map<string, number>();
   const observationCodes = new Map<string, number>();
-  let first: string | undefined;
-  let last: string | undefined;
+  let firstEffective: string | undefined;
+  let lastEffective: string | undefined;
   let absentValues = 0;
 
   for (const entry of bundle.entry ?? []) {
@@ -65,9 +65,9 @@ export function summarise(bundle: Bundle): ExpectedSummary {
 
     if (effective === undefined) continue;
 
-    if (first === undefined || effective < first) first = effective;
+    if (firstEffective === undefined || effective < firstEffective) firstEffective = effective;
 
-    if (last === undefined || effective > last) last = effective;
+    if (lastEffective === undefined || effective > lastEffective) lastEffective = effective;
   }
 
   const summary: ExpectedSummary = {
@@ -76,35 +76,9 @@ export function summarise(bundle: Bundle): ExpectedSummary {
     absentValues
   };
 
-  if (first !== undefined) summary.firstEffective = first;
+  if (firstEffective !== undefined) summary.firstEffective = firstEffective;
 
-  if (last !== undefined) summary.lastEffective = last;
+  if (lastEffective !== undefined) summary.lastEffective = lastEffective;
 
   return summary;
-}
-
-/** The differences between two summaries, as one line each. Empty when they agree. */
-export function diffSummary(expected: ExpectedSummary, actual: ExpectedSummary): string[] {
-  const lines: string[] = [];
-  const records: Array<keyof Pick<ExpectedSummary, 'resourceTypes' | 'observationCodes'>> = [
-    'resourceTypes',
-    'observationCodes'
-  ];
-  for (const field of records) {
-    const keys = new Set([...Object.keys(expected[field]), ...Object.keys(actual[field])]);
-    for (const key of [...keys].sort()) {
-      const want = expected[field][key] ?? 0;
-      const got = actual[field][key] ?? 0;
-
-      if (want !== got) lines.push(`${field}[${key}]: expected ${want}, got ${got}`);
-    }
-  }
-
-  for (const field of ['firstEffective', 'lastEffective', 'absentValues'] as const) {
-    if (expected[field] !== actual[field]) {
-      lines.push(`${field}: expected ${expected[field] ?? '(none)'}, got ${actual[field] ?? '(none)'}`);
-    }
-  }
-
-  return lines;
 }

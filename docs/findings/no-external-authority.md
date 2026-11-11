@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **82**
+Count: **83**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/index.ts`
@@ -87,6 +87,7 @@ Count: **82**
 - `packages/reader-core/src/testing/rules.ts`
 - `packages/reader-core/src/types.ts`
 - `packages/reader-core/src/utils/connectorTag.ts`
+- `packages/reader-core/src/utils/descriptor.ts`
 - `packages/reader-core/src/utils/errorCause.ts`
 - `packages/reader-core/src/utils/fileInput.ts`
 - `packages/reader-core/src/utils/operationOutcome.ts`
