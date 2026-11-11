@@ -16,6 +16,8 @@ under [Releases](Contributing.md#releases).
 - `@open-twin/reader-core`: the eight conformance rules as vitest assertions,
   `checkDescriptor` for the registry gate, and `summarise`, which an adapter's
   `expected.json` records (#252).
+- `@open-twin/reader-core/testing`: `describeReaderConformance`, the suite each
+  adapter runs over its fixtures (#253).
 
 ### Changed
 

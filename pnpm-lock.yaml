@@ -466,6 +466,9 @@ importers:
       vitest:
         specifier: 5.1.0
         version: 5.1.0(@types/node@26.6.6)(vite@8.1.0(@types/node@26.6.6)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
 
 packages:
 
