@@ -11,6 +11,7 @@ see what was decided and why, and argue with it.
 ---
 
 <a id="d1"></a>
+
 ## D1 — Subject linkage
 
 **Decision.** Public entry points accept an optional `subject: Reference`. When the
@@ -33,6 +34,7 @@ an identity the connector cannot vouch for.
 Implemented by `subjectReference` in `@open-twin/fhir-core`.
 
 <a id="d2"></a>
+
 ## D2 — Identifier and id strategy
 
 **Decision.** `Observation.id` is `uuidv5(connector | vendor user id | vendor record
@@ -54,6 +56,7 @@ makes the bundle non-inert. `collection` plus a stable identifier leaves
 de-duplication to the receiver. Both are supported; `collection` is the default.
 
 <a id="d3"></a>
+
 ## D3 — Code system URIs for vendor concepts
 
 **Decision.** One Foundation-controlled namespace per connector:
@@ -80,6 +83,7 @@ resolved. That warning is correct and stays until the IG publishes them. Publish
 the IG is tracked as connector-completion work, not as a defect.
 
 <a id="d4"></a>
+
 ## D4 — One unit per concept
 
 **Decision.** `LOINC_UNITS` in `@open-twin/fhir-core` binds each LOINC code to
@@ -101,6 +105,7 @@ vital-signs Observation carrying either is a conformance failure.
 lint rule that would be cheaper and weaker.
 
 <a id="d5"></a>
+
 ## D5 — Dispatch on the requested type, not on the response shape
 
 **Decision.** Response parsing selects a schema by the type that was requested.
@@ -119,6 +124,7 @@ intact: `daily_readiness`, keyed on `temperature_trend_deviation`, is next.
 **Trade-off.** A public API change, which is one of the reasons for D9.
 
 <a id="d6"></a>
+
 ## D6 — Partial failure
 
 **Decision.** Absence of data is never an exception. Fan-out uses
@@ -131,6 +137,7 @@ way to distinguish "no data in this window" from "rate-limited" from "library bu
 `OperationOutcome` is the FHIR-native way to say four types succeeded and one did not.
 
 <a id="d7"></a>
+
 ## D7 — Time and timezone
 
 **Decision.** `effective[x]` carries the subject's local UTC offset as supplied by the
@@ -145,6 +152,7 @@ boundary for each data type. VITRONIC carried no time at all, although
 `Viatar.meta.crtime` was available and already being fetched.
 
 <a id="d8"></a>
+
 ## D8 — The connectors stay stateless
 
 **Decision.** The packages remain libraries. State that syncing requires — token
@@ -159,6 +167,7 @@ project's own premise that data stays where it is generated.
 drop-in.
 
 <a id="d9"></a>
+
 ## D9 — Package names and versions
 
 **Decision.** Packages are scoped `@open-twin/*` and versioned from `0.1.0`.
@@ -170,6 +179,7 @@ the version drop first means the remediation executes as pre-1.0 iteration rathe
 as a series of breaking changes to a released 1.0.
 
 <a id="d10"></a>
+
 ## D10 — VITRONIC angles are converted to degrees
 
 **Decision.** `angle.ts` and `axes.ts` convert radians to degrees and emit UCUM `deg`.
@@ -194,6 +204,7 @@ wrong. They are UCUM `1`.
 ---
 
 <a id="d11"></a>
+
 ## D11 — Anchor LOINC property / unit mismatches (pending)
 
 **Status.** Proposed — human decision required.
@@ -237,6 +248,7 @@ on this decision. No silent rewrite of `unit_ucum` or `loinc_code` in the
 compiler. No `(low, high)` on Biomarker; ReferenceInterval stays first-class.
 
 <a id="d12"></a>
+
 ## D12 — Interpretation region key is openXR SystemId
 
 **Decision.** The interpretation document addresses anatomy for visualisation with
@@ -270,6 +282,7 @@ Schema; open-twin-openXR consumes `@open-twin/interpretation-contract` and does
 not re-declare the enum.
 
 <a id="d13"></a>
+
 ## D13 — MDR intended-use line on every interpretation document
 
 **Context.** Interpretations support research hypothesis generation. The
@@ -297,6 +310,7 @@ intended use requires a new decision, contract version and product assessment.
 ---
 
 <a id="d14"></a>
+
 ## D14 — Four-layer model and interface ownership
 
 **Decision.** OpenTwin is four layers. Each layer owns one interface and must not
@@ -326,6 +340,7 @@ the layer the module implements. New packages declare a layer in their README.
 Crossing a layer boundary requires an explicit decision, not a convenience import.
 
 <a id="d15"></a>
+
 ## D15 — VITRONIC property paths have SI units by exact path
 
 **Decision.** BodyLoop 0.13.7 `properties[].property_path` values that match these
@@ -355,6 +370,7 @@ covered by the units-allowlist waiver on the mapper file. Extending the table
 is a D15 amendment, not a local guess.
 
 <a id="d16"></a>
+
 ## D16 — Reader interface and registry
 
 **Decision.** Every ingestion package exposes its connector through one interface,
