@@ -431,6 +431,7 @@ tries readers in `priority` order and binds the first that accepts, otherwise th
 sniffing in order.
 
 `packages/cli` (`@open-twin/cli`, binary `twin`, Node 22):
+
 - `twin list`: registered readers (id, kind, domains, status, data types).
 - `twin info <file | --source id --config file.json>`: which reader accepts the input and its `describe()` output; no data.
 - `twin convert <input...> --subject-key K [--window start,end] [--types a,b] [--reconcile] --to fhir|ndjson|twin --out path [--token-store dir] [--cursor-store dir]`: exit code 1 on any `error` issue. `--reconcile` reads every input through `ReconcilingReader`.
