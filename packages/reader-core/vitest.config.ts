@@ -5,7 +5,6 @@ export default defineConfig({
   test: {
     globals: true,
     watch: false,
-    passWithNoTests: true,
     environment: 'node',
     restoreMocks: true,
     mockReset: true,
