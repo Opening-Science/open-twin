@@ -12,7 +12,7 @@ import {
   optionalNumericComponent,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { OuraResilienceResponseList } from '../../api/schemas/resilience';
 import { type OuraMapperContext, ouraCoding, ouraIdentifier, ouraResourceId } from './shared';
 

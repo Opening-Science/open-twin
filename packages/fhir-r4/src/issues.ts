@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import type { OperationOutcome, OperationOutcomeIssue } from 'fhir/r4';
+import type { OperationOutcome, OperationOutcomeIssue } from 'fhir/r4.js';
 
 /**
  * One finding, located by a FHIRPath expression rather than by quoting the input.

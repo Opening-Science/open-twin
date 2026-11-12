@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 FHIR R4 structure rules (local checks); CI also runs official validator on emitted exemplars.
  */
-import type { OperationOutcome } from 'fhir/r4';
+import type { OperationOutcome } from 'fhir/r4.js';
 import { type FhirIssue, hasErrors, toOutcome } from '../issues';
 import { checkUcumCodes, checkUnitPolicy } from '../units/check';
 import { checkFullUrls, type EntryView, readEntries } from './fullurl';

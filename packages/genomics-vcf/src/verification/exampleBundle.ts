@@ -7,7 +7,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { vcfToFhirBundle } from '../fhir/bundleBuilder';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

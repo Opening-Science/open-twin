@@ -97,24 +97,37 @@ reaches it through a short-lived branch and one pull request.
 open-twin follows [Semantic Versioning](https://semver.org/). Until 1.0, a minor
 version (`0.x.0`) may change behaviour; a patch version (`0.x.y`) only fixes.
 
-- The workspace packages under `packages/` are released together under one
-  version. `@open-twin/interpretation-contract` keeps its own version, which
-  follows the contract schema version.
-- The packages are not published to npm yet. Consumers such as
-  [TwinLLM](https://github.com/Opening-Science/twin-llm) pin a commit or a
-  release tag of this repository.
+- The 11 public packages have independent versions and release cadences. They
+  retain ordinary shared dependencies, including `@open-twin/fhir-core`.
+  The four private research packages remain unpublished.
+- Add a changeset with `pnpm changeset` for public package changes. Select only
+  affected packages; inspect the plan with `pnpm release:status`.
+- Changesets prepares a draft version/changelog PR. Use `pnpm release:version`
+  rather than the bare Changesets version command: the wrapper ensures breaking
+  shared dependency changes do not become pre-1.0 dependent patch releases.
+  Version PRs still require the normal checks and approving review.
 - Planned work is grouped in a
   [milestone](https://github.com/Opening-Science/open-twin/milestones) per
   release.
-- A maintainer releases by setting the new version in each released package's
-  `package.json`, moving the Unreleased entries in
-  [CHANGELOG.md](CHANGELOG.md) under the new version, tagging `main` with a
-  signed tag (`git tag -s vX.Y.Z`), and publishing the GitHub release. Release
-  tags (`v*`) never move and are never deleted.
-- If a released version needs a fix after `main` has moved on, the fix lands
-  on `main` first and is then cherry-picked onto a `release/X.Y` branch cut
-  from the tag, which is tagged with the next patch version (`v0.1.1` after
-  `v0.1.0`).
+- After merging the version PR, select `main` and one package in the release
+  workflow's **Run workflow** menu. It checks release readiness, registry
+  dependencies, existing correctness gates, and clean external consumers before
+  requesting approval through `npm-publish`. After approval, the bot creates a
+  signed package-specific tag and publishes only that package's checked tarball.
+  Existing manually signed package tags remain supported. Release tags never
+  move and are never deleted.
+- Publication needs a maintainer-configured protected environment, a dedicated
+  bot signing key, npm scope access, and per-package trusted publishers.
+  See [Publishing](docs/PUBLISHING.md) for setup, bootstrap, CI checks on
+  automated PRs, and recovery. No packages become available just by merging this
+  automation. Until first publication, source consumers may continue pinning
+  reviewed commits.
+- New package changelogs are managed by Changesets. The root
+  [CHANGELOG.md](CHANGELOG.md) retains project-level and historical entries;
+  existing `v*` tags remain historical shared releases.
+- Fixes land on `main` first and receive an appropriate package changeset.
+  The selective release workflow requires release commits on `main`; maintenance
+  branches do not bypass that requirement.
 - Release notes name any change a consumer must act on, such as a renamed
   export, a changed code system or a new required unit.
 

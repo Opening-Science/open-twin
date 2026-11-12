@@ -7,6 +7,15 @@ and normalises addressing and provenance. Its registered HL7 validator example
 checks one normalisation output; it does not prove conformance for every input.
 See [intended use](../../docs/INTENDED-USE.md) before handling participant data.
 
+After the package's first npm release:
+
+```bash
+npm install @open-twin/fhir-r4
+```
+
+Compatible shared core is installed automatically, not embedded. This package is
+versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ```ts
 import { normaliseBundle, validateFhir } from '@open-twin/fhir-r4';
 

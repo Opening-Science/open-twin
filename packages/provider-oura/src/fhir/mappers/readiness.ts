@@ -12,7 +12,7 @@ import {
   quantity,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { OuraReadinessResponseList } from '../../api/schemas/readiness';
 import { type OuraMapperContext, ouraCoding, ouraIdentifier, ouraResourceId } from './shared';
 

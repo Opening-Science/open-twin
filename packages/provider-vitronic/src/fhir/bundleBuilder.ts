@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d5; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator on emitted bundles in CI; terminology/unit gates on source codings.
  */
 import { buildBundle, type ConnectorError, patientUuid, SYSTEMS, toOperationOutcome } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation, OperationOutcome, Patient, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation, OperationOutcome, Patient, Reference } from 'fhir/r4.js';
 import { asConnectorError, type BodyLoopClient } from '../api/client';
 import type { AngleList } from '../api/schemas/angle';
 import type { AxesList } from '../api/schemas/axes';

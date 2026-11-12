@@ -24,7 +24,7 @@ import type {
   ObservationComponent,
   Quantity,
   Reference
-} from 'fhir/r4';
+} from 'fhir/r4.js';
 import type { CommonType } from '../../api/schemas/common';
 import type { Scope } from '../../config/constants';
 

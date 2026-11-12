@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import { CATEGORY, createObservation, PROFILES, patientUuid, quantity, SYSTEMS, UCUM } from '@open-twin/fhir-core';
-import type { FhirResource, Patient } from 'fhir/r4';
+import type { FhirResource, Patient } from 'fhir/r4.js';
 import type { OuraPersonal } from '../../api/schemas/personal';
 import { CONNECTOR, LOINC, type OuraMapperContext, ouraExtensionUrl, ouraIdentifier, ouraResourceId } from './shared';
 

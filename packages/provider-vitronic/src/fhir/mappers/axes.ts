@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d10
  * CORRECTNESS: recorded API response (BodyLoop radians; π identities per DECISIONS.md#d10); UCUM deg.
  */
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { AxesList, Axis } from '../../api/schemas/axes';
 import {
   createMeasurementObservation,

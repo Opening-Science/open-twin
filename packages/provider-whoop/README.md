@@ -6,9 +6,15 @@ WHOOP Developer API v2 to FHIR R4. Recovery, cycle (strain), and sleep metrics f
 
 ## Installation
 
+After the package's first npm release:
+
 ```bash
 pnpm add @open-twin/provider-whoop
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 Register an app in the [WHOOP Developer Dashboard](https://developer.whoop.com/). WHOOP requires OAuth `state` to be **exactly 8 characters** — use `createWhoopOAuthState()`.
 

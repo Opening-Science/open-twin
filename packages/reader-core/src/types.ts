@@ -5,7 +5,7 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: ReaderMetadata, Issue and ReadProvenance travel into logs. None may carry a health payload, a token, a name or an e-mail; conformance rule 7 checks serialised issues for that.
  */
-import type { Bundle, Reference } from 'fhir/r4';
+import type { Bundle, Reference } from 'fhir/r4.js';
 
 export const DATA_DOMAINS = ['wearable', 'body-scan', 'lab', 'clinical-record', 'genomics', 'synthetic'] as const;
 export const READER_KINDS = ['api', 'file'] as const;

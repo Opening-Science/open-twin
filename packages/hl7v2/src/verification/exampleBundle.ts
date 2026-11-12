@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator (CI fhir-validate).
  */
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { convertMessage } from '../fhir/bundleBuilder';
 import { ORU_R01 } from '../tests/fixtures/messages';
 

@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import type { OperationOutcome, OperationOutcomeIssue } from 'fhir/r4';
+import type { OperationOutcome, OperationOutcomeIssue } from 'fhir/r4.js';
 
 /**
  * Gap 1I: a typed error taxonomy.

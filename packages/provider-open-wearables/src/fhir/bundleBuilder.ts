@@ -11,7 +11,7 @@ import {
   subjectReference,
   toOperationOutcome
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, OperationOutcome, Patient, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, OperationOutcome, Patient, Reference } from 'fhir/r4.js';
 import { parseOrThrow } from '../api/parse';
 import { SleepSessionPageSchema, WorkoutPageSchema } from '../api/schemas/events';
 import { TimeSeriesPageSchema } from '../api/schemas/timeseries';
