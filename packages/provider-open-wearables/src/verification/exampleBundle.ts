@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator (CI fhir-validate) on the emitted fixture only; Open Wearables contract is unverified against a live instance — fixtures are not a recorded vendor oracle.
  */
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { buildOpenWearablesBundle } from '../fhir/bundleBuilder';
 import { FIXTURE_USER_ID, SLEEP_PAGE, TIMESERIES_PAGE, WORKOUT_PAGE } from '../fixtures/openWearablesSync';
 

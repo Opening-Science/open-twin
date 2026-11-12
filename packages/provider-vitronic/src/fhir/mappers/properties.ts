@@ -5,7 +5,7 @@
  * CORRECTNESS: BodyLoop 0.13.7 property paths (DECISIONS.md#d15); UCUM names via @lhncbc/ucum-lhc; unitless waiver for unknown paths (verify/units-allowlist.json).
  */
 import { quantity, UCUM, type UcumUnit } from '@open-twin/fhir-core';
-import type { CodeableConcept, Observation, Quantity } from 'fhir/r4';
+import type { CodeableConcept, Observation, Quantity } from 'fhir/r4.js';
 import type { Property, PropertyList } from '../../api/schemas/properties';
 import { createMeasurementObservation, dataAbsentReason, type MeasurementContext } from './shared';
 

@@ -9,6 +9,18 @@ The decisions themselves — and the defects that forced them — are recorded i
 or changing a mapper. This README covers what the package exports and the rules the
 exports enforce.
 
+## Installation
+
+After the package's first npm release:
+
+```bash
+npm install @open-twin/fhir-core
+```
+
+Providers import this package through normal dependencies, without embedding a
+full copy. Declare it directly when your application imports its components.
+It is versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ## Modules
 
 | module              | what it settles                                                                                                                            |

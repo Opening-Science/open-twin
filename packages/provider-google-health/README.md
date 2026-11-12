@@ -2,6 +2,10 @@
 
 Maps the **Google Health API v4** (`health.googleapis.com/v4`) into HL7 FHIR R4 bundles.
 
+This package is versioned independently. After its first npm release, installation
+also resolves compatible shared core as a normal dependency, not an embedded copy.
+Other connectors are not installed. See [publishing](../../docs/PUBLISHING.md).
+
 ## Read this before you integrate
 
 **This package does not talk to Health Connect.** Three different things share

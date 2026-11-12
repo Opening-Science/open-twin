@@ -14,7 +14,7 @@ import {
   UCUM,
   type UcumUnit
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation, Patient } from 'fhir/r4';
+import type { Bundle, Observation, Patient } from 'fhir/r4.js';
 import { aggregate } from '../aggregate';
 
 /**

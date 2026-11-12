@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import { CATEGORY, createObservation, dataAbsentReason, deterministicId, quantity } from '@open-twin/fhir-core';
-import type { Observation, Reference } from 'fhir/r4';
+import type { Observation, Reference } from 'fhir/r4.js';
 import type { TimeSeriesSample } from '../../api/schemas/timeseries';
 import { CONNECTOR, OPEN_WEARABLES_IDENTIFIER_SYSTEM } from '../../config/constants';
 import type { IssueLog } from '../issues';

@@ -33,14 +33,14 @@
   "license": "MIT",
   "dependencies": {
     "@googleapis/health": "7.0.1",
-    "@open-twin/fhir-core": "workspace:*",
+    "@open-twin/fhir-core": "workspace:^",
     "@types/fhir": "0.0.44",
+    "@types/node": "26.6.6",
     "googleapis": "189.0.0"
   },
   "devDependencies": {
     "@lhncbc/ucum-lhc": "8.0.1",
     "@rollup/plugin-swc": "0.4.1",
-    "@types/node": "26.6.6",
     "jest-extended": "7.0.0",
     "reflect-metadata": "0.2.2",
     "tsup": "9.0.0",
@@ -49,12 +49,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etzm/open-twin.git",
+    "url": "git+https://github.com/Opening-Science/open-twin.git",
     "directory": "packages/provider-google-health"
   },
-  "homepage": "https://github.com/etzm/open-twin#readme",
+  "homepage": "https://github.com/Opening-Science/open-twin/tree/main/packages/provider-google-health#readme",
   "bugs": {
-    "url": "https://github.com/etzm/open-twin/issues"
+    "url": "https://github.com/Opening-Science/open-twin/issues"
   },
   "engines": {
     "node": ">=20"

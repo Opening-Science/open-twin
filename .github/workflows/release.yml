@@ -1,0 +1,183 @@
+name: Independent package releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Public package to publish at its current manifest version
+        required: true
+        type: choice
+        default: "@open-twin/fhir-core"
+        options:
+          - "@open-twin/fhir-core"
+          - "@open-twin/aggregate"
+          - "@open-twin/reader-core"
+          - "@open-twin/provider-oura"
+          - "@open-twin/provider-whoop"
+          - "@open-twin/provider-google-health"
+          - "@open-twin/provider-vitronic"
+          - "@open-twin/open-wearables"
+          - "@open-twin/fhir-r4"
+          - "@open-twin/hl7v2"
+          - "@open-twin/genomics-vcf"
+  push:
+    branches: [ main ]
+    tags: [ "@open-twin/*@*" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: independent-package-releases
+  cancel-in-progress: false
+
+jobs:
+  version-pr:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
+        with:
+          version: pnpm release:version
+          title: "chore: version public packages"
+          commit: |
+            chore: version public packages
+
+            Signed-off-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+            Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+          commitMode: github-api
+          prDraft: create
+          createGithubReleases: false
+
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/@open-twin/')
+    runs-on: ubuntu-latest
+    outputs:
+      tarball: ${{ steps.select.outputs.tarball }}
+      package: ${{ steps.select.outputs.package }}
+      version: ${{ steps.select.outputs.version }}
+      tag: ${{ steps.select.outputs.tag }}
+      commit: ${{ steps.select.outputs.commit }}
+      sha256: ${{ steps.digest.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - id: select
+        name: Select package and check release readiness
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_PACKAGE: ${{ inputs.package }}
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            pnpm exec tsx scripts/release.ts manual "$RELEASE_PACKAGE"
+          else
+            pnpm exec tsx scripts/release.ts select "$RELEASE_TAG"
+          fi
+      - name: Record release target for approval
+        env:
+          RELEASE_TAG: ${{ steps.select.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.select.outputs.commit }}
+        run: |
+          printf '## Release candidate\n\nPackage tag: `%s`\n\nChecked commit: `%s`\n' "$RELEASE_TAG" "$RELEASE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm verify
+      - run: pnpm release:check
+      - run: pnpm check:packages --output release-artifacts
+      - id: digest
+        name: Record the verified tarball digest
+        env:
+          TARBALL: ${{ steps.select.outputs.tarball }}
+        run: |
+          digest=$(sha256sum "release-artifacts/$TARBALL" | cut -d ' ' -f1)
+          printf 'sha256=%s\n' "$digest" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: verified-package
+          path: release-artifacts/${{ steps.select.outputs.tarball }}
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish ${{ needs.prepare.outputs.package }}@${{ needs.prepare.outputs.version }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.commit }}
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.12.1
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: verified-package
+          path: release-artifacts
+      - name: Check the verified tarball digest
+        env:
+          TARBALL: ${{ needs.prepare.outputs.tarball }}
+          SHA256: ${{ needs.prepare.outputs.sha256 }}
+        run: |
+          printf '%s  %s\n' "$SHA256" "release-artifacts/$TARBALL" | sha256sum --check --strict
+      - name: Require release signing setup
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "$RELEASE_SIGNING_KEY" ]; then
+            echo "::error::Configure RELEASE_GPG_PRIVATE_KEY in the npm-publish environment before manual publication."
+            exit 1
+          fi
+      - id: signing
+        name: Import the protected release-bot signing key
+        if: github.event_name == 'workflow_dispatch'
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
+        with:
+          gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          git_user_signingkey: true
+      - name: Create or verify the immutable signed package tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.prepare.outputs.commit }}
+          RELEASE_SIGNING_FINGERPRINT: ${{ steps.signing.outputs.fingerprint }}
+          GH_TOKEN: ${{ github.token }}
+        run: node --experimental-strip-types scripts/release-tag.ts "$RELEASE_TAG" "$RELEASE_COMMIT"
+      - name: Publish only the verified tarball
+        env:
+          TARBALL: ${{ needs.prepare.outputs.tarball }}
+        run: |
+          npm publish "release-artifacts/$TARBALL" --ignore-scripts --access public --provenance

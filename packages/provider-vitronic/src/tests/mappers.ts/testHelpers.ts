@@ -1,5 +1,5 @@
 import { patientUuid } from '@open-twin/fhir-core';
-import type { Identifier, Reference } from 'fhir/r4';
+import type { Identifier, Reference } from 'fhir/r4.js';
 import type { Marker } from '../../api/schemas/marker';
 import type { Scope } from '../../config/constants';
 import { type MeasurementContext, measurementContext } from '../../fhir/mappers/shared';

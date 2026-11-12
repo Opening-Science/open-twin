@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: UCUM grammar via @lhncbc/ucum-lhc (verify/check-units.mjs); LOINC example units constrained by vital-signs profiles.
  */
-import type { Quantity } from 'fhir/r4';
+import type { Quantity } from 'fhir/r4.js';
 import { SYSTEMS } from './systems';
 
 /**

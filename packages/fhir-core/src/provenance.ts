@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import type { CodeableConcept, Device, Observation, Reference } from 'fhir/r4';
+import type { CodeableConcept, Device, Observation, Reference } from 'fhir/r4.js';
 import { deterministicId, uuidv5 } from './identity';
 import { codeableConcept } from './observation';
 import { deviceIdentifierSystem, SYSTEMS } from './systems';

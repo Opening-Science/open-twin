@@ -109,6 +109,8 @@ const STAGES: Stage[] = [
   { id: 'verify gates (verify/run-verify.ts)', job: 'gates', exec: () => run(...pnpm('verify')) },
   { id: 'type check (every package)', job: 'tests', exec: () => run(...pnpm('typecheck')) },
   { id: 'test (every package)', job: 'tests', exec: () => run(...pnpm('test')) },
+  { id: 'independent release fixtures', job: 'package-artifacts', exec: () => run(...pnpm('release:check')) },
+  { id: 'packed external consumers', job: 'package-artifacts', exec: () => run(...pnpm('check:packages')) },
   {
     id: 'conformance resources + bundles',
     job: 'fhir-validate',

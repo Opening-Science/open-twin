@@ -6,6 +6,17 @@ specification `docs/specs/reader-architecture.md` (#229).
 **Layer (D14):** the ingestion layer's interface. This package maps no vendor format,
 scores nothing and interprets nothing.
 
+## Installation
+
+After the package's first npm release:
+
+```bash
+npm install @open-twin/reader-core
+```
+
+Shared core is a compatible dependency; installing this interface does not install
+every connector. It is versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ## What is here
 
 | Module      | Purpose                                                                                       |

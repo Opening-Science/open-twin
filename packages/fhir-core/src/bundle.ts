@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator (CI fhir-validate over emitted bundles).
  */
-import type { Bundle, BundleEntry, FhirResource, Meta } from 'fhir/r4';
+import type { Bundle, BundleEntry, FhirResource, Meta } from 'fhir/r4.js';
 import { uuidv5 } from './identity';
 
 /**

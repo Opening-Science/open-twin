@@ -36,7 +36,7 @@
   "license": "MIT",
   "dependencies": {
     "@lhncbc/ucum-lhc": "8.0.1",
-    "@open-twin/fhir-core": "workspace:*",
+    "@open-twin/fhir-core": "workspace:^",
     "@types/fhir": "0.0.44"
   },
   "devDependencies": {
@@ -47,12 +47,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etzm/open-twin.git",
+    "url": "git+https://github.com/Opening-Science/open-twin.git",
     "directory": "packages/hl7v2"
   },
-  "homepage": "https://github.com/etzm/open-twin#readme",
+  "homepage": "https://github.com/Opening-Science/open-twin/tree/main/packages/hl7v2#readme",
   "bugs": {
-    "url": "https://github.com/etzm/open-twin/issues"
+    "url": "https://github.com/Opening-Science/open-twin/issues"
   },
   "engines": {
     "node": ">=20"

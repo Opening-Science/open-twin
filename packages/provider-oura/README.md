@@ -15,11 +15,15 @@ A provider for connecting Oura devices and APIs to the Open Twin ecosystem. This
 
 ## Installation
 
-Install the package via npm:
+After the package's first release, install it via npm:
 
 ```bash
 npm install @open-twin/provider-oura
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 ### Setup & Prerequisites
 

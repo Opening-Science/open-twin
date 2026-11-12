@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d1
  * CORRECTNESS: HL7 validator requirement that Bundle.entry.fullUrl urn:uuid values are UUIDs.
  */
 import { createHash } from 'node:crypto';
-import type { Patient, Reference } from 'fhir/r4';
+import type { Patient, Reference } from 'fhir/r4.js';
 
 /**
  * UUIDv5 namespace for open-twin, derived as UUIDv5(DNS, 'opentwin.ch').

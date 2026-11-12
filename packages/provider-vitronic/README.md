@@ -12,11 +12,15 @@ package. Host-side scan cycle tooling lives outside this repository
 
 ## Installation
 
-Install the package via npm:
+After the package's first release, install it via npm:
 
 ```bash
 npm install @open-twin/provider-vitronic
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 ### Setup & Prerequisites
 

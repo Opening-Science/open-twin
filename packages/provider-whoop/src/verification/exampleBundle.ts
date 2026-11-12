@@ -7,7 +7,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { WhoopSyncPayloadSchema } from '../api/schemas/sync';
 import { buildWhoopBundleFromPayload } from '../fhir/bundleBuilder';
 

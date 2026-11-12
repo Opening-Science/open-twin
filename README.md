@@ -62,7 +62,24 @@ CI also runs the official HL7 validator; a local validator run requires Java 21.
 
 ## Packages
 
-Automated npm publishing is disabled; use the source checkout.
+Public packages have independent versions and can be published individually.
+Release automation and maintainer setup are described in [Publishing](docs/PUBLISHING.md).
+Registry availability depends on completing that setup and each package's first release.
+
+Once published, install only what your application needs:
+
+```bash
+npm install @open-twin/provider-oura
+```
+
+Providers import shared components from `@open-twin/fhir-core` through a normal
+dependency; the package manager installs a compatible core version automatically.
+Core is not embedded into each provider, and other connectors are not installed.
+If your application imports core directly, declare it directly too:
+
+```bash
+npm install @open-twin/fhir-core
+```
 
 Eleven connector and core library packages (names use the `@open-twin/` scope):
 
@@ -80,7 +97,7 @@ Eleven connector and core library packages (names use the `@open-twin/` scope):
 | [`hl7v2`](packages/hl7v2)                                   | HL7 v2 → FHIR | ORU/ADT messages                                                  |
 | [`genomics-vcf`](packages/genomics-vcf)                     | VCF → FHIR    | variant calls, Genomics Reporting IG                              |
 
-Four more workspace packages are research modules:
+Four more workspace packages are private research modules, excluded from npm publication:
 
 | package                                                       | role                                                      |
 | ------------------------------------------------------------- | --------------------------------------------------------- |
