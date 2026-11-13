@@ -5,6 +5,7 @@ GOVERNED BY: DECISIONS.md#d9
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 export { CONNECTOR_VERSION, type VcfToFhirOptions, type VcfToFhirResult, vcfToFhirBundle } from './fhir/bundleBuilder';
+export { GENOMICS_VCF_MEASUREMENTS } from './fhir/measurements';
 export {
   ALLELIC_STATE_ANSWER,
   assemblyCoding,

@@ -130,6 +130,21 @@ A non-empty `unmapped` array means a data type this package _declares_ it can re
 arrived and was dropped — a defect in this package, reported rather than swallowed. Keys
 belonging to data types the package never declares are ignored silently.
 
+## Measurement declarations
+
+`GOOGLE_HEALTH_MEASUREMENTS` (a `MeasurementDeclarationSet` from `@open-twin/fhir-core`,
+decision D18) says, for every Observation and component the mappers can emit, which
+measurement key it is, the coding that identifies it, where the value sits, and its value
+type and UCUM unit. Coverage is `complete`: a test builds bundles through the real
+mappers and fails on any undeclared, ambiguous, mistyped or mis-unit value and on any
+declaration no mapper output exercises.
+
+Where two measures share a LOINC code (daily vs sleep respiratory rate, run vs general
+VO2 max, active vs basal energy, daily vs spot SpO2), the declaration uses the
+`google-health` coding the mapper also carries. Dynamic component codes are declared for
+every value of the documented API enum (sleep stage, heart rate zone, activity level), so
+a value Google adds later fails the audit until it is declared.
+
 ## Known gaps
 
 - `total-calories` and `calories-in-heart-rate-zone` are **not** supported. They are not

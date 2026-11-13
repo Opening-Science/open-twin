@@ -23,6 +23,7 @@ export {
 } from './api/record_types';
 export type { BuildBundleOptions, BundleResult } from './fhir/bundleBuilder';
 export { buildBundleFromResponses, mapDataPointToFHIR } from './fhir/bundleBuilder';
+export { GOOGLE_HEALTH_MEASUREMENTS } from './fhir/measurements';
 // biome-ignore lint/style/useExportType: Exposing the type and GoogleHealthClient class is necessary for external usage
 export { AllTypes, GoogleHealthClient };
 

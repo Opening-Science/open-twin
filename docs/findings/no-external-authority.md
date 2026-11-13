@@ -8,33 +8,42 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **71**
+Count: **83**
 
 - `packages/aggregate/src/aggregate.ts`
+- `packages/aggregate/src/catalogue.ts`
 - `packages/aggregate/src/index.ts`
 - `packages/aggregate/src/measure.ts`
 - `packages/aggregate/src/select.ts`
 - `packages/fhir-core/src/errors.ts`
 - `packages/fhir-core/src/index.ts`
+- `packages/fhir-core/src/measurementDefinitions.ts`
+- `packages/fhir-core/src/measurements.ts`
 - `packages/fhir-core/src/provenance.ts`
 - `packages/fhir-core/src/referenceRange.ts`
 - `packages/fhir-core/src/reliability.ts`
 - `packages/fhir-r4/src/index.ts`
 - `packages/fhir-r4/src/issues.ts`
+- `packages/fhir-r4/src/measurements.ts`
+- `packages/genomics-vcf/src/fhir/measurements.ts`
 - `packages/genomics-vcf/src/index.ts`
 - `packages/genomics-vcf/src/issues.ts`
+- `packages/hl7v2/src/fhir/measurements.ts`
 - `packages/hl7v2/src/index.ts`
 - `packages/hl7v2/src/issues.ts`
 - `packages/provider-google-health/src/api/client.ts`
 - `packages/provider-google-health/src/api/record_types.ts`
 - `packages/provider-google-health/src/config/config.ts`
 - `packages/provider-google-health/src/config/constants.ts`
+- `packages/provider-google-health/src/fhir/measurements.ts`
 - `packages/provider-google-health/src/index.ts`
 - `packages/provider-open-wearables/src/api/parse.ts`
 - `packages/provider-open-wearables/src/api/schemas/common.ts`
 - `packages/provider-open-wearables/src/api/schemas/events.ts`
 - `packages/provider-open-wearables/src/api/schemas/timeseries.ts`
 - `packages/provider-open-wearables/src/config/constants.ts`
+- `packages/provider-open-wearables/src/fhir/measurements.ts`
+- `packages/provider-open-wearables/src/fixtures/measurementCoverage.ts`
 - `packages/provider-open-wearables/src/fixtures/openWearablesSync.ts`
 - `packages/provider-open-wearables/src/index.ts`
 - `packages/provider-oura/src/api/client.ts`
@@ -57,6 +66,7 @@ Count: **71**
 - `packages/provider-oura/src/api/schemas/workout.ts`
 - `packages/provider-oura/src/config/config.ts`
 - `packages/provider-oura/src/config/constants.ts`
+- `packages/provider-oura/src/fhir/measurements.ts`
 - `packages/provider-oura/src/index.ts`
 - `packages/provider-oura/src/utils/clientUtils.ts`
 - `packages/provider-oura/src/utils/errorMessageHandler.ts`
@@ -77,7 +87,9 @@ Count: **71**
 - `packages/provider-vitronic/src/api/schemas/viatars.ts`
 - `packages/provider-vitronic/src/config/config.ts`
 - `packages/provider-vitronic/src/config/constants.ts`
+- `packages/provider-vitronic/src/fhir/measurements.ts`
 - `packages/provider-vitronic/src/index.ts`
+- `packages/provider-whoop/src/fhir/measurements.ts`
 - `packages/reader-core/src/index.ts`
 - `packages/reader-core/src/reader.ts`
 - `packages/reader-core/src/types.ts`

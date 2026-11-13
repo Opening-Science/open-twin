@@ -23,20 +23,33 @@ import { loincUnit } from '../seriesMap';
 import { fhirDateTime } from '../time';
 import type { SampleContext } from './timeseries';
 
-const WORKOUT_TYPE = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-type', display: 'Workout type' };
-const WORKOUT_LABEL = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-label', display: 'Workout label' };
-const DISTANCE = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-distance', display: 'Workout distance' };
-const ELEVATION_GAIN = {
+/** The LOINC coding a timeseries `exercise_time` sample carries too; see `WORKOUT_DURATION`. */
+export const EXERCISE_DURATION = { system: SYSTEMS.LOINC, code: '55411-3', display: 'Exercise duration' };
+/**
+ * Tells a workout's own length apart from an `exercise_time` sample (seriesMap.ts),
+ * which is also coded 55411-3. Without it the two are indistinguishable by coding
+ * (D18), though one is a session and the other an arbitrary sampling interval.
+ */
+export const WORKOUT_DURATION = {
+  system: OPEN_WEARABLES_SYSTEM,
+  code: 'workout-duration',
+  display: 'Workout duration'
+};
+export const CALORIES = { system: SYSTEMS.LOINC, code: '41981-2', display: 'Calories burned' };
+export const WORKOUT_TYPE = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-type', display: 'Workout type' };
+export const WORKOUT_LABEL = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-label', display: 'Workout label' };
+export const DISTANCE = { system: OPEN_WEARABLES_SYSTEM, code: 'workout-distance', display: 'Workout distance' };
+export const ELEVATION_GAIN = {
   system: OPEN_WEARABLES_SYSTEM,
   code: 'workout-elevation-gain',
   display: 'Workout elevation gain'
 };
-const HR_AVERAGE = {
+export const HR_AVERAGE = {
   system: OPEN_WEARABLES_SYSTEM,
   code: 'workout-heart-rate-average',
   display: 'Average heart rate during workout'
 };
-const HR_MAXIMUM = {
+export const HR_MAXIMUM = {
   system: OPEN_WEARABLES_SYSTEM,
   code: 'workout-heart-rate-maximum',
   display: 'Maximum heart rate during workout'
@@ -67,7 +80,7 @@ export function mapWorkout(workout: Workout, context: SampleContext): Observatio
     durationSeconds === undefined || durationSeconds === null || !Number.isFinite(durationSeconds)
       ? undefined
       : Math.round((durationSeconds / 60) * 1000) / 1000;
-  const value = quantity(durationMinutes, loincUnit('55411-3'));
+  const value = quantity(durationMinutes, loincUnit(EXERCISE_DURATION.code));
   const device = context.devices.reference(workout.source);
 
   if (workout.avg_pace_sec_per_km !== undefined && workout.avg_pace_sec_per_km !== null) {
@@ -86,7 +99,7 @@ export function mapWorkout(workout: Workout, context: SampleContext): Observatio
       measure: 'workout'
     }),
     identifier: [{ system: OPEN_WEARABLES_IDENTIFIER_SYSTEM, value: `workout|${workout.id}` }],
-    code: { system: SYSTEMS.LOINC, code: '55411-3', display: 'Exercise duration' },
+    code: [EXERCISE_DURATION, WORKOUT_DURATION],
     category: CATEGORY.ACTIVITY,
     subject: context.subject,
     effectivePeriod: {
@@ -105,11 +118,7 @@ export function mapWorkout(workout: Workout, context: SampleContext): Observatio
       stringComponent(WORKOUT_LABEL, workout.name),
       // 41981-2 "Calories burned" is point-in-time, which is correct for a single
       // activity; the 24-hour code 41979-6 would not be.
-      optionalNumericComponent(
-        { system: SYSTEMS.LOINC, code: '41981-2', display: 'Calories burned' },
-        workout.calories_kcal,
-        loincUnit('41981-2')
-      ),
+      optionalNumericComponent(CALORIES, workout.calories_kcal, loincUnit(CALORIES.code)),
       optionalNumericComponent(DISTANCE, workout.distance_meters, UCUM.METRE),
       optionalNumericComponent(ELEVATION_GAIN, workout.elevation_gain_meters, UCUM.METRE),
       optionalNumericComponent(HR_AVERAGE, workout.avg_heart_rate_bpm, UCUM.PER_MINUTE),

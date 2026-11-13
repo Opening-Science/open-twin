@@ -114,6 +114,12 @@ interface LoincMeasureOptions {
   profile?: string;
   /** A LOINC code an R4 profile requires in addition to the specific one. */
   alsoCode?: { code: string; display: string };
+  /**
+   * A vendor-local coding (D3) emitted after the LOINC ones. Used only where the
+   * LOINC codings alone are also carried by a different measurement this connector
+   * emits, so that the two stay distinguishable by coding (D18).
+   */
+  localCode?: { code: string; display: string };
 }
 
 function loincMeasure(code: string, display: string, options: LoincMeasureOptions): Measure {
@@ -121,6 +127,9 @@ function loincMeasure(code: string, display: string, options: LoincMeasureOption
   const codes: CodingInput[] = [{ system: SYSTEMS.LOINC, code, display }];
   if (options.alsoCode) {
     codes.push({ system: SYSTEMS.LOINC, code: options.alsoCode.code, display: options.alsoCode.display });
+  }
+  if (options.localCode) {
+    codes.push({ system: OPEN_WEARABLES_SYSTEM, code: options.localCode.code, display: options.localCode.display });
   }
   return {
     codes,
@@ -154,7 +163,13 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
   heart_rate: {
     declaredUnit: 'bpm',
     acceptedUnits: ['bpm'],
-    sample: loincMeasure('8867-4', 'Heart rate', { category: 'VITAL_SIGNS', profile: PROFILES.HEART_RATE })
+    // `resting_heart_rate` below also carries 8867-4, so 8867-4 alone cannot tell a
+    // single reading from a resting rate. The local coding is what does (D18).
+    sample: loincMeasure('8867-4', 'Heart rate', {
+      category: 'VITAL_SIGNS',
+      profile: PROFILES.HEART_RATE,
+      localCode: { code: 'heart-rate', display: 'Heart rate reading' }
+    })
   },
   resting_heart_rate: {
     declaredUnit: 'bpm',
@@ -224,7 +239,13 @@ export const SERIES_MAP: Readonly<Record<string, SeriesMapping>> = {
   exercise_time: {
     declaredUnit: 'minutes',
     acceptedUnits: MINUTE_SPELLINGS,
-    sample: loincMeasure('55411-3', 'Exercise duration', { category: 'ACTIVITY' })
+    // A workout Observation (mappers/workout.ts) is coded 55411-3 as well. The two
+    // are different measurements — exercise minutes reported as a sample, and the
+    // length of one workout — so each carries its own local coding (D18).
+    sample: loincMeasure('55411-3', 'Exercise duration', {
+      category: 'ACTIVITY',
+      localCode: { code: 'exercise-time', display: 'Exercise time sample' }
+    })
   },
   steps: {
     declaredUnit: 'count',

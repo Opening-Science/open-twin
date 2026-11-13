@@ -48,6 +48,12 @@ describe('mapWorkout', () => {
   it('converts the workout duration from seconds to the minutes LOINC 55411-3 requires', () => {
     const observation = mapWorkout(workout(), context);
     expect(observation.code.coding?.[0]?.code).toBe('55411-3');
+    // A timeseries `exercise_time` sample is coded 55411-3 too; only this local
+    // coding tells a workout's own length from it (D18).
+    expect(observation.code.coding?.map((coding) => [coding.system, coding.code])).toEqual([
+      [SYSTEMS.LOINC, '55411-3'],
+      ['http://opentwin.ch/fhir/CodeSystem/open-wearables', 'workout-duration']
+    ]);
     expect(observation.valueQuantity).toEqual({
       value: 60,
       unit: 'minute',

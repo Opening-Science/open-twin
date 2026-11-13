@@ -40,14 +40,26 @@ function secondsToMinutes(seconds: number | null | undefined): number | undefine
   return Math.round((seconds / 60) * 1000) / 1000;
 }
 
-const AWAKE = { system: OPEN_WEARABLES_SYSTEM, code: 'sleep-awake-duration', display: 'Awake duration during sleep' };
-const EFFICIENCY = { system: OPEN_WEARABLES_SYSTEM, code: 'sleep-efficiency', display: 'Sleep efficiency' };
-const SESSION_DURATION = {
+export const SLEEP_DURATION = { system: SYSTEMS.LOINC, code: '93832-4', display: 'Sleep duration' };
+export const DEEP_SLEEP = { system: SYSTEMS.LOINC, code: '93831-6', display: 'Deep sleep duration' };
+export const LIGHT_SLEEP = { system: SYSTEMS.LOINC, code: '93830-8', display: 'Light sleep duration' };
+export const REM_SLEEP = { system: SYSTEMS.LOINC, code: '93829-0', display: 'REM sleep duration' };
+export const AWAKE = {
+  system: OPEN_WEARABLES_SYSTEM,
+  code: 'sleep-awake-duration',
+  display: 'Awake duration during sleep'
+};
+export const EFFICIENCY = { system: OPEN_WEARABLES_SYSTEM, code: 'sleep-efficiency', display: 'Sleep efficiency' };
+export const SESSION_DURATION = {
   system: OPEN_WEARABLES_SYSTEM,
   code: 'sleep-session-duration',
   display: 'Sleep session duration'
 };
-const SESSION_KIND = { system: OPEN_WEARABLES_SYSTEM, code: 'sleep-session-kind', display: 'Sleep session kind' };
+export const SESSION_KIND = {
+  system: OPEN_WEARABLES_SYSTEM,
+  code: 'sleep-session-kind',
+  display: 'Sleep session kind'
+};
 
 /**
  * One sleep session becomes one Observation with the stage breakdown as components.
@@ -66,7 +78,7 @@ const SESSION_KIND = { system: OPEN_WEARABLES_SYSTEM, code: 'sleep-session-kind'
  */
 export function mapSleepSession(session: SleepSession, context: SampleContext): Observation {
   const totalSleepMinutes = secondsToMinutes(session.sleep_duration_seconds);
-  const value = quantity(totalSleepMinutes, loincUnit('93832-4'));
+  const value = quantity(totalSleepMinutes, loincUnit(SLEEP_DURATION.code));
   const device = context.devices.reference(session.source);
   const stages = session.stages;
 
@@ -78,7 +90,7 @@ export function mapSleepSession(session: SleepSession, context: SampleContext): 
       measure: 'sleep'
     }),
     identifier: [{ system: OPEN_WEARABLES_IDENTIFIER_SYSTEM, value: `sleep|${session.id}` }],
-    code: { system: SYSTEMS.LOINC, code: '93832-4', display: 'Sleep duration' },
+    code: SLEEP_DURATION,
     category: CATEGORY.ACTIVITY,
     subject: context.subject,
     effectivePeriod: {
@@ -93,21 +105,9 @@ export function mapSleepSession(session: SleepSession, context: SampleContext): 
       // provider that reports no stages at all, and zero would say neither.
       ...(stages
         ? [
-            numericComponent(
-              { system: SYSTEMS.LOINC, code: '93831-6', display: 'Deep sleep duration' },
-              stages.deep_minutes,
-              loincUnit('93831-6')
-            ),
-            numericComponent(
-              { system: SYSTEMS.LOINC, code: '93830-8', display: 'Light sleep duration' },
-              stages.light_minutes,
-              loincUnit('93830-8')
-            ),
-            numericComponent(
-              { system: SYSTEMS.LOINC, code: '93829-0', display: 'REM sleep duration' },
-              stages.rem_minutes,
-              loincUnit('93829-0')
-            ),
+            numericComponent(DEEP_SLEEP, stages.deep_minutes, loincUnit(DEEP_SLEEP.code)),
+            numericComponent(LIGHT_SLEEP, stages.light_minutes, loincUnit(LIGHT_SLEEP.code)),
+            numericComponent(REM_SLEEP, stages.rem_minutes, loincUnit(REM_SLEEP.code)),
             // TODO(clinical-review): no verified LOINC concept for time awake
             // within a sleep period. Vendor-local, in the same unit as its siblings.
             numericComponent(AWAKE, stages.awake_minutes, UCUM.MINUTE)

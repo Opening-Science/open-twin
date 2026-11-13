@@ -103,6 +103,18 @@ Measurement paths are published as codes in the Foundation-controlled CodeSystem
 asserted for a BodyLoop measurement: no reviewed mapping table exists yet, and a
 wrong standard code is unrecoverable where a vendor-local one is not.
 
+### Measurement declarations
+
+`VITRONIC_MEASUREMENTS` (D18) declares what the connector emits: every measurement
+path in the recorded 0.13.7 payload (angles, axes, cross-section, distances and
+the markers they reference) with each component, plus the five D15 property paths.
+Every key is connector-owned (`vitronic:…`).
+
+Coverage is `open`. The codes are scanner-chosen paths, and the API documents no
+closed list. A path outside the recorded set is emitted without a declaration,
+because a declaration would be a guess. No `height_path` is recorded, so height
+Observations are never declared.
+
 ## Disclaimer
 
 This project is an independent and unofficial integration for Vitronic services and device. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with VITRONIC Machine Vision GmbH.
