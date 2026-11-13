@@ -9,7 +9,8 @@ See `PROVENANCE.md` for historical work in the separate `etzm/open-twin` copy;
 verify current remotes before pushing.
 
 A pnpm monorepo of health-data connectors that translate vendor APIs and clinical
-formats into FHIR R4 bundles, plus a reconciliation layer over them.
+formats into FHIR R4 bundles, plus a reconciliation layer over them and an
+experimental, research-only interpretation path for lab biomarkers.
 
 | Package                                                         | Source                                                                      |
 | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -24,6 +25,10 @@ formats into FHIR R4 bundles, plus a reconciliation layer over them.
 | `@open-twin/fhir-r4`                                            | Foreign FHIR R4 bundles: validation + normalisation                         |
 | `@open-twin/hl7v2`                                              | HL7 v2.x ORU/ADT messages                                                   |
 | `@open-twin/genomics-vcf`                                       | VCF variant calls via the Genomics Reporting IG                             |
+| `@open-twin/anchor-layer`                                       | Versioned Anchor biomarker catalogue and reference ranges                   |
+| `@open-twin/provider-anchor`                                    | Anchor lab biomarker measurements → FHIR R4 Observations                    |
+| `@open-twin/interpreter`                                        | Experimental YAML rule-pack evaluator over biomarker observations           |
+| `@open-twin/interpretation-contract`                            | Schema and validator for the document open-twin-xr reads                    |
 
 MIT licensed, developed under the Open Science Foundation.
 
@@ -48,11 +53,12 @@ as a Health Connect connector.
 
 **A green test run is not evidence that a change is correct.**
 
-270 tests passed, `tsc --strict` was clean and `biome ci` was clean while the output
-carried radians labelled as degrees, an invalid UCUM code, six sleep durations with no
-unit at all, and five LOINC/SNOMED codes that mean something other than what the
-mapper sends. The tests passed because they assert what the code produces, not what
-FHIR requires — and several asserted the defect as intended. One was literally named
+At one point 270 tests passed, `tsc --strict` was clean and `biome ci` was clean
+while the output carried radians labelled as degrees, an invalid UCUM code, six
+sleep durations with no unit at all, and five LOINC/SNOMED codes that mean
+something other than what the mapper sends. The tests passed because they assert
+what the code produces, not what FHIR requires — and several asserted the defect
+as intended. One was literally named
 _"defaults the root valueQuantity to 0 when score is missing"_.
 
 So when you fix a mapper, expect to change its test in the same commit, and say in the
@@ -78,6 +84,17 @@ behaviour with a skip on it.
    which carries a status, an operation and a code, and no payload.
 6. **Read `DECISIONS.md` before adding a mapper.** Subject linkage, ids, code systems
    and units are decided once and shared, not per package.
+7. **Clinical cutoffs live in the rule pack, never in the interpreter engine.**
+   `@open-twin/interpreter` evaluates a YAML rule pack; its engine names no
+   biomarker ids, analytes or thresholds. `purity.unit.test.ts` catches only a
+   few patterns, so a passing purity test does not prove the engine is clean.
+8. **Every exporting module opens with the convention header.** `WHAT`, `NOT`,
+   `GOVERNED BY` and `CORRECTNESS`, as specified in `docs/CONVENTIONS.md`;
+   `pnpm verify` fails without it. `CORRECTNESS` names an external authority —
+   never "the tests pass".
+9. **Never put personal or health data into AI tools or prompts.** Work from the
+   repository's fixtures and synthetic data, and do not add real user payloads
+   to fixtures, tests or logs.
 
 ## Verification
 
@@ -87,16 +104,23 @@ pnpm build
 pnpm lint          # biome
 pnpm test          # every package
 pnpm typecheck     # tsc --noEmit, every package
-pnpm verify        # terminology + UCUM gates
+pnpm verify        # CI's verify gates — see below
 pnpm ci:local      # all of the above + the offline HL7 validator, as CI runs them
+pnpm format        # biome check --write; run before committing
+
+# While working on one package
+pnpm --filter <package> test
+pnpm --filter <package> exec tsc --noEmit
 
 # What CI actually validates against — the official HL7 validator.
 pnpm build && pnpm emit-bundles out/
 java -jar validator_cli.jar out/*.json -version 4.0.1 -tx n/a -best-practice ignore
 ```
 
-The allowlist and UCUM checks are blocking; the separate terminology review-record
-check is advisory. A passing aggregate does not establish that every code has a
+`pnpm verify` runs the same gates as CI's verify job: terminology allowlist, UCUM
+units, module headers, docs integrity, SNOMED publication boundary, the canary
+suite and local/CI equivalence are blocking; the separate terminology
+review-record check is advisory. A passing aggregate does not establish that every code has a
 signed review. See `docs/findings/verify-baseline.md` for the remaining review debt.
 Look codes up against primary sources and record the official name and reviewer;
 do not bulk-approve to obtain a green run.
