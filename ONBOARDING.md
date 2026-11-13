@@ -68,7 +68,7 @@ agreement — it is not an implementation detail.
 | #   | read                                     | to learn                                                                       |
 | --- | ---------------------------------------- | ------------------------------------------------------------------------------ |
 | 1   | [README.md](README.md)                   | what the packages are and how they relate                                      |
-| 2   | [CLAUDE.md](CLAUDE.md)                   | the ground rules — written for AI sessions, equally binding advice for humans  |
+| 2   | [AGENTS.md](AGENTS.md)                   | the ground rules — written for AI sessions, equally binding advice for humans  |
 | 3   | [DECISIONS.md](DECISIONS.md)             | the cross-cutting decisions, each with the defect that forced it               |
 | 4   | [BUILD-SUMMARY.md](BUILD-SUMMARY.md)     | the measured state: test data per connector, defect history, what is not built |
 | 5   | the README of the package you will touch | its API and its verification story                                             |
@@ -126,8 +126,11 @@ Beyond that:
 - **`provider-open-wearables` has never met a running instance** — marked
   unverified in its own PR title; treat its fixtures as a hypothesis.
 
-## For Claude Code sessions specifically
+## For coding-agent sessions specifically
 
-[CLAUDE.md](CLAUDE.md) is loaded automatically and is the binding brief; this
-file adds the human-onboarding context around it. When memory notes or session
+[AGENTS.md](AGENTS.md) is the binding brief for every coding agent; this file
+adds the human-onboarding context around it. Agents that follow the
+[AGENTS.md convention](https://agents.md) load it automatically. Claude Code
+loads it through the `@AGENTS.md` import in [CLAUDE.md](CLAUDE.md), so edit the
+brief in `AGENTS.md` only. When memory notes or session
 summaries conflict with what `git log` and the gates say, the repo wins. Repository history is recorded in [PROVENANCE.md](PROVENANCE.md).
