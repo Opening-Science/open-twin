@@ -48,7 +48,7 @@ function set(overrides: Partial<MeasurementDeclarationSet> = {}): MeasurementDec
   };
 }
 
-function sleepPeriod(components: Observation['component'], score: number | undefined = 84): Observation {
+function sleepPeriod(components: Observation['component'], score: number | null = 84): Observation {
   return createObservation({
     id: 'sleep-1',
     code: SLEEP_PANEL,
@@ -187,10 +187,35 @@ describe('auditMeasurementDeclarations', () => {
 
   it('accepts absence as absence, never as a mismatch', () => {
     const audit = auditMeasurementDeclarations(set(), [
-      sleepPeriod([numericComponent(SLEEP_DURATION, undefined, UCUM.MINUTE)], undefined)
+      sleepPeriod([numericComponent(SLEEP_DURATION, undefined, UCUM.MINUTE)], null)
     ]);
     expect(audit.issues).toEqual([]);
-    expect(audit.unexercised.map((declaration) => declaration.key)).toEqual(['time-in-bed']);
+    // Matched, but an absent value proves neither type nor unit, so nothing is exercised.
+    expect(audit.matches.size).toBe(2);
+    expect(audit.unexercised.map((declaration) => declaration.key)).toEqual([
+      'oura:sleep-score',
+      'total-sleep-time',
+      'time-in-bed'
+    ]);
+  });
+
+  it('counts a typed declaration as exercised once any match carries a value', () => {
+    const audit = auditMeasurementDeclarations(set(), [
+      sleepPeriod([numericComponent(SLEEP_DURATION, undefined, UCUM.MINUTE)], null),
+      sleepPeriod([numericComponent(SLEEP_DURATION, 422, UCUM.MINUTE)], null)
+    ]);
+    expect(audit.issues).toEqual([]);
+    expect(audit.unexercised.map((declaration) => declaration.key)).toEqual(['oura:sleep-score', 'time-in-bed']);
+  });
+
+  it('counts a value-less panel as exercised when it matches', () => {
+    const panel: MeasurementDefinition = { ...SLEEP_SCORE, valueType: 'none', canonicalUnit: undefined };
+    const audit = auditMeasurementDeclarations(
+      { coverage: 'complete', declarations: [declareMeasurement(panel, SLEEP_PANEL)] },
+      [sleepPeriod(undefined, null)]
+    );
+    expect(audit.issues).toEqual([]);
+    expect(audit.unexercised).toEqual([]);
   });
 
   it('reports an undeclared component without its value', () => {

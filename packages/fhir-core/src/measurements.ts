@@ -453,9 +453,14 @@ export interface DeclarationAuditIssue {
 
 export interface DeclarationAudit {
   issues: DeclarationAuditIssue[];
-  /** How many emitted values each declaration matched, keyed by `declarationAddress`. */
+  /** How many emitted elements each declaration matched, keyed by `declarationAddress`, including value-less ones. */
   matches: Map<string, number>;
-  /** Declarations no emitted value matched. A fixture that exercises the mappers should leave none. */
+  /**
+   * Declarations no emitted element exercised. A typed declaration is exercised only by a
+   * matching element that carries a value: one carrying only `dataAbsentReason` proves
+   * neither its type nor its unit. A `none` declaration is exercised by any match.
+   * A fixture that exercises the mappers should leave none.
+   */
   unexercised: MeasurementDeclaration[];
 }
 
@@ -488,6 +493,7 @@ export function auditMeasurementDeclarations(
     : ((input as Bundle).entry ?? []).flatMap((entry) => (entry.resource ? [entry.resource as FhirResource] : []));
   const issues: DeclarationAuditIssue[] = [];
   const matches = new Map<string, number>();
+  const exercised = new Set<string>();
 
   const check = (
     found: MeasurementDeclaration[],
@@ -518,6 +524,7 @@ export function auditMeasurementDeclarations(
     matches.set(address, (matches.get(address) ?? 0) + 1);
 
     const emitted = emittedValueType(element);
+    if (declaration.valueType === 'none' || emitted !== undefined) exercised.add(address);
     if (
       declaration.valueType === 'none'
         ? emitted !== undefined
@@ -559,6 +566,6 @@ export function auditMeasurementDeclarations(
   return {
     issues,
     matches,
-    unexercised: set.declarations.filter((declaration) => !matches.has(declarationAddress(declaration)))
+    unexercised: set.declarations.filter((declaration) => !exercised.has(declarationAddress(declaration)))
   };
 }
