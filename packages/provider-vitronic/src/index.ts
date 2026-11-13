@@ -17,6 +17,7 @@ import {
   type VitronicBundleResult,
   type VitronicMeasurementResponse
 } from './fhir/bundleBuilder';
+import { VITRONIC_MEASUREMENTS } from './fhir/measurements';
 
 export type {
   BodyLoopClientConfig,
@@ -27,7 +28,13 @@ export type {
   VitronicBundleResult,
   VitronicMeasurementResponse
 };
-export { BodyLoopClient, buildBundleFromVitronicResponse, TLS_PIN_MISMATCH, TlsPinMismatchError };
+export {
+  BodyLoopClient,
+  buildBundleFromVitronicResponse,
+  TLS_PIN_MISMATCH,
+  TlsPinMismatchError,
+  VITRONIC_MEASUREMENTS
+};
 
 export function createBodyLoopClient(config: BodyLoopClientConfig): BodyLoopClient {
   return new BodyLoopClient(config);

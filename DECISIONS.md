@@ -394,6 +394,53 @@ makes every reader pay the same price. The spec is `docs/specs/reader-architectu
 the public surface: the existing entry points stay until phase 3 retires them with a
 decision entry of their own.
 
+<a id="d18"></a>
+
+## D18 — Measurement keys, connector declarations and the catalogue
+
+**Decision.** A measured concept has one key. `@open-twin/fhir-core` owns the
+declaration schema and the **shared definitions** (`MEASUREMENT_DEFINITIONS`): concepts
+more than one connector can emit, each with a meaning, a value type, a canonical UCUM
+unit and a context (scope and, for a summary, statistic). A concept only one vendor
+has gets a **connector-owned** key, `<connector>:<name>`, defined in that connector's
+package; no connector may declare or define another's namespace. Every connector
+exports a versioned `MeasurementDeclarationSet` beside its mappers saying, for each
+Observation and component it emits, which key it is, the coding that identifies it,
+where the value sits (the Observation, or the component under a parent coding — never
+an array position), and the emitted value type and unit. `@open-twin/aggregate` builds
+a catalogue from the sets the caller registers, grouped by key, without credentials,
+network or bundles.
+
+Rules that make the identity hold:
+
+- A declaration's type, unit and context must equal its definition's. A
+  commensurable unit is still a mismatch; declaring a unit converts nothing.
+- Each emitted value must match exactly one declaration. Where two distinct
+  measurements share a standard code (a daily mean and a sleep mean under one LOINC
+  code), the mapper adds a vendor-local coding to tell them apart; the standard code
+  stays.
+- A connector test builds bundles through the real mappers and requires
+  `auditMeasurementDeclarations` to report no undeclared, ambiguous, mistyped or
+  mis-unit value, and no unexercised declaration. Packages that forward codes chosen
+  by their input (`fhir-r4`, `hl7v2`) declare `coverage: 'open'` and only what they
+  mint themselves.
+- Definitions carry no source preference and no reliability grade. The catalogue
+  records capability, not data availability; it ranks nothing.
+
+**Why.** Matching lived in a hardcoded table inside aggregate (`measure.ts`) that
+merged distinct concepts — 103213-5 "Duration in bed" with 93832-4 "Sleep duration",
+REM/light/deep into one `sleep-staging`, 103222-6 "Heart rate.minimum" with resting
+heart rate, and Oura's 0–100 `hrv-balance` contributor with an HRV in milliseconds.
+Connectors exported nothing a consumer could inspect before fetching, so which sources
+overlapped could only be discovered from data, and only for the window fetched. The
+WHOOP connector emitted recovery resting heart rate and cycle average heart rate under
+the same bare LOINC code at the same location, which no declaration could separate.
+
+**Trade-off.** Every new mapper field needs a declaration, and the audit test fails
+until it has one. That is the point: an undeclared value is a value no consumer can
+identify without reading the mapper. The existing `aggregate()` still uses the old
+table and reliability grades until reconciliation moves onto the catalogue (#264).
+
 ## Still open — needs a named clinical reviewer
 
 These cannot be settled by research, and they are the root cause of the terminology

@@ -163,7 +163,7 @@ any of them.** That is not a claim that none exists — only that none was verif
 
 | Series type                         | Declared unit | Accepted on the wire     | FHIR code                                 | UCUM        | R4 profile |
 | ----------------------------------- | ------------- | ------------------------ | ----------------------------------------- | ----------- | ---------- |
-| `heart_rate`                        | `bpm`         | `bpm`                    | LOINC 8867-4                              | `/min`      | yes        |
+| `heart_rate`                        | `bpm`         | `bpm`                    | LOINC 8867-4 + local `heart-rate`         | `/min`      | yes        |
 | `resting_heart_rate`                | `bpm`         | `bpm`                    | LOINC 40443-4 + LOINC 8867-4              | `/min`      | yes        |
 | `respiratory_rate`                  | `brpm`        | `brpm`, `breaths/min`    | LOINC 9279-1                              | `/min`      | yes        |
 | `oxygen_saturation`                 | `percent`     | `percent`, `%`           | LOINC 59408-5 + LOINC 2708-6              | `%`         | yes        |
@@ -172,7 +172,7 @@ any of them.** That is not a claim that none exists — only that none was verif
 | `weight`                            | `kg`          | `kg`                     | LOINC 29463-7                             | `kg`        | yes        |
 | `body_fat_percentage`               | `percent`     | `percent`, `%`           | LOINC 41982-0                             | `%`         | —          |
 | `vo2_max`                           | `ml_kg_min`   | `ml_kg_min`, `mL/kg/min` | LOINC 94122-9                             | `mL/kg/min` | —          |
-| `exercise_time`                     | `minutes`     | `minutes`, `min`         | LOINC 55411-3                             | `min`       | —          |
+| `exercise_time`                     | `minutes`     | `minutes`, `min`         | LOINC 55411-3 + local `exercise-time`     | `min`       | —          |
 | `steps`                             | `count`       | `count`                  | LOINC 55423-8                             | `{steps}`   | —          |
 | `steps` (daily total)               | `count`       | `count`                  | LOINC 41950-7                             | `{steps}/d` | —          |
 | `energy`                            | `kcal`        | `kcal`                   | LOINC 41981-2                             | `kcal`      | —          |
@@ -379,20 +379,20 @@ bed for time asleep, or zero, are both worse than saying nothing.
 Source:
 [events.py#L14-L28](https://github.com/the-momentum/open-wearables/blob/2e3e6dd6dcbfb8f2521d062748ca2fc2d698ce57/backend/app/schemas/responses/activity/events.py#L14-L28).
 
-| Field                                     | Declared unit | Status                                                                                                              | Mapped to                                    | UCUM            |
-| ----------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------- |
-| `id`                                      | —             | —                                                                                                                   | `Observation.id` seed and `Identifier.value` | —               |
-| `type`                                    | —             | —                                                                                                                   | component `workout-type`, as a code          | —               |
-| `name`                                    | —             | —                                                                                                                   | component `workout-label`, `valueString`     | —               |
-| `start_time` / `end_time` / `zone_offset` | —             | —                                                                                                                   | `Observation.effectivePeriod`                | —               |
-| `duration_seconds`                        | seconds       | confirmed by field name and by the example payload (3600 for an 08:00-09:00 run)                                    | `Observation.valueQuantity`, LOINC 55411-3   | `min` after ÷60 |
-| `calories_kcal`                           | kcal          | confirmed by field name and example                                                                                 | component, LOINC 41981-2                     | `kcal`          |
-| `distance_meters`                         | metres        | confirmed by field name and example (8500 for a 60-minute run)                                                      | component `workout-distance`                 | `m`             |
-| `elevation_gain_meters`                   | metres        | confirmed by field name and example                                                                                 | component `workout-elevation-gain`           | `m`             |
-| `avg_heart_rate_bpm`                      | bpm           | confirmed by field name and example                                                                                 | component `workout-heart-rate-average`       | `/min`          |
-| `max_heart_rate_bpm`                      | bpm           | same                                                                                                                | component `workout-heart-rate-maximum`       | `/min`          |
-| `avg_pace_sec_per_km`                     | s/km          | confirmed by field name and example (424 s/km against 8500 m in 3600 s = 424 s/km, which checks out arithmetically) | **not mapped**                               | —               |
-| `source`                                  | —             | —                                                                                                                   | `Device`                                     | —               |
+| Field                                     | Declared unit | Status                                                                                                              | Mapped to                                                             | UCUM            |
+| ----------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------- |
+| `id`                                      | —             | —                                                                                                                   | `Observation.id` seed and `Identifier.value`                          | —               |
+| `type`                                    | —             | —                                                                                                                   | component `workout-type`, as a code                                   | —               |
+| `name`                                    | —             | —                                                                                                                   | component `workout-label`, `valueString`                              | —               |
+| `start_time` / `end_time` / `zone_offset` | —             | —                                                                                                                   | `Observation.effectivePeriod`                                         | —               |
+| `duration_seconds`                        | seconds       | confirmed by field name and by the example payload (3600 for an 08:00-09:00 run)                                    | `Observation.valueQuantity`, LOINC 55411-3 + local `workout-duration` | `min` after ÷60 |
+| `calories_kcal`                           | kcal          | confirmed by field name and example                                                                                 | component, LOINC 41981-2                                              | `kcal`          |
+| `distance_meters`                         | metres        | confirmed by field name and example (8500 for a 60-minute run)                                                      | component `workout-distance`                                          | `m`             |
+| `elevation_gain_meters`                   | metres        | confirmed by field name and example                                                                                 | component `workout-elevation-gain`                                    | `m`             |
+| `avg_heart_rate_bpm`                      | bpm           | confirmed by field name and example                                                                                 | component `workout-heart-rate-average`                                | `/min`          |
+| `max_heart_rate_bpm`                      | bpm           | same                                                                                                                | component `workout-heart-rate-maximum`                                | `/min`          |
+| `avg_pace_sec_per_km`                     | s/km          | confirmed by field name and example (424 s/km against 8500 m in 3600 s = 424 s/km, which checks out arithmetically) | **not mapped**                                                        | —               |
+| `source`                                  | —             | —                                                                                                                   | `Device`                                                              | —               |
 
 `type` is a free string in the response model — the platform's own comment on the
 field reads `# Should be WorkoutType enum ideally` — so it is carried as a code

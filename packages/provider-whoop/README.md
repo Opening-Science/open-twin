@@ -68,6 +68,10 @@ Tokens are held in memory only; persist the pair and its absolute expiry in your
 
 v1 mappers: recovery (score, HRV, resting HR, SpO₂), cycle strain and average HR, sleep (performance, efficiency, time in bed). Workouts are not mapped yet.
 
+## Measurement declarations
+
+`WHOOP_MEASUREMENTS` (a `MeasurementDeclarationSet` from `@open-twin/fhir-core`, coverage `complete`) declares every Observation and component this connector emits and the measurement key each maps to (DECISIONS.md#d18). Only time in bed uses a shared key; everything else is `whoop:`-owned. Recovery's resting heart rate and the cycle's average heart rate both carry LOINC 8867-4, so each also carries a WHOOP-local coding (`recovery-resting-heart-rate`, `cycle-average-heart-rate`) and is declared by it. WHOOP's resting heart rate is measured during sleep and is not the shared daily `resting-heart-rate`.
+
 ## License
 
 MIT

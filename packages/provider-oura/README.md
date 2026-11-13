@@ -284,6 +284,18 @@ because no standard concept was found for the measure, and each is marked
 - `ring_configuration` emits a `Device` resource as well as the Observation, and
   the Observation's `device` reference resolves to it by `fullUrl`.
 
+## Measurement declarations
+
+`OURA_MEASUREMENTS` (a `MeasurementDeclarationSet` from `@open-twin/fhir-core`,
+coverage `complete`) declares every Observation and component this connector
+emits, against a shared key where meaning, context and unit match exactly and an
+`oura:`-prefixed key otherwise. Vendor scores and contributors — including
+`hrv-balance`, a 0-100 score, not HRV in milliseconds — are always Oura-owned.
+`src/tests/measurements.unit.test.ts` audits the declarations against bundles
+built through the real parsers and mappers. A passing audit shows the
+declarations match the output; it does not show that a code or unit is clinically
+right.
+
 ## Disclaimer
 
 This project is an independent and unofficial integration for Oura services and devices. It is not affiliated with, endorsed by, sponsored by, or otherwise associated with Oura LLC or Oura Health Oy.

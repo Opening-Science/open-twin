@@ -11,17 +11,19 @@ exports enforce.
 
 ## Modules
 
-| module              | what it settles                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `systems.ts`        | Canonical system URIs (`SYSTEMS.*`), profiles, categories. A code system URI you do not control is not a code system.                      |
-| `units.ts`          | The UCUM table (`UCUM.*`, `LOINC_UNITS`). `Quantity.unit` carries **UCUM's own name** for `Quantity.code`, so the two halves cannot drift. |
-| `identity.ts`       | One subject convention (D1), deterministic ids (D2), `minimalPatient` to answer a minted reference.                                        |
-| `observation.ts`    | `createObservation`, and `numericComponent` — which **requires** a unit and falls back to `dataAbsentReason`.                              |
-| `bundle.ts`         | `buildBundle`: lowercase `urn:uuid:` fullUrls, connector provenance tag, `collection` or `transaction` form.                               |
-| `provenance.ts`     | `Device`, the `METHOD` vocabulary, `derivedObservation` for values computed from other Observations.                                       |
-| `reliability.ts`    | Graded validation evidence per **(source, measure)** pair, with citations. Read by `@open-twin/aggregate`.                                 |
-| `referenceRange.ts` | Anchor-layer intervals on the Observation, each carrying its source.                                                                       |
-| `errors.ts`         | `ConnectorError` — status, operation and code. **Never a response body**: these are health payloads and errors end up in logs.             |
+| module                      | what it settles                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `systems.ts`                | Canonical system URIs (`SYSTEMS.*`), profiles, categories. A code system URI you do not control is not a code system.                      |
+| `units.ts`                  | The UCUM table (`UCUM.*`, `LOINC_UNITS`). `Quantity.unit` carries **UCUM's own name** for `Quantity.code`, so the two halves cannot drift. |
+| `identity.ts`               | One subject convention (D1), deterministic ids (D2), `minimalPatient` to answer a minted reference.                                        |
+| `observation.ts`            | `createObservation`, and `numericComponent` — which **requires** a unit and falls back to `dataAbsentReason`.                              |
+| `bundle.ts`                 | `buildBundle`: lowercase `urn:uuid:` fullUrls, connector provenance tag, `collection` or `transaction` form.                               |
+| `provenance.ts`             | `Device`, the `METHOD` vocabulary, `derivedObservation` for values computed from other Observations.                                       |
+| `reliability.ts`            | Graded validation evidence per **(source, measure)** pair, with citations. Read by `@open-twin/aggregate`.                                 |
+| `measurementDefinitions.ts` | Shared measurement keys (`MEASUREMENT_DEFINITIONS`): meaning, value type, canonical unit and context. No source preference (D18).          |
+| `measurements.ts`           | The declaration schema connectors export, `validateMeasurementDeclarations` and `auditMeasurementDeclarations` (D18).                      |
+| `referenceRange.ts`         | Anchor-layer intervals on the Observation, each carrying its source.                                                                       |
+| `errors.ts`                 | `ConnectorError` — status, operation and code. **Never a response body**: these are health payloads and errors end up in logs.             |
 
 ## Usage
 
@@ -75,6 +77,34 @@ const bundle = buildBundle({
   duplicate, and make deletion implementable.
 - **Errors carry no payload.** `ConnectorError` holds status, operation and code.
   If you find yourself interpolating a response body into a message, stop.
+
+## Measurement definitions and declarations
+
+A **shared definition** (`MEASUREMENT_DEFINITIONS`) gives a measured concept one key,
+whichever connector measures it: `total-sleep-time`, `time-in-bed`, `resting-heart-rate`.
+Each names its meaning, value type, canonical UCUM unit and **context** — the scope it
+summarises (`reading`, `interval`, `session`, `sleep-period`, `daily`,
+`physiological-cycle`, `record`) and, for a summary, the statistic. A daily total and a
+single reading are different keys even when the LOINC code is the same.
+
+Each connector exports a versioned `MeasurementDeclarationSet` saying where each of
+its measurements sits in its FHIR output: the coding that identifies it, whether the
+value is the Observation's own or a component's (identified by the parent's coding,
+never by array position), and the emitted value type and unit. A concept only one
+vendor has gets a connector-owned key (`oura:sleep-score`) defined in the connector
+package, never here.
+
+```ts
+import { auditMeasurementDeclarations, validateMeasurementDeclarations } from '@open-twin/fhir-core';
+
+validateMeasurementDeclarations(MY_MEASUREMENTS); // [] — consistent with the shared definitions
+const audit = auditMeasurementDeclarations(MY_MEASUREMENTS, bundleFromRealMappers);
+audit.issues; // [] — every emitted value declared once, with its declared type and unit
+audit.unexercised; // [] — every declaration proven against mapper output
+```
+
+Declaring a canonical unit converts nothing. A declaration whose unit differs from
+its definition's is rejected, including a commensurable one: `m` is not `cm`.
 
 ## Verification
 

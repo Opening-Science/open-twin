@@ -17,6 +17,15 @@ import type { Observation } from 'fhir/r4';
 import type { WhoopRecovery } from '../../api/schemas/recovery';
 import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
+export const RECOVERY_CODINGS = {
+  RECOVERY_SCORE: whoopCoding('recovery-score', 'WHOOP recovery score'),
+  HRV_RMSSD: whoopCoding('hrv-rmssd', 'HRV RMSSD'),
+  // LOINC 8867-4 alone cannot tell this sleep-derived value from the cycle's average heart rate.
+  RESTING_HEART_RATE: whoopCoding('recovery-resting-heart-rate', 'WHOOP recovery resting heart rate'),
+  SPO2: whoopCoding('spo2', 'WHOOP SpO2'),
+  SPO2_PERCENTAGE: whoopCoding('spo2-percentage', 'SpO2 percentage')
+} as const;
+
 function recoveryKey(row: WhoopRecovery): string {
   return row.sleep_id ?? row.cycle_id ?? row.created_at ?? 'unknown';
 }
@@ -38,7 +47,7 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
         createObservation({
           id: whoopResourceId(context, key, 'recovery-score'),
           identifier: whoopIdentifier(key),
-          code: whoopCoding('recovery-score', 'WHOOP recovery score'),
+          code: RECOVERY_CODINGS.RECOVERY_SCORE,
           category: CATEGORY.SURVEY,
           subject: context.subject,
           effectiveDateTime,
@@ -52,7 +61,7 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
         createObservation({
           id: whoopResourceId(context, key, 'hrv-rmssd'),
           identifier: whoopIdentifier(`${key}-hrv`),
-          code: whoopCoding('hrv-rmssd', 'HRV RMSSD'),
+          code: RECOVERY_CODINGS.HRV_RMSSD,
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime,
@@ -66,7 +75,7 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
         createObservation({
           id: whoopResourceId(context, key, 'resting-hr'),
           identifier: whoopIdentifier(`${key}-rhr`),
-          code: LOINC_CODINGS.HEART_RATE,
+          code: [LOINC_CODINGS.HEART_RATE, RECOVERY_CODINGS.RESTING_HEART_RATE],
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime,
@@ -82,14 +91,14 @@ export function mapWhoopRecoveryToFHIR(rows: WhoopRecovery[], context: WhoopMapp
         createObservation({
           id: whoopResourceId(context, key, 'spo2'),
           identifier: whoopIdentifier(`${key}-spo2`),
-          code: whoopCoding('spo2', 'WHOOP SpO2'),
+          code: RECOVERY_CODINGS.SPO2,
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime,
           dataAbsentReason: dataAbsentReason('not-applicable'),
           components: [
             optionalNumericComponent(
-              [LOINC_CODINGS.OXYGEN_SATURATION, whoopCoding('spo2-percentage', 'SpO2 percentage')],
+              [LOINC_CODINGS.OXYGEN_SATURATION, RECOVERY_CODINGS.SPO2_PERCENTAGE],
               score.spo2_percentage,
               UCUM.PERCENT
             )
