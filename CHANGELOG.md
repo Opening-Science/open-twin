@@ -7,6 +7,11 @@ under [Releases](Contributing.md#releases).
 
 ## [Unreleased]
 
+### Fixed
+
+- `@open-twin/provider-oura` re-exports the `OuraRingAppConfig` interface as a
+  type, so the package loads from source under Bun and `isolatedModules` (#271).
+
 ### Added
 
 - `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
