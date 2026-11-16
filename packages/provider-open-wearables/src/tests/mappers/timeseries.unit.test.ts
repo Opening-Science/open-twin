@@ -1,5 +1,5 @@
 import { SYSTEMS } from '@open-twin/fhir-core';
-import type { Reference } from 'fhir/r4';
+import type { Reference } from 'fhir/r4.js';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { TimeSeriesSample } from '../../api/schemas/timeseries';
 import { IssueLog } from '../../fhir/issues';

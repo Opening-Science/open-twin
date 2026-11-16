@@ -6,7 +6,7 @@ import {
   SYSTEMS,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { FhirResource, Observation } from 'fhir/r4';
+import type { FhirResource, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { OPEN_WEARABLES_SYSTEM } from '../config/constants';
 import { buildOpenWearablesBundle } from '../fhir/bundleBuilder';

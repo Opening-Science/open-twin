@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deterministicId } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { normaliseBundle } from '../normalise/normalise';
 import { validateFhir } from '../validate/validate';

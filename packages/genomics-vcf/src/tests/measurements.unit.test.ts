@@ -4,7 +4,7 @@ import {
   type MeasurementDeclarationSet,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { vcfToFhirBundle } from '../fhir/bundleBuilder';
 import { GENOMICS_VCF_MEASUREMENTS } from '../fhir/measurements';

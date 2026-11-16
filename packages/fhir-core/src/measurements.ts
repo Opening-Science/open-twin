@@ -5,7 +5,7 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: A declaration identifies a value by coding and location, never by array position. Two declarations that could match the same emitted value are ambiguous and fail the audit — add a vendor-local coding to tell them apart rather than reordering anything.
  */
-import type { Bundle, FhirResource, Observation, Quantity } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation, Quantity } from 'fhir/r4.js';
 import { MEASUREMENT_DEFINITIONS, type SharedMeasurementKey } from './measurementDefinitions';
 import { SYSTEMS } from './systems';
 
