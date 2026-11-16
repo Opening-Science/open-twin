@@ -93,7 +93,7 @@ jobs:
           else
             pnpm exec tsx scripts/release.ts select "$RELEASE_TAG"
           fi
-      - name: Record release target for approval
+      - name: Record release target
         env:
           RELEASE_TAG: ${{ steps.select.outputs.tag }}
           RELEASE_COMMIT: ${{ steps.select.outputs.commit }}
@@ -124,7 +124,6 @@ jobs:
     name: Publish ${{ needs.prepare.outputs.package }}@${{ needs.prepare.outputs.version }}
     needs: prepare
     runs-on: ubuntu-latest
-    environment: npm-publish
     concurrency:
       group: release-publish-${{ needs.prepare.outputs.package }}
       cancel-in-progress: false
@@ -159,11 +158,11 @@ jobs:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
         run: |
           if [ -z "$RELEASE_SIGNING_KEY" ]; then
-            echo "::error::Configure RELEASE_GPG_PRIVATE_KEY in the npm-publish environment before manual publication."
+            echo "::error::Configure RELEASE_GPG_PRIVATE_KEY in repository Actions secrets before manual publication."
             exit 1
           fi
       - id: signing
-        name: Import the protected release-bot signing key
+        name: Import the release-bot signing key
         if: github.event_name == 'workflow_dispatch'
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6.3.0
         with:

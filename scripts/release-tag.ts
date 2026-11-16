@@ -1,5 +1,5 @@
 /**
- * WHAT: Creates or reuses one immutable signed release tag after maintainer approval.
+ * WHAT: Creates or reuses one immutable signed release tag after release preparation.
  * NOT: Does not publish packages, change versions or move existing tags.
  * GOVERNED BY: docs/PUBLISHING.md
  * CORRECTNESS: NONE — release provenance checks only

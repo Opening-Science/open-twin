@@ -107,34 +107,36 @@ verification. Existing terminology, unit, conformance, and review safeguards rem
    package name and candidate version. Versions are immutable; the workflow
    refuses an existing version rather than treating it as success.
 2. Enable Actions permission to create pull requests for the version-PR job.
-   The workflow uses the GitHub API commit mode for signed bot commits and creates
+   The workflow uses the GitHub API commit mode for signed automated commits and creates
    draft PRs. Review and squash them using the normal contribution rules.
 3. Actions created with `GITHUB_TOKEN` do not trigger ordinary PR workflows.
    Explicitly run the **Verify** workflow using `workflow_dispatch` on the version
    PR branch before approving and merging it. Do not equate missing checks with
    passing checks.
-4. Create the `npm-publish` environment with required maintainer reviewers.
-   Allow deployments from `main` for button-driven releases and from the
-   `@open-twin/*@*` tag pattern if retaining the signed-tag trigger. An environment
-   name in YAML does not enforce approval; configure reviewers before enabling
-   publication. The editor may flag the environment name until it exists.
-5. Create a dedicated release-bot GPG signing key. Register its public key on the
-   bot's GitHub account and ensure the key's email is verified on that account,
+4. No GitHub Environment is required. Publication proceeds automatically after
+   the preparation checks pass, without a separate deployment approval.
+   Restrict repository write access and review release-workflow changes carefully:
+   repository Actions secrets are not protected by environment reviewer rules.
+5. Create a dedicated release GPG signing key. Register its public key on the
+   GitHub account used for release signing and ensure the key's email is verified on that account,
    so GitHub reports its annotated tags as verified. Add the secrets below to
-   `npm-publish`, not to repository files or chat:
+   **Settings > Secrets and variables > Actions > Repository secrets**, not to
+   repository files or chat:
 
-   | Environment secret        | Value                                                |
-   | ------------------------- | ---------------------------------------------------- |
-   | `RELEASE_GPG_PRIVATE_KEY` | The bot's exported ASCII-armored private signing key |
-   | `RELEASE_GPG_PASSPHRASE`  | Its passphrase, if the key is passphrase-protected   |
+   | Repository Actions secret | Value                                                  |
+   | ------------------------- | ------------------------------------------------------ |
+   | `RELEASE_GPG_PRIVATE_KEY` | The exported ASCII-armored private release signing key |
+   | `RELEASE_GPG_PASSPHRASE`  | Its passphrase, if the key is passphrase-protected     |
 
    Allow the release workflow's `GITHUB_TOKEN` to create package tags
    (`contents: write`), subject to repository tag rules. No personal access token
    is required for tagging. Use a dedicated release key rather than a maintainer's
    everyday signing key.
 6. Configure npm trusted publishing for each public package, binding
-   `Opening-Science/open-twin`, workflow `release.yml`, and environment
-   `npm-publish`. Follow [npm's current instructions][trusted-publishing],
+   `Opening-Science/open-twin` and workflow `release.yml`. Leave the optional
+   environment name blank. If a publisher is already bound to `npm-publish`,
+   remove that environment binding before running this workflow.
+   Follow [npm's current instructions][trusted-publishing],
    including any binding expiry requirements.
 7. If npm requires an existing package to configure a trusted publisher, an
    authorized maintainer must bootstrap it first using an approved authentication
@@ -143,7 +145,7 @@ verification. Existing terminology, unit, conformance, and review safeguards rem
    bootstrap. Recheck current npm support instead of assuming first-publish OIDC.
 
 The publish job uses npm 11.12.1, OIDC (`id-token: write`), public access, and
-provenance. After environment approval, it checks out the exact prepared commit
+provenance. After preparation succeeds, it checks out the exact prepared commit
 for the native Node tagging helper, but does not install repository dependencies,
 build again, or execute package lifecycle scripts. It downloads only the selected
 artifact and checks its SHA-256 digest before importing the signing key.
@@ -151,8 +153,10 @@ The GPG action removes imported key material during its post-job cleanup.
 No npm tokens are stored by this workflow.
 
 These are one-time tasks for the maintainer handling release infrastructure.
-Adding the workflow does not create/configure the environment, generate a
-production signing key, register npm publishers, or publish a package.
+Adding the workflow does not configure repository secrets, generate a production
+signing key, register npm publishers, or publish a package. If migrating an
+existing setup, recreate the signing secrets at repository scope before removing
+the old environment; environment secrets are not moved automatically.
 
 ## Releasing one package
 
@@ -170,9 +174,9 @@ production signing key, register npm publishers, or publish a package.
 4. The preparation job checks registry availability, required shared dependencies,
    and main ancestry. It runs build, lint, typecheck, tests, verification, release
    fixtures, and packed-consumer checks. Its summary records the package tag and
-   exact checked commit for the approver; that commit is pinned across all jobs.
-5. Approve deployment to `npm-publish`. The protected job checks the tarball digest,
-   imports the bot signing key, creates and pushes the signed annotated package
+   exact checked commit for inspection; that commit is pinned across all jobs.
+5. After preparation succeeds, the publish job automatically checks the tarball digest,
+   imports the release signing key, creates and pushes the signed annotated package
    tag, and verifies its signature with GitHub. It then publishes only that
    package's verified tarball with lifecycle scripts disabled and npm provenance.
    Nothing is rebuilt after verification.
@@ -183,7 +187,7 @@ its commit and verified signature match. A new dispatch from a different main
 commit with the same package version fails instead of moving the tag.
 
 Tags pushed with `GITHUB_TOKEN` do not start a second push-triggered release.
-Publication continues in the same approved workflow run.
+Publication continues in the same workflow run.
 
 Publish `fhir-core` first during bootstrap or when consumers require its new
 incompatible version. Other public packages can publish in any order once their
@@ -201,8 +205,8 @@ git tag -s '@open-twin/provider-oura@0.1.1' -m 'Release @open-twin/provider-oura
 git push origin 'refs/tags/@open-twin/provider-oura@0.1.1'
 ```
 
-The preparation job verifies this existing tag before the same checks and approval.
-That path does not import the release-bot key or create another tag.
+The preparation job verifies this existing tag before the same checks and publication.
+That path does not import the release signing key or create another tag.
 
 ## Failures and recovery
 
@@ -212,7 +216,7 @@ That path does not import the release-bot key or create another tag.
   rerun the dependent's original failed workflow at the same checked commit.
 - Missing signing secrets, invalid signatures, and conflicting existing tags are
   hard failures before npm publication. Have the infrastructure maintainer finish
-  setup rather than substituting an unsigned tag or removing environment approval.
+  setup rather than substituting an unsigned tag or bypassing verification.
 - Network, registry, permission, and OIDC failures are failures, not an empty
   release plan or a successful publication.
 - If publication succeeds but the workflow subsequently fails, inspect npm

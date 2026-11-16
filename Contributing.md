@@ -111,13 +111,14 @@ version (`0.x.0`) may change behaviour; a patch version (`0.x.y`) only fixes.
   release.
 - After merging the version PR, select `main` and one package in the release
   workflow's **Run workflow** menu. It checks release readiness, registry
-  dependencies, existing correctness gates, and clean external consumers before
-  requesting approval through `npm-publish`. After approval, the bot creates a
+  dependencies, existing correctness gates, and clean external consumers.
+  Once these checks pass, the workflow automatically creates a
   signed package-specific tag and publishes only that package's checked tarball.
   Existing manually signed package tags remain supported. Release tags never
   move and are never deleted.
-- Publication needs a maintainer-configured protected environment, a dedicated
-  bot signing key, npm scope access, and per-package trusted publishers.
+- Publication needs repository Actions secrets for a dedicated release signing key,
+  npm scope access, and per-package trusted publishers. No GitHub Environment or
+  separate deployment approval is required.
   See [Publishing](docs/PUBLISHING.md) for setup, bootstrap, CI checks on
   automated PRs, and recovery. No packages become available just by merging this
   automation. Until first publication, source consumers may continue pinning

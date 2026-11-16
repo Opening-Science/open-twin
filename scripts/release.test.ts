@@ -183,7 +183,7 @@ test('release commits must be the exact checked main ancestor', () => {
   }
 });
 
-test('the protected tag entrypoint runs with native Node without repository dependencies', () => {
+test('the publish tag entrypoint runs with native Node without repository dependencies', () => {
   const root = fixture();
   try {
     rmSync(join(root, 'node_modules'));
@@ -206,6 +206,16 @@ test('the manual workflow dropdown includes all and only public packages', () =>
   const workflow = readFileSync(join(ROOT, '.github/workflows/release.yml'), 'utf8');
   const choices = [...workflow.matchAll(/^ {10}- "(@open-twin\/[a-z0-9-]+)"$/gm)].map((match) => match[1]);
   assert.deepEqual(choices.sort(), [...PUBLIC_NAMES].sort());
+});
+
+test('publication uses repository signing secrets and npm OIDC without a GitHub Environment', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/release.yml'), 'utf8');
+  assert.doesNotMatch(workflow, /^\s*environment:/m);
+  assert.match(workflow, /needs: prepare/);
+  assert.match(workflow, /gpg_private_key: \$\{\{ secrets\.RELEASE_GPG_PRIVATE_KEY \}\}/);
+  assert.match(workflow, /passphrase: \$\{\{ secrets\.RELEASE_GPG_PASSPHRASE \}\}/);
+  assert.match(workflow, /id-token: write/);
+  assert.match(workflow, /npm publish .* --ignore-scripts --access public --provenance/);
 });
 
 test('signed tagging creates one immutable remote tag, safely retries, and rejects conflicting or unsigned tags', () => {
