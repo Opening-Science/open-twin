@@ -12,7 +12,7 @@ import type {
   Period,
   Quantity,
   Reference
-} from 'fhir/r4';
+} from 'fhir/r4.js';
 import { CATEGORY, SYSTEMS } from './systems';
 import { quantity, type UcumUnit } from './units';
 

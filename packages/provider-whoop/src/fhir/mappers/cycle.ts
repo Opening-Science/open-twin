@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import { CATEGORY, createObservation, LOINC_CODINGS, quantity, UCUM } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { WhoopCycle } from '../../api/schemas/cycle';
 import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 

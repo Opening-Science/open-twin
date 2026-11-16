@@ -1,4 +1,4 @@
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { GENOMICS_REPORTING, V2_0074 } from '../fhir/terminology';
 import { mapVariantToObservation, type VariantMappingInput } from '../fhir/variant';

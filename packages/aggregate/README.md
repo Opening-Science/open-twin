@@ -12,6 +12,17 @@ Two rules hold it together, and both are about not destroying evidence:
 2. **Where the evidence gives no basis to prefer a source, none is preferred.**
    The output then says several sources disagreed, and no more. That is the truth.
 
+## Installation
+
+After the package's first npm release:
+
+```bash
+npm install @open-twin/aggregate
+```
+
+Core is installed as a compatible shared dependency; connectors are not installed.
+This package is versioned independently. See [publishing](../../docs/PUBLISHING.md).
+
 ## What a reconciliation is
 
 When more than one connector reports the same **measure** on the same **day**, the

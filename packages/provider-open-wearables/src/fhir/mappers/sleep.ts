@@ -16,7 +16,7 @@ import {
   SYSTEMS,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { SleepSession } from '../../api/schemas/events';
 import { CONNECTOR, OPEN_WEARABLES_IDENTIFIER_SYSTEM, OPEN_WEARABLES_SYSTEM } from '../../config/constants';
 import { loincUnit } from '../seriesMap';

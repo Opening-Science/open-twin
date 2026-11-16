@@ -12,7 +12,7 @@ import {
   subjectReference,
   toOperationOutcome
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4.js';
 import type { WhoopSyncPayload } from '../api/schemas/sync';
 import { fetchWhoopSyncPayload, type WhoopWindow } from '../utils/fetchWhoopData';
 import type { TokenHandler } from '../utils/tokenUtils';

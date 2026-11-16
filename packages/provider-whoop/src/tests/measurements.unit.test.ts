@@ -15,7 +15,7 @@ import {
   SYSTEMS,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { WhoopSyncPayloadSchema } from '../api/schemas/sync';
 import { buildWhoopBundleFromPayload } from '../fhir/bundleBuilder';

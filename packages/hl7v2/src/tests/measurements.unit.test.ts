@@ -7,7 +7,7 @@ import {
   UCUM,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { convertMessage } from '../fhir/bundleBuilder';
 import { HL7V2_MEASUREMENTS } from '../fhir/measurements';

@@ -1,5 +1,5 @@
 import { patientUuid } from '@open-twin/fhir-core';
-import type { Observation, Patient } from 'fhir/r4';
+import type { Observation, Patient } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 import { describe, expect, it } from 'vitest';
 import { buildBundleFromResponses } from '../../fhir/bundleBuilder';

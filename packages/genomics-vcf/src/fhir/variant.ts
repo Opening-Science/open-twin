@@ -15,7 +15,7 @@ import {
   stringComponent,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation, Reference } from 'fhir/r4';
+import type { Observation, Reference } from 'fhir/r4.js';
 import { CONNECTOR, type IssueLog } from '../issues';
 import { type GenomicCoordinateSystem, genomicRange } from '../vcf/coordinates';
 import type { AlleleCall, AllelicState } from '../vcf/genotype';

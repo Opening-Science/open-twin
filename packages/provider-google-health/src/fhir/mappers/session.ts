@@ -14,7 +14,7 @@ import {
   stringComponent,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation, Period } from 'fhir/r4';
+import type { Observation, Period } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 import {
   applyOffset,

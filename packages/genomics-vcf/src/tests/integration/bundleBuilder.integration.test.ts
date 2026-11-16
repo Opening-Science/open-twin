@@ -1,5 +1,5 @@
 import { ConnectorError } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { vcfToFhirBundle } from '../../fhir/bundleBuilder';
 import { CHROM_LINE_SINGLE_SAMPLE, readFixture } from '../helpers';

@@ -5,7 +5,7 @@ import {
   type MeasurementDeclarationSet,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 import { describe, expect, it } from 'vitest';
 import { GOOGLE_HEALTH_MEASUREMENTS } from '..';

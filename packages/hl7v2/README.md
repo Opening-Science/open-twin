@@ -3,6 +3,15 @@
 Converts pipe-delimited HL7 v2.x messages to FHIR R4, following the
 [HL7 Version 2 to FHIR Implementation Guide](https://build.fhir.org/ig/HL7/v2-to-fhir/).
 
+After the package's first npm release:
+
+```bash
+npm install @open-twin/hl7v2
+```
+
+Compatible shared core is installed automatically, not embedded. This package is
+versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ```ts
 import { convertMessage } from '@open-twin/hl7v2';
 

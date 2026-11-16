@@ -28,6 +28,13 @@ under [Releases](Contributing.md#releases).
 
 ### Changed
 
+- Public packages can be released and versioned independently with Changesets.
+  Shared core remains a regular compatible dependency; packed artifacts are
+  checked in clean external npm consumers (#265).
+- Public FHIR declaration imports use Node ESM-compatible `fhir/r4.js`
+  specifiers. Google Health and VITRONIC declare the Node types exposed by their
+  public declarations. These packaging fixes do not alter mapping behavior.
+
 - `@open-twin/provider-whoop`: recovery resting heart rate and cycle average heart
   rate now each carry a WHOOP-local coding beside LOINC 8867-4. Both were emitted
   under the bare code at the same location and could not be told apart (#267, D18).

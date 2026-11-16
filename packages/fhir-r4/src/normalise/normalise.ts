@@ -12,7 +12,7 @@ import {
   patientUuid,
   subjectReference
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Meta, OperationOutcome, Patient, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, Meta, OperationOutcome, Patient, Reference } from 'fhir/r4.js';
 import { type FhirIssue, type FhirIssueRule, issue, toOutcome } from '../issues';
 import { readEntries } from '../validate/fullurl';
 import { parseBundle, parseEnvelope } from '../validate/structure';

@@ -17,6 +17,18 @@ mobile SDKs and this package maps what comes out.
 
 ---
 
+## Installation
+
+After the package's first npm release:
+
+```bash
+npm install @open-twin/open-wearables
+```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
+
 ## Read this before using it
 
 **Nothing in this package has been verified against a running Open Wearables

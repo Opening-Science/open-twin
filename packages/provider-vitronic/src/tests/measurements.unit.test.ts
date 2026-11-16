@@ -4,7 +4,7 @@ import {
   type MeasurementDeclarationSet,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { VITRONIC_MEASUREMENTS } from '..';
 import { buildBundleFromVitronicResponse } from '../fhir/bundleBuilder';
