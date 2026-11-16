@@ -116,7 +116,7 @@ for US audiences, the [US supplement](docs/US-USE.md).
 | [DECISIONS.md](DECISIONS.md)         | Shared identity, terminology, units and interpretation rules |
 | [docs/00-MAP.md](docs/00-MAP.md)     | Detailed documentation map                                   |
 | [Contributing.md](Contributing.md)   | Contribution and review workflow                             |
-| [CLAUDE.md](CLAUDE.md)               | Coding-agent instructions                                    |
+| [AGENTS.md](AGENTS.md)               | Coding-agent instructions                                    |
 | [BUILD-SUMMARY.md](BUILD-SUMMARY.md) | Dated architecture and review record                         |
 | [PROVENANCE.md](PROVENANCE.md)       | Repository history                                           |
 | [opentwin-synthea][synthea]          | Synthetic FHIR cohort generation                             |

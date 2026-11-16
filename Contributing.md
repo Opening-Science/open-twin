@@ -122,7 +122,7 @@ version (`0.x.0`) may change behaviour; a patch version (`0.x.y`) only fixes.
 
 The same rules apply to AI-assisted work, and the contributor remains
 responsible for it. Never put personal or health data into AI tools. Agent
-instructions are in [CLAUDE.md](CLAUDE.md).
+instructions are in [AGENTS.md](AGENTS.md).
 
 ## Legal
 
