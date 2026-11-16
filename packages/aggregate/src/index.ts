@@ -6,5 +6,15 @@ GOVERNED BY: DECISIONS.md#d9
  */
 export type { AggregateOptions, AggregateResult, Reconciliation, SourceBundle } from './aggregate';
 export { AGGREGATOR, aggregate } from './aggregate';
+export {
+  type CatalogueEntry,
+  type CatalogueSource,
+  catalogueEntry,
+  createMeasurementCatalogue,
+  type MeasurementCatalogue,
+  type RegistrationProblem,
+  registrationProblems,
+  sharedCatalogueEntries
+} from './catalogue';
 export { effectiveDay, type Measure, measureOf, occasionKey } from './measure';
 export { type Candidate, type Selection, selectSource } from './select';

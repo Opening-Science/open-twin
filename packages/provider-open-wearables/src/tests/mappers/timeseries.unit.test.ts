@@ -41,6 +41,14 @@ describe('mapTimeSeriesSample', () => {
       code: '8867-4',
       display: 'Heart rate'
     });
+    // resting_heart_rate carries 8867-4 too, so a reading also carries a local
+    // coding that a resting rate does not (D18).
+    expect(observation?.code.coding?.[1]).toEqual({
+      system: 'http://opentwin.ch/fhir/CodeSystem/open-wearables',
+      code: 'heart-rate',
+      display: 'Heart rate reading'
+    });
+    expect(observation?.code.coding).toHaveLength(2);
     expect(observation?.valueQuantity).toEqual({
       value: 72,
       unit: 'per minute',
@@ -78,6 +86,14 @@ describe('mapTimeSeriesSample', () => {
     const resting = mapTimeSeriesSample(sample({ type: 'resting_heart_rate', unit: 'bpm', value: 52 }), context);
     expect(resting?.code.coding?.map((coding) => coding.code)).toEqual(['40443-4', '8867-4']);
     expect(resting?.meta?.profile).toContain('http://hl7.org/fhir/StructureDefinition/heartrate');
+  });
+
+  it('carries a local coding on exercise_time, which shares LOINC 55411-3 with every workout', () => {
+    const observation = mapTimeSeriesSample(sample({ type: 'exercise_time', unit: 'minutes', value: 12 }), context);
+    expect(observation?.code.coding?.map((coding) => [coding.system, coding.code])).toEqual([
+      [SYSTEMS.LOINC, '55411-3'],
+      ['http://opentwin.ch/fhir/CodeSystem/open-wearables', 'exercise-time']
+    ]);
   });
 
   it('refuses a sample whose unit is not one a primary source records for that type', () => {

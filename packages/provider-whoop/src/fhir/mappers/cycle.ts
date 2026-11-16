@@ -9,6 +9,12 @@ import type { Observation } from 'fhir/r4';
 import type { WhoopCycle } from '../../api/schemas/cycle';
 import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
+export const CYCLE_CODINGS = {
+  DAY_STRAIN: whoopCoding('day-strain', 'WHOOP day strain'),
+  // LOINC 8867-4 alone cannot tell this cycle mean from recovery's resting heart rate.
+  AVERAGE_HEART_RATE: whoopCoding('cycle-average-heart-rate', 'WHOOP cycle average heart rate')
+} as const;
+
 export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
 
@@ -26,7 +32,7 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'strain'),
           identifier: whoopIdentifier(key),
-          code: whoopCoding('day-strain', 'WHOOP day strain'),
+          code: CYCLE_CODINGS.DAY_STRAIN,
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
           effectiveDateTime,
@@ -40,7 +46,7 @@ export function mapWhoopCycleToFHIR(rows: WhoopCycle[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'cycle-avg-hr'),
           identifier: whoopIdentifier(`${key}-avg-hr`),
-          code: LOINC_CODINGS.HEART_RATE,
+          code: [LOINC_CODINGS.HEART_RATE, CYCLE_CODINGS.AVERAGE_HEART_RATE],
           category: CATEGORY.VITAL_SIGNS,
           subject: context.subject,
           effectiveDateTime,

@@ -39,6 +39,30 @@ importers:
         specifier: 0.0.44
         version: 0.0.44
     devDependencies:
+      '@open-twin/fhir-r4':
+        specifier: workspace:*
+        version: link:../fhir-r4
+      '@open-twin/genomics-vcf':
+        specifier: workspace:*
+        version: link:../genomics-vcf
+      '@open-twin/hl7v2':
+        specifier: workspace:*
+        version: link:../hl7v2
+      '@open-twin/open-wearables':
+        specifier: workspace:*
+        version: link:../provider-open-wearables
+      '@open-twin/provider-google-health':
+        specifier: workspace:*
+        version: link:../provider-google-health
+      '@open-twin/provider-oura':
+        specifier: workspace:*
+        version: link:../provider-oura
+      '@open-twin/provider-vitronic':
+        specifier: workspace:*
+        version: link:../provider-vitronic
+      '@open-twin/provider-whoop':
+        specifier: workspace:*
+        version: link:../provider-whoop
       '@types/node':
         specifier: 26.6.6
         version: 26.6.6

@@ -77,6 +77,39 @@ work: sleep _duration_ selects google-health over Oura, because Oura's `good` gr
 is for sleep–wake _detection_ and it has no published total-sleep-time finding at
 all. Extending the table is a citation, not an opinion.
 
+## The measurement catalogue
+
+`createMeasurementCatalogue` combines the declarations of the connectors you register
+into one catalogue, grouped by measurement key. It needs no credentials, network or
+bundles — only the declaration sets the connector packages export — so it can be built
+before any data is fetched, and aggregate needs none of the connectors installed.
+
+```ts
+import { createMeasurementCatalogue, sharedCatalogueEntries } from '@open-twin/aggregate';
+import { GOOGLE_HEALTH_MEASUREMENTS } from '@open-twin/provider-google-health';
+import { OURA_MEASUREMENTS } from '@open-twin/provider-oura';
+
+// Registration order is kept and is the only order used; nothing here ranks sources.
+const catalogue = createMeasurementCatalogue([OURA_MEASUREMENTS, GOOGLE_HEALTH_MEASUREMENTS]);
+
+sharedCatalogueEntries(catalogue); // keys two or more registered sources declare
+```
+
+Every key a registered connector declares is in the catalogue. A key declared by one
+source has `shared: false`; a key declared by two or more has `shared: true` — the keys
+a source preference can later apply to. The catalogue describes **supported
+capabilities**, not what any bundle contains: matching keys makes two sources
+candidates, and whether two actual readings are comparable (unit, context, subject,
+time window) is still decided per reading.
+
+Registration fails with a `ConnectorError` listing every problem — a connector
+registered twice, a declaration whose unit or context differs from its definition, a
+key borrowed from another connector's namespace.
+
+The catalogue is additive for now: `aggregate()` still groups by the `measureOf`
+table and selects by reliability grade, until reconciliation moves onto the
+catalogue (#264).
+
 ## Verification
 
 `src/verification/exampleBundle.ts` emits a two-source bundle — one reconciled

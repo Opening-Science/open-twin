@@ -109,6 +109,14 @@ open-twin's own source and can only see unit codes written as string literals; i
 cannot see a unit that arrived in somebody else's bundle. Under the flags CI uses
 (`-tx n/a`), neither can the HL7 validator — see below.
 
+## Measurement declarations
+
+`FHIR_R4_MEASUREMENTS` (DECISIONS.md#d18) is an `open` set with no definitions and
+no declarations. `normaliseBundle` mints no Observation or component code — every
+coding is the sender's, copied unchanged — so there is nothing for this connector
+to declare. `src/tests/measurements.unit.test.ts` proves both halves: the audit is
+clean on every committed input, and every emitted coding was present in the input.
+
 ## What it does NOT do
 
 - **StructureDefinition-driven profile validation.** That is the HL7 validator's job.

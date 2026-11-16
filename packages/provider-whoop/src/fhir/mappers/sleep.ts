@@ -9,6 +9,11 @@ import type { Observation } from 'fhir/r4';
 import type { WhoopSleep } from '../../api/schemas/sleep';
 import { type WhoopMapperContext, whoopCoding, whoopIdentifier, whoopResourceId } from './shared';
 
+export const SLEEP_CODINGS = {
+  SLEEP_PERFORMANCE: whoopCoding('sleep-performance', 'WHOOP sleep performance'),
+  SLEEP_EFFICIENCY: whoopCoding('sleep-efficiency', 'WHOOP sleep efficiency')
+} as const;
+
 export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperContext): Observation[] {
   if (rows.length === 0) return [];
 
@@ -27,7 +32,7 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'sleep-performance'),
           identifier: whoopIdentifier(key),
-          code: whoopCoding('sleep-performance', 'WHOOP sleep performance'),
+          code: SLEEP_CODINGS.SLEEP_PERFORMANCE,
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
           effectiveDateTime,
@@ -41,7 +46,7 @@ export function mapWhoopSleepToFHIR(rows: WhoopSleep[], context: WhoopMapperCont
         createObservation({
           id: whoopResourceId(context, key, 'sleep-efficiency'),
           identifier: whoopIdentifier(`${key}-efficiency`),
-          code: whoopCoding('sleep-efficiency', 'WHOOP sleep efficiency'),
+          code: SLEEP_CODINGS.SLEEP_EFFICIENCY,
           category: CATEGORY.ACTIVITY,
           subject: context.subject,
           effectiveDateTime,

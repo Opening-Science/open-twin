@@ -37,6 +37,14 @@
     "@types/fhir": "0.0.44"
   },
   "devDependencies": {
+    "@open-twin/fhir-r4": "workspace:*",
+    "@open-twin/genomics-vcf": "workspace:*",
+    "@open-twin/hl7v2": "workspace:*",
+    "@open-twin/open-wearables": "workspace:*",
+    "@open-twin/provider-google-health": "workspace:*",
+    "@open-twin/provider-oura": "workspace:*",
+    "@open-twin/provider-vitronic": "workspace:*",
+    "@open-twin/provider-whoop": "workspace:*",
     "@types/node": "26.6.6",
     "jest-extended": "7.0.0",
     "tsup": "9.0.0",

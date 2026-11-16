@@ -122,6 +122,16 @@ convert it without an explicit `subject` rather than inventing one.
 
 ---
 
+## Measurement declarations
+
+`GENOMICS_VCF_MEASUREMENTS` (DECISIONS.md#d18) has `complete` coverage: the Variant
+Observation and each of its ten component slices are declared under
+`genomics-vcf:`-owned keys (`genomics-vcf:variant`, `genomics-vcf:variant.ref-allele`,
+…), because every Observation and component code is fixed by the IG and lives in
+`terminology.ts`. Values from the VCF — rsIDs, chromosome, assembly — are component
+values, never codes. `src/tests/measurements.unit.test.ts` audits real conversions
+and requires every declaration to be exercised.
+
 ## What it does NOT do
 
 Named explicitly, because a silently-unsupported construct is worse than a refused

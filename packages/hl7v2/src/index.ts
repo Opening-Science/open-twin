@@ -12,6 +12,7 @@ export {
 } from './fhir/bundleBuilder';
 export { obrToDiagnosticReport } from './fhir/diagnosticReport';
 export { pv1ToEncounter } from './fhir/encounter';
+export { HL7V2_MEASUREMENTS } from './fhir/measurements';
 export { noteFrom, obxToObservation } from './fhir/observation';
 export { pidToPatient } from './fhir/patient';
 export { CONNECTOR, IssueLog, type Location, locate } from './issues';

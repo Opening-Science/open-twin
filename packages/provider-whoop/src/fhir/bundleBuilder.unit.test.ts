@@ -74,19 +74,56 @@ describe('buildWhoopBundleFromPayload', () => {
     });
   });
 
-  it('maps resting heart rate to LOINC 8867-4 with /min', () => {
+  it('maps recovery resting heart rate to LOINC 8867-4 plus a WHOOP-local coding, with /min', () => {
+    // Previously selected by identifier suffix: LOINC 8867-4 alone could not tell it from the cycle average.
     const obs = byCode(
       observations(buildWhoopBundleFromPayload(payload, { subjectKey, timestamp })),
-      SYSTEMS.LOINC,
-      '8867-4'
-    ).filter((o) => o.identifier?.[0]?.value?.endsWith('-rhr'));
+      SYSTEMS.WHOOP,
+      'recovery-resting-heart-rate'
+    );
     expect(obs).toHaveLength(1);
+    expect(obs[0]?.code?.coding).toEqual([
+      { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
+      { system: SYSTEMS.WHOOP, code: 'recovery-resting-heart-rate', display: 'WHOOP recovery resting heart rate' }
+    ]);
+    expect(obs[0]?.identifier?.[0]?.value).toBe('sleep-aaa-rhr');
     expect(obs[0]?.valueQuantity).toEqual({
       value: 58,
       unit: 'per minute',
       system: SYSTEMS.UCUM,
       code: '/min'
     });
+  });
+
+  it('maps cycle average heart rate to LOINC 8867-4 plus a WHOOP-local coding, with /min', () => {
+    const obs = byCode(
+      observations(buildWhoopBundleFromPayload(payload, { subjectKey, timestamp })),
+      SYSTEMS.WHOOP,
+      'cycle-average-heart-rate'
+    );
+    expect(obs).toHaveLength(1);
+    expect(obs[0]?.code?.coding).toEqual([
+      { system: SYSTEMS.LOINC, code: '8867-4', display: 'Heart rate' },
+      { system: SYSTEMS.WHOOP, code: 'cycle-average-heart-rate', display: 'WHOOP cycle average heart rate' }
+    ]);
+    expect(obs[0]?.identifier?.[0]?.value).toBe('101-avg-hr');
+    expect(obs[0]?.valueQuantity).toEqual({
+      value: 64,
+      unit: 'per minute',
+      system: SYSTEMS.UCUM,
+      code: '/min'
+    });
+  });
+
+  it('never emits LOINC 8867-4 without a WHOOP coding saying which heart rate it is', () => {
+    const heartRates = byCode(
+      observations(buildWhoopBundleFromPayload(payload, { subjectKey, timestamp })),
+      SYSTEMS.LOINC,
+      '8867-4'
+    );
+    expect(heartRates).toHaveLength(2);
+    const localCodes = heartRates.map((o) => o.code?.coding?.find((c) => c.system === SYSTEMS.WHOOP)?.code);
+    expect(localCodes.sort()).toEqual(['cycle-average-heart-rate', 'recovery-resting-heart-rate']);
   });
 
   it('maps SpO2 under a WHOOP root code with LOINC 59408-5 as a component', () => {

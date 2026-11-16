@@ -175,6 +175,14 @@ sent is not when the height was measured.
 
 ---
 
+## Measurement declarations
+
+`HL7V2_MEASUREMENTS` (DECISIONS.md#d18) is an `open` set with no definitions and no
+declarations. Every `Observation.code` coding comes from the message's own OBX-3,
+and no component is emitted, so the connector mints nothing to declare.
+`src/tests/measurements.unit.test.ts` checks every emitted coding against the raw
+OBX-3 text of the fixture it came from.
+
 ## What it does NOT do
 
 - **No MessageHeader, no Provenance.** The IG maps MSH to both. Neither is emitted.

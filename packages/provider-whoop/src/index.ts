@@ -26,6 +26,7 @@ export {
   type WhoopDataResult,
   type WhoopRequestOptions
 } from './fhir/bundleBuilder';
+export { WHOOP_MEASUREMENTS } from './fhir/measurements';
 export type { WhoopWindow } from './utils/fetchWhoopData';
 export { TokenHandler } from './utils/tokenUtils';
 
