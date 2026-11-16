@@ -209,6 +209,21 @@ importers:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
+      '@open-twin/open-wearables':
+        specifier: workspace:*
+        version: link:../provider-open-wearables
+      '@open-twin/provider-google-health':
+        specifier: workspace:*
+        version: link:../provider-google-health
+      '@open-twin/provider-oura':
+        specifier: workspace:*
+        version: link:../provider-oura
+      '@open-twin/provider-vitronic':
+        specifier: workspace:*
+        version: link:../provider-vitronic
+      '@open-twin/provider-whoop':
+        specifier: workspace:*
+        version: link:../provider-whoop
       '@types/node':
         specifier: 26.6.6
         version: 26.6.6

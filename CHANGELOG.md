@@ -14,6 +14,9 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `@open-twin/interpretation-contract`: `MEASUREMENT_SYSTEMS`, the body system each
+  scan and wearable catalogue key lights, `UNRENDERABLE_MEASUREMENTS` and
+  `systemFor` (decision D20). Every row is pending clinical review.
 - `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
   host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
 - `@open-twin/fhir-core`: shared measurement definitions (`MEASUREMENT_DEFINITIONS`),
