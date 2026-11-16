@@ -442,7 +442,7 @@ export function locateMeasurements(
 }
 
 export interface DeclarationAuditIssue {
-  code: 'undeclared' | 'ambiguous' | 'value-type-mismatch' | 'unit-mismatch';
+  code: 'undeclared' | 'ambiguous' | 'value-type-mismatch' | 'missing-absent-reason' | 'unit-mismatch';
   /** The Observation's id, or its position in the input when it has none. */
   observation: string;
   location: 'observation' | 'component';
@@ -481,8 +481,11 @@ function quantityUnitProblem(quantity: Quantity, declared: string | undefined): 
  *
  * Each Observation and each component must match exactly one declaration, carry the
  * declared value type (or no value, which is absence and never zero), and carry the
- * declared UCUM unit. For an `open` set, values with no declaration are expected —
- * they are forwarded foreign codes — and are not reported.
+ * declared UCUM unit. An element of a typed declaration that carries no value must say
+ * why with `dataAbsentReason`. FHIR allows an element with neither; this project does
+ * not, because silent absence is indistinguishable from a dropped value. For an `open`
+ * set, values with no declaration are expected — they are forwarded foreign codes —
+ * and are not reported.
  */
 export function auditMeasurementDeclarations(
   set: Pick<MeasurementDeclarationSet, 'declarations' | 'coverage'>,
@@ -536,6 +539,16 @@ export function auditMeasurementDeclarations(
         location,
         codings: shown,
         message: `${declaration.key} declares ${declaration.valueType} but emits ${emitted ?? 'no value'}`
+      });
+      return;
+    }
+    if (declaration.valueType !== 'none' && emitted === undefined && element.dataAbsentReason === undefined) {
+      issues.push({
+        code: 'missing-absent-reason',
+        observation,
+        location,
+        codings: shown,
+        message: `${declaration.key} carries neither a value nor a dataAbsentReason`
       });
       return;
     }

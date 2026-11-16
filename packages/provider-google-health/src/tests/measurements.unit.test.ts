@@ -84,6 +84,13 @@ describe('GOOGLE_HEALTH_MEASUREMENTS', () => {
     expect(declared('daily-oxygen-saturation').map((d) => d.key)).toEqual(['google-health:daily-oxygen-saturation']);
   });
 
+  it('keeps glucose off the shared blood glucose key, because the specimen can be interstitial fluid', () => {
+    expect(declared('2339-0').map((d) => d.key)).toEqual(['google-health:blood-glucose']);
+    expect(GOOGLE_HEALTH_MEASUREMENTS.declarations.some((d) => d.key === 'blood-glucose-mass-concentration')).toBe(
+      false
+    );
+  });
+
   it('declares every documented sleep stage, heart rate zone and activity level behind a dynamic code', () => {
     // Enum lists from the Google Health API v4 discovery document (StageSummary.type,
     // HeartRateZone.heartRateZoneType, ActiveMinutesByActivityLevel.activityLevel), plus

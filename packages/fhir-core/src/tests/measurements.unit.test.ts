@@ -267,6 +267,38 @@ describe('auditMeasurementDeclarations', () => {
     expect(auditMeasurementDeclarations(ambiguous, [both]).issues.map((issue) => issue.code)).toEqual(['ambiguous']);
   });
 
+  it('reports a typed element that drops its value without saying why', () => {
+    const silent: Observation = {
+      resourceType: 'Observation',
+      id: 'sleep-1',
+      status: 'final',
+      code: { coding: [SLEEP_PANEL] },
+      subject: SUBJECT,
+      component: [{ code: { coding: [SLEEP_DURATION] } }]
+    };
+    const audit = auditMeasurementDeclarations(set(), [silent]);
+    expect(audit.issues.map((issue) => [issue.code, issue.location, issue.message])).toEqual([
+      ['missing-absent-reason', 'observation', 'oura:sleep-score carries neither a value nor a dataAbsentReason'],
+      ['missing-absent-reason', 'component', 'total-sleep-time carries neither a value nor a dataAbsentReason']
+    ]);
+  });
+
+  it('does not require a dataAbsentReason on a value-less panel', () => {
+    const panel: MeasurementDefinition = { ...SLEEP_SCORE, valueType: 'none', canonicalUnit: undefined };
+    const bare: Observation = {
+      resourceType: 'Observation',
+      id: 'sleep-1',
+      status: 'final',
+      code: { coding: [SLEEP_PANEL] },
+      subject: SUBJECT
+    };
+    const audit = auditMeasurementDeclarations(
+      { coverage: 'complete', declarations: [declareMeasurement(panel, SLEEP_PANEL)] },
+      [bare]
+    );
+    expect(audit.issues).toEqual([]);
+  });
+
   it('requires a value-less declaration to stay value-less', () => {
     const panel: MeasurementDefinition = { ...SLEEP_SCORE, valueType: 'none', canonicalUnit: undefined };
     const declaration = declareMeasurement(panel, SLEEP_PANEL);

@@ -421,7 +421,8 @@ Rules that make the identity hold:
   stays.
 - A connector test builds bundles through the real mappers and requires
   `auditMeasurementDeclarations` to report no undeclared, ambiguous, mistyped or
-  mis-unit value, and no unexercised declaration. Packages that forward codes chosen
+  mis-unit value, no value dropped without a `dataAbsentReason`, and no unexercised
+  declaration. Packages that forward codes chosen
   by their input (`fhir-r4`, `hl7v2`) declare `coverage: 'open'` and only what they
   mint themselves.
 - Definitions carry no source preference and no reliability grade. The catalogue

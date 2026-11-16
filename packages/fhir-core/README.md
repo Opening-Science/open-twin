@@ -99,7 +99,8 @@ import { auditMeasurementDeclarations, validateMeasurementDeclarations } from '@
 
 validateMeasurementDeclarations(MY_MEASUREMENTS); // [] — consistent with the shared definitions
 const audit = auditMeasurementDeclarations(MY_MEASUREMENTS, bundleFromRealMappers);
-audit.issues; // [] — every emitted value declared once, with its declared type and unit
+audit.issues; // [] — every emitted value declared once, with its declared type and unit,
+//                and every missing value explained by a dataAbsentReason
 audit.unexercised; // [] — every declaration proven against mapper output
 ```
 

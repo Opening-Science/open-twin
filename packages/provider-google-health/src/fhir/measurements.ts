@@ -472,7 +472,21 @@ declareOwnedMeasurement(
 /* -------------------------------------------------------------------------- */
 
 const BLOOD_GLUCOSE = { system: SYSTEMS.LOINC, code: '2339-0' };
-declareSharedMeasurement('blood-glucose-mass-concentration', BLOOD_GLUCOSE);
+// Not the shared `blood-glucose-mass-concentration`: Google's `specimen` can be
+// INTERSTITIAL_FLUID (a CGM reading), which is not blood glucose and must not be
+// reconciled with a capillary or venous one. The specimen is a component, so one
+// Observation cannot be split between keys by coding.
+// TODO(clinical sign-off): decide whether interstitial readings need their own code and
+// key. The mapper sends 2339-0 "in Blood" whatever the specimen, which is the same
+// mismatch at the code level and is tracked separately from this declaration.
+declareOwnedMeasurement(
+  'blood-glucose',
+  'One glucose reading as a mass concentration, from blood or interstitial fluid; the specimen component says which.',
+  'quantity',
+  UCUM.MG_PER_DL.code,
+  READING,
+  BLOOD_GLUCOSE
+);
 declareOwnedMeasurement(
   'blood-glucose.meal-type',
   'Meal the blood glucose reading relates to (BREAKFAST, LUNCH, ...).',
