@@ -90,8 +90,9 @@ behaviour with a skip on it.
    few patterns, so a passing purity test does not prove the engine is clean.
 8. **Every exporting module opens with the convention header.** `WHAT`, `NOT`,
    `GOVERNED BY` and `CORRECTNESS`, as specified in `docs/CONVENTIONS.md`;
-   `pnpm verify` fails without it. `CORRECTNESS` names an external authority —
-   never "the tests pass".
+   `pnpm verify` fails without it. `CORRECTNESS` names an external authority, or
+   `NONE — see docs/findings/no-external-authority.md` where none exists (and the
+   file is listed there) — never "the tests pass", and never an invented authority.
 9. **Never put personal or health data into AI tools or prompts.** Work from the
    repository's fixtures and synthetic data, and do not add real user payloads
    to fixtures, tests or logs.
