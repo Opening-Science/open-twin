@@ -5,7 +5,7 @@
  * CORRECTNESS: Round-trip / fixture tests for bundle shape; HL7 validator not yet run locally (no JRE) — external authority gap, not an oversight.
  */
 import { buildBundle, connectorDevice, deviceReference, patientUuid, SYSTEMS } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import type { Bundle, FhirResource, Patient } from 'fhir/r4.js';
 import type { CollectionContext } from '../context.js';
 import { type BiomarkerMeasurement, CONNECTOR, mapBiomarkerToObservation } from './mapObservation.js';
 

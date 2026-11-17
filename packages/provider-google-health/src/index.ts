@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d9
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import { ConnectorError, toOperationOutcome } from '@open-twin/fhir-core';
-import type { Bundle, OperationOutcome, Reference } from 'fhir/r4';
+import type { Bundle, OperationOutcome, Reference } from 'fhir/r4.js';
 import { Auth, type health_v4 } from 'googleapis';
 import { GoogleHealthClient } from './api/client';
 import type { AllTypes } from './api/record_types';
@@ -23,6 +23,7 @@ export {
 } from './api/record_types';
 export type { BuildBundleOptions, BundleResult } from './fhir/bundleBuilder';
 export { buildBundleFromResponses, mapDataPointToFHIR } from './fhir/bundleBuilder';
+export { GOOGLE_HEALTH_MEASUREMENTS } from './fhir/measurements';
 // biome-ignore lint/style/useExportType: Exposing the type and GoogleHealthClient class is necessary for external usage
 export { AllTypes, GoogleHealthClient };
 

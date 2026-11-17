@@ -1,5 +1,5 @@
 import { SYSTEMS } from '@open-twin/fhir-core';
-import type { Bundle, DiagnosticReport, Encounter, Observation, Patient } from 'fhir/r4';
+import type { Bundle, DiagnosticReport, Encounter, Observation, Patient } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { convertMessage } from '../fhir/bundleBuilder';
 import { HL7V2_LOCAL_SYSTEM } from '../v2/tables';

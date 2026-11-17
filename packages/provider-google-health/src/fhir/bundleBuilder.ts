@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d5; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator on emitted bundles in CI; terminology/unit gates on source codings.
  */
 import { buildBundle, patientUuid, SYSTEMS, subjectReference } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation, Patient, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation, Patient, Reference } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 import { ALL_TYPES } from '../api/record_types';
 import {

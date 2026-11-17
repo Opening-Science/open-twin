@@ -21,5 +21,6 @@ export {
   buildOpenWearablesBundle,
   type OpenWearablesSync
 } from './fhir/bundleBuilder';
+export { OPEN_WEARABLES_MEASUREMENTS } from './fhir/measurements';
 export { type Refusal, SERIES_MAP, type SeriesMapping, UNRESOLVED_SERIES } from './fhir/seriesMap';
 export { fhirDateTime } from './fhir/time';

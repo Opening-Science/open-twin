@@ -3,6 +3,15 @@
 Converts pipe-delimited HL7 v2.x messages to FHIR R4, following the
 [HL7 Version 2 to FHIR Implementation Guide](https://build.fhir.org/ig/HL7/v2-to-fhir/).
 
+After the package's first npm release:
+
+```bash
+npm install @open-twin/hl7v2
+```
+
+Compatible shared core is installed automatically, not embedded. This package is
+versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ```ts
 import { convertMessage } from '@open-twin/hl7v2';
 
@@ -174,6 +183,14 @@ comment in `src/fhir/observation.ts`. MSH-7 is **not** substituted: when the mes
 sent is not when the height was measured.
 
 ---
+
+## Measurement declarations
+
+`HL7V2_MEASUREMENTS` (DECISIONS.md#d18) is an `open` set with no definitions and no
+declarations. Every `Observation.code` coding comes from the message's own OBX-3,
+and no component is emitted, so the connector mints nothing to declare.
+`src/tests/measurements.unit.test.ts` checks every emitted coding against the raw
+OBX-3 text of the fixture it came from.
 
 ## What it does NOT do
 

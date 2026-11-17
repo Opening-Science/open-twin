@@ -15,7 +15,7 @@ import {
   SYSTEMS,
   subjectReference
 } from '@open-twin/fhir-core';
-import type { Extension, Observation, ObservationReferenceRange, Reference } from 'fhir/r4';
+import type { Extension, Observation, ObservationReferenceRange, Reference } from 'fhir/r4.js';
 import { getBiomarker, getReferenceInterval, isInterpretiveBandId } from '../catalogue.js';
 import {
   assertValidCollectionContext,

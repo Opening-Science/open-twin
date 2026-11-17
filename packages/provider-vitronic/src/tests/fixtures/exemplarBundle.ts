@@ -4,7 +4,7 @@
  *
  * Registered in `verify/bundles.manifest.ts`.
  */
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { buildBundleFromVitronicResponse } from '../../fhir/bundleBuilder';
 import { samplePayload } from './samplePayload';
 

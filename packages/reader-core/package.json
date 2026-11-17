@@ -38,7 +38,7 @@
   "author": "Open Science Foundation",
   "license": "MIT",
   "dependencies": {
-    "@open-twin/fhir-core": "workspace:*",
+    "@open-twin/fhir-core": "workspace:^",
     "@types/fhir": "0.0.44"
   },
   "peerDependencies": {
@@ -67,5 +67,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "homepage": "https://github.com/Opening-Science/open-twin/tree/main/packages/reader-core#readme",
+  "bugs": {
+    "url": "https://github.com/Opening-Science/open-twin/issues"
+  }
 }
