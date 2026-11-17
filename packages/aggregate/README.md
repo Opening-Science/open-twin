@@ -126,11 +126,7 @@ catalogue (#264).
 Generate configuration from the catalogue before fetching any data:
 
 ```ts
-import {
-  generateReconciliationConfiguration,
-  type ReconciliationConfiguration,
-  validateReconciliationConfiguration
-} from '@open-twin/aggregate';
+import { generateReconciliationConfiguration, validateReconciliationConfiguration } from '@open-twin/aggregate';
 
 const configuration = generateReconciliationConfiguration(catalogue);
 // { version: 1, measurements: {
@@ -146,7 +142,7 @@ if (sleep) {
 
 // The application owns JSON storage and handles JSON.parse syntax errors.
 const saved = JSON.stringify(configuration);
-const decoded: ReconciliationConfiguration = JSON.parse(saved);
+const decoded: unknown = JSON.parse(saved);
 const result = validateReconciliationConfiguration(decoded, catalogue);
 if (!result.ok) {
   // Each problem has a stable code, JSON Pointer path, and explanatory message.
@@ -166,12 +162,12 @@ Users may reorder or remove sources, but each priority list must remain nonempty
 and contain no duplicates. Every listed source must declare that particular key.
 Every shared key requires an entry; unknown keys and single-source keys are
 errors. Unsupported versions, malformed fields, unknown fields, and invalid modes
-are errors too. Validation accepts `ReconciliationConfiguration`, returns either
+are errors too. Validation accepts `unknown`, returns either
 `{ ok: true, configuration }` or `{ ok: false, problems }`, and never mutates
 input, supplies missing defaults, or silently rewrites preferences. A successful
 result is an independent copy. JSON round trips preserve priorities and modes.
-The typed parameter provides compile-time checks for application-authored
-configuration; runtime checks remain because JSON parsing does not verify its type.
+JSON parsing checks syntax only; validation checks the configuration structure
+and compatibility with the catalogue before returning a typed configuration.
 
 Persistence and configuration updates belong to the application. Revalidate
 saved configuration against the current catalogue after registrations change;

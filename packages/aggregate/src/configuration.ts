@@ -74,7 +74,7 @@ function pointerSegment(value: string): string {
  * supplying defaults. Runtime checks also guard JSON-loaded data.
  */
 export function validateReconciliationConfiguration(
-  input: ReconciliationConfiguration,
+  input: unknown,
   catalogue: MeasurementCatalogue
 ): ConfigurationValidationResult {
   const problems: ConfigurationProblem[] = [];

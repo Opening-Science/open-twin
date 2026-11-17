@@ -46,8 +46,7 @@ function configuration(): ReconciliationConfiguration {
 }
 
 function errors(input: unknown): ConfigurationProblem[] {
-  // Deliberately malformed fixtures exercise runtime guards despite the typed API.
-  const result = validateReconciliationConfiguration(input as ReconciliationConfiguration, catalogue);
+  const result = validateReconciliationConfiguration(input, catalogue);
   if (result.ok) throw new Error('Expected invalid configuration');
   return result.problems;
 }
@@ -121,7 +120,7 @@ describe('validateReconciliationConfiguration', () => {
       missingData: 'fallback'
     };
     for (const original of [generateReconciliationConfiguration(catalogue), edited]) {
-      const decoded: ReconciliationConfiguration = JSON.parse(JSON.stringify(original));
+      const decoded: unknown = JSON.parse(JSON.stringify(original));
       const result = validateReconciliationConfiguration(decoded, catalogue);
       expect(result).toEqual({ ok: true, configuration: original });
       if (!result.ok) throw new Error('Expected valid round trip');
