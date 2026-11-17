@@ -13,7 +13,7 @@ import {
   quantity,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Extension, Observation } from 'fhir/r4';
+import type { Extension, Observation } from 'fhir/r4.js';
 import type { OuraHeartRateList } from '../../api/schemas/heartrate';
 import { type OuraMapperContext, ouraExtensionUrl, ouraResourceId } from './shared';
 

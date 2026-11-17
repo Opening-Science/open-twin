@@ -12,7 +12,7 @@ import {
   subjectReference,
   toOperationOutcome
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, OperationOutcome, OperationOutcomeIssue, Reference } from 'fhir/r4.js';
 import type { RequestParams } from '../api/schemas/client';
 import { type RequestOuraDataOptions, requestOuraData } from '../utils/clientUtils';
 import { parseOuraResponse } from '../utils/objectUtils';

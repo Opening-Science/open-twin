@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d10
  * CORRECTNESS: recorded API response (marker normals are direction cosines); UCUM 1 per DECISIONS.md#d10.
  */
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { Marker, MarkerList } from '../../api/schemas/marker';
 import {
   createMeasurementObservation,

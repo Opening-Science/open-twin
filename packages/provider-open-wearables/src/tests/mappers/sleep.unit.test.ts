@@ -1,5 +1,5 @@
 import { SYSTEMS } from '@open-twin/fhir-core';
-import type { Observation, Reference } from 'fhir/r4';
+import type { Observation, Reference } from 'fhir/r4.js';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { SleepSession } from '../../api/schemas/events';
 import { IssueLog } from '../../fhir/issues';

@@ -13,7 +13,7 @@ import {
   optionalNumericComponent,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Extension, Observation } from 'fhir/r4';
+import type { Extension, Observation } from 'fhir/r4.js';
 import type { PublicSample, SessionList } from '../../api/schemas/session';
 import { type OuraMapperContext, ouraCoding, ouraExtensionUrl, ouraIdentifier, ouraResourceId } from './shared';
 

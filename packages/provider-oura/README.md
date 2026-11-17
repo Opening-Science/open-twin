@@ -15,11 +15,15 @@ A provider for connecting Oura devices and APIs to the Open Twin ecosystem. This
 
 ## Installation
 
-Install the package via npm:
+After the package's first release, install it via npm:
 
 ```bash
 npm install @open-twin/provider-oura
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 ### Setup & Prerequisites
 
@@ -283,6 +287,18 @@ because no standard concept was found for the measure, and each is marked
   `provider-google-health`.
 - `ring_configuration` emits a `Device` resource as well as the Observation, and
   the Observation's `device` reference resolves to it by `fullUrl`.
+
+## Measurement declarations
+
+`OURA_MEASUREMENTS` (a `MeasurementDeclarationSet` from `@open-twin/fhir-core`,
+coverage `complete`) declares every Observation and component this connector
+emits, against a shared key where meaning, context and unit match exactly and an
+`oura:`-prefixed key otherwise. Vendor scores and contributors — including
+`hrv-balance`, a 0-100 score, not HRV in milliseconds — are always Oura-owned.
+`src/tests/measurements.unit.test.ts` audits the declarations against bundles
+built through the real parsers and mappers. A passing audit shows the
+declarations match the output; it does not show that a code or unit is clinically
+right.
 
 ## Disclaimer
 

@@ -1,5 +1,5 @@
 import { ConnectorError } from '@open-twin/fhir-core';
-import type { Bundle, Observation, Patient } from 'fhir/r4';
+import type { Bundle, Observation, Patient } from 'fhir/r4.js';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { BodyLoopClient } from '../..';
 import type { ScopeResult } from '../../api/client';

@@ -1,4 +1,4 @@
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import type { Axis } from '../../api/schemas/axes';
 import { mapAxesListToFHIR, mapAxisToFHIR } from '../../fhir/mappers/axes';

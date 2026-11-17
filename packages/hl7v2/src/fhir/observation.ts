@@ -12,7 +12,7 @@ import {
   deterministicId,
   SYSTEMS
 } from '@open-twin/fhir-core';
-import type { Annotation, CodeableConcept, Observation, Reference } from 'fhir/r4';
+import type { Annotation, CodeableConcept, Observation, Reference } from 'fhir/r4.js';
 import type { IssueLog } from '../issues';
 import { toQuantity } from '../units/quantity';
 import { codingFrom, cweToCodeableConcept, type DatatypeContext, eiToIdentifier } from '../v2/datatypes';

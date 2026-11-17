@@ -6,9 +6,15 @@ WHOOP Developer API v2 to FHIR R4. Recovery, cycle (strain), and sleep metrics f
 
 ## Installation
 
+After the package's first npm release:
+
 ```bash
 pnpm add @open-twin/provider-whoop
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 Register an app in the [WHOOP Developer Dashboard](https://developer.whoop.com/). WHOOP requires OAuth `state` to be **exactly 8 characters** — use `createWhoopOAuthState()`.
 
@@ -67,6 +73,10 @@ Tokens are held in memory only; persist the pair and its absolute expiry in your
 ## Scope
 
 v1 mappers: recovery (score, HRV, resting HR, SpO₂), cycle strain and average HR, sleep (performance, efficiency, time in bed). Workouts are not mapped yet.
+
+## Measurement declarations
+
+`WHOOP_MEASUREMENTS` (a `MeasurementDeclarationSet` from `@open-twin/fhir-core`, coverage `complete`) declares every Observation and component this connector emits and the measurement key each maps to (DECISIONS.md#d18). Only time in bed uses a shared key; everything else is `whoop:`-owned. Recovery's resting heart rate and the cycle's average heart rate both carry LOINC 8867-4, so each also carries a WHOOP-local coding (`recovery-resting-heart-rate`, `cycle-average-heart-rate`) and is declared by it. WHOOP's resting heart rate is measured during sleep and is not the shared daily `resting-heart-rate`.
 
 ## License
 
