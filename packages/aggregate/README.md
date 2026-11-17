@@ -117,9 +117,92 @@ Registration fails with a `ConnectorError` listing every problem — a connector
 registered twice, a declaration whose unit or context differs from its definition, a
 key borrowed from another connector's namespace.
 
-The catalogue is additive for now: `aggregate()` still groups by the `measureOf`
-table and selects by reliability grade, until reconciliation moves onto the
-catalogue (#264).
+### Runtime measurement resolution and eligibility
+
+`resolveReadings` uses the registered declarations, not the legacy measurement
+table, to find values in source bundles and assess them for an explicit request.
+It supports Observation values and components matched by their coding **and** their
+parent's coding; component order is irrelevant.
+
+```ts
+import { resolveReadings } from '@open-twin/aggregate';
+
+const result = resolveReadings({
+  catalogue,
+  sources: [
+    { connector: 'oura', bundle: ouraBundle },
+    { connector: 'google-health', bundle: googleBundle }
+  ],
+  request: {
+    key: 'total-sleep-time',
+    subject: 'Patient/example', // must be the same exact reference in every reading
+    context: { scope: 'sleep-period', statistic: 'total' },
+    window: {
+      kind: 'period',
+      start: '2026-06-20T22:00:00Z',
+      end: '2026-06-21T06:00:00Z'
+    }
+  }
+});
+
+for (const { reading, eligibility } of result.readings) {
+  // reading keeps the original Observation and, when applicable, its component.
+  // eligibility is { kind: 'eligible' } or { kind: 'ineligible', reasons: [...] }.
+  // Keep the reading for selection/provenance; do not log its health payload.
+}
+// result.issues reports undeclared values, ambiguous declaration matches and
+// unregistered connectors using input positions, never payloads or subject ids.
+```
+
+Eligibility requires a present value of the declared type, its exact emitted UCUM
+unit, the declared scope/statistic, the exact subject reference, and a compatible
+effective time. A missing numeric value, `dataAbsentReason`, nonfinite number or
+quantity comparator is not an exact usable reading. Zero and boolean `false` are
+valid values. A parent's absent score does not make its populated components absent.
+A value-less panel (`valueType: 'none'`) is not itself a usable reading.
+
+Registered (no result yet), cancelled and entered-in-error Observations are
+ineligible, including their components, with `unusable-status`. Preliminary and
+unknown statuses are not excluded solely for their status: eligibility is not
+confirmation that a result is final or verified.
+
+Value checks also reject out-of-range/fractional integers, reversed ranges,
+incompatible range-bound units, zero ratio denominators and malformed temporal or
+sampled-data values. Sampled data needs a finite origin, positive sampling period,
+valid dimensions, complete sample groups and valid numeric/error/limit tokens;
+error/limit tokens alone provide no usable numeric value. Partial dates and open
+periods remain valid **values** where FHIR permits them, but cannot serve as complete
+effective measurement windows. These eligibility guards are not a full FHIR
+structural validator; see the [R4 datatype definitions](https://hl7.org/fhir/R4/datatypes.html)
+and [observation statuses](https://hl7.org/fhir/R4/valueset-observation-status.html).
+
+Time compatibility is deliberately conservative:
+
+- Individual readings accept `{ kind: 'instant', at: '...' }` or a complete period.
+  Summaries (daily, interval, session, sleep period or physiological cycle) require
+  periods; declaration context alone does not establish a measurement window.
+- Instants must match exactly; periods must have identical start and end instants,
+  with end after start. Offsets are normalized and fractional seconds are preserved.
+  Mere overlap or a shared calendar date is insufficient.
+- Effective times require a complete date, hours, minutes, seconds and an explicit timezone.
+  Date-only markers, incomplete/open periods, `effectiveTiming`, conflicting
+  `effective[x]` fields, impossible dates and unsupported leap seconds are ineligible.
+  No day boundaries, timezones or tolerances are inferred. Connectors emitting only
+  daily markers or a sleep start cannot establish comparable periods with this API.
+
+The resolver never converts a unit, matches different patient references, selects
+a source or mutates a bundle/catalogue. It checks matching against **all** of a
+source's declarations before filtering by the requested key, so ambiguous codings
+cannot turn into an arbitrary match. Multiple same-source readings remain separate
+for the selection layer to handle. An empty bundle returns no readings; the
+catalogue still records that source's capability. Invalid requests throw a
+payload-free `ConnectorError`; eligibility reasons and resolution issues contain
+only diagnostic codes and input positions, not health values.
+
+This is the runtime eligibility layer for the configured reconciliation work in
+#264/#277. It does not change the legacy `aggregate()` API, which still groups by the
+`measureOf` table and selects by reliability grade. Moving that API to opt-in,
+configured selection and removing the legacy policy are tracked in #275 and #279.
 
 ## Verification
 

@@ -59,7 +59,7 @@ export interface Reconciliation {
 
 const CONNECTOR_TAG = 'http://opentwin.ch/fhir/CodeSystem/connector';
 
-function connectorOf(source: SourceBundle): string {
+export function connectorOf(source: SourceBundle): string {
   const tagged = source.bundle.meta?.tag?.find((tag) => tag.system === CONNECTOR_TAG)?.code;
   const connector = source.connector ?? tagged;
   if (!connector) {

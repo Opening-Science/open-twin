@@ -440,7 +440,13 @@ the same bare LOINC code at the same location, which no declaration could separa
 **Trade-off.** Every new mapper field needs a declaration, and the audit test fails
 until it has one. That is the point: an undeclared value is a value no consumer can
 identify without reading the mapper. The existing `aggregate()` still uses the old
-table and reliability grades until reconciliation moves onto the catalogue (#264).
+table and reliability grades until reconciliation moves onto the catalogue (#264). The declaration-driven runtime
+API `resolveReadings` checks values against an explicit key, context, subject reference
+and time window without selecting a source. Time compatibility requires identical
+complete instants or period boundaries (timezone-normalized, retaining fractional
+seconds); summaries require complete periods. Date-only markers, open periods and
+overlap alone cannot establish comparability. This is intentionally conservative:
+there is no inferred day boundary, patient matching, unit conversion or time tolerance.
 
 ## Still open — needs a named clinical reviewer
 
