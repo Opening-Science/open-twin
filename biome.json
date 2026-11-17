@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!**/*.gen.ts", "!packages/anchor-layer/data"]
+    "includes": ["**", "!**/*.gen.ts", "!packages/anchor-layer/data", "!.changeset/*.md"]
   },
   "formatter": {
     "enabled": true,

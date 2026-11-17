@@ -1,6 +1,6 @@
 ---
-
-## "@open-twin/aggregate": minor
+"@open-twin/aggregate": minor
+---
 
 Add declaration-driven runtime measurement resolution and explicit reading eligibility
 for a requested key, context, subject reference and exact time window. Support
