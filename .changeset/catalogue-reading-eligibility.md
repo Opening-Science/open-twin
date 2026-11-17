@@ -11,3 +11,5 @@ Require corresponding detection limits for sampled-data `L` and `U` tokens.
 Reject unit-bearing ranges, ratios and sampled-data origins until declarations can
 express their units; unitless complex values remain supported.
 Keep the legacy aggregate API unchanged while configured reconciliation is migrated.
+Include sorted, unique matched declaration keys in resolution issues so callers can
+identify measurements affected by ambiguous declarations without exposing health payloads.

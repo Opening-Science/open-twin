@@ -150,7 +150,34 @@ describe('declaration-driven runtime resolution', () => {
     });
     expect(result.readings).toEqual([]);
     expect(result.issues).toEqual([
-      { code: 'ambiguous-declaration', sourceIndex: 0, observationIndex: 0, location: 'observation' }
+      {
+        code: 'ambiguous-declaration',
+        matchedKeys: ['time-in-bed', 'total-sleep-time'],
+        sourceIndex: 0,
+        observationIndex: 0,
+        location: 'observation'
+      }
+    ]);
+  });
+
+  it('deduplicates matched keys without hiding ambiguity between declarations for the same key', () => {
+    const set = registration('alpha');
+    const alias = { system: SYSTEM, code: 'alias' };
+    set.declarations.push(declareMeasurement('total-sleep-time', alias));
+    const result = resolveReadings({
+      catalogue: createMeasurementCatalogue([set]),
+      sources: [source([observation({ code: { coding: [ASLEEP, alias] } })])],
+      request: REQUEST
+    });
+    expect(result.readings).toEqual([]);
+    expect(result.issues).toEqual([
+      {
+        code: 'ambiguous-declaration',
+        matchedKeys: ['total-sleep-time'],
+        sourceIndex: 0,
+        observationIndex: 0,
+        location: 'observation'
+      }
     ]);
   });
 
@@ -166,7 +193,13 @@ describe('declaration-driven runtime resolution', () => {
     );
     expect(result.readings).toEqual([]);
     expect(result.issues).toEqual([
-      { code: 'ambiguous-declaration', sourceIndex: 0, observationIndex: 0, location: 'component' }
+      {
+        code: 'ambiguous-declaration',
+        matchedKeys: ['time-in-bed', 'total-sleep-time'],
+        sourceIndex: 0,
+        observationIndex: 0,
+        location: 'component'
+      }
     ]);
   });
 
@@ -203,8 +236,14 @@ describe('declaration-driven runtime resolution', () => {
     });
     expect(result.readings).toEqual([]);
     expect(result.issues).toEqual([
-      { code: 'unregistered-connector', sourceIndex: 0 },
-      { code: 'undeclared-measurement', sourceIndex: 1, observationIndex: 0, location: 'observation' }
+      { code: 'unregistered-connector', matchedKeys: [], sourceIndex: 0 },
+      {
+        code: 'undeclared-measurement',
+        matchedKeys: [],
+        sourceIndex: 1,
+        observationIndex: 0,
+        location: 'observation'
+      }
     ]);
   });
 

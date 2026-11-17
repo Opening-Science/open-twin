@@ -56,7 +56,9 @@ export interface ReadingAssessment {
 
 export interface ReadingResolutionIssue {
   code: 'unregistered-connector' | 'undeclared-measurement' | 'ambiguous-declaration';
-  /** Input positions only; diagnostics never contain payloads or subject references. */
+  /** Unique registered declaration keys in sorted order; empty when nothing matched. */
+  matchedKeys: string[];
+  /** Diagnostics contain only declaration keys and input positions, never payloads or subject references. */
   sourceIndex: number;
   observationIndex?: number;
   location?: 'observation' | 'component';
@@ -371,7 +373,7 @@ export function resolveReadings(options: {
   sources.forEach((source, sourceIndex) => {
     const connector = connectorOf(source);
     if (!catalogue.connectors.some((registered) => registered.connector === connector)) {
-      issues.push({ code: 'unregistered-connector', sourceIndex });
+      issues.push({ code: 'unregistered-connector', matchedKeys: [], sourceIndex });
       return;
     }
     // Match all keys before filtering: otherwise a second declaration at the same
@@ -395,6 +397,7 @@ export function resolveReadings(options: {
         if (element.declarations.length !== 1) {
           issues.push({
             code: element.declarations.length === 0 ? 'undeclared-measurement' : 'ambiguous-declaration',
+            matchedKeys: [...new Set(element.declarations.map((declaration) => declaration.key))].sort(),
             sourceIndex,
             observationIndex,
             location: element.location

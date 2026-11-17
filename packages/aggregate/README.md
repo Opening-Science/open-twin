@@ -202,7 +202,10 @@ cannot turn into an arbitrary match. Multiple same-source readings remain separa
 for the selection layer to handle. An empty bundle returns no readings; the
 catalogue still records that source's capability. Invalid requests throw a
 payload-free `ConnectorError`; eligibility reasons and resolution issues contain
-only diagnostic codes and input positions, not health values.
+only diagnostic codes, registered declaration keys and input positions, not health
+values. Each resolution issue includes `matchedKeys`: the sorted, unique keys of
+all matched declarations, including keys other than the requested one. Unmatched
+elements and unregistered connectors have an empty `matchedKeys` array.
 
 This is the runtime eligibility layer for the configured reconciliation work in
 #264/#277. It does not change the legacy `aggregate()` API, which still groups by the
