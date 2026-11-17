@@ -104,7 +104,7 @@ export function validateReconciliationConfiguration(
   const entries = new Map(catalogue.entries.map((entry) => [entry.key, entry]));
   const preferences: [string, MeasurementPreference][] = [];
   for (const entry of sharedCatalogueEntries(catalogue)) {
-    if (!Object.hasOwn(input.measurements, entry.key)) {
+    if (!Object.keys(input.measurements).includes(entry.key)) {
       add(
         'missing-key',
         `/measurements/${pointerSegment(entry.key)}`,

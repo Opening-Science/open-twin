@@ -189,6 +189,12 @@ describe('validateReconciliationConfiguration', () => {
     ]);
   });
 
+  it.each(['resting-heart-rate', 'total-sleep-time'])('rejects a non-enumerable shared key: %s', (key) => {
+    const input = configuration();
+    Object.defineProperty(input.measurements, key, { enumerable: false });
+    expect(errors(input)).toMatchObject([{ code: 'missing-key', path: `/measurements/${key}` }]);
+  });
+
   it.each([
     { key: 'sleep-time', code: 'unknown-key' },
     { key: 'time-in-bed', code: 'non-shared-key' },
