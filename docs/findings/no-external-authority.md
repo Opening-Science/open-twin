@@ -8,10 +8,11 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **83**
+Count: **84**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/catalogue.ts`
+- `packages/aggregate/src/configuration.ts`
 - `packages/aggregate/src/index.ts`
 - `packages/aggregate/src/measure.ts`
 - `packages/aggregate/src/select.ts`

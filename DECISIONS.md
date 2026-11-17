@@ -442,6 +442,39 @@ until it has one. That is the point: an undeclared value is a value no consumer 
 identify without reading the mapper. The existing `aggregate()` still uses the old
 table and reliability grades until reconciliation moves onto the catalogue (#264).
 
+<a id="d19"></a>
+
+## D19 — User-owned source preference configuration
+
+**Decision.** Aggregate generates a version-1 JSON configuration from the measurement
+catalogue, with one `measurements` entry for every key declared by at least two
+registered sources. Each entry has a nonempty `sourcePriority` list, initially in
+connector registration order, and a `missingData` mode, initially `strict`.
+`strict` means only the first source is preferred; `fallback` permits trying the
+listed sources in order when preceding sources have no eligible value. These are
+user preferences, not reliability grades or claims of clinical validity.
+
+The application may reorder or remove sources, choose either mode per key, and
+owns editing and persistence. Validation accepts `ReconciliationConfiguration`
+and retains defensive runtime checks for JSON-loaded data. It requires
+every currently shared key, rejects unknown and non-shared keys, and checks that
+each listed source declares that key. Sources need not all be listed, but may not
+repeat. Unknown fields and unsupported versions are errors, never silently
+discarded or upgraded. Validation neither changes input nor supplies defaults.
+Catalogue changes that invalidate a saved configuration require explicit action
+by the application; adding a supporting source does not require adding it to an
+existing priority list.
+
+**Scope.** Generation and validation require no credentials, network or bundles.
+They do not yet change `aggregate()` selection; runtime reconciliation and
+configuration update operations remain separate work under #264.
+
+**Why.** Consumers must be able to prepare and save preferences before fetching
+data, and distinguish an invalid saved configuration from absent measurements.
+Requiring every shared key makes missing preferences explicit, while allowing
+source subsets lets the user exclude a source rather than having it silently
+restored.
+
 ## Still open — needs a named clinical reviewer
 
 These cannot be settled by research, and they are the root cause of the terminology

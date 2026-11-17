@@ -121,6 +121,67 @@ The catalogue is additive for now: `aggregate()` still groups by the `measureOf`
 table and selects by reliability grade, until reconciliation moves onto the
 catalogue (#264).
 
+## User-owned source preferences
+
+Generate configuration from the catalogue before fetching any data:
+
+```ts
+import {
+  generateReconciliationConfiguration,
+  type ReconciliationConfiguration,
+  validateReconciliationConfiguration
+} from '@open-twin/aggregate';
+
+const configuration = generateReconciliationConfiguration(catalogue);
+// { version: 1, measurements: {
+//   'total-sleep-time': {
+//     sourcePriority: ['oura', 'google-health'], missingData: 'strict'
+//   }, ... } }
+
+const sleep = configuration.measurements['total-sleep-time'];
+if (sleep) {
+  sleep.sourcePriority = ['google-health', 'oura'];
+  sleep.missingData = 'fallback';
+}
+
+// The application owns JSON storage and handles JSON.parse syntax errors.
+const saved = JSON.stringify(configuration);
+const decoded: ReconciliationConfiguration = JSON.parse(saved);
+const result = validateReconciliationConfiguration(decoded, catalogue);
+if (!result.ok) {
+  // Each problem has a stable code, JSON Pointer path, and explanatory message.
+  throw new Error(result.problems.map((problem) => `${problem.path}: ${problem.message}`).join('; '));
+}
+const restored = result.configuration; // typed ReconciliationConfiguration
+```
+
+Only keys declared by at least two registered sources receive entries. Defaults
+list supporting sources in registration order, with the first source preferred
+and `missingData: 'strict'`. Strict preference means using only that first source;
+`fallback` permits trying the remaining listed sources in order when earlier
+sources have no eligible value. These modes describe the configuration contract;
+this API does not yet execute source selection.
+
+Users may reorder or remove sources, but each priority list must remain nonempty
+and contain no duplicates. Every listed source must declare that particular key.
+Every shared key requires an entry; unknown keys and single-source keys are
+errors. Unsupported versions, malformed fields, unknown fields, and invalid modes
+are errors too. Validation accepts `ReconciliationConfiguration`, returns either
+`{ ok: true, configuration }` or `{ ok: false, problems }`, and never mutates
+input, supplies missing defaults, or silently rewrites preferences. A successful
+result is an independent copy. JSON round trips preserve priorities and modes.
+The typed parameter provides compile-time checks for application-authored
+configuration; runtime checks remain because JSON parsing does not verify its type.
+
+Persistence and configuration updates belong to the application. Revalidate
+saved configuration against the current catalogue after registrations change;
+missing or no-longer-shared keys and removed sources are reported explicitly.
+New supporting sources are not silently appended to saved priorities.
+
+These are user preferences, not reliability grades or evidence of clinical
+validity. Like the catalogue, these APIs are additive: `aggregate()` still uses
+its existing reliability-based selection until the remaining #264 work lands.
+
 ## Verification
 
 `src/verification/exampleBundle.ts` emits a two-source bundle — one reconciled
