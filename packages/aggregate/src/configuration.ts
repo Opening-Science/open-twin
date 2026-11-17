@@ -230,6 +230,19 @@ function declarationSignatures(declarations: MeasurementDeclaration[]): string {
   );
 }
 
+function sourceRemovalChange(
+  key: string,
+  connector: string,
+  preference: MeasurementPreference | undefined
+): CatalogueChange {
+  return {
+    code: 'source-removed',
+    key,
+    connector,
+    requiresResolution: preference?.sourcePriority.includes(connector) ?? false
+  };
+}
+
 /**
  * Explicit, offline update preview. Both catalogues must be complete snapshots
  * produced by createMeasurementCatalogue (or their JSON round trips).
@@ -261,12 +274,7 @@ export function updateReconciliationConfiguration(
     if (!nextEntries.has(previous.key)) {
       changes.push({ code: 'measurement-removed', key: previous.key, requiresResolution: previous.shared });
       for (const source of previous.sources) {
-        changes.push({
-          code: 'source-removed',
-          key: previous.key,
-          connector: source.connector,
-          requiresResolution: preferences.get(previous.key)?.sourcePriority.includes(source.connector) ?? false
-        });
+        changes.push(sourceRemovalChange(previous.key, source.connector, preferences.get(previous.key)));
       }
     }
   }
@@ -291,12 +299,7 @@ export function updateReconciliationConfiguration(
     const newSources = new Set(next.sources.map((source) => source.connector));
     for (const source of previous?.sources ?? []) {
       if (!newSources.has(source.connector)) {
-        changes.push({
-          code: 'source-removed',
-          key: next.key,
-          connector: source.connector,
-          requiresResolution: preference?.sourcePriority.includes(source.connector) ?? false
-        });
+        changes.push(sourceRemovalChange(next.key, source.connector, preference));
       }
     }
     for (const source of next.sources) {

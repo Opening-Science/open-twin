@@ -1,10 +1,4 @@
-import {
-  declareMeasurement,
-  MEASUREMENT_SCHEMA_VERSION,
-  type MeasurementDeclaration,
-  type MeasurementDeclarationSet,
-  SYSTEMS
-} from '@open-twin/fhir-core';
+import { declareMeasurement, SYSTEMS } from '@open-twin/fhir-core';
 import { describe, expect, it } from 'vitest';
 import {
   createMeasurementCatalogue,
@@ -14,21 +8,11 @@ import {
   updateReconciliationConfiguration,
   validateReconciliationConfiguration
 } from '../index';
+import { registration } from './configuration-fixtures';
 
 const sleep = declareMeasurement('total-sleep-time', { system: SYSTEMS.LOINC, code: '93832-4' });
 const heartRate = declareMeasurement('resting-heart-rate', { system: SYSTEMS.LOINC, code: '40443-4' });
 const timeInBed = declareMeasurement('time-in-bed', { system: SYSTEMS.LOINC, code: '103213-5' });
-
-function registration(connector: string, declarations: MeasurementDeclaration[]): MeasurementDeclarationSet {
-  return {
-    schemaVersion: MEASUREMENT_SCHEMA_VERSION,
-    connector,
-    version: 1,
-    coverage: 'complete',
-    definitions: [],
-    declarations
-  };
-}
 
 const a = registration('source-a', [sleep, heartRate]);
 const b = registration('source-b', [sleep, heartRate]);
