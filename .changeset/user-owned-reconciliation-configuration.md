@@ -1,6 +1,6 @@
 ---
-
-## "@open-twin/aggregate": minor
+"@open-twin/aggregate": minor
+---
 
 Add a versioned, JSON-serializable source preference configuration with offline
 generation from the measurement catalogue and runtime validation of saved input.
