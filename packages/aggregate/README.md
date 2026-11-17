@@ -166,6 +166,11 @@ ineligible, including their components, with `unusable-status`. Preliminary and
 unknown statuses are not excluded solely for their status: eligibility is not
 confirmation that a result is final or verified.
 
+Ranges, ratios and sampled-data origins must be unitless. The declaration schema
+cannot describe their nested units yet, so any `unit`, `system` or `code` on those
+nested quantities makes the reading ineligible with `unit-mismatch`, even when
+both range bounds use the same unit. No unit compatibility or conversion is inferred.
+
 Value checks also reject out-of-range/fractional integers, reversed ranges,
 incompatible range-bound units, zero ratio denominators and malformed temporal or
 sampled-data values. Sampled data needs a finite origin, positive sampling period,

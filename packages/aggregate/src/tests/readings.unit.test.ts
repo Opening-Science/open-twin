@@ -515,7 +515,11 @@ describe('instant readings and non-quantity values', () => {
   const AT = '2026-06-20T12:00:00.0001Z';
   const key = 'alpha:synthetic-value';
 
-  function resolveType(valueType: MeasurementDefinition['valueType'], values: Partial<Observation>) {
+  function resolveType(
+    valueType: MeasurementDefinition['valueType'],
+    values: Partial<Observation>,
+    location: 'observation' | 'component' = 'observation'
+  ) {
     const definition: MeasurementDefinition = {
       key,
       description: 'Synthetic test value.',
@@ -525,13 +529,20 @@ describe('instant readings and non-quantity values', () => {
     const set: MeasurementDeclarationSet = {
       ...registration('alpha'),
       definitions: [definition],
-      declarations: [declareMeasurement(definition, ASLEEP)]
+      declarations: [declareMeasurement(definition, ASLEEP, location === 'component' ? PANEL : undefined)]
     };
     return resolveReadings({
       catalogue: createMeasurementCatalogue([set]),
       sources: [
         source([
-          observation({ effectivePeriod: undefined, effectiveDateTime: AT, valueQuantity: undefined, ...values })
+          observation({
+            effectivePeriod: undefined,
+            effectiveDateTime: AT,
+            valueQuantity: undefined,
+            ...(location === 'component'
+              ? { code: { coding: [PANEL] }, component: [{ code: { coding: [ASLEEP] }, ...values }] }
+              : values)
+          })
         ])
       ],
       request: { key, subject: SUBJECT, context: { scope: 'reading' }, window: { kind: 'instant', at: AT } }
@@ -677,6 +688,40 @@ describe('instant readings and non-quantity values', () => {
   });
 
   const SAMPLED = { origin: { value: 0 }, period: 1, dimensions: 1, data: '0' };
+
+  it.each([
+    { system: SYSTEMS.UCUM, code: 'cm' },
+    { system: SYSTEMS.UCUM, code: 'm' },
+    { unit: 'centimeters' },
+    { system: SYSTEMS.UCUM },
+    { code: 'cm' }
+  ])('rejects undeclared nested units at both value locations: %j', (unit) => {
+    const quantity = { value: 1, ...unit };
+    const cases: [MeasurementDefinition['valueType'], Partial<Observation>][] = [
+      ['range', { valueRange: { low: quantity, high: { ...quantity, value: 2 } } }],
+      ['range', { valueRange: { low: quantity } }],
+      ['range', { valueRange: { high: quantity } }],
+      ['ratio', { valueRatio: { numerator: quantity, denominator: { value: 1 } } }],
+      ['ratio', { valueRatio: { numerator: { value: 1 }, denominator: quantity } }],
+      ['sampled-data', { valueSampledData: { ...SAMPLED, origin: quantity } }]
+    ];
+    for (const location of ['observation', 'component'] as const) {
+      for (const [type, values] of cases) {
+        expect(resolveType(type, values, location)).toEqual({ kind: 'ineligible', reasons: ['unit-mismatch'] });
+      }
+    }
+  });
+
+  it('preserves unitless complex values in components', () => {
+    const cases: [MeasurementDefinition['valueType'], Partial<Observation>][] = [
+      ['range', { valueRange: { low: { value: 0 }, high: { value: 1 } } }],
+      ['ratio', { valueRatio: { numerator: { value: 0 }, denominator: { value: 1 } } }],
+      ['sampled-data', { valueSampledData: SAMPLED }]
+    ];
+    for (const [type, values] of cases) {
+      expect(resolveType(type, values, 'component')).toEqual({ kind: 'eligible' });
+    }
+  });
 
   it.each([
     { period: 0 },

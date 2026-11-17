@@ -447,6 +447,8 @@ complete instants or period boundaries (timezone-normalized, retaining fractiona
 seconds); summaries require complete periods. Date-only markers, open periods and
 overlap alone cannot establish comparability. This is intentionally conservative:
 there is no inferred day boundary, patient matching, unit conversion or time tolerance.
+Until declarations can express nested units, ranges, ratios and sampled-data origins
+carrying any unit metadata are ineligible; unitless complex values remain supported.
 
 ## Still open — needs a named clinical reviewer
 

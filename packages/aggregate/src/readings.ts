@@ -120,6 +120,10 @@ function finite(value: number | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
+function hasUnit(value: Quantity | undefined): boolean {
+  return value !== undefined && (value.code !== undefined || value.system !== undefined || value.unit !== undefined);
+}
+
 function quantityProblem(value: Quantity): ReadingIneligibility | undefined {
   if (value.value === undefined) return 'missing-value';
   return finite(value.value) && value.comparator === undefined ? undefined : 'invalid-value';
@@ -276,9 +280,21 @@ function assess(reading: ResolvedReading, request: ReadingRequest, requestedWind
       const correctUnit =
         declaration.unit === definition.canonicalUnit &&
         (declaration.unit === undefined
-          ? quantity.code === undefined && quantity.system === undefined && quantity.unit === undefined
+          ? !hasUnit(quantity)
           : quantity.system === SYSTEMS.UCUM && quantity.code === declaration.unit);
       if (!correctUnit) reasons.push('unit-mismatch');
+    } else if (
+      [
+        element.valueRange?.low,
+        element.valueRange?.high,
+        element.valueRatio?.numerator,
+        element.valueRatio?.denominator,
+        element.valueSampledData?.origin
+      ].some(hasUnit) &&
+      !reasons.includes('unit-mismatch')
+    ) {
+      // Declarations cannot describe units nested in complex value types.
+      reasons.push('unit-mismatch');
     }
   }
 
