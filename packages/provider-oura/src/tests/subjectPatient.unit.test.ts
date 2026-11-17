@@ -1,4 +1,4 @@
-import type { Patient } from 'fhir/r4';
+import type { Patient } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import type { RequestParams } from '../api/schemas/client';
 import { buildOuraBundle } from '../fhir/bundleBuilder';

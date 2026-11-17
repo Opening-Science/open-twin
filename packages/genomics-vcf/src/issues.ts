@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import { ConnectorError, type ConnectorErrorCode, toOperationOutcome } from '@open-twin/fhir-core';
-import type { OperationOutcome } from 'fhir/r4';
+import type { OperationOutcome } from 'fhir/r4.js';
 
 export const CONNECTOR = 'genomics-vcf';
 

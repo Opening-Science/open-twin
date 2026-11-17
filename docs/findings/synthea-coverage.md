@@ -7,6 +7,7 @@ Source of stock scan: `synthetichealth/synthea` modules under
 `system` is `LOINC` or `http://loinc.org`.
 
 Provenance:
+
 - **Synthea revision:** `7e08387c68a7f0e21d13076609a159fd473fc902` (2026-07-22, `master` tip at scan)
 - **Scan date:** 2026-08-02
 - **Command:** sparse-clone modules, then walk every `*.json` under
@@ -72,7 +73,6 @@ Blocker kinds (still status=`cannot` — not P7 module work):
 - **BM-197** LH (`10501-5`): No stock LH; cycle-phase–dependent. Same missing Anchor-compatible phase binding as estradiol
 - **BM-311** Progesteron (`14890-8`): No stock serum progesterone Observation (breast_cancer module only has tissue receptor IHC, not serum levels); serum emission without a validated Anchor-compatible phase binding has the same honesty problem as estradiol/FSH/LH
 - **BM-405** Phytonadione / Vitamin K (`58793-1`): LOINC 58793-1 is [Moles/volume] but Anchor unit is mass (ng/l); D11
-
 
 ## Consumer intersection (P7 scope)
 

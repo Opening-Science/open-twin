@@ -12,11 +12,15 @@ package. Host-side scan cycle tooling lives outside this repository
 
 ## Installation
 
-Install the package via npm:
+After the package's first release, install it via npm:
 
 ```bash
 npm install @open-twin/provider-vitronic
 ```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
 
 ### Setup & Prerequisites
 
@@ -102,6 +106,18 @@ Measurement paths are published as codes in the Foundation-controlled CodeSystem
 `http://opentwin.ch/fhir/CodeSystem/vitronic`. No LOINC or SNOMED CT code is
 asserted for a BodyLoop measurement: no reviewed mapping table exists yet, and a
 wrong standard code is unrecoverable where a vendor-local one is not.
+
+### Measurement declarations
+
+`VITRONIC_MEASUREMENTS` (D18) declares what the connector emits: every measurement
+path in the recorded 0.13.7 payload (angles, axes, cross-section, distances and
+the markers they reference) with each component, plus the five D15 property paths.
+Every key is connector-owned (`vitronic:…`).
+
+Coverage is `open`. The codes are scanner-chosen paths, and the API documents no
+closed list. A path outside the recorded set is emitted without a declaration,
+because a declaration would be a guess. No `height_path` is recorded, so height
+Observations are never declared.
 
 ## Disclaimer
 

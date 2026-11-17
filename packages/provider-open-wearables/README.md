@@ -17,6 +17,18 @@ mobile SDKs and this package maps what comes out.
 
 ---
 
+## Installation
+
+After the package's first npm release:
+
+```bash
+npm install @open-twin/open-wearables
+```
+
+Compatible shared core is installed automatically, not embedded; other connectors
+are not installed. This package is versioned independently.
+See [publishing](../../docs/PUBLISHING.md).
+
 ## Read this before using it
 
 **Nothing in this package has been verified against a running Open Wearables
@@ -143,6 +155,20 @@ matching `Patient` carrying an identifier and nothing else (D1).
 
 Pass `type: 'transaction'` for a bundle whose entries carry `PUT Observation/<id>`,
 if your server upserts.
+
+## Measurement declarations
+
+`OPEN_WEARABLES_MEASUREMENTS` (D18) declares every Observation and component this
+connector can emit: one declaration per `SERIES_MAP` measure (sample and daily
+total), plus the sleep and workout Observations and their components. Coverage is
+`complete`. `src/tests/measurements.unit.test.ts` audits it against bundles built by
+the real mappers from the fixtures and fails on any undeclared or unexercised value.
+
+Three Observations carry a vendor-local coding so that they can be told apart:
+`heart_rate` (`heart-rate`) shares LOINC 8867-4 with `resting_heart_rate`, and
+`exercise_time` (`exercise-time`) shares LOINC 55411-3 with every workout
+(`workout-duration`). Declarations identify those by the local coding, never by the
+shared LOINC one.
 
 ## Verification
 

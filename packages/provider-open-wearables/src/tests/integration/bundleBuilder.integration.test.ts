@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Device, Observation, Patient } from 'fhir/r4';
+import type { Device, Observation, Patient } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { CONNECTOR } from '../../config/constants';
 import { buildOpenWearablesBundle } from '../../fhir/bundleBuilder';

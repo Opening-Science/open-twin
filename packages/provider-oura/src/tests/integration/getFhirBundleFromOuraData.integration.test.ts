@@ -1,5 +1,5 @@
 import { patientUuid, SYSTEMS } from '@open-twin/fhir-core';
-import type { Observation, Patient } from 'fhir/r4';
+import type { Observation, Patient } from 'fhir/r4.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { OuraRingAppConfig } from '../../config/config';
 import { getFhirBundleFromOuraData } from '../../index';

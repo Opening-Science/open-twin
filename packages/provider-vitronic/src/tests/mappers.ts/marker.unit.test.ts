@@ -1,4 +1,4 @@
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import type { Marker } from '../../api/schemas/marker';
 import { mapMarkerListToFHIR, mapMarkerToFHIR } from '../../fhir/mappers/marker';

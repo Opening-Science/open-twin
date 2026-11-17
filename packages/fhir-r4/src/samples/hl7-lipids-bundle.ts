@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: golden fixture (HL7 published R4 examples).
  */
-import type { Bundle, FhirResource } from 'fhir/r4';
+import type { Bundle, FhirResource } from 'fhir/r4.js';
 
 /**
  * HL7's lipid report example, verbatim: a collection Bundle carrying a

@@ -17,7 +17,7 @@ import {
   SYSTEMS,
   type UcumUnit
 } from '@open-twin/fhir-core';
-import type { CodeableConcept, Extension, Identifier, Observation, Period, Quantity, Reference } from 'fhir/r4';
+import type { CodeableConcept, Extension, Identifier, Observation, Period, Quantity, Reference } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 
 // This file used to re-export part of `@open-twin/fhir-core` so mappers could import

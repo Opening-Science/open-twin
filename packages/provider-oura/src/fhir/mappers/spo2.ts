@@ -12,7 +12,7 @@ import {
   optionalNumericComponent,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { OuraSpo2List } from '../../api/schemas/spo2';
 import {
   localNumericComponent,

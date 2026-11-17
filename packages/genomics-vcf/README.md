@@ -3,6 +3,15 @@
 Turns a VCF file into FHIR R4 `Observation` resources conforming to the **Variant**
 profile of the [HL7 Genomics Reporting Implementation Guide][ig] (STU3, v3.0.0).
 
+After the package's first npm release:
+
+```bash
+npm install @open-twin/genomics-vcf
+```
+
+Compatible shared core is installed automatically, not embedded. This package is
+versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ```ts
 import { vcfToFhirBundle } from '@open-twin/genomics-vcf';
 
@@ -121,6 +130,16 @@ A VCF with **no sample columns** names no individual, and the connector refuses 
 convert it without an explicit `subject` rather than inventing one.
 
 ---
+
+## Measurement declarations
+
+`GENOMICS_VCF_MEASUREMENTS` (DECISIONS.md#d18) has `complete` coverage: the Variant
+Observation and each of its ten component slices are declared under
+`genomics-vcf:`-owned keys (`genomics-vcf:variant`, `genomics-vcf:variant.ref-allele`,
+…), because every Observation and component code is fixed by the IG and lives in
+`terminology.ts`. Values from the VCF — rsIDs, chromosome, assembly — are component
+values, never codes. `src/tests/measurements.unit.test.ts` audits real conversions
+and requires every declaration to be exercised.
 
 ## What it does NOT do
 

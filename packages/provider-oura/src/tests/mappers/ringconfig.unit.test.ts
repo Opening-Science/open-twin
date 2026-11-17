@@ -1,5 +1,5 @@
 import { SYSTEMS } from '@open-twin/fhir-core';
-import type { Device, Observation } from 'fhir/r4';
+import type { Device, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import type { OuraRingConfigItem, OuraRingConfigResponseList } from '../../api/schemas/ringconfig';
 import { mapOuraRingConfigToFHIR } from '../../fhir/mappers/ringconfig';
