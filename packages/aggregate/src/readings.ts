@@ -200,6 +200,8 @@ function sampledDataProblem(value: SampledData): ReadingIneligibility | undefine
   const decimal = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?$/;
   if (
     samples.length % value.dimensions !== 0 ||
+    (samples.includes('L') && value.lowerLimit === undefined) ||
+    (samples.includes('U') && value.upperLimit === undefined) ||
     samples.some(
       (sample) => !['E', 'L', 'U'].includes(sample) && !(decimal.test(sample) && Number.isFinite(Number(sample)))
     )

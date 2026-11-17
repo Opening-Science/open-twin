@@ -736,6 +736,10 @@ describe('instant readings and non-quantity values', () => {
     { data: 'Infinity' },
     { data: '0  1' },
     { data: '0\t1' },
+    { data: '0 L' },
+    { data: '0 U' },
+    { data: '0 L', upperLimit: 1 },
+    { data: '0 U', lowerLimit: -1 },
     { factor: Number.POSITIVE_INFINITY },
     { lowerLimit: 2, upperLimit: 1 }
   ])('rejects invalid sampled-data parameters: %j', (overrides) => {
@@ -761,8 +765,19 @@ describe('instant readings and non-quantity values', () => {
     ).toEqual({ kind: 'eligible' });
   });
 
+  it.each([
+    { data: '0 L', lowerLimit: 0 },
+    { data: '0 U', upperLimit: 0 }
+  ])('accepts a zero detection limit for the corresponding sample token: %j', (overrides) => {
+    expect(resolveType('sampled-data', { valueSampledData: { ...SAMPLED, ...overrides } })).toEqual({
+      kind: 'eligible'
+    });
+  });
+
   it.each(['', 'E E', 'L U'])('requires usable numeric sample data, not only %j', (data) => {
-    expect(resolveType('sampled-data', { valueSampledData: { ...SAMPLED, data } })).toEqual({
+    expect(
+      resolveType('sampled-data', { valueSampledData: { ...SAMPLED, lowerLimit: -1, upperLimit: 1, data } })
+    ).toEqual({
       kind: 'ineligible',
       reasons: ['missing-value']
     });
