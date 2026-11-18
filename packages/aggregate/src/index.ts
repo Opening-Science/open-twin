@@ -16,5 +16,15 @@ export {
   registrationProblems,
   sharedCatalogueEntries
 } from './catalogue';
+export {
+  type ConfigurationProblem,
+  type ConfigurationValidationResult,
+  generateReconciliationConfiguration,
+  type MeasurementPreference,
+  type MissingDataMode,
+  RECONCILIATION_CONFIGURATION_VERSION,
+  type ReconciliationConfiguration,
+  validateReconciliationConfiguration
+} from './configuration';
 export { effectiveDay, type Measure, measureOf, occasionKey } from './measure';
 export { type Candidate, type Selection, selectSource } from './select';

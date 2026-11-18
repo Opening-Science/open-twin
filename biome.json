@@ -124,6 +124,12 @@
   },
   "overrides": [
     {
+      "includes": [".changeset/*.md"],
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": ["**/*.d.ts"],
       "linter": {
         "rules": {
