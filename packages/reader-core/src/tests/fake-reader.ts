@@ -7,7 +7,7 @@ import {
   quantity,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { z } from 'zod';
 import { HealthDataReader } from '../base';
 import type { Issue, ReaderDescriptor, ReaderInput, ReaderMetadata, ReadRequest, ReadResult } from '../types';

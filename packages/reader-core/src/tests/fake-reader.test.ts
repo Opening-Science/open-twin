@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_NOW, describeReaderConformance } from '../testing/conformance';
 import { type ExpectedSummary, summarise } from '../testing/expected';
