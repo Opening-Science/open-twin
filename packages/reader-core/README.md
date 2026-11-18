@@ -27,7 +27,7 @@ every connector. It is versioned independently; see [publishing](../../docs/PUBL
 | `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result                |
 | `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                                         |
 | `base.ts`   | `HealthDataReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores                            |
-| `utils/`    | `fileText`, `fileJson`, `issueFromOperationOutcome`, `withConnectorTag`, `Parser`, `subjectIdentifierSystem` |
+| `utils/`    | `fileText`, `fileJson`, `issueFromOperationOutcome`, `Parser`, `subjectIdentifierSystem` |
 | `testing/`  | `describeReaderConformance`, `summarise`, the rule checks                                                    |
 | Module      | Purpose                                                                                       |
 | ----------- | --------------------------------------------------------------------------------------------- |
