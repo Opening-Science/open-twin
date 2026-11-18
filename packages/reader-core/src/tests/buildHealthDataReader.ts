@@ -1,7 +1,6 @@
 import { buildBundle } from '@open-twin/fhir-core';
 import { HealthDataReader } from '../base';
 import type { HostServices, ReaderDescriptor, ReaderInput, ReaderMetadata, ReadRequest, ReadResult } from '../types';
-import { withConnectorTag } from '../utils/connectorTag';
 import type { Parser } from '../utils/parser';
 
 export const PROBE_DESCRIPTOR: ReaderDescriptor = {
@@ -65,15 +64,12 @@ class ProbeReader extends HealthDataReader {
 
     const payload = await this.fetchJson(this.config.url, Payload, 'GET probe');
     const subject = this.subjectFor(request);
-    const bundle = withConnectorTag(
-      buildBundle({
-        connector: this.connector,
-        resources: subject.patient ? [subject.patient] : [],
-        timestamp: this.now(),
-        bundleKey: this.bundleKeyFor(request)
-      }),
-      this.connector
-    );
+    const bundle = buildBundle({
+      connector: this.connector,
+      resources: subject.patient ? [subject.patient] : [],
+      timestamp: this.now(),
+      bundleKey: this.bundleKeyFor(request)
+    });
     const issues = payload.ok ? [] : [this.issue('warning', 'not-ok', 'The probe payload was not ok.')];
     this.cursor = request.window?.end ?? this.cursor;
     return { bundle, issues, cursor: this.cursor, provenance: this.provenanceFor(bundle) };
