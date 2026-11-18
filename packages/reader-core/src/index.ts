@@ -7,7 +7,6 @@
 export * from './base';
 export * from './reader';
 export * from './types';
-export * from './utils/connectorTag';
 export * from './utils/fileInput';
 export * from './utils/operationOutcome';
 export * from './utils/parser';

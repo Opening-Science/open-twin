@@ -108,4 +108,33 @@ describe('buildBundle', () => {
     });
     expect(bundle.entry?.every((entry) => entry.resource?.resourceType !== 'Bundle')).toBe(true);
   });
+  describe('connector tag on each entry', () => {
+    const tag = { system: CONNECTOR_TAG_SYSTEM, code: 'oura', version: '0.1.0' };
+    const other = { system: 'urn:other', code: 'x' };
+    const tagged = (meta?: Observation['meta']) =>
+      buildBundle({
+        connector: CONNECTOR,
+        resources: [{ ...observation('a'), ...(meta ? { meta } : {}) }],
+        timestamp: TIMESTAMP,
+        bundleKey: 'k'
+      }).entry?.[0]?.resource?.meta;
+
+    it('tags a resource that had no meta', () => {
+      expect(tagged()?.tag).toEqual([tag]);
+    });
+
+    it('keeps other tags and the rest of meta', () => {
+      expect(tagged({ tag: [other], profile: ['urn:p'] })).toEqual({ tag: [other, tag], profile: ['urn:p'] });
+    });
+
+    it('replaces a stale tag of its own connector', () => {
+      expect(tagged({ tag: [{ ...tag, version: '0.0.1' }] })?.tag).toEqual([tag]);
+    });
+
+    it('leaves the input resource alone', () => {
+      const input = observation('a');
+      buildBundle({ connector: CONNECTOR, resources: [input], timestamp: TIMESTAMP, bundleKey: 'k' });
+      expect(input.meta).toBeUndefined();
+    });
+  });
 });

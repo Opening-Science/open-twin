@@ -33,6 +33,8 @@ under [Releases](Contributing.md#releases).
 
 ### Changed
 
+- `@open-twin/fhir-core`: `buildBundle` puts the connector tag on every entry, not
+  only the Bundle, so each resource stays traceable on its own (#238).
 - Public packages can be released and versioned independently with Changesets.
   Shared core remains a regular compatible dependency; packed artifacts are
   checked in clean external npm consumers (#265).
