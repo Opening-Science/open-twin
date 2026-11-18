@@ -239,7 +239,9 @@ log: {type: stdout, format: json, level: warn}
       const consumer = join(workspace, `consumer-${name.split('/')[1]}`);
       mkdirSync(consumer);
       writeFileSync(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
-      command('npm', ['install', `${name}@${version}`, '--no-audit', '--no-fund'], consumer, env);
+      // Subpath exports may need an optional peer, such as vitest for reader-core/testing.
+      const peers = Object.entries(artifact.manifest.peerDependencies ?? {}).map(([peer, range]) => `${peer}@${range}`);
+      command('npm', ['install', `${name}@${version}`, ...peers, '--no-audit', '--no-fund'], consumer, env);
       const imports = artifact.imports
         .map((specifier, index) => `import * as p${index} from ${JSON.stringify(specifier)};\nvoid p${index};`)
         .join('\n');
