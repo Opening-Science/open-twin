@@ -1,5 +1,5 @@
 /**
- * WHAT: Builds FHIR Bundles with lowercase urn:uuid fullUrls and connector provenance tags.
+ * WHAT: Builds FHIR Bundles with lowercase urn:uuid fullUrls and the connector provenance tag on the Bundle and every entry.
  * NOT:  Must not perform clinical selection across sources; aggregate owns reconciliation.
 GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator (CI fhir-validate over emitted bundles).
@@ -30,6 +30,13 @@ export function connectorMeta(connector: ConnectorVersion, profiles?: string[]):
   };
   if (profiles?.length) meta.profile = profiles;
   return meta;
+}
+
+function withConnectorTag(meta: Meta | undefined, connector: ConnectorVersion): Meta {
+  const others = (meta?.tag ?? []).filter(
+    (tag) => !(tag.system === CONNECTOR_TAG_SYSTEM && tag.code === connector.connector)
+  );
+  return { ...meta, tag: [...others, ...(connectorMeta(connector).tag ?? [])] };
 }
 
 export interface BuildBundleOptions {
@@ -69,7 +76,7 @@ export function buildBundle(options: BuildBundleOptions): Bundle {
     const id = canonicalId(resource, options.bundleKey);
     const entry: BundleEntry = {
       fullUrl: `urn:uuid:${id}`,
-      resource: { ...resource, id }
+      resource: { ...resource, id, meta: withConnectorTag(resource.meta, options.connector) } as FhirResource
     };
     if (type === 'transaction') {
       entry.request = { method: 'PUT', url: `${resource.resourceType}/${id}` };

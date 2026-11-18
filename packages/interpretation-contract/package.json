@@ -33,6 +33,11 @@
     "ajv-formats": "3.0.1"
   },
   "devDependencies": {
+    "@open-twin/open-wearables": "workspace:*",
+    "@open-twin/provider-google-health": "workspace:*",
+    "@open-twin/provider-oura": "workspace:*",
+    "@open-twin/provider-vitronic": "workspace:*",
+    "@open-twin/provider-whoop": "workspace:*",
     "@types/node": "26.6.6",
     "json-schema-to-typescript": "16.0.0",
     "tsup": "9.0.0",

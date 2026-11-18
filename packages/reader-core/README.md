@@ -29,6 +29,12 @@ every connector. It is versioned independently; see [publishing](../../docs/PUBL
 | `base.ts`   | `HealthDataReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores                            |
 | `utils/`    | `fileText`, `fileJson`, `issueFromOperationOutcome`, `withConnectorTag`, `Parser`, `subjectIdentifierSystem` |
 | `testing/`  | `describeReaderConformance`, `summarise`, the rule checks                                                    |
+| Module      | Purpose                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| `types.ts`  | Descriptor, metadata, host services with `TokenStore` and `CursorStore` (D8), request, result |
+| `reader.ts` | `IHealthDataReader`, `ReaderWrapper`                                                          |
+| `base.ts`   | `HealthDataReader`: lifecycle, subject (D1), bundle key (D2), `fetchJson`, stores             |
+| `utils/`    | `fileText`, `fileJson`, `issueFromOperationOutcome`, `Parser`, `subjectIdentifierSystem`      |
 
 `OAuthReader`, wrappers and the CLI follow in their own pull requests.
 
