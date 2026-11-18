@@ -1,7 +1,6 @@
 import {
   buildBundle,
   CATEGORY,
-  connectorMeta,
   createObservation,
   dataAbsentReason,
   deterministicId,
@@ -117,7 +116,7 @@ export class FakeStepsReader extends HealthDataReader {
 
     if (!file || !input) throw this.fail('read called before open', 'validation', 'read');
 
-    const { id, version } = this.descriptor;
+    const { id } = this.descriptor;
     const subject = this.subjectFor(request);
     const subjectReference = this.defect === 'wrong-subject' ? { reference: 'Patient/example' } : subject.reference;
     const issues: Issue[] = [];
@@ -143,8 +142,7 @@ export class FakeStepsReader extends HealthDataReader {
         subject: subjectReference,
         effectiveDateTime: day.date,
         valueQuantity,
-        dataAbsentReason: valueQuantity ? undefined : dataAbsentReason('unknown'),
-        meta: this.defect === 'drops-meta-tag' ? undefined : connectorMeta({ connector: id, version })
+        dataAbsentReason: valueQuantity ? undefined : dataAbsentReason('unknown')
       });
       observations.push(
         this.defect === 'no-status' ? ({ ...observation, status: undefined } as unknown as Observation) : observation
@@ -187,6 +185,12 @@ export class FakeStepsReader extends HealthDataReader {
       timestamp: this.now(),
       bundleKey
     });
+
+    if (this.defect === 'drops-meta-tag') {
+      for (const entry of bundle.entry ?? []) {
+        if (entry.resource?.resourceType === 'Observation') entry.resource.meta = undefined;
+      }
+    }
 
     if (this.defect === 'non-uuid-id') {
       for (const [index, entry] of (bundle.entry ?? []).entries()) {
