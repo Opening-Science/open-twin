@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
 import { type CodingInput, codeableConcept, deterministicId, SYSTEMS } from '@open-twin/fhir-core';
-import type { Identifier, Observation, Reference } from 'fhir/r4';
+import type { Identifier, Observation, Reference } from 'fhir/r4.js';
 
 /** Identifies the connector and the release that produced a bundle (`connectorMeta`). */
 export const CONNECTOR = { connector: 'oura', version: '0.1.0' };

@@ -13,7 +13,7 @@ import {
   subjectReference,
   UCUM
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Patient } from 'fhir/r4';
+import type { Bundle, FhirResource, Patient } from 'fhir/r4.js';
 import { aggregateBundle } from '../packages/aggregate/src/verification/exampleBundle';
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';

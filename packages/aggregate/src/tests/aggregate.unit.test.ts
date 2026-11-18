@@ -8,7 +8,7 @@ import {
   UCUM,
   type UcumUnit
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { aggregate } from '../aggregate';
 

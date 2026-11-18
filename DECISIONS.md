@@ -440,7 +440,74 @@ the same bare LOINC code at the same location, which no declaration could separa
 **Trade-off.** Every new mapper field needs a declaration, and the audit test fails
 until it has one. That is the point: an undeclared value is a value no consumer can
 identify without reading the mapper. The existing `aggregate()` still uses the old
-table and reliability grades until reconciliation moves onto the catalogue (#264).
+table and reliability grades until reconciliation moves onto the catalogue (#264). The declaration-driven runtime
+API `resolveReadings` checks values against an explicit key, context, subject reference
+and time window without selecting a source. Time compatibility requires identical
+complete instants or period boundaries (timezone-normalized, retaining fractional
+seconds); summaries require complete periods. Date-only markers, open periods and
+overlap alone cannot establish comparability. This is intentionally conservative:
+there is no inferred day boundary, patient matching, unit conversion or time tolerance.
+Until declarations can express nested units, ranges, ratios and sampled-data origins
+carrying any unit metadata are ineligible; unitless complex values remain supported.
+
+<a id="d19"></a>
+
+## D19 — User-owned source preference configuration
+
+**Decision.** Aggregate generates a version-1 JSON configuration from the measurement
+catalogue, with one `measurements` entry for every key declared by at least two
+registered sources. Each entry has a nonempty `sourcePriority` list, initially in
+connector registration order, and a `missingData` mode, initially `strict`.
+`strict` means only the first source is preferred; `fallback` permits trying the
+listed sources in order when preceding sources have no eligible value. These are
+user preferences, not reliability grades or claims of clinical validity.
+
+The application may reorder or remove sources, choose either mode per key, and
+owns editing and persistence. Validation accepts `ReconciliationConfiguration`
+and retains defensive runtime checks for JSON-loaded data. It requires
+every currently shared key, rejects unknown and non-shared keys, and checks that
+each listed source declares that key. Sources need not all be listed, but may not
+repeat. Unknown fields and unsupported versions are errors, never silently
+discarded or upgraded. Validation neither changes input nor supplies defaults.
+Validation never appends supporting sources. Catalogue changes that invalidate a
+saved configuration require explicit action by the application.
+
+The explicit `updateReconciliationConfiguration` operation takes saved preferences
+and complete previous/next catalogue snapshots. The previous snapshot must be
+persisted with the preferences: version numbers alone cannot reconstruct changed
+definitions or distinguish user exclusions from newly available sources. The
+baseline configuration must validate before an update can be proposed.
+
+Updates preserve priorities, exclusions and modes, append only genuinely new
+supporting sources in next registration order, and default newly shared keys to
+strict. New unique keys get no entry. The result contains an independent proposal,
+a change report, conflicts requiring explicit resolution, and validation problems.
+Removed configured measurements, shared-to-unique transitions and removed listed
+sources block the proposal without dropping preferences or promoting a source.
+Removed excluded sources and unique measurements are reported without blocking.
+Every removed supporting source is reported per key, even if the whole key is gone.
+
+Definition changes, including description edits, and changes to an existing
+source/key's declaration set conservatively require review, including for unique
+keys and excluded sources. Compare actual content, not version numbers, ignoring
+declaration/property order. Catalogue schema changes block interpretation; version
+bumps alone do not make unchanged definitions/declarations incompatible.
+Callers must explicitly resolve structural conflicts and validate the edited
+proposal, and separately review/accept or migrate semantic conflicts. Structural
+validation cannot establish semantic compatibility. No API auto-accepts conflicts.
+An invalid baseline returns no proposal; other blocked updates retain one for
+review and editing. Neither the old inputs nor stored preferences are mutated.
+
+**Scope.** Generation, validation and updates require no credentials, network or
+bundles and write no files. They do not yet change `aggregate()` selection; runtime
+reconciliation remains separate work under #264 and never silently updates
+configuration.
+
+**Why.** Consumers must be able to prepare and save preferences before fetching
+data, and distinguish an invalid saved configuration from absent measurements.
+Requiring every shared key makes missing preferences explicit, while allowing
+source subsets lets the user exclude a source rather than having it silently
+restored.
 
 <a id="d20"></a>
 

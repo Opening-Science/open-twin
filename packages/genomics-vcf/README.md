@@ -3,6 +3,15 @@
 Turns a VCF file into FHIR R4 `Observation` resources conforming to the **Variant**
 profile of the [HL7 Genomics Reporting Implementation Guide][ig] (STU3, v3.0.0).
 
+After the package's first npm release:
+
+```bash
+npm install @open-twin/genomics-vcf
+```
+
+Compatible shared core is installed automatically, not embedded. This package is
+versioned independently; see [publishing](../../docs/PUBLISHING.md).
+
 ```ts
 import { vcfToFhirBundle } from '@open-twin/genomics-vcf';
 

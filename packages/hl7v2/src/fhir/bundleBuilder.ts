@@ -11,7 +11,7 @@ import {
   subjectReference,
   toOperationOutcome
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, OperationOutcome, Reference } from 'fhir/r4';
+import type { Bundle, FhirResource, OperationOutcome, Reference } from 'fhir/r4.js';
 import { CONNECTOR, IssueLog } from '../issues';
 import type { DatatypeContext } from '../v2/datatypes';
 import { v2Instant } from '../v2/datetime';

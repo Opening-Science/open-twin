@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: UCUM grammar via @lhncbc/ucum-lhc.
  */
 import { LOINC_UNITS, quantity, SYSTEMS } from '@open-twin/fhir-core';
-import type { Quantity } from 'fhir/r4';
+import type { Quantity } from 'fhir/r4.js';
 import { convertUcum, isValidUcum } from './ucum';
 
 /**

@@ -1,5 +1,5 @@
 import { CONNECTOR_TAG_SYSTEM, patientUuid } from '@open-twin/fhir-core';
-import type { Bundle, Observation } from 'fhir/r4';
+import type { Bundle, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { normaliseBundle } from '../normalise/normalise';
 import { HL7_LIPIDS_BUNDLE } from '../samples/hl7-lipids-bundle';

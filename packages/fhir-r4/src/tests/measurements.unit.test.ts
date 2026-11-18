@@ -9,7 +9,7 @@ import {
   SYSTEMS,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { FHIR_R4_MEASUREMENTS } from '../measurements';
 import { normaliseBundle } from '../normalise/normalise';

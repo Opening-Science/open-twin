@@ -6,7 +6,7 @@
  * GOTCHA: No live Google Health sandbox fixture yet — structural tests are not an oracle (BUILD-SUMMARY).
  */
 import { CATEGORY, codeableConcept, compact, SYSTEMS, stringComponent, UCUM } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { health_v4 } from 'googleapis';
 import {
   createGoogleObservation,

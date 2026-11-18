@@ -10,17 +10,29 @@
     "format": "biome check --write",
     "lint": "biome ci",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r exec tsc --noEmit",
+    "typecheck": "pnpm -r exec tsc --noEmit && tsc --project tsconfig.scripts.json",
     "verify": "tsx verify/run-verify.ts",
     "ci:local": "tsx scripts/ci-local.ts",
+    "changeset": "changeset",
+    "release:status": "tsx scripts/release.ts status",
+    "release:version": "tsx scripts/release.ts version && pnpm install --lockfile-only --ignore-scripts",
+    "release:check": "tsx scripts/release.test.ts",
+    "check:packages": "tsx scripts/check-packages.ts",
     "emit-bundles": "tsx verify/emit-bundles.ts"
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@changesets/get-release-plan": "5.0.2",
+    "@types/node": "26.6.6",
+    "@types/semver": "7.7.1",
     "@biomejs/biome": "2.6.6",
     "@lhncbc/ucum-lhc": "8.0.1",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
+    "semver": "7.7.4",
     "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "verdaccio": "6.11.1",
     "exceljs": "4.4.0"
   }
 }

@@ -4,7 +4,7 @@
  * GOVERNED BY: docs/contracts/health-bundle.md
  * CORRECTNESS: Round-trip / fixture tests for bundle shape; HL7 validator not yet run locally (no JRE) — external authority gap, not an oversight.
  */
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { buildCollectionBundle } from '../fhir/bundleBuilder.js';
 import { ALL_MARKER_CLASS_FIXTURES, type MarkerClassFixture } from '../fixtures/markerClasses.js';
 

@@ -7,7 +7,7 @@ import {
   SYSTEMS,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource } from 'fhir/r4';
+import type { Bundle, FhirResource } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import type { RequestParams } from '../api/schemas/client';
 import { buildOuraBundle } from '../fhir/bundleBuilder';

@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
  * CORRECTNESS: HL7 validator (CI fhir-validate).
  */
 import { ConnectorError } from '@open-twin/fhir-core';
-import type { Bundle } from 'fhir/r4';
+import type { Bundle } from 'fhir/r4.js';
 import { normaliseBundle } from '../normalise/normalise';
 import { HL7_VITALS_BUNDLE } from '../samples/hl7-vitals-bundle';
 

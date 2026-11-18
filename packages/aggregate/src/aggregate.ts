@@ -5,7 +5,7 @@ GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
 import { buildBundle, ConnectorError, derivedObservation } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation } from 'fhir/r4';
+import type { Bundle, FhirResource, Observation } from 'fhir/r4.js';
 import { effectiveDay, type Measure, measureOf } from './measure';
 import { selectSource } from './select';
 
@@ -59,7 +59,7 @@ export interface Reconciliation {
 
 const CONNECTOR_TAG = 'http://opentwin.ch/fhir/CodeSystem/connector';
 
-function connectorOf(source: SourceBundle): string {
+export function connectorOf(source: SourceBundle): string {
   const tagged = source.bundle.meta?.tag?.find((tag) => tag.system === CONNECTOR_TAG)?.code;
   const connector = source.connector ?? tagged;
   if (!connector) {

@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { patientUuid, SYSTEMS } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { WhoopSyncPayloadSchema } from '../api/schemas/sync';
 import { buildWhoopBundleFromPayload } from './bundleBuilder';

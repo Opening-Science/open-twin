@@ -4,7 +4,7 @@
 GOVERNED BY: DECISIONS.md#d4
  * CORRECTNESS: signed review record (verify/terminology-allowlist.json) for LOINC/SNOMED emitted here; UCUM gate for quantities.
  */
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import type { Height, HeightList } from '../../api/schemas/height';
 import { createMeasurementObservation, dataAbsentReason, type MeasurementContext, metres } from './shared';
 

@@ -1,5 +1,5 @@
 import { SYSTEMS } from '@open-twin/fhir-core';
-import type { Observation } from 'fhir/r4';
+import type { Observation } from 'fhir/r4.js';
 import { describe, expect, it } from 'vitest';
 import { obxToObservation } from '../fhir/observation';
 import { IssueLog } from '../issues';

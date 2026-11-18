@@ -8,13 +8,16 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **83**
+Count: **85**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/catalogue.ts`
+- `packages/aggregate/src/configuration.ts`
 - `packages/aggregate/src/index.ts`
 - `packages/aggregate/src/measure.ts`
+- `packages/aggregate/src/readings.ts`
 - `packages/aggregate/src/select.ts`
+- `packages/aggregate/src/tests/configuration-fixtures.ts`
 - `packages/fhir-core/src/errors.ts`
 - `packages/fhir-core/src/index.ts`
 - `packages/fhir-core/src/measurementDefinitions.ts`
