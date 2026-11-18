@@ -15,6 +15,7 @@ Count: **84**
 - `packages/aggregate/src/configuration.ts`
 - `packages/aggregate/src/index.ts`
 - `packages/aggregate/src/measure.ts`
+- `packages/aggregate/src/readings.ts`
 - `packages/aggregate/src/select.ts`
 - `packages/fhir-core/src/errors.ts`
 - `packages/fhir-core/src/index.ts`

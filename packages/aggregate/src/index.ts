@@ -27,4 +27,14 @@ export {
   validateReconciliationConfiguration
 } from './configuration';
 export { effectiveDay, type Measure, measureOf, occasionKey } from './measure';
+export {
+  type ReadingAssessment,
+  type ReadingIneligibility,
+  type ReadingRequest,
+  type ReadingResolution,
+  type ReadingResolutionIssue,
+  type ReadingWindow,
+  type ResolvedReading,
+  resolveReadings
+} from './readings';
 export { type Candidate, type Selection, selectSource } from './select';
