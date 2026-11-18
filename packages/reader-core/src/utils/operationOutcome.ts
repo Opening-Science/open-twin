@@ -4,7 +4,7 @@
  * GOVERNED BY: DECISIONS.md#d16; DECISIONS.md#d6
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-import type { OperationOutcomeIssue } from 'fhir/r4';
+import type { OperationOutcomeIssue } from 'fhir/r4.js';
 import type { Issue } from '../types';
 
 export function issueFromOperationOutcome(issue: OperationOutcomeIssue): Issue {
