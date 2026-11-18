@@ -509,6 +509,32 @@ Requiring every shared key makes missing preferences explicit, while allowing
 source subsets lets the user exclude a source rather than having it silently
 restored.
 
+<a id="d20"></a>
+
+## D20 — Measurement keys outside Anchor get a SystemId in the interpretation layer
+
+**Decision.** `@open-twin/interpretation-contract` owns `MEASUREMENT_SYSTEMS`: the
+`SystemId` each scan and wearable catalogue key (D18) lights, and
+`UNRENDERABLE_MEASUREMENTS`, the keys deliberately kept off the body with a D12
+`reason`. Anchor lab markers are not in it; they keep the `system_id` the Anchor
+artefact assigns (D12). Every row is `review: 'pending'` until a named clinical
+reviewer signs it off. A component key resolves through its parent.
+
+The rows follow the Anchor organ-to-system contract where a region fits (body
+composition, bone and muscle → musculoskeletal; sleep → nervous) and TwinLLM's
+vitals table otherwise (heart rate → cardiovascular; HRV → nervous, as autonomic
+regulation; SpO2 and respiratory rate → respiratory; steps → musculoskeletal).
+Composite scores, VO2max, body temperature and energy expenditure are
+`not_anatomical`.
+
+**Why.** D12 assigns anatomy only from the Anchor mapping, which has no row for a
+wearable or a scan measurement, and D14 forbids the ingestion layer, where the
+catalogue lives, from assigning systems. Without a table here, the twin either lit
+nothing for scan and wearable data or each consumer invented its own mapping.
+
+**Trade-off.** The table is a research assignment, not a reviewed one. A consumer
+must show the pending status rather than present a row as clinically established.
+
 ## Still open — needs a named clinical reviewer
 
 These cannot be settled by research, and they are the root cause of the terminology
