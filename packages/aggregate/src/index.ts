@@ -17,13 +17,16 @@ export {
   sharedCatalogueEntries
 } from './catalogue';
 export {
+  type CatalogueChange,
   type ConfigurationProblem,
+  type ConfigurationUpdateResult,
   type ConfigurationValidationResult,
   generateReconciliationConfiguration,
   type MeasurementPreference,
   type MissingDataMode,
   RECONCILIATION_CONFIGURATION_VERSION,
   type ReconciliationConfiguration,
+  updateReconciliationConfiguration,
   validateReconciliationConfiguration
 } from './configuration';
 export { effectiveDay, type Measure, measureOf, occasionKey } from './measure';

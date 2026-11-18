@@ -1,10 +1,11 @@
 /**
- * WHAT: Generates user-owned source preferences from a measurement catalogue and validates saved configuration.
+ * WHAT: Generates, validates and explicitly proposes updates to user-owned source preferences against measurement catalogues.
  * NOT:  Does not fetch, persist, select readings, or change aggregate's current reconciliation policy.
  * GOVERNED BY: DECISIONS.md#d19
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: Priorities describe user preference, not reliability; omitted supporting sources are excluded, not appended.
  */
+import type { MeasurementDeclaration, MeasurementDefinition } from '@open-twin/fhir-core';
 import { type MeasurementCatalogue, sharedCatalogueEntries } from './catalogue';
 
 export const RECONCILIATION_CONFIGURATION_VERSION = 1 as const;
@@ -45,6 +46,35 @@ export interface ConfigurationProblem {
 export type ConfigurationValidationResult =
   | { ok: true; configuration: ReconciliationConfiguration }
   | { ok: false; problems: ConfigurationProblem[] };
+
+export interface CatalogueChange {
+  code:
+    | 'schema-changed'
+    | 'measurement-added'
+    | 'measurement-removed'
+    | 'became-shared'
+    | 'no-longer-shared'
+    | 'source-added'
+    | 'source-removed'
+    | 'definition-changed'
+    | 'declarations-changed';
+  /** Absent only for a catalogue schema change. */
+  key?: string;
+  connector?: string;
+  /** The proposal must not be used until the caller explicitly resolves or accepts this change. */
+  requiresResolution: boolean;
+}
+
+export interface ConfigurationUpdateResult {
+  /** True only when the proposal is valid against the next catalogue and has no conflicts. */
+  ok: boolean;
+  /** Null when the saved configuration is invalid against the previous catalogue. */
+  proposedConfiguration: ReconciliationConfiguration | null;
+  changes: CatalogueChange[];
+  conflicts: CatalogueChange[];
+  /** Baseline validation errors, or validation errors remaining in a blocked proposal. */
+  problems: ConfigurationProblem[];
+}
 
 /** Defaults depend only on declared capabilities and explicit registration order. */
 export function generateReconciliationConfiguration(catalogue: MeasurementCatalogue): ReconciliationConfiguration {
@@ -167,5 +197,144 @@ export function validateReconciliationConfiguration(
   return {
     ok: true,
     configuration: { version: RECONCILIATION_CONFIGURATION_VERSION, measurements: Object.fromEntries(preferences) }
+  };
+}
+
+function definitionSignature(definition: MeasurementDefinition): string {
+  return JSON.stringify([
+    definition.description,
+    definition.valueType,
+    definition.canonicalUnit,
+    definition.context.scope,
+    definition.context.statistic
+  ]);
+}
+
+function declarationSignatures(declarations: MeasurementDeclaration[]): string {
+  return JSON.stringify(
+    declarations
+      .map((declaration) =>
+        JSON.stringify([
+          declaration.coding.system,
+          declaration.coding.code,
+          declaration.location.kind,
+          declaration.location.kind === 'component' ? declaration.location.parent.system : null,
+          declaration.location.kind === 'component' ? declaration.location.parent.code : null,
+          declaration.valueType,
+          declaration.unit,
+          declaration.context.scope,
+          declaration.context.statistic
+        ])
+      )
+      .sort()
+  );
+}
+
+function sourceRemovalChange(
+  key: string,
+  connector: string,
+  preference: MeasurementPreference | undefined
+): CatalogueChange {
+  return {
+    code: 'source-removed',
+    key,
+    connector,
+    requiresResolution: preference?.sourcePriority.includes(connector) ?? false
+  };
+}
+
+/**
+ * Explicit, offline update preview. Both catalogues must be complete snapshots
+ * produced by createMeasurementCatalogue (or their JSON round trips).
+ * Unsafe preferences are retained for caller resolution, never silently pruned.
+ */
+export function updateReconciliationConfiguration(
+  input: ReconciliationConfiguration,
+  previousCatalogue: MeasurementCatalogue,
+  nextCatalogue: MeasurementCatalogue
+): ConfigurationUpdateResult {
+  const baseline = validateReconciliationConfiguration(input, previousCatalogue);
+  if (!baseline.ok) {
+    return { ok: false, proposedConfiguration: null, changes: [], conflicts: [], problems: baseline.problems };
+  }
+
+  const proposedConfiguration = baseline.configuration;
+  const changes: CatalogueChange[] = [];
+  if (previousCatalogue.schemaVersion !== nextCatalogue.schemaVersion) {
+    changes.push({ code: 'schema-changed', requiresResolution: true });
+    return { ok: false, proposedConfiguration, changes, conflicts: [...changes], problems: [] };
+  }
+
+  const previousEntries = new Map(previousCatalogue.entries.map((entry) => [entry.key, entry]));
+  const nextEntries = new Map(nextCatalogue.entries.map((entry) => [entry.key, entry]));
+  const defaults = generateReconciliationConfiguration(nextCatalogue);
+  const preferences = new Map(Object.entries(proposedConfiguration.measurements));
+
+  for (const previous of previousCatalogue.entries) {
+    if (!nextEntries.has(previous.key)) {
+      changes.push({ code: 'measurement-removed', key: previous.key, requiresResolution: previous.shared });
+      for (const source of previous.sources) {
+        changes.push(sourceRemovalChange(previous.key, source.connector, preferences.get(previous.key)));
+      }
+    }
+  }
+
+  for (const next of nextCatalogue.entries) {
+    const previous = previousEntries.get(next.key);
+    if (!previous) {
+      changes.push({ code: 'measurement-added', key: next.key, requiresResolution: false });
+    } else {
+      if (!previous.shared && next.shared) {
+        changes.push({ code: 'became-shared', key: next.key, requiresResolution: false });
+      } else if (previous.shared && !next.shared) {
+        changes.push({ code: 'no-longer-shared', key: next.key, requiresResolution: true });
+      }
+      if (definitionSignature(previous.definition) !== definitionSignature(next.definition)) {
+        changes.push({ code: 'definition-changed', key: next.key, requiresResolution: true });
+      }
+    }
+
+    const preference = preferences.get(next.key);
+    const oldSources = new Map(previous?.sources.map((source) => [source.connector, source]));
+    const newSources = new Set(next.sources.map((source) => source.connector));
+    for (const source of previous?.sources ?? []) {
+      if (!newSources.has(source.connector)) {
+        changes.push(sourceRemovalChange(next.key, source.connector, preference));
+      }
+    }
+    for (const source of next.sources) {
+      const oldSource = oldSources.get(source.connector);
+      if (!oldSource) {
+        changes.push({
+          code: 'source-added',
+          key: next.key,
+          connector: source.connector,
+          requiresResolution: false
+        });
+        if (preference && next.shared) preference.sourcePriority.push(source.connector);
+      } else if (declarationSignatures(oldSource.declarations) !== declarationSignatures(source.declarations)) {
+        changes.push({
+          code: 'declarations-changed',
+          key: next.key,
+          connector: source.connector,
+          requiresResolution: true
+        });
+      }
+    }
+    if (next.shared && !preference) {
+      const generated = defaults.measurements[next.key];
+      if (generated) preferences.set(next.key, generated);
+    }
+  }
+
+  proposedConfiguration.measurements = Object.fromEntries(preferences);
+  const validation = validateReconciliationConfiguration(proposedConfiguration, nextCatalogue);
+  const conflicts = changes.filter((change) => change.requiresResolution);
+  return {
+    ok: conflicts.length === 0 && validation.ok,
+    proposedConfiguration,
+    changes,
+    conflicts,
+    problems: validation.ok ? [] : validation.problems
   };
 }

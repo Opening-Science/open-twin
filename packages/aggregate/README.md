@@ -260,14 +260,82 @@ result is an independent copy. JSON round trips preserve priorities and modes.
 JSON parsing checks syntax only; validation checks the configuration structure
 and compatibility with the catalogue before returning a typed configuration.
 
-Persistence and configuration updates belong to the application. Revalidate
-saved configuration against the current catalogue after registrations change;
-missing or no-longer-shared keys and removed sources are reported explicitly.
-New supporting sources are not silently appended to saved priorities.
+Validation alone never appends supporting sources. To update saved preferences
+after registrations change, use the explicit update operation below.
 
 These are user preferences, not reliability grades or evidence of clinical
 validity. Like the catalogue, these APIs are additive: `aggregate()` still uses
 its existing reliability-based selection until the remaining #264 work lands.
+
+### Updating configuration after capability changes
+
+Persist the complete catalogue snapshot alongside its configuration. The update
+API needs both the previous and next catalogues to distinguish newly available
+sources from sources the user intentionally excluded. Rebuilding the previous
+catalogue from upgraded connector packages loses that baseline.
+
+```ts
+import { updateReconciliationConfiguration } from '@open-twin/aggregate';
+
+// previousCatalogue and configuration are the paired, saved JSON snapshots.
+// nextCatalogue is built explicitly from the new connector registrations.
+const update = updateReconciliationConfiguration(configuration, previousCatalogue, nextCatalogue);
+
+if (update.ok && update.proposedConfiguration) {
+  // Preview update.changes, then let the application save the proposal and
+  // nextCatalogue together. The library writes nothing.
+} else {
+  // update.conflicts lists changes requiring explicit review/resolution.
+  // update.problems lists configuration validation errors.
+  // Do not use a blocked proposal as active configuration.
+}
+```
+
+The operation preserves existing priority order, source exclusions, and
+missing-data modes. Genuinely new supporting sources are appended in the next
+catalogue's registration order, never promoted above an existing preference.
+New shared keys, including previously unique keys, receive strict defaults in
+that order. New single-source keys receive no preference.
+
+`changes` contains stable codes, measurement keys and connector ids, never
+readings. It reports `measurement-added`, `measurement-removed`, `became-shared`,
+`no-longer-shared`, `source-added` and `source-removed`. Source changes are
+per measurement: a connector can stop supporting one key while retaining another.
+Removed measurements also report every removed supporting source.
+
+`conflicts` is the subset of changes with `requiresResolution: true`:
+
+- Removed configured measurements, shared-to-unique transitions, and removal
+  of **any listed source**, including a fallback, block the proposal. A removed
+  excluded source or a removed unique measurement is informational.
+- Definition changes (`description`, value type, canonical unit or context) and
+  declaration changes (coding, location/parent coding, value type, unit or
+  context, including added/removed declarations for an existing source/key)
+  are conservatively incompatible and require review, even on an excluded
+  source or unique key. Editorial definition changes also require review.
+- `schema-changed` blocks the operation without interpreting the new schema.
+  Definition-set and connector version bumps alone are informational metadata:
+  actual contents are compared, even if a publisher forgot to bump a version.
+  Declaration order, object property order and connector reordering are not
+  semantic changes.
+
+A blocked proposal retains obsolete preferences rather than pruning them or
+silently choosing a new preferred source. Resolve structural conflicts by
+explicitly editing/removing those entries, then call
+`validateReconciliationConfiguration` against the next catalogue. Semantic
+conflicts require the application to review and explicitly accept the changed
+meaning or migrate the preferences; structural validation alone does **not**
+resolve them. Schema changes require a supported schema migration, not merely
+validation. No resolution, acceptance or persistence happens implicitly.
+
+The result has `ok: true` only for a valid, conflict-free proposal. If the saved
+configuration fails validation against the **previous** catalogue, `ok` is false,
+`proposedConfiguration` is null, and `problems` explains why; fix the baseline
+before updating. Otherwise the proposal is an independently editable copy,
+including on conflict. Inputs are never mutated. Both catalogues must be complete
+snapshots from `createMeasurementCatalogue` or their JSON round trips.
+This operation needs no bundles, credentials or network and is never called
+silently during reconciliation.
 
 ## Verification
 

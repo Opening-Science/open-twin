@@ -469,13 +469,39 @@ every currently shared key, rejects unknown and non-shared keys, and checks that
 each listed source declares that key. Sources need not all be listed, but may not
 repeat. Unknown fields and unsupported versions are errors, never silently
 discarded or upgraded. Validation neither changes input nor supplies defaults.
-Catalogue changes that invalidate a saved configuration require explicit action
-by the application; adding a supporting source does not require adding it to an
-existing priority list.
+Validation never appends supporting sources. Catalogue changes that invalidate a
+saved configuration require explicit action by the application.
 
-**Scope.** Generation and validation require no credentials, network or bundles.
-They do not yet change `aggregate()` selection; runtime reconciliation and
-configuration update operations remain separate work under #264.
+The explicit `updateReconciliationConfiguration` operation takes saved preferences
+and complete previous/next catalogue snapshots. The previous snapshot must be
+persisted with the preferences: version numbers alone cannot reconstruct changed
+definitions or distinguish user exclusions from newly available sources. The
+baseline configuration must validate before an update can be proposed.
+
+Updates preserve priorities, exclusions and modes, append only genuinely new
+supporting sources in next registration order, and default newly shared keys to
+strict. New unique keys get no entry. The result contains an independent proposal,
+a change report, conflicts requiring explicit resolution, and validation problems.
+Removed configured measurements, shared-to-unique transitions and removed listed
+sources block the proposal without dropping preferences or promoting a source.
+Removed excluded sources and unique measurements are reported without blocking.
+Every removed supporting source is reported per key, even if the whole key is gone.
+
+Definition changes, including description edits, and changes to an existing
+source/key's declaration set conservatively require review, including for unique
+keys and excluded sources. Compare actual content, not version numbers, ignoring
+declaration/property order. Catalogue schema changes block interpretation; version
+bumps alone do not make unchanged definitions/declarations incompatible.
+Callers must explicitly resolve structural conflicts and validate the edited
+proposal, and separately review/accept or migrate semantic conflicts. Structural
+validation cannot establish semantic compatibility. No API auto-accepts conflicts.
+An invalid baseline returns no proposal; other blocked updates retain one for
+review and editing. Neither the old inputs nor stored preferences are mutated.
+
+**Scope.** Generation, validation and updates require no credentials, network or
+bundles and write no files. They do not yet change `aggregate()` selection; runtime
+reconciliation remains separate work under #264 and never silently updates
+configuration.
 
 **Why.** Consumers must be able to prepare and save preferences before fetching
 data, and distinguish an invalid saved configuration from absent measurements.
