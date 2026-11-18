@@ -25,7 +25,7 @@
     "@changesets/get-release-plan": "5.0.2",
     "@types/node": "26.6.6",
     "@types/semver": "7.7.1",
-    "@biomejs/biome": "2.6.6",
+    "@biomejs/biome": "2.6.8",
     "@lhncbc/ucum-lhc": "8.0.1",
     "@open-twin/aggregate": "workspace:*",
     "@open-twin/fhir-r4": "workspace:*",
