@@ -117,9 +117,225 @@ Registration fails with a `ConnectorError` listing every problem — a connector
 registered twice, a declaration whose unit or context differs from its definition, a
 key borrowed from another connector's namespace.
 
-The catalogue is additive for now: `aggregate()` still groups by the `measureOf`
-table and selects by reliability grade, until reconciliation moves onto the
-catalogue (#264).
+### Runtime measurement resolution and eligibility
+
+`resolveReadings` uses the registered declarations, not the legacy measurement
+table, to find values in source bundles and assess them for an explicit request.
+It supports Observation values and components matched by their coding **and** their
+parent's coding; component order is irrelevant.
+
+```ts
+import { resolveReadings } from '@open-twin/aggregate';
+
+const result = resolveReadings({
+  catalogue,
+  sources: [
+    { connector: 'oura', bundle: ouraBundle },
+    { connector: 'google-health', bundle: googleBundle }
+  ],
+  request: {
+    key: 'total-sleep-time',
+    subject: 'Patient/example', // must be the same exact reference in every reading
+    context: { scope: 'sleep-period', statistic: 'total' },
+    window: {
+      kind: 'period',
+      start: '2026-06-20T22:00:00Z',
+      end: '2026-06-21T06:00:00Z'
+    }
+  }
+});
+
+for (const { reading, eligibility } of result.readings) {
+  // reading keeps the original Observation and, when applicable, its component.
+  // eligibility is { kind: 'eligible' } or { kind: 'ineligible', reasons: [...] }.
+  // Keep the reading for selection/provenance; do not log its health payload.
+}
+// result.issues reports undeclared values, ambiguous declaration matches and
+// unregistered connectors using input positions, never payloads or subject ids.
+```
+
+Eligibility requires a present value of the declared type, its exact emitted UCUM
+unit, the declared scope/statistic, the exact subject reference, and a compatible
+effective time. A missing numeric value, `dataAbsentReason`, nonfinite number or
+quantity comparator is not an exact usable reading. Zero and boolean `false` are
+valid values. A parent's absent score does not make its populated components absent.
+A value-less panel (`valueType: 'none'`) is not itself a usable reading.
+
+Registered (no result yet), cancelled and entered-in-error Observations are
+ineligible, including their components, with `unusable-status`. Preliminary and
+unknown statuses are not excluded solely for their status: eligibility is not
+confirmation that a result is final or verified.
+
+Ranges, ratios and sampled-data origins must be unitless. The declaration schema
+cannot describe their nested units yet, so any `unit`, `system` or `code` on those
+nested quantities makes the reading ineligible with `unit-mismatch`, even when
+both range bounds use the same unit. No unit compatibility or conversion is inferred.
+
+Value checks also reject out-of-range/fractional integers, reversed ranges,
+incompatible range-bound units, zero ratio denominators and malformed temporal or
+sampled-data values. Sampled data needs a finite origin, positive sampling period,
+valid dimensions, complete sample groups and valid numeric/error/limit tokens;
+error/limit tokens alone provide no usable numeric value. Partial dates and open
+periods remain valid **values** where FHIR permits them, but cannot serve as complete
+effective measurement windows. These eligibility guards are not a full FHIR
+structural validator; see the [R4 datatype definitions](https://hl7.org/fhir/R4/datatypes.html)
+and [observation statuses](https://hl7.org/fhir/R4/valueset-observation-status.html).
+
+Time compatibility is deliberately conservative:
+
+- Individual readings accept `{ kind: 'instant', at: '...' }` or a complete period.
+  Summaries (daily, interval, session, sleep period or physiological cycle) require
+  periods; declaration context alone does not establish a measurement window.
+- Instants must match exactly; periods must have identical start and end instants,
+  with end after start. Offsets are normalized and fractional seconds are preserved.
+  Mere overlap or a shared calendar date is insufficient.
+- Effective times require a complete date, hours, minutes, seconds and an explicit timezone.
+  Date-only markers, incomplete/open periods, `effectiveTiming`, conflicting
+  `effective[x]` fields, impossible dates and unsupported leap seconds are ineligible.
+  No day boundaries, timezones or tolerances are inferred. Connectors emitting only
+  daily markers or a sleep start cannot establish comparable periods with this API.
+
+The resolver never converts a unit, matches different patient references, selects
+a source or mutates a bundle/catalogue. It checks matching against **all** of a
+source's declarations before filtering by the requested key, so ambiguous codings
+cannot turn into an arbitrary match. Multiple same-source readings remain separate
+for the selection layer to handle. An empty bundle returns no readings; the
+catalogue still records that source's capability. Invalid requests throw a
+payload-free `ConnectorError`; eligibility reasons and resolution issues contain
+only diagnostic codes, registered declaration keys and input positions, not health
+values. Each resolution issue includes `matchedKeys`: the sorted, unique keys of
+all matched declarations, including keys other than the requested one. Unmatched
+elements and unregistered connectors have an empty `matchedKeys` array.
+
+This is the runtime eligibility layer for the configured reconciliation work in
+#264/#277. It does not change the legacy `aggregate()` API, which still groups by the
+`measureOf` table and selects by reliability grade. Moving that API to opt-in,
+configured selection and removing the legacy policy are tracked in #275 and #279.
+
+## User-owned source preferences
+
+Generate configuration from the catalogue before fetching any data:
+
+```ts
+import { generateReconciliationConfiguration, validateReconciliationConfiguration } from '@open-twin/aggregate';
+
+const configuration = generateReconciliationConfiguration(catalogue);
+// { version: 1, measurements: {
+//   'total-sleep-time': {
+//     sourcePriority: ['oura', 'google-health'], missingData: 'strict'
+//   }, ... } }
+
+const sleep = configuration.measurements['total-sleep-time'];
+if (sleep) {
+  sleep.sourcePriority = ['google-health', 'oura'];
+  sleep.missingData = 'fallback';
+}
+
+// The application owns JSON storage and handles JSON.parse syntax errors.
+const saved = JSON.stringify(configuration);
+const decoded: unknown = JSON.parse(saved);
+const result = validateReconciliationConfiguration(decoded, catalogue);
+if (!result.ok) {
+  // Each problem has a stable code, JSON Pointer path, and explanatory message.
+  throw new Error(result.problems.map((problem) => `${problem.path}: ${problem.message}`).join('; '));
+}
+const restored = result.configuration; // typed ReconciliationConfiguration
+```
+
+Only keys declared by at least two registered sources receive entries. Defaults
+list supporting sources in registration order, with the first source preferred
+and `missingData: 'strict'`. Strict preference means using only that first source;
+`fallback` permits trying the remaining listed sources in order when earlier
+sources have no eligible value. These modes describe the configuration contract;
+this API does not yet execute source selection.
+
+Users may reorder or remove sources, but each priority list must remain nonempty
+and contain no duplicates. Every listed source must declare that particular key.
+Every shared key requires an entry; unknown keys and single-source keys are
+errors. Unsupported versions, malformed fields, unknown fields, and invalid modes
+are errors too. Validation accepts `unknown`, returns either
+`{ ok: true, configuration }` or `{ ok: false, problems }`, and never mutates
+input, supplies missing defaults, or silently rewrites preferences. A successful
+result is an independent copy. JSON round trips preserve priorities and modes.
+JSON parsing checks syntax only; validation checks the configuration structure
+and compatibility with the catalogue before returning a typed configuration.
+
+Validation alone never appends supporting sources. To update saved preferences
+after registrations change, use the explicit update operation below.
+
+These are user preferences, not reliability grades or evidence of clinical
+validity. Like the catalogue, these APIs are additive: `aggregate()` still uses
+its existing reliability-based selection until the remaining #264 work lands.
+
+### Updating configuration after capability changes
+
+Persist the complete catalogue snapshot alongside its configuration. The update
+API needs both the previous and next catalogues to distinguish newly available
+sources from sources the user intentionally excluded. Rebuilding the previous
+catalogue from upgraded connector packages loses that baseline.
+
+```ts
+import { updateReconciliationConfiguration } from '@open-twin/aggregate';
+
+// previousCatalogue and configuration are the paired, saved JSON snapshots.
+// nextCatalogue is built explicitly from the new connector registrations.
+const update = updateReconciliationConfiguration(configuration, previousCatalogue, nextCatalogue);
+
+if (update.ok && update.proposedConfiguration) {
+  // Preview update.changes, then let the application save the proposal and
+  // nextCatalogue together. The library writes nothing.
+} else {
+  // update.conflicts lists changes requiring explicit review/resolution.
+  // update.problems lists configuration validation errors.
+  // Do not use a blocked proposal as active configuration.
+}
+```
+
+The operation preserves existing priority order, source exclusions, and
+missing-data modes. Genuinely new supporting sources are appended in the next
+catalogue's registration order, never promoted above an existing preference.
+New shared keys, including previously unique keys, receive strict defaults in
+that order. New single-source keys receive no preference.
+
+`changes` contains stable codes, measurement keys and connector ids, never
+readings. It reports `measurement-added`, `measurement-removed`, `became-shared`,
+`no-longer-shared`, `source-added` and `source-removed`. Source changes are
+per measurement: a connector can stop supporting one key while retaining another.
+Removed measurements also report every removed supporting source.
+
+`conflicts` is the subset of changes with `requiresResolution: true`:
+
+- Removed configured measurements, shared-to-unique transitions, and removal
+  of **any listed source**, including a fallback, block the proposal. A removed
+  excluded source or a removed unique measurement is informational.
+- Definition changes (`description`, value type, canonical unit or context) and
+  declaration changes (coding, location/parent coding, value type, unit or
+  context, including added/removed declarations for an existing source/key)
+  are conservatively incompatible and require review, even on an excluded
+  source or unique key. Editorial definition changes also require review.
+- `schema-changed` blocks the operation without interpreting the new schema.
+  Definition-set and connector version bumps alone are informational metadata:
+  actual contents are compared, even if a publisher forgot to bump a version.
+  Declaration order, object property order and connector reordering are not
+  semantic changes.
+
+A blocked proposal retains obsolete preferences rather than pruning them or
+silently choosing a new preferred source. Resolve structural conflicts by
+explicitly editing/removing those entries, then call
+`validateReconciliationConfiguration` against the next catalogue. Semantic
+conflicts require the application to review and explicitly accept the changed
+meaning or migrate the preferences; structural validation alone does **not**
+resolve them. Schema changes require a supported schema migration, not merely
+validation. No resolution, acceptance or persistence happens implicitly.
+
+The result has `ok: true` only for a valid, conflict-free proposal. If the saved
+configuration fails validation against the **previous** catalogue, `ok` is false,
+`proposedConfiguration` is null, and `problems` explains why; fix the baseline
+before updating. Otherwise the proposal is an independently editable copy,
+including on conflict. Inputs are never mutated. Both catalogues must be complete
+snapshots from `createMeasurementCatalogue` or their JSON round trips.
+This operation needs no bundles, credentials or network and is never called
+silently during reconciliation.
 
 ## Verification
 

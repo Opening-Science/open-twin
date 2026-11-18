@@ -1,7 +1,7 @@
 /**
- * WHAT: Publishes the interpretation-contract.v0.2 schema, generated types, conformance validator, and confidence arithmetic.
+ * WHAT: Publishes the interpretation-contract.v0.2 schema, generated types, conformance validator, confidence arithmetic, and the measurement → SystemId table.
  * NOT:  Does not invent interpretation rules or SystemId values.
- * GOVERNED BY: DECISIONS.md#d12; DECISIONS.md#d13; docs/contracts/interpretation-contract.v0.2.schema.json; docs/contracts/confidence.md
+ * GOVERNED BY: DECISIONS.md#d12; DECISIONS.md#d13; DECISIONS.md#d20; docs/contracts/interpretation-contract.v0.2.schema.json; docs/contracts/confidence.md
  * CORRECTNESS: Conformance via validateInterpretationDocument; confidence via docs/contracts/confidence.md
  */
 
@@ -26,6 +26,14 @@ export type {
   UnrenderableReason,
   UnrenderableState
 } from './generated/interpretation-contract.v0.2.js';
+export {
+  MEASUREMENT_SYSTEMS,
+  type MeasurementReview,
+  type MeasurementSystem,
+  systemFor,
+  UNRENDERABLE_MEASUREMENTS,
+  type UnrenderableMeasurement
+} from './measurementSystems.js';
 export {
   type ConformanceError,
   type ConformanceErrorCode,
