@@ -5,7 +5,7 @@
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: a summary pins counts and the effective range, not values. `absentValues` catches 0-for-missing only when the fixture has a missing value, so every fixture should include one.
  */
-import type { Bundle, Observation, Resource } from 'fhir/r4';
+import type { Bundle, Observation, Resource } from 'fhir/r4.js';
 
 export const isObservation = (resource: Resource | undefined): resource is Observation =>
   resource?.resourceType === 'Observation';

@@ -13,7 +13,7 @@ import {
   parseRetryAfter,
   subjectReference
 } from '@open-twin/fhir-core';
-import type { Bundle, Patient, Reference } from 'fhir/r4';
+import type { Bundle, Patient, Reference } from 'fhir/r4.js';
 import type { IHealthDataReader } from './reader';
 import type {
   HostServices,

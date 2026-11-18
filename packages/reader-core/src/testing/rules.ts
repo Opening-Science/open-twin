@@ -6,7 +6,7 @@
  * GOTCHA: imports vitest, so import it from a test file only. Rule 5 cannot tell a genuine 0 from 0-for-missing; that defect shows up in rule 8 through `absentValues` only if the fixture has a missing value, so every adapter fixture should include one.
  */
 import { CONNECTOR_TAG_SYSTEM, ConnectorError, SYSTEMS } from '@open-twin/fhir-core';
-import type { Bundle, Observation, Quantity } from 'fhir/r4';
+import type { Bundle, Observation, Quantity } from 'fhir/r4.js';
 import { expect, vi } from 'vitest';
 import type { IHealthDataReader } from '../reader';
 import type { HostServices, Logger, ReaderDescriptor, ReaderInput, ReadRequest, ReadResult } from '../types';
