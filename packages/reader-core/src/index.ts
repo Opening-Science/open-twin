@@ -8,7 +8,6 @@ export * from './base';
 export * from './reader';
 export { type ExpectedSummary, summarise } from './testing/expected';
 export * from './types';
-export * from './utils/connectorTag';
 export * from './utils/descriptor';
 export * from './utils/fileInput';
 export * from './utils/operationOutcome';
