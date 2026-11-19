@@ -4,7 +4,7 @@
  * GOVERNED BY: DECISIONS.md#d16
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  */
-export * from './base';
+export * from './healthDataReader';
 export * from './reader';
 export * from './types';
 export * from './utils/fileInput';
