@@ -34,4 +34,36 @@ describe('summarise', () => {
       absentValues: 1
     });
   });
+
+  it('keys a code by all its codings, so two codes that share the first one stay apart', () => {
+    const coded = (id: string, second: string): Observation => ({
+      ...steps(id, '2026-03-01', 1),
+      code: {
+        coding: [
+          { system: 'urn:test', code: 'A' },
+          { system: 'urn:test', code: second }
+        ]
+      }
+    });
+    const summary = summarise({
+      resourceType: 'Bundle',
+      type: 'collection',
+      entry: [{ resource: coded('x', 'B') }, { resource: coded('y', 'C') }]
+    });
+
+    expect(summary.observationCodes).toEqual({ 'urn:test|A,urn:test|B': 1, 'urn:test|A,urn:test|C': 1 });
+  });
+
+  it('orders the effective range by instant, so offsets do not mislead a string sort', () => {
+    const lateByString = steps('x', '2026-03-02T01:00:00+02:00', 1);
+    const earlyByString = steps('y', '2026-03-01T23:00:00-05:00', 2);
+    const summary = summarise({
+      resourceType: 'Bundle',
+      type: 'collection',
+      entry: [{ resource: lateByString }, { resource: earlyByString }]
+    });
+
+    expect(summary.firstEffective).toBe('2026-03-02T01:00:00+02:00');
+    expect(summary.lastEffective).toBe('2026-03-01T23:00:00-05:00');
+  });
 });

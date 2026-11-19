@@ -12,7 +12,7 @@ export const isObservation = (resource: Resource | undefined): resource is Obser
 
 export interface ExpectedSummary {
   resourceTypes: Record<string, number>;
-  /** Keyed by `system|code` of the first coding. */
+  /** Keyed by every `system|code` of the code, sorted and joined with `,`. */
   observationCodes: Record<string, number>;
   /** As written by the source, offset kept (D7). */
   firstEffective?: string;
@@ -28,8 +28,16 @@ function sortedRecord(map: Map<string, number>): Record<string, number> {
 }
 
 function codeKey(observation: Observation): string {
-  const coding = observation.code?.coding?.[0];
-  return `${coding?.system ?? ''}|${coding?.code ?? ''}`;
+  const codings = observation.code?.coding ?? [];
+  return codings
+    .map((coding) => `${coding.system ?? ''}|${coding.code ?? ''}`)
+    .sort()
+    .join(',');
+}
+
+/** Earlier by instant, not by string, so offsets compare right; the string as written is what is kept. */
+function isBefore(a: string, b: string): boolean {
+  return Date.parse(a) < Date.parse(b);
 }
 
 function effectiveOf(observation: Observation): string | undefined {
@@ -65,9 +73,9 @@ export function summarise(bundle: Bundle): ExpectedSummary {
 
     if (effective === undefined) continue;
 
-    if (firstEffective === undefined || effective < firstEffective) firstEffective = effective;
+    if (firstEffective === undefined || isBefore(effective, firstEffective)) firstEffective = effective;
 
-    if (lastEffective === undefined || effective > lastEffective) lastEffective = effective;
+    if (lastEffective === undefined || isBefore(lastEffective, effective)) lastEffective = effective;
   }
 
   const summary: ExpectedSummary = {
