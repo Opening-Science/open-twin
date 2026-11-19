@@ -1,9 +1,9 @@
 import { ConnectorError } from '@open-twin/fhir-core';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import type { HealthDataReader } from '../base';
+import type { HealthDataReader } from '../healthDataReader';
 import type { ReaderInput, ReadRequest, StoredTokens } from '../types';
 import { subjectIdentifierSystem } from '../utils/subject';
-import { buildHealthDataReader, openHealthDataReader, PROBE_STORE_KEY, PROBE_URL } from './buildHealthDataReader';
+import { PROBE_STORE_KEY, PROBE_URL, ProbeReader } from './probeReader';
 
 const api: ReaderInput = { kind: 'api', sourceId: 'probe', config: { url: PROBE_URL } };
 const request: ReadRequest = { subjectKey: 'u1' };
@@ -13,25 +13,25 @@ const response = (status: number, body: string, headers: Record<string, string> 
   new Response(body, { status, headers: { 'content-type': 'application/json', ...headers } });
 
 async function readError(fetch: typeof globalThis.fetch): Promise<ConnectorError> {
-  const reader = await openHealthDataReader({ fetch });
+  const reader = await new ProbeReader().openProbe({ fetch });
   return (await reader.read(request).catch((error: unknown) => error)) as ConnectorError;
 }
 
 describe('HealthDataReader', () => {
   describe('lifecycle', () => {
     it('matches an api input by its id only', async () => {
-      const reader = buildHealthDataReader();
+      const reader = new ProbeReader();
 
       expect(await reader.isThisType(api)).toBe(true);
       expect(await reader.isThisType({ ...api, sourceId: 'other' })).toBe(false);
     });
 
     it('fails read before open with validation', async () => {
-      await expect(buildHealthDataReader().read(request)).rejects.toMatchObject({ code: 'validation' });
+      await expect(new ProbeReader().read(request)).rejects.toMatchObject({ code: 'validation' });
     });
 
     it('serves one connection: a second open fails until close', async () => {
-      const reader = await openHealthDataReader({ fetch: ok });
+      const reader = await new ProbeReader().openProbe({ fetch: ok });
 
       await expect(reader.open(api)).rejects.toThrow(/one instance per connection/);
       await reader.close();
@@ -40,7 +40,7 @@ describe('HealthDataReader', () => {
 
     it('rejects a second open that starts while the first is still running', async () => {
       const slowCursor = { load: () => new Promise<undefined>((resolve) => setTimeout(resolve, 10)), save: vi.fn() };
-      const reader = buildHealthDataReader();
+      const reader = new ProbeReader();
       const first = reader.open(api, { fetch: ok, cursorStore: slowCursor });
 
       await expect(reader.open(api, { fetch: ok })).rejects.toThrow(/one instance per connection/);
@@ -48,23 +48,21 @@ describe('HealthDataReader', () => {
     });
 
     it('fails read after close', async () => {
-      const reader = await openHealthDataReader({ fetch: ok });
+      const reader = await new ProbeReader().openProbe({ fetch: ok });
       await reader.close();
 
       await expect(reader.read(request)).rejects.toMatchObject({ code: 'validation' });
     });
 
     it('stays closed after a failed open, so it can be opened again', async () => {
-      const reader = buildHealthDataReader();
+      const reader = new ProbeReader();
 
       await expect(reader.open({ ...api, config: { secret: 'hunter2' } })).rejects.toThrow(/invalid at: url/);
       await expect(reader.open(api, { fetch: ok })).resolves.toBeUndefined();
     });
 
     it('names the failed config field and never its value', async () => {
-      await expect(buildHealthDataReader().open({ ...api, config: { secret: 'hunter2' } })).rejects.not.toThrow(
-        /hunter2/
-      );
+      await expect(new ProbeReader().open({ ...api, config: { secret: 'hunter2' } })).rejects.not.toThrow(/hunter2/);
     });
   });
 
@@ -72,7 +70,7 @@ describe('HealthDataReader', () => {
     it('reads through the host fetch and logs the operation only', async () => {
       const fetch = vi.fn(ok);
       const logger = { debug: vi.fn(), warn: vi.fn() };
-      const reader = await openHealthDataReader({ fetch, logger });
+      const reader = await new ProbeReader().openProbe({ fetch, logger });
 
       await reader.read(request);
 
@@ -123,7 +121,7 @@ describe('HealthDataReader', () => {
     let reader: HealthDataReader;
 
     beforeAll(async () => {
-      reader = await openHealthDataReader({ fetch: ok });
+      reader = await new ProbeReader().openProbe({ fetch: ok });
     });
 
     it('uses the caller reference as given and adds no Patient', async () => {
@@ -149,7 +147,7 @@ describe('HealthDataReader', () => {
     let reader: HealthDataReader;
 
     beforeAll(async () => {
-      reader = await openHealthDataReader({ fetch: ok });
+      reader = await new ProbeReader().openProbe({ fetch: ok });
     });
 
     it('ignores the order of the types and changes with the window', async () => {
@@ -164,7 +162,7 @@ describe('HealthDataReader', () => {
 
   describe('host clock and stores', () => {
     it('stamps the bundle and the provenance with the host clock', async () => {
-      const reader = await openHealthDataReader({ fetch: ok, now: () => '2026-05-05T05:05:05Z' });
+      const reader = await new ProbeReader().openProbe({ fetch: ok, now: () => '2026-05-05T05:05:05Z' });
       const { bundle, provenance } = await reader.read(request);
 
       expect(bundle.timestamp).toBe('2026-05-05T05:05:05Z');
@@ -179,7 +177,7 @@ describe('HealthDataReader', () => {
           await Promise.resolve(saved.set(key, cursor));
         }
       };
-      const reader = await openHealthDataReader({ fetch: ok, cursorStore });
+      const reader = await new ProbeReader().openProbe({ fetch: ok, cursorStore });
 
       expect((await reader.read(request)).cursor).toBe('c-1');
 
@@ -192,8 +190,8 @@ describe('HealthDataReader', () => {
     it('loads and saves tokens through the host store, and works without one', async () => {
       const tokens: StoredTokens = { accessToken: 'a', expiresAt: '2099-01-01T00:00:00Z' };
       const tokenStore = { load: vi.fn(async () => await Promise.resolve(tokens)), save: vi.fn(), clear: vi.fn() };
-      const withStore = await openHealthDataReader({ fetch: ok, tokenStore });
-      const withoutStore = await openHealthDataReader({ fetch: ok });
+      const withStore = await new ProbeReader().openProbe({ fetch: ok, tokenStore });
+      const withoutStore = await new ProbeReader().openProbe({ fetch: ok });
 
       await withStore.close();
       await withoutStore.close();
