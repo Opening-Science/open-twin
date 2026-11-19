@@ -11,7 +11,7 @@ Do not use public issues or pull requests for security reports. Follow
 
 ## Before a pull request
 
-Use Node 22 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
+Use Node 24 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
 
 ```bash
 npm install -g pnpm@11.17.0
