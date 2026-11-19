@@ -47,6 +47,18 @@ describe('HealthDataReader', () => {
       await expect(first).resolves.toBeUndefined();
     });
 
+    it('waits for an open still running before it closes', async () => {
+      const slowCursor = { load: () => new Promise<undefined>((resolve) => setTimeout(resolve, 10)), save: vi.fn() };
+      const reader = new ProbeReader();
+      const opening = reader.open(api, { fetch: ok, cursorStore: slowCursor });
+
+      await reader.close();
+      await opening;
+
+      await expect(reader.read(request)).rejects.toMatchObject({ code: 'validation' });
+      await expect(reader.open(api, { fetch: ok })).resolves.toBeUndefined();
+    });
+
     it('fails read after close', async () => {
       const reader = await new ProbeReader().openProbe({ fetch: ok });
       await reader.close();
@@ -85,6 +97,18 @@ describe('HealthDataReader', () => {
       expect(error).toBeInstanceOf(ConnectorError);
       expect(error).toMatchObject({ code: 'rate_limit', status: 429, operation: 'GET probe', retryAfterSeconds: 7 });
       expect(String(error)).not.toContain('body-text');
+    });
+
+    it('still maps the status when the body cannot be discarded', async () => {
+      const body = new ReadableStream({
+        start(controller) {
+          controller.error(new Error('stream-secret'));
+        }
+      });
+      const error = await readError(async () => new Response(body, { status: 429, headers: { 'retry-after': '7' } }));
+
+      expect(error).toMatchObject({ code: 'rate_limit', status: 429, retryAfterSeconds: 7 });
+      expect(String(error)).not.toContain('stream-secret');
     });
 
     it('is transport when fetch rejects, and keeps only the class name of the cause', async () => {

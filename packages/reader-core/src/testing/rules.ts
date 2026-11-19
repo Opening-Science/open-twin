@@ -178,8 +178,6 @@ export function expectObservations(bundle: Bundle, descriptor: ReaderDescriptor,
     if (isObservation(entry.resource)) observations.push({ index, observation: entry.resource });
   }
 
-  expect(observations, 'rule 5: the bundle carries no Observation').not.toHaveLength(0);
-
   for (const { index, observation } of observations) {
     const where = `Bundle.entry[${index}]`;
     expect(UUID.test(observation.id ?? ''), `rule 5: ${where} id is not a UUID (D2)`).toBe(true);

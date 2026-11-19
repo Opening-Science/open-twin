@@ -44,7 +44,7 @@ export abstract class HealthDataReader implements IHealthDataReader {
 
   protected input: ReaderInput | undefined;
   protected host: HostServices = {};
-  private opening = false;
+  private opening: Promise<void> | undefined;
 
   /** API readers match their id; file readers override this with a content sniff. */
   isThisType(input: ReaderInput): Promise<boolean> | boolean {
@@ -56,16 +56,16 @@ export abstract class HealthDataReader implements IHealthDataReader {
       throw this.fail('The reader is already open; use one instance per connection', 'validation', 'open');
     }
 
-    this.opening = true;
     this.host = host;
+    this.opening = Promise.resolve().then(() => this.onOpen(input));
 
     try {
-      await this.onOpen(input);
+      await this.opening;
     } catch (error) {
       this.host = {};
       throw error;
     } finally {
-      this.opening = false;
+      this.opening = undefined;
     }
 
     this.input = input;
@@ -78,7 +78,9 @@ export abstract class HealthDataReader implements IHealthDataReader {
 
   abstract read(request: ReadRequest): Promise<ReadResult>;
 
+  /** Waits for an open still in flight, so a close never leaves the reader marked open. */
   async close(): Promise<void> {
+    await this.opening?.catch(() => undefined);
     await this.onClose();
     this.input = undefined;
   }
@@ -169,7 +171,8 @@ export abstract class HealthDataReader implements IHealthDataReader {
     }
 
     if (!response.ok) {
-      await response.body?.cancel();
+      // A failed cancel must not hide the status error, nor leak its own message.
+      await response.body?.cancel().catch(() => undefined);
       const retryAfterSeconds = parseRetryAfter(response.headers.get('retry-after'), Date.now());
       throw fromHttpStatus(response.status, { connector: id, operation, retryAfterSeconds });
     }
