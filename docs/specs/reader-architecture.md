@@ -19,7 +19,7 @@ and section 11 lists where draft 0.1 differed from the code.
    `Contributing.md`, `docs/00-MAP.md`, `packages/fhir-core/README.md`, `verify/run-verify.ts`.
 2. Issue first, one component per issue (section 9), branch `<issue-number>-<slug>` from
    `main`, one concern per pull request, PR description in at most 10 lines.
-3. Toolchain: Node 22, pnpm 11.17.0. `pnpm install --frozen-lockfile`, then
+3. Toolchain: Node 24, pnpm 11.17.0. `pnpm install --frozen-lockfile`, then
    `pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm verify`, then
    `pnpm ci:local` (JDK 21 for the HL7 validator) before opening a PR.
 4. Every exporting module under `packages/*/src/` opens with the header block from
@@ -430,7 +430,7 @@ tries readers in `priority` order and binds the first that accepts, otherwise th
 `close` delegate. For API inputs detection is exact on `sourceId`; for files it is content
 sniffing in order.
 
-`packages/cli` (`@open-twin/cli`, binary `twin`, Node 22):
+`packages/cli` (`@open-twin/cli`, binary `twin`, Node 24):
 
 - `twin list`: registered readers (id, kind, domains, status, data types).
 - `twin info <file | --source id --config file.json>`: which reader accepts the input and its `describe()` output; no data.
