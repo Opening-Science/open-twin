@@ -1,12 +1,15 @@
 /**
- * WHAT: Cross-source reconciliation / measure keys / source selection for overlapping Observations.
- * NOT:  Must not fetch vendor data or invent scores for openXR HealthTwinData.
-GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d6
+ * WHAT: Emits synthetic configured reconciliation and basic bundles for structural validation.
+ * NOT:  Does not claim these synthetic declaration sets describe actual connector output.
+ * GOVERNED BY: DECISIONS.md#d20
  * CORRECTNESS: HL7 validator (CI emit-bundles).
  */
 import {
   buildBundle,
   createObservation,
+  declareMeasurement,
+  MEASUREMENT_SCHEMA_VERSION,
+  type MeasurementDeclarationSet,
   minimalPatient,
   quantity,
   SYSTEMS,
@@ -14,8 +17,10 @@ import {
   UCUM,
   type UcumUnit
 } from '@open-twin/fhir-core';
-import type { Bundle, Observation, Patient } from 'fhir/r4.js';
+import type { Bundle, FhirResource, Observation, Patient } from 'fhir/r4.js';
 import { aggregate } from '../aggregate';
+import { createMeasurementCatalogue } from '../catalogue';
+import { generateReconciliationConfiguration } from '../configuration';
 
 /**
  * Two connectors describing one night and one day, reconciled, for the HL7 validator.
@@ -29,8 +34,7 @@ import { aggregate } from '../aggregate';
  * It carries the two outcomes that matter, side by side:
  *
  *   - sleep duration is reconciled and a derived Observation is emitted;
- *   - energy expenditure is not, because no source is dependable for it, so the two
- *     readings stand and nothing is asserted over them.
+ *   - session energy abstains because the configured preferred source has no value.
  */
 
 const SUBJECT_KEY = 'aggregate-exemplar';
@@ -51,7 +55,7 @@ function reading(id: string, code: string, value: number, unit: UcumUnit): Obser
     id,
     code: { system: SYSTEMS.LOINC, code },
     subject: SUBJECT,
-    effectiveDateTime: `${DAY}T07:00:00+02:00`,
+    effectivePeriod: { start: `${DAY}T22:00:00Z`, end: '2026-06-21T06:00:00Z' },
     valueQuantity: quantity(value, unit)
   });
 }
@@ -65,20 +69,45 @@ function sourceBundle(connector: string, resources: Observation[]): Bundle {
   });
 }
 
-export function aggregateBundle(): Bundle {
-  const oura = sourceBundle('oura', [
-    reading('11110000-0000-5000-8000-000000000001', '93832-4', 402, UCUM.MINUTE),
-    reading('11110000-0000-5000-8000-000000000002', '41979-6', 2300, UCUM.KILOCALORIE)
+function registration(connector: string): MeasurementDeclarationSet {
+  return {
+    schemaVersion: MEASUREMENT_SCHEMA_VERSION,
+    connector,
+    version: 1,
+    coverage: 'complete',
+    definitions: [],
+    declarations: [
+      declareMeasurement('total-sleep-time', { system: SYSTEMS.LOINC, code: '93832-4' }),
+      declareMeasurement('session-energy-expenditure', { system: SYSTEMS.LOINC, code: '41981-2' })
+    ]
+  };
+}
+
+export function aggregateBundle(reconciliationEnabled = true): Bundle {
+  const alpha = sourceBundle('synthetic-alpha', [
+    {
+      ...reading('11110000-0000-5000-8000-000000000001', '93832-4', 402, UCUM.MINUTE),
+      device: { reference: '#sensor' },
+      contained: [{ resourceType: 'Device', id: 'sensor' }]
+    },
+    {
+      ...reading('11110000-0000-5000-8000-000000000002', '41981-2', 2300, UCUM.KILOCALORIE),
+      valueQuantity: undefined,
+      dataAbsentReason: { coding: [{ system: SYSTEMS.DATA_ABSENT_REASON, code: 'unknown' }] }
+    }
   ]);
-  const google = sourceBundle('google-health', [
+  const beta = sourceBundle('synthetic-beta', [
     reading('22220000-0000-5000-8000-000000000001', '93832-4', 415, UCUM.MINUTE),
-    reading('22220000-0000-5000-8000-000000000002', '41979-6', 2650, UCUM.KILOCALORIE)
+    reading('22220000-0000-5000-8000-000000000002', '41981-2', 2650, UCUM.KILOCALORIE)
   ]);
 
+  const catalogue = createMeasurementCatalogue([registration('synthetic-alpha'), registration('synthetic-beta')]);
+  const configuration = generateReconciliationConfiguration(catalogue);
   const { bundle } = aggregate({
-    sources: [{ bundle: oura }, { bundle: google }],
+    sources: [{ bundle: alpha }, { bundle: beta }],
     subjectKey: SUBJECT_KEY,
-    timestamp: TIMESTAMP
+    timestamp: TIMESTAMP,
+    reconciliation: reconciliationEnabled ? { enabled: true, catalogue, configuration } : { enabled: false }
   });
 
   // The Patient the sources' subject reference points at. The connectors did not carry
@@ -88,4 +117,68 @@ export function aggregateBundle(): Bundle {
     ...bundle,
     entry: [{ fullUrl: `urn:uuid:${patient.id}`, resource: patient }, ...(bundle.entry ?? [])]
   };
+}
+
+export function aggregateContainedBundle(): Bundle {
+  const contained: FhirResource[] = [
+    { resourceType: 'Patient', id: 'person' },
+    { resourceType: 'Device', id: 'sensor', owner: { reference: '#organization' } },
+    { resourceType: 'Organization', id: 'organization', name: 'Synthetic organization' }
+  ];
+  const observation: Observation = {
+    ...reading('33330000-0000-5000-8000-000000000001', '93832-4', 402, UCUM.MINUTE),
+    subject: { reference: '#person' },
+    device: { reference: '#sensor' },
+    contained
+  };
+  const catalogue = createMeasurementCatalogue([registration('synthetic-alpha'), registration('synthetic-beta')]);
+  return aggregate({
+    sources: [{ bundle: sourceBundle('synthetic-alpha', [observation]) }],
+    subjectKey: SUBJECT_KEY,
+    timestamp: TIMESTAMP,
+    reconciliation: {
+      enabled: true,
+      catalogue,
+      configuration: generateReconciliationConfiguration(catalogue)
+    }
+  }).bundle;
+}
+
+export function aggregateRelativeBundle(): Bundle {
+  const base = 'https://example.test/fhir';
+  const contained: FhirResource[] = [
+    { resourceType: 'Device', id: 'sensor', owner: { reference: 'Organization/owner' } }
+  ];
+  const observation: Observation = {
+    ...reading('44440000-0000-5000-8000-000000000001', '93832-4', 402, UCUM.MINUTE),
+    subject: { reference: 'Patient/person' },
+    device: { reference: '#sensor' },
+    performer: [{ reference: 'Practitioner/operator' }],
+    specimen: { reference: 'Specimen/sample' },
+    effectivePeriod: { start: '2026-06-21T00:00:00+02:00', end: '2026-06-21T08:00:00+02:00' },
+    contained
+  };
+  const resources: FhirResource[] = [
+    observation,
+    { resourceType: 'Patient', id: 'person' },
+    { resourceType: 'Organization', id: 'owner', name: 'Synthetic organization' },
+    { resourceType: 'Practitioner', id: 'operator' },
+    { resourceType: 'Specimen', id: 'sample', subject: { reference: 'Patient/person' } }
+  ];
+  const bundle: Bundle = {
+    resourceType: 'Bundle',
+    type: 'collection',
+    entry: resources.map((resource) => ({ fullUrl: `${base}/${resource.resourceType}/${resource.id}`, resource }))
+  };
+  const catalogue = createMeasurementCatalogue([registration('synthetic-alpha'), registration('synthetic-beta')]);
+  return aggregate({
+    sources: [{ connector: 'synthetic-alpha', bundle }],
+    subjectKey: SUBJECT_KEY,
+    timestamp: TIMESTAMP,
+    reconciliation: {
+      enabled: true,
+      catalogue,
+      configuration: generateReconciliationConfiguration(catalogue)
+    }
+  }).bundle;
 }

@@ -16,7 +16,7 @@ import {
   type MeasurementProblem,
   validateMeasurementDeclarations
 } from '@open-twin/fhir-core';
-import { AGGREGATOR } from './aggregate';
+import { AGGREGATOR } from './sources';
 
 export interface CatalogueSource {
   connector: string;

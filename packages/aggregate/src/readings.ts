@@ -16,14 +16,15 @@ import {
   SYSTEMS
 } from '@open-twin/fhir-core';
 import type { Observation, Period, Quantity, Range, SampledData } from 'fhir/r4.js';
-import { AGGREGATOR, connectorOf, type SourceBundle } from './aggregate';
 import { catalogueEntry, type MeasurementCatalogue } from './catalogue';
+import { referenceIdentity } from './references';
+import { AGGREGATOR, connectorOf, type SourceBundle } from './sources';
 
 export type ReadingWindow = { kind: 'instant'; at: string } | { kind: 'period'; start: string; end: string };
 
 export interface ReadingRequest {
   key: string;
-  /** Exact FHIR reference supplied by the integrator, not a patient-matching hint. */
+  /** Exact resolved subject identity, not a patient-matching hint. */
   subject: string;
   context: MeasurementContext;
   window: ReadingWindow;
@@ -46,6 +47,8 @@ export type ReadingIneligibility =
 export interface ResolvedReading extends LocatedMeasurement {
   connector: string;
   definition: MeasurementDefinition;
+  /** Original containing entry address, used to resolve relative and fragment subjects. */
+  fullUrl?: string;
 }
 
 export interface ReadingAssessment {
@@ -112,6 +115,32 @@ function windowOf(window: ReadingWindow): Window | undefined {
   const end = window.kind === 'instant' ? start : instant(window.end);
   if (!start || !end || (window.kind === 'period' && compare(start, end) >= 0)) return undefined;
   return { kind: window.kind, start, end };
+}
+
+/** Complete, timezone-normalized boundaries, retaining all fractional precision. */
+export function observationWindow(observation: Observation): ReadingWindow | undefined {
+  const effective = [
+    observation.effectiveDateTime,
+    observation.effectivePeriod,
+    observation.effectiveInstant,
+    observation.effectiveTiming
+  ].filter((value) => value !== undefined);
+  if (effective.length !== 1) return undefined;
+  const parsed = observation.effectivePeriod
+    ? windowOf({
+        kind: 'period',
+        start: observation.effectivePeriod.start ?? '',
+        end: observation.effectivePeriod.end ?? ''
+      })
+    : windowOf({ kind: 'instant', at: observation.effectiveDateTime ?? observation.effectiveInstant ?? '' });
+  if (!parsed) return undefined;
+  const format = (value: Instant) =>
+    new Date(value.second * 1000).toISOString().replace('.000Z', `${value.fraction ? `.${value.fraction}` : ''}Z`);
+  const normalized: ReadingWindow =
+    parsed.kind === 'instant'
+      ? { kind: 'instant', at: format(parsed.start) }
+      : { kind: 'period', start: format(parsed.start), end: format(parsed.end) };
+  return windowOf(normalized) ? normalized : undefined;
 }
 
 function sameContext(a: MeasurementContext, b: MeasurementContext): boolean {
@@ -312,7 +341,7 @@ function assess(reading: ResolvedReading, request: ReadingRequest, requestedWind
 
   const subject = observation.subject?.reference;
   if (!subject?.trim()) reasons.push('missing-subject');
-  else if (subject !== request.subject) reasons.push('subject-mismatch');
+  else if (referenceIdentity(subject, reading.fullUrl) !== request.subject) reasons.push('subject-mismatch');
 
   const effectiveCount = [
     observation.effectiveDateTime,
@@ -322,16 +351,8 @@ function assess(reading: ResolvedReading, request: ReadingRequest, requestedWind
   ].filter((value) => value !== undefined).length;
   if (effectiveCount === 0) reasons.push('missing-time');
   else {
-    const actual =
-      effectiveCount !== 1
-        ? undefined
-        : observation.effectivePeriod
-          ? windowOf({
-              kind: 'period',
-              start: observation.effectivePeriod.start ?? '',
-              end: observation.effectivePeriod.end ?? ''
-            })
-          : windowOf({ kind: 'instant', at: observation.effectiveDateTime ?? observation.effectiveInstant ?? '' });
+    const normalized = observationWindow(observation);
+    const actual = normalized ? windowOf(normalized) : undefined;
     if (!actual) reasons.push('invalid-time');
     else if (
       actual.kind !== requestedWindow.kind ||
@@ -342,6 +363,18 @@ function assess(reading: ResolvedReading, request: ReadingRequest, requestedWind
     }
   }
   return { reading, eligibility: reasons.length ? { kind: 'ineligible', reasons } : { kind: 'eligible' } };
+}
+
+export function assessReading(reading: ResolvedReading, request: ReadingRequest): ReadingAssessment {
+  const window = windowOf(request.window);
+  if (!window) {
+    throw new ConnectorError('Reading request requires a complete time window', {
+      code: 'validation',
+      connector: AGGREGATOR.connector,
+      operation: 'resolveReadings'
+    });
+  }
+  return assess(reading, request, window);
 }
 
 /**
@@ -368,7 +401,18 @@ export function resolveReadings(options: {
     );
   }
 
-  const readings: ReadingAssessment[] = [];
+  const scanned = scanReadings(catalogue, sources);
+  return {
+    readings: scanned.readings
+      .filter(({ reading }) => reading.declaration.key === request.key)
+      .map(({ reading }) => assess(reading, request, requestedWindow)),
+    issues: scanned.issues
+  };
+}
+
+/** Shared inventory for explicit resolution and automatic occasion discovery. */
+export function scanReadings(catalogue: MeasurementCatalogue, sources: readonly SourceBundle[]) {
+  const readings: { reading: ResolvedReading; sourceIndex: number; observationIndex: number }[] = [];
   const issues: ReadingResolutionIssue[] = [];
   sources.forEach((source, sourceIndex) => {
     const connector = connectorOf(source);
@@ -383,7 +427,7 @@ export function resolveReadings(options: {
         .filter((registered) => registered.connector === connector)
         .flatMap((registered) => registered.declarations)
     );
-    (source.bundle.entry ?? []).forEach(({ resource }, observationIndex) => {
+    (source.bundle.entry ?? []).forEach(({ resource, fullUrl }, observationIndex) => {
       if (resource?.resourceType !== 'Observation') return;
       const observation = resource as Observation;
       const matched = matchDeclarations(observation, declarations);
@@ -405,8 +449,15 @@ export function resolveReadings(options: {
         }
       }
       for (const located of locateMeasurements(observation, declarations)) {
-        if (located.declaration.key !== request.key) continue;
-        readings.push(assess({ ...located, connector, definition: entry.definition }, request, requestedWindow));
+        const definition = catalogueEntry(catalogue, located.declaration.key)?.definition;
+        if (!definition) {
+          throw new ConnectorError('Registered measurement has no definition', {
+            code: 'validation',
+            connector: AGGREGATOR.connector,
+            operation: 'resolveReadings'
+          });
+        }
+        readings.push({ reading: { ...located, connector, definition, fullUrl }, sourceIndex, observationIndex });
       }
     });
   });

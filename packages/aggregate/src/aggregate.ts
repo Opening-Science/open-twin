@@ -1,205 +1,158 @@
 /**
- * WHAT: Cross-source reconciliation / measure keys / source selection for overlapping Observations.
- * NOT:  Must not fetch vendor data or invent scores for openXR HealthTwinData.
-GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d2; DECISIONS.md#d3; DECISIONS.md#d4
+ * WHAT: Combines source bundles without changing resource identity, optionally reconciling declared measurements.
+ * NOT:  Does not fetch, infer patient identity, rank reliability or persist preferences.
+ * GOVERNED BY: DECISIONS.md#d1; DECISIONS.md#d19; DECISIONS.md#d20
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
+ * GOTCHA: Source fullUrls and ids are retained; conflicting addresses are errors, never silently rewritten.
  */
-import { buildBundle, ConnectorError, derivedObservation } from '@open-twin/fhir-core';
-import type { Bundle, FhirResource, Observation } from 'fhir/r4.js';
-import { effectiveDay, type Measure, measureOf } from './measure';
-import { selectSource } from './select';
+import { isDeepStrictEqual } from 'node:util';
+import { ConnectorError, connectorMeta, uuidv5 } from '@open-twin/fhir-core';
+import type { Bundle, BundleEntry, Observation } from 'fhir/r4.js';
+import type { MeasurementCatalogue } from './catalogue';
+import { type ReconciliationConfiguration, validateReconciliationConfiguration } from './configuration';
+import { type Reconciliation, type ReconciliationIssue, reconcile } from './reconciliation';
+import { referenceIdentity } from './references';
+import { AGGREGATOR, connectorOf, type SourceBundle } from './sources';
 
-/**
- * One bundle from several connectors, with overlaps reconciled and nothing discarded.
- *
- * Two rules hold this together, and both are about not destroying evidence:
- *
- *   1. Every source Observation survives. A reconciliation is an added assertion, not
- *      a replacement, so changing the selection policy later is a re-run over data
- *      already held rather than a re-fetch from vendors who may no longer serve it.
- *   2. Where the evidence gives no basis to prefer a source, none is preferred. The
- *      output then says several sources disagreed and no more, which is the truth.
- *
- * The derived Observation carries `derivedFrom` pointing at every source it considered
- * — not only the winner — and `method` carrying the policy in readable prose. A
- * selection nobody can audit is indistinguishable from a guess.
- */
+export type { Reconciliation, ReconciliationIssue } from './reconciliation';
+export type { SourceBundle } from './sources';
 
-export const AGGREGATOR = { connector: 'open-twin', version: '0.1.0' } as const;
-
-export interface SourceBundle {
-  /** The connector that produced it. Read from `meta.tag` when not given. */
-  connector?: string;
-  bundle: Bundle;
-}
+export type ReconciliationOptions =
+  | { enabled: false }
+  | {
+      enabled: true;
+      catalogue: MeasurementCatalogue;
+      configuration: ReconciliationConfiguration;
+    };
 
 export interface AggregateOptions {
   sources: SourceBundle[];
-  /** The subject every source describes. Reconciling across subjects is meaningless. */
+  /** The subject every source describes; this key never establishes patient identity. */
   subjectKey: string;
-  /** Bundle.timestamp. Supplied so the result is reproducible. */
   timestamp: string;
+  /** Omitted means basic bundling, with no source-selection decisions. */
+  reconciliation?: ReconciliationOptions;
 }
 
 export interface AggregateResult {
   bundle: Bundle;
-  /** One line per occasion where more than one source reported the same measure. */
   reconciliations: Reconciliation[];
+  /** Diagnostics contain codes and input positions, never resource payloads. */
+  issues: ReconciliationIssue[];
+  reconciliationStatus: 'disabled' | 'no-occasions' | 'completed';
 }
 
-export interface Reconciliation {
-  measure: Measure;
-  day: string;
-  sources: string[];
-  /** The connector selected, or undefined when the evidence gave no basis to choose. */
-  selected?: string;
-  /** Why — including why not, when nothing was selected. */
-  policy: string;
-}
-
-const CONNECTOR_TAG = 'http://opentwin.ch/fhir/CodeSystem/connector';
-
-export function connectorOf(source: SourceBundle): string {
-  const tagged = source.bundle.meta?.tag?.find((tag) => tag.system === CONNECTOR_TAG)?.code;
-  const connector = source.connector ?? tagged;
-  if (!connector) {
-    throw new ConnectorError('Cannot attribute a bundle: it carries no connector tag and none was supplied', {
-      code: 'validation',
-      connector: AGGREGATOR.connector,
-      operation: 'aggregate'
-    });
-  }
-  return connector;
-}
-
-const isObservation = (resource: FhirResource | undefined): resource is Observation =>
-  resource?.resourceType === 'Observation';
-
-interface Attributed {
-  connector: string;
-  observation: Observation;
+function reject(message: string): never {
+  throw new ConnectorError(message, {
+    code: 'validation',
+    connector: AGGREGATOR.connector,
+    operation: 'aggregate'
+  });
 }
 
 export function aggregate(options: AggregateOptions): AggregateResult {
-  if (options.sources.length === 0) {
-    throw new ConnectorError('Cannot aggregate nothing: supply at least one source bundle', {
-      code: 'validation',
-      connector: AGGREGATOR.connector,
-      operation: 'aggregate'
-    });
+  if (options.sources.length === 0) reject('Cannot aggregate nothing: supply at least one source bundle');
+  const settings = options.reconciliation;
+  if (settings !== undefined && typeof settings?.enabled !== 'boolean') {
+    reject('Reconciliation requires an explicit boolean enabled flag');
+  }
+  let configuration: ReconciliationConfiguration | undefined;
+  if (settings?.enabled) {
+    if (!settings.catalogue || !settings.configuration) {
+      reject('Enabled reconciliation requires a catalogue and configuration');
+    }
+    const validation = validateReconciliationConfiguration(settings.configuration, settings.catalogue);
+    if (!validation.ok) {
+      reject(`Invalid reconciliation configuration: ${validation.problems.map((problem) => problem.code).join(', ')}`);
+    }
+    configuration = validation.configuration;
   }
 
-  const carried: FhirResource[] = [];
-  // Keyed by subject and occasion, and the measure and day are carried alongside rather
-  // than re-parsed out of the key: splitting the key was how the subject came back as
-  // the measure name the moment the key gained a third part.
-  const byOccasion = new Map<string, { measure: Measure; day: string; items: Attributed[] }>();
+  const entries: BundleEntry[] = [];
+  const addresses = new Map<string, BundleEntry>();
+  const references = new Map<Observation, string>();
   const subjects = new Set<string>();
+  const sources: SourceBundle[] = [];
+  const entryIndices: number[][] = [];
+  const seenByConnector = new Map<string, Set<BundleEntry>>();
 
-  for (const source of options.sources) {
+  for (const [sourceIndex, source] of options.sources.entries()) {
     const connector = connectorOf(source);
-    for (const entry of source.bundle.entry ?? []) {
-      // `Bundle.entry.resource` is typed as the abstract `Resource`; anything actually
-      // in a bundle is a member of the concrete union.
-      const resource = entry.resource as FhirResource | undefined;
-      if (!resource) continue;
-      carried.push(resource);
-
-      if (!isObservation(resource)) continue;
-      const subject = resource.subject?.reference;
-      if (subject) subjects.add(subject);
-
-      const measure = measureOf(resource);
-      const day = effectiveDay(resource);
-      // No known measure or no effective time: carried, not reconciled. Without a time
-      // there is nothing to say it describes the same occasion as anything else.
-      if (!measure || !day) continue;
-
-      // Keyed by subject as well as occasion. Reconciling across subjects would
-      // attribute one person's reading to another; the guard below means this can only
-      // ever be belt and braces.
-      const key = `${subject ?? '(none)'}|${measure}|${day}`;
-      const group = byOccasion.get(key) ?? { measure, day, items: [] };
-      group.items.push({ connector, observation: resource });
-      byOccasion.set(key, group);
+    const sourceEntries: BundleEntry[] = [];
+    const indices: number[] = [];
+    const seen = seenByConnector.get(connector) ?? new Set<BundleEntry>();
+    seenByConnector.set(connector, seen);
+    for (const [index, entry] of (source.bundle.entry ?? []).entries()) {
+      const resource = entry.resource;
+      if (!resource) reject('Source bundle entries must contain resources');
+      const address = entry.fullUrl ?? (resource.id ? `${resource.resourceType}/${resource.id}` : undefined);
+      let carried = address ? addresses.get(address) : undefined;
+      if (carried && !isDeepStrictEqual(carried.resource, resource)) {
+        reject('Conflicting source resources share a bundle address');
+      }
+      if (!carried) {
+        carried = { ...(entry.fullUrl ? { fullUrl: entry.fullUrl } : {}), resource: structuredClone(resource) };
+        entries.push(carried);
+        if (address) addresses.set(address, carried);
+      }
+      if (!seen.has(carried)) {
+        sourceEntries.push(carried);
+        indices.push(index);
+        seen.add(carried);
+      }
+      if (resource.resourceType === 'Observation') {
+        const observation = resource as Observation;
+        const subject = observation.subject?.reference;
+        if (subject?.trim()) {
+          const identity = subject.startsWith('#')
+            ? JSON.stringify([subject, address ?? [sourceIndex, index]])
+            : referenceIdentity(subject, entry.fullUrl);
+          if (!identity) {
+            reject('Cannot establish subject identity: relative references require a RESTful entry fullUrl');
+          }
+          subjects.add(identity);
+        }
+        if (entry.fullUrl) {
+          references.set(carried.resource as Observation, entry.fullUrl);
+        }
+      }
     }
+    sources.push({ connector, bundle: { ...source.bundle, entry: sourceEntries } });
+    entryIndices.push(indices);
   }
-
-  // Each connector mints its own `urn:uuid:` subject from `patientUuid(connector, key)`,
-  // which hashes the connector in — so the same person reaches this function under a
-  // different reference from every source unless the integrator supplied a common one.
-  // Left alone, nothing would match and the result would report no overlap: a wrong
-  // answer that looks like a clean one. Refusing is the only safe reading.
   if (subjects.size > 1) {
-    throw new ConnectorError(
-      `Cannot reconcile across ${subjects.size} different subjects. Each connector derives its own ` +
-        'subject reference, so supply one `subject` to every connector for the same person before aggregating.',
-      { code: 'validation', connector: AGGREGATOR.connector, operation: 'aggregate' }
-    );
+    reject('Cannot aggregate different subjects: supply the same subject reference to every connector');
   }
 
-  const derived: Observation[] = [];
-  const reconciliations: Reconciliation[] = [];
-
-  for (const [, group] of [...byOccasion.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
-    const { measure, day, items } = group;
-    // One connector reporting a measure twice in a day is not a disagreement between
-    // sources, and picking between a device's own two readings is not what the
-    // reliability evidence speaks to.
-    const connectors = [...new Set(items.map((item) => item.connector))].sort();
-    if (connectors.length < 2) continue;
-
-    const selection = selectSource(
-      connectors.map((connector) => ({ connector })),
-      measure
-    );
-
-    if (selection.kind === 'abstained') {
-      reconciliations.push({ measure, day, sources: connectors, policy: selection.reason });
-      continue;
-    }
-
-    const winningReadings = items.filter((item) => item.connector === selection.winner.connector);
-    if (winningReadings.length !== 1) {
-      reconciliations.push({
-        measure,
-        day,
-        sources: connectors,
-        policy:
-          `${selection.winner.connector} is the preferred source for ${measure}, but it supplied ` +
-          `${winningReadings.length} readings for ${day}. No within-source selection rule is defined, so aggregation abstained.`
-      });
-      continue;
-    }
-    const winner = winningReadings[0]?.observation;
-    if (!winner) continue;
-
-    derived.push(
-      derivedObservation({
-        sources: items.map((item) => item.observation),
-        selected: winner,
-        policy: selection.policy,
-        connector: AGGREGATOR.connector,
-        subjectKey: options.subjectKey,
-        measure: `${measure}/${day}`
-      })
-    );
-    reconciliations.push({
-      measure,
-      day,
-      sources: connectors,
-      selected: selection.winner.connector,
-      policy: selection.policy
-    });
+  const result =
+    settings?.enabled && configuration
+      ? reconcile({
+          sources,
+          catalogue: settings.catalogue,
+          configuration,
+          subjectKey: options.subjectKey,
+          references,
+          entryIndices
+        })
+      : { derived: [], reconciliations: [], issues: [] };
+  for (const resource of result.derived) {
+    const fullUrl = `urn:uuid:${resource.id}`;
+    if (addresses.has(fullUrl)) reject('A derived observation conflicts with a source bundle address');
+    entries.push({ fullUrl, resource });
   }
-
   return {
-    bundle: buildBundle({
-      connector: AGGREGATOR,
-      resources: [...carried, ...derived],
+    bundle: {
+      resourceType: 'Bundle',
+      id: uuidv5(
+        JSON.stringify([AGGREGATOR.connector, options.subjectKey, [...new Set(sources.map(connectorOf))].sort()])
+      ),
+      meta: connectorMeta(AGGREGATOR),
+      type: 'collection',
       timestamp: options.timestamp,
-      bundleKey: [AGGREGATOR.connector, options.subjectKey, options.sources.map(connectorOf).sort().join(',')].join('|')
-    }),
-    reconciliations
+      entry: entries
+    },
+    reconciliations: result.reconciliations,
+    issues: result.issues,
+    reconciliationStatus: !settings?.enabled ? 'disabled' : result.reconciliations.length ? 'completed' : 'no-occasions'
   };
 }

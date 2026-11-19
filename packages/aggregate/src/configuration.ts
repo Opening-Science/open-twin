@@ -1,12 +1,16 @@
 /**
  * WHAT: Generates, validates and explicitly proposes updates to user-owned source preferences against measurement catalogues.
- * NOT:  Does not fetch, persist, select readings, or change aggregate's current reconciliation policy.
+ * NOT:  Does not fetch, select readings, or persist anything without an explicit generation save option.
  * GOVERNED BY: DECISIONS.md#d19
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: Priorities describe user preference, not reliability; omitted supporting sources are excluded, not appended.
  */
-import type { MeasurementDeclaration, MeasurementDefinition } from '@open-twin/fhir-core';
+import { randomUUID } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { ConnectorError, type MeasurementDeclaration, type MeasurementDefinition } from '@open-twin/fhir-core';
 import { type MeasurementCatalogue, sharedCatalogueEntries } from './catalogue';
+import { AGGREGATOR } from './sources';
 
 export const RECONCILIATION_CONFIGURATION_VERSION = 1 as const;
 
@@ -22,6 +26,17 @@ export interface ReconciliationConfiguration {
   version: typeof RECONCILIATION_CONFIGURATION_VERSION;
   /** Exactly the keys declared by at least two registered sources. */
   measurements: Record<string, MeasurementPreference>;
+}
+
+export interface ReconciliationConfigurationSaveOptions {
+  /** Created recursively if absent. Relative paths resolve against the working directory. */
+  directory: string;
+}
+
+export interface SavedReconciliationConfiguration {
+  configuration: ReconciliationConfiguration;
+  /** Absolute path of the new timestamped JSON snapshot. Existing files are never overwritten. */
+  filePath: string;
 }
 
 export interface ConfigurationProblem {
@@ -77,8 +92,19 @@ export interface ConfigurationUpdateResult {
 }
 
 /** Defaults depend only on declared capabilities and explicit registration order. */
-export function generateReconciliationConfiguration(catalogue: MeasurementCatalogue): ReconciliationConfiguration {
-  return {
+export function generateReconciliationConfiguration(
+  catalogue: MeasurementCatalogue,
+  options?: undefined
+): ReconciliationConfiguration;
+export function generateReconciliationConfiguration(
+  catalogue: MeasurementCatalogue,
+  options: { save: ReconciliationConfigurationSaveOptions }
+): SavedReconciliationConfiguration;
+export function generateReconciliationConfiguration(
+  catalogue: MeasurementCatalogue,
+  options?: { save: ReconciliationConfigurationSaveOptions }
+): ReconciliationConfiguration | SavedReconciliationConfiguration {
+  const configuration: ReconciliationConfiguration = {
     version: RECONCILIATION_CONFIGURATION_VERSION,
     measurements: Object.fromEntries(
       sharedCatalogueEntries(catalogue).map((entry) => [
@@ -87,6 +113,21 @@ export function generateReconciliationConfiguration(catalogue: MeasurementCatalo
       ])
     )
   };
+  if (options === undefined) return configuration;
+
+  const directory = options?.save?.directory;
+  if (typeof directory !== 'string' || !directory.trim()) {
+    throw new ConnectorError('Saving reconciliation configuration requires a nonempty directory', {
+      code: 'validation',
+      connector: AGGREGATOR.connector,
+      operation: 'generateReconciliationConfiguration'
+    });
+  }
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const filePath = resolve(directory, `reconciliation-configuration-${timestamp}-${randomUUID()}.json`);
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, `${JSON.stringify(configuration, null, 2)}\n`, { flag: 'wx' });
+  return { configuration, filePath };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

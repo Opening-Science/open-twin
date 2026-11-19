@@ -18,7 +18,7 @@ const SYSTEM = 'https://example.test/measurements';
 const ASLEEP = { system: SYSTEM, code: 'asleep' };
 const IN_BED = { system: SYSTEM, code: 'in-bed' };
 const PANEL = { system: SYSTEM, code: 'sleep-panel' };
-const SUBJECT = 'Patient/synthetic-person';
+const SUBJECT = 'https://example.test/fhir/Patient/synthetic-person';
 const PERIOD = { start: '2026-06-20T22:00:00Z', end: '2026-06-21T06:00:00Z' };
 const ABSENT = { coding: [{ system: SYSTEMS.DATA_ABSENT_REASON, code: 'unknown' }] };
 const REQUEST: ReadingRequest = {
@@ -84,6 +84,36 @@ function reasons(value: Observation, request = REQUEST): ReadingIneligibility[] 
 }
 
 describe('declaration-driven runtime resolution', () => {
+  it('compares resolved subject identities rather than equal relative ids from different servers', () => {
+    const sources = ['alpha', 'beta'].map((connector) => ({
+      connector,
+      bundle: {
+        resourceType: 'Bundle' as const,
+        type: 'collection' as const,
+        entry: [
+          {
+            fullUrl: `https://${connector}.test/fhir/Observation/reading`,
+            resource: observation({ id: 'reading', subject: { reference: 'Patient/person' } })
+          }
+        ]
+      }
+    }));
+    const result = resolveReadings({
+      catalogue: CATALOGUE,
+      sources,
+      request: { ...REQUEST, subject: 'https://alpha.test/fhir/Patient/person' }
+    });
+    expect(result.readings.map(({ reading, eligibility }) => [reading.connector, eligibility])).toEqual([
+      ['alpha', { kind: 'eligible' }],
+      ['beta', { kind: 'ineligible', reasons: ['subject-mismatch'] }]
+    ]);
+  });
+
+  it('does not treat an unbased relative subject as a known absolute identity', () => {
+    const result = resolve(observation({ subject: { reference: 'Patient/synthetic-person' } }));
+    expect(result.readings[0]?.eligibility).toEqual({ kind: 'ineligible', reasons: ['subject-mismatch'] });
+  });
+
   it('resolves a registered observation-level coding absent from the legacy hardcoded table', () => {
     const value = observation();
     const result = resolve(value);

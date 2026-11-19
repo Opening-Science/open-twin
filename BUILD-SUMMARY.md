@@ -49,7 +49,7 @@ Everything a connector must not decide for itself, decided once:
 | `observation.ts`    | `createObservation`, and `numericComponent` which **requires** a unit and falls back to `dataAbsentReason`.      |
 | `bundle.ts`         | `buildBundle`, lowercase `urn:uuid:` fullUrls, connector provenance tag.                                         |
 | `provenance.ts`     | `Device`, `METHOD` vocabulary, `derivedObservation`.                                                             |
-| `reliability.ts`    | Graded validation evidence per **(source, measure)**, with citations.                                            |
+| `reliability.ts`    | Legacy graded evidence exports, unused by aggregate and pending removal in #279.                                 |
 | `referenceRange.ts` | Anchor-layer intervals on the Observation, each carrying its source.                                             |
 | `errors.ts`         | `ConnectorError` — status, operation, code, and **never a response body**.                                       |
 
@@ -103,22 +103,24 @@ Nine packages. Seven map or ingest; two are infrastructure.
 
 ### `@open-twin/aggregate`
 
-Gives `derivedObservation` and `reliabilityFor` their first caller. Takes bundles from
-several connectors for one subject and returns one bundle.
+Takes bundles from several connectors for one subject and returns one collection.
+Basic bundling is the default, retaining resource ids, fullUrls and references.
+Identical resources at an address are coalesced; conflicting addresses are rejected.
 
-- **every source Observation survives** — a reconciliation is an added assertion, so
-  changing the policy later is a re-run, not a re-fetch from a vendor who may no longer
-  serve the window;
-- **where the evidence gives no basis to prefer a source, none is preferred.**
+Explicitly enabled reconciliation requires a catalogue and validated user-owned
+configuration. It discovers shared measurements at exact instants or complete
+matching periods, applies strict or ordered fallback preferences, and reports
+structured selections, fallbacks and abstentions. Ambiguity stops selection.
+Missing or partial timing produces diagnostics, not invented day boundaries.
+Configuration generation is storage-free by default; its explicit save option
+exports a timestamped, uniquely named JSON snapshot without overwriting existing
+files. Runtime aggregation never persists or updates preferences.
 
-The refusals are the substance. Energy expenditure abstains outright — published MAPE
-above 30% for every brand tested, so naming a winner would present a confidence nobody
-has earned. Equally graded sources abstain rather than break a tie on array order.
-
-Sleep duration selects **google-health over Oura**, which reads backwards until you
-look: Oura's `good` grade is for sleep-wake _detection_, and it has no published
-total-sleep-time finding at all. That is the per-measure distinction `reliability.ts`
-exists to make, arriving on its own.
+Every original Observation survives; a successful selection adds a measurement-level
+derived Observation with resolvable lineage, including component-level selections.
+Runtime order does not change saved priorities. Preferences are not clinical
+reliability grades. The legacy reliability exports remain pending #279 but are not
+used by aggregation.
 
 ---
 

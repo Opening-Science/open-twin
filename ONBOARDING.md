@@ -11,8 +11,9 @@ agents. Read the shared decisions before changing a mapper.
 2. Everything a connector must not decide for itself — subject identity, resource
    ids, code systems, units, error hygiene — is decided **once**, in
    `@open-twin/fhir-core`, recorded with reasons in [DECISIONS.md](DECISIONS.md).
-3. `@open-twin/aggregate` reconciles overlapping measurements across connectors,
-   and refuses to pick a winner when the evidence gives no basis to.
+3. `@open-twin/aggregate` bundles without selection by default. Explicitly enabled
+   reconciliation applies user-owned strict/fallback preferences only to declared,
+   comparable measurements, and reports selections and abstentions.
 4. Verification combines UCUM checks, recorded terminology reviews and the
    official HL7 validator over registered example bundles. Some checks are
    advisory; see [validation limits](docs/INTENDED-USE.md#purpose-and-limits).

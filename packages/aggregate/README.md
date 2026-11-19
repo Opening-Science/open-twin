@@ -1,16 +1,17 @@
 # @open-twin/aggregate
 
-Takes bundles from several connectors for **one subject** and returns one bundle,
-with overlaps reconciled. This is the layer that answers "Oura and Google Health
-both reported last night's sleep — which number do we stand behind?"
+Takes bundles from several connectors for **one subject** and returns one collection
+bundle. Basic bundling is the default. Reconciliation is optional and applies
+user-owned source preferences to comparable, declared measurements.
 
 Two rules hold it together, and both are about not destroying evidence:
 
 1. **Every source Observation survives.** A reconciliation is an added assertion,
    not a replacement, so changing the selection policy later is a re-run over data
    already held — not a re-fetch from a vendor who may no longer serve the window.
-2. **Where the evidence gives no basis to prefer a source, none is preferred.**
-   The output then says several sources disagreed, and no more. That is the truth.
+2. **No implicit source preference.** Without explicit enablement, no selection
+   decisions or derived reconciliation Observations are created. Configured
+   preferences are not reliability grades or claims of clinical superiority.
 
 ## Installation
 
@@ -25,26 +26,38 @@ This package is versioned independently. See [publishing](../../docs/PUBLISHING.
 
 ## What a reconciliation is
 
-When more than one connector reports the same **measure** on the same **day**, the
-aggregator consults `reliabilityFor` in `@open-twin/fhir-core` — graded validation
-evidence per _(source, measure)_ pair, with citations — and either:
+With reconciliation enabled, aggregate discovers occasions for catalogue-shared keys
+from source observations. An occasion is an exact subject reference, measurement
+context, and normalized instant or complete period. Equal dates, overlapping
+periods, similar names and commensurable units do not establish comparability.
 
-- emits a **derived Observation** carrying `derivedFrom` pointing at _every_ source
-  it considered (not only the winner) and `method` stating the policy in prose, or
-- **abstains**, recording why. The abstentions are the substance:
-  - _energy expenditure_ abstains outright — published MAPE above 30% for every
-    brand tested, so naming a winner would present a confidence nobody has earned;
-  - _equally graded sources_ abstain rather than break a tie on array order;
-  - _several same-day readings from the preferred source_ abstain because the
-    reliability evidence ranks connectors, not readings within one connector;
-  - _a single reporting source_ is not a disagreement, so nothing is asserted.
+For each occasion:
 
-A selection nobody can audit is indistinguishable from a guess, which is why the
-policy prose and the citation ride inside the bundle.
+- **Strict** checks only the first configured source.
+- **Fallback** tries listed sources in order until one has exactly one eligible
+  reading. Sources with no eligible reading are skipped.
+- Multiple eligible readings or an ambiguous declaration at an inspected source
+  cause immediate abstention, never arbitrary selection or fallback past ambiguity.
 
-The integrator must verify that grouped measurements are comparable. The current
-measure/day grouping does not establish matching units, measurement windows or
-measurement equivalence. Source selection is experimental; see the
+A successful selection adds one measurement-level Observation. Its `derivedFrom`
+references the distinct original Observations considered, including nonselected
+sources, and `method.text` explains the configured preference.
+Component selections copy that component's coding, value, interpretation and
+reference range, not the parent panel's unrelated values.
+Fragment references in retained metadata keep their required contained targets,
+including transitive references. Unrelated panel-only contained resources are not
+copied. Back-references to the source container remain references to the original
+Observation, not the new assertion. Missing or ambiguous contained targets are
+explicit validation errors.
+Relative references in derived metadata, including retained contained resources,
+are rebased to their original absolute targets. This does not rewrite the originals.
+The derived `effective[x]` keeps the selected source's original type, offset,
+fractional precision and period metadata; normalized windows are only for comparison,
+decision reporting and deterministic identity.
+
+The configured policy applies even if only one declared source returns data.
+Unique and undeclared measurements are carried without selection.
+Source selection remains experimental; see the
 [intended-use guidance](../../docs/INTENDED-USE.md).
 
 ## Usage
@@ -61,32 +74,75 @@ const { bundle, reconciliations } = aggregate({
   timestamp: '2026-06-21T08:00:00Z' // supplied, so the result is reproducible
 });
 
-for (const r of reconciliations) {
-  // { measure, day, sources, selected?, policy } — one line per overlap,
-  // including the overlaps where nothing was selected and why.
+// reconciliations is []; no source selection was requested.
+```
+
+To enable reconciliation, build the catalogue and generate or restore configuration
+as shown below, then pass both explicitly:
+
+```ts
+const result = aggregate({
+  sources: [{ bundle: ouraBundle }, { bundle: googleBundle }],
+  subjectKey: 'user-42',
+  timestamp: '2026-06-21T08:00:00Z',
+  reconciliation: { enabled: true, catalogue, configuration }
+});
+
+for (const decision of result.reconciliations) {
+  // key, window, sources, selected?, outcome, reason, attempts, policy
+  // outcome: selected | fallback | abstained
+  // attempts: connector, eligibleCount, ineligibleReasons, reason
 }
 ```
 
-## Preconditions: one subject and canonical source ids
+Missing or invalid enabled configuration throws a payload-free validation
+`ConnectorError`, including for empty bundles. Runtime never generates defaults,
+updates preferences, writes files or consults the legacy reliability table.
+Omitting `reconciliation`, or passing `{ enabled: false }`, performs basic bundling.
+
+### Discovery and diagnostics
+
+Timezones are normalized while retaining fractional seconds beyond milliseconds.
+Daily, session and sleep summaries require complete period boundaries; aggregate
+does not invent midnight, convert date markers to windows or infer a tolerance.
+Missing values still establish occasions when subject and timing are known, so
+strict abstention and fallback remain visible.
+
+`reconciliationStatus` is `disabled`, `no-occasions`, or `completed`. Completely empty
+data cannot establish occasions; it produces no invented per-window decisions.
+`issues` reports undeclared values, unregistered connectors, ambiguous declarations,
+missing subjects and missing/invalid times using codes, registered keys and original
+input positions, not health values. A `no-occasions` result can still contain issues.
+The decisions and output bundle themselves contain measurement metadata; treat them
+as potentially sensitive and do not log resource payloads.
+
+## Preconditions: one subject and preserved addresses
 
 Each connector mints its own `urn:uuid:` subject from its own key unless the
 integrator supplies a common one (decision D1). Left alone, nothing would match and
 the aggregator would report no overlap — a wrong answer that looks like a clean one.
 So `aggregate` **throws** when its sources carry more than one subject reference:
 supply the same `subject` to every connector for the same person before aggregating.
+Fragment subjects such as `#person` are local to their containing Observation:
+identical fragment labels in different Observations do not establish patient identity.
+Relative subjects such as `Patient/person` resolve against their containing entry's
+RESTful `fullUrl`, so matching ids on different servers or service roots are different
+subjects. Relative and absolute spellings of the same resolved address match.
+A relative subject with a missing, opaque or non-RESTful source address is rejected
+on both paths: supply a common absolute reference or `urn:uuid:` identity instead
+of relying on an inferred server base.
 
-Every Observation participating in a derived result must also carry a lowercase
-UUID `id`. Connector bundles built with `buildBundle` already satisfy this. A foreign
-id-less bundle must be normalised first; aggregation refuses it rather than emitting
-an unresolved `urn:uuid:undefined` provenance reference.
+Both paths preserve original resource ids and entry `fullUrl`s, including foreign
+non-UUID ids and absolute URLs. They retain Patient, Device and existing derived
+resources without rewriting their references or mutating inputs. Identical resources
+at the same address are coalesced; conflicting resources at an address are validation
+errors. Source transaction/search entry instructions are not copied into the output
+collection.
 
-## Where the grades come from
-
-`reliability.ts` in `@open-twin/fhir-core` records what the validation literature
-says, per source and measure — not a preference order. That distinction does real
-work: sleep _duration_ selects google-health over Oura, because Oura's `good` grade
-is for sleep–wake _detection_ and it has no published total-sleep-time finding at
-all. Extending the table is a citation, not an opinion.
+Every Observation considered for a successful derived result must have a `fullUrl`.
+Connector bundles built with `buildBundle` already satisfy this. An unaddressable
+source causes an explicit error rather than unresolved provenance. Basic bundling
+does not require a measurement to be addressable or declared.
 
 ## The measurement catalogue
 
@@ -105,6 +161,65 @@ const catalogue = createMeasurementCatalogue([OURA_MEASUREMENTS, GOOGLE_HEALTH_M
 
 sharedCatalogueEntries(catalogue); // keys two or more registered sources declare
 ```
+
+For a complete, reviewable workflow, run the
+[Oura + Google Health example](examples/oura-google-catalogue.ts) from the repository
+root after building the workspace packages:
+
+```bash
+pnpm --filter @open-twin/aggregate exec tsx examples/oura-google-catalogue.ts
+```
+
+This writes six working files plus an initial timestamped configuration snapshot
+to `out/oura-google-aggregation/` at the repository root.
+An optional directory argument overrides that location (relative paths are relative
+to the command's working directory, which `pnpm --filter` sets to the package):
+
+| File                                | Review                                                                                                |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `catalogue.json`                    | Every declared key, definition, context, unit, source selector and `shared` flag.                     |
+| `reconciliation-configuration.json` | Preferences for all shared keys; initially Oura first and `strict`.                                   |
+| `configuration-history/`            | Initial generated defaults, saved with a timestamp and unique suffix.                                 |
+| `oura-bundle.json`                  | One synthetic sleep period, mapped by the Oura connector.                                             |
+| `google-health-bundle.json`         | The same period plus a second Google-only night, mapped by Google Health.                             |
+| `basic-result.json`                 | Default aggregation: original resources, no source selection.                                         |
+| `reconciled-result.json`            | Enabled aggregation: original resources plus derived selections, decisions, attempts and diagnostics. |
+
+Everything is synthetic and offline. Catalogue, configuration and bundle content
+are deterministic; snapshot filenames reflect the save time. The catalogue uses real
+connector exports; fixture mapping uses the actual connector builders, including
+Oura's internal map-only builder, so this is a checkout example rather than a
+standalone published-package integration. Both connectors receive the same explicit
+subject reference; supplying only the same `subjectKey` would not link their
+connector-scoped default identities. Google Health means the cloud API v4 connector,
+not Android Health Connect. These outputs demonstrate mechanics, not clinical validity.
+
+For `deep-sleep-duration`, the first night has 60 minutes from Oura (converted by its
+mapper from 3,600 seconds) and 70 from Google. Default strict preferences select
+Oura. The second night has only Google's 80 minutes, so strict preference abstains.
+
+Edit **the existing entry**, retaining all other shared-key preferences, in
+`reconciliation-configuration.json`:
+
+```json
+"deep-sleep-duration": {
+  "sourcePriority": ["oura", "google-health"],
+  "missingData": "fallback"
+}
+```
+
+Rerun the same command. The first night still selects Oura; the second now falls
+back to Google. Reverse `sourcePriority` to prefer Google's 70 minutes on the first
+night instead. Generated defaults reflect registration order, not reliability.
+
+Reruns validate and reuse the saved configuration without overwriting it. Malformed
+or incompatible configuration fails explicitly before outputs are rewritten.
+The history snapshot is created only when the example generates initial defaults,
+not on reruns that reuse an existing working configuration. Editing the working file
+does not automatically snapshot those edits.
+Other output files are regenerated, including the synthetic source bundles.
+The catalogue itself remains capability metadata and never selects a source;
+the example explicitly enables reconciliation with the saved configuration.
 
 Every key a registered connector declares is in the catalogue. A key declared by one
 source has `shared: false`; a key declared by two or more has `shared: true` — the keys
@@ -135,7 +250,7 @@ const result = resolveReadings({
   ],
   request: {
     key: 'total-sleep-time',
-    subject: 'Patient/example', // must be the same exact reference in every reading
+    subject: 'https://example.test/fhir/Patient/example', // exact resolved subject identity
     context: { scope: 'sleep-period', statistic: 'total' },
     window: {
       kind: 'period',
@@ -207,10 +322,13 @@ values. Each resolution issue includes `matchedKeys`: the sorted, unique keys of
 all matched declarations, including keys other than the requested one. Unmatched
 elements and unregistered connectors have an empty `matchedKeys` array.
 
-This is the runtime eligibility layer for the configured reconciliation work in
-#264/#277. It does not change the legacy `aggregate()` API, which still groups by the
-`measureOf` table and selects by reliability grade. Moving that API to opt-in,
-configured selection and removing the legacy policy are tracked in #275 and #279.
+The same declaration inventory and precise time rules drive automatic discovery in
+enabled `aggregate()`. The explicit `resolveReadings` API remains available for
+assessing a caller-supplied request without selecting a source.
+Its subject is compared with each reading's resolved identity, not an unqualified
+relative string. A fragment's comparison identity is its containing `fullUrl` plus
+the fragment; this is a scoped comparison key, not an external link to a contained
+resource. A subject that cannot be resolved is ineligible with `subject-mismatch`.
 
 ## User-owned source preferences
 
@@ -242,12 +360,41 @@ if (!result.ok) {
 const restored = result.configuration; // typed ReconciliationConfiguration
 ```
 
+### Saving generated configuration snapshots
+
+Generation remains storage-free by default. To generate and synchronously save a
+new JSON snapshot, explicitly supply a destination directory:
+
+```ts
+const { configuration, filePath } = generateReconciliationConfiguration(catalogue, {
+  save: { directory: './out/configuration-history' }
+});
+// filePath is the absolute path of the new JSON file.
+// Pass configuration to enabled aggregate(), or review/edit the saved file first.
+```
+
+The directory is created recursively if needed; relative paths resolve against
+the current working directory. Every save creates a new filename such as
+`reconciliation-configuration-2026-11-18T15-31-37-711Z-<uuid>.json`.
+The UTC timestamp is filename-safe and the UUID distinguishes saves within the
+same millisecond. Exclusive creation prevents overwriting even if a name collides.
+Invalid directories and filesystem failures throw; there is no unsaved-success
+fallback. The one-argument call still returns just `ReconciliationConfiguration`;
+the save-enabled overload returns `{ configuration, filePath }`.
+
+The JSON contains only configuration, not file metadata, so it remains valid
+input to `validateReconciliationConfiguration`. Its `version: 1` is the schema
+version, not a save counter. These are snapshots of newly generated defaults:
+they do not automatically save edited preferences, migrate older configurations,
+choose an active/latest file or enable runtime reconciliation. The application
+still owns those decisions. Validation, updates and `aggregate()` never write files.
+
 Only keys declared by at least two registered sources receive entries. Defaults
 list supporting sources in registration order, with the first source preferred
 and `missingData: 'strict'`. Strict preference means using only that first source;
 `fallback` permits trying the remaining listed sources in order when earlier
-sources have no eligible value. These modes describe the configuration contract;
-this API does not yet execute source selection.
+sources have no eligible value. Generation itself does not execute selection;
+pass the configuration to enabled `aggregate()` to apply it.
 
 Users may reorder or remove sources, but each priority list must remain nonempty
 and contain no duplicates. Every listed source must declare that particular key.
@@ -263,9 +410,7 @@ and compatibility with the catalogue before returning a typed configuration.
 Validation alone never appends supporting sources. To update saved preferences
 after registrations change, use the explicit update operation below.
 
-These are user preferences, not reliability grades or evidence of clinical
-validity. Like the catalogue, these APIs are additive: `aggregate()` still uses
-its existing reliability-based selection until the remaining #264 work lands.
+These are user preferences, not reliability grades or evidence of clinical validity.
 
 ### Updating configuration after capability changes
 
@@ -339,6 +484,24 @@ silently during reconciliation.
 
 ## Verification
 
-`src/verification/exampleBundle.ts` emits a two-source bundle — one reconciled
-measure, one abstention — that runs through the HL7 validator in CI like every
-other emitted bundle (`pnpm emit-bundles out/`).
+`src/verification/exampleBundle.ts` emits both basic bundling and an explicitly
+configured two-source bundle with one selected measurement and one abstention.
+A third fixture exercises contained subjects and transitive contained-device
+references; a fourth checks rebased relative metadata and preserved local offsets.
+All run through the HL7 validator in CI (`pnpm emit-bundles out/`).
+
+## Migration from always-on reconciliation
+
+- Calls with only `sources`, `subjectKey` and `timestamp` now bundle without
+  reconciliation. Supply explicit enablement, catalogue and saved configuration.
+- Catalogue registration order seeds newly generated preferences only; runtime
+  bundle order never changes saved priorities. Runtime never generates preferences.
+- Decisions identify `key` and `window`, replacing legacy `measure` and `day`.
+  Outcomes, attempts and diagnostic codes explain selection, fallback and abstention.
+- Exact windows replace legacy calendar-day grouping. Date-only or incomplete
+  summaries may now yield diagnostics rather than a selection.
+- Source addresses are preserved rather than canonicalized again. Every considered
+  Observation needs a `fullUrl` when producing derived provenance.
+- Legacy `selectSource`, `measureOf`, `effectiveDay`, `occasionKey` and core reliability
+  exports remain temporarily available for compatibility, but `aggregate()` does not
+  use them. Their removal is tracked separately in #279; do not use them as fallback.

@@ -439,8 +439,8 @@ the same bare LOINC code at the same location, which no declaration could separa
 
 **Trade-off.** Every new mapper field needs a declaration, and the audit test fails
 until it has one. That is the point: an undeclared value is a value no consumer can
-identify without reading the mapper. The existing `aggregate()` still uses the old
-table and reliability grades until reconciliation moves onto the catalogue (#264). The declaration-driven runtime
+identify without reading the mapper. Enabled `aggregate()` now uses the catalogue
+and user-owned preferences (D20), not the legacy table or reliability grades. The declaration-driven runtime
 API `resolveReadings` checks values against an explicit key, context, subject reference
 and time window without selecting a source. Time compatibility requires identical
 complete instants or period boundaries (timezone-normalized, retaining fractional
@@ -463,7 +463,15 @@ listed sources in order when preceding sources have no eligible value. These are
 user preferences, not reliability grades or claims of clinical validity.
 
 The application may reorder or remove sources, choose either mode per key, and
-owns editing and persistence. Validation accepts `ReconciliationConfiguration`
+owns editing and the choice of persistence. Generation is storage-free by default.
+An explicit `save: { directory }` option synchronously creates a new JSON snapshot
+and returns `{ configuration, filePath }`, with an absolute path. Its filename
+contains a UTC timestamp and UUID, and exclusive creation never overwrites an
+existing file. The directory is created recursively; invalid paths and I/O errors
+fail explicitly. Snapshots contain only configuration; timestamps do not change
+the schema version or establish which configuration is active. Saving fresh
+defaults does not snapshot user edits or migrate preferences automatically.
+Validation accepts `ReconciliationConfiguration`
 and retains defensive runtime checks for JSON-loaded data. It requires
 every currently shared key, rejects unknown and non-shared keys, and checks that
 each listed source declares that key. Sources need not all be listed, but may not
@@ -499,15 +507,80 @@ An invalid baseline returns no proposal; other blocked updates retain one for
 review and editing. Neither the old inputs nor stored preferences are mutated.
 
 **Scope.** Generation, validation and updates require no credentials, network or
-bundles and write no files. They do not yet change `aggregate()` selection; runtime
-reconciliation remains separate work under #264 and never silently updates
-configuration.
+bundles. Only explicit save-enabled generation writes files; validation and updates
+never persist anything. Enabled runtime reconciliation consumes the supplied
+configuration (D20) and never silently updates it.
 
 **Why.** Consumers must be able to prepare and save preferences before fetching
 data, and distinguish an invalid saved configuration from absent measurements.
 Requiring every shared key makes missing preferences explicit, while allowing
 source subsets lets the user exclude a source rather than having it silently
 restored.
+
+<a id="d20"></a>
+
+## D20 — Basic bundling and explicitly configured reconciliation
+
+**Decision.** `aggregate()` bundles without source selection by default.
+`reconciliation: { enabled: true, catalogue, configuration }` opts into selection.
+Both catalogue and configuration are required; invalid configuration fails explicitly,
+even for empty bundles. Runtime never generates, updates or persists preferences,
+and never falls back to reliability grades or legacy measurement/day mappings.
+The legacy public helpers remain pending their separate removal under #279.
+
+Both paths preserve source resource ids, fullUrls and reference relationships without
+mutating inputs. Identical resources at an address are coalesced, including within
+one connector's selection inventory; conflicting addresses fail explicitly.
+The output is a collection, not an execution of source transaction/search instructions.
+Existing nonempty-source, connector-attribution and single-subject guards remain.
+No patient identity is inferred.
+Subject comparisons resolve relative references against the containing entry's
+RESTful fullUrl. Equal relative ids on different servers or service roots are not
+equal subjects. Both paths reject a relative subject without a RESTful resolution
+base; callers must instead supply a shared absolute or URN identity.
+
+Enabled reconciliation automatically discovers occasions for catalogue-shared keys
+using declaration identity, exact subject reference, context and complete normalized
+time windows. It reuses explicit reading resolution's eligibility and time rules,
+preserving sub-millisecond precision. Matching dates or overlapping periods alone
+are insufficient. Daily/session/sleep summaries require complete periods.
+Missing values can establish an occasion; missing subjects or invalid/incomplete
+effective times cannot and produce positional diagnostics. Completely absent
+data produces no invented occasions. Results distinguish disabled reconciliation,
+no discoverable occasions, and completed decisions. Unique and undeclared values
+are carried without source selection.
+
+Strict inspects only the first saved source. Fallback inspects listed sources in
+saved order, moving past sources with no eligible reading. Multiple eligible
+readings or ambiguous declarations at an inspected source cause abstention, never
+arbitrary choice or fallback past ambiguity. Excluded sources remain excluded.
+Catalogue-shared keys retain their configured policy when only one source returns
+data. Structured outcomes and attempts describe preference, not clinical superiority.
+Diagnostics and errors contain no health payloads.
+
+Successful selection adds one measurement-level Observation, with a component's own
+coding/value/interpretation/reference range when applicable, not a cloned panel.
+Every considered Observation must have a fullUrl for provenance; absent addresses
+fail explicitly rather than generating unresolved references. Derived lineage
+includes distinct original Observations considered, not just the winner. Derived
+identity includes the occasion, source references and selected source; input order
+does not change decisions or derived identity. Original resources remain intact.
+Normalized windows are comparison/reporting/identity keys only: the derived
+effective[x] preserves the winner's original type, local offset, precision and
+period metadata (D7). Copied relative references are rebased to their original
+absolute targets, including in retained contained resources; an unknown resolution
+base is an explicit validation error rather than a guessed link.
+Retained fragment references carry their required contained-resource graph, including
+transitive targets, but not unrelated panel-only resources. A contained target's
+back-reference to its original container is rebased to the original Observation's
+fullUrl, not silently redirected to the derived assertion. Missing or ambiguous
+targets fail explicitly. Fragment subjects are scoped to their containing resource;
+the same fragment label in different Observations cannot establish patient identity.
+
+**Why.** Bundling must not imply a source-selection decision. Configuration describes
+supported capabilities and user intent independently of current data availability.
+Automatic discovery provides batch reconciliation without requiring callers to
+enumerate windows, but cannot safely invent comparability from partial timing.
 
 ## Still open — needs a named clinical reviewer
 

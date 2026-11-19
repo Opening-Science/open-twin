@@ -29,9 +29,10 @@ The map reads left to right, then back along the bottom row.
    units it carries.
 4. **Checks.** Every pull request checks units against UCUM, codes against
    recorded human review, and example bundles against the official HL7 validator.
-5. **Reconcile.** When two sources report the same measure on the same day,
-   `aggregate` chooses one on published validation evidence, or records that it
-   cannot. Every source value is kept.
+5. **Bundle, optionally reconcile.** `aggregate` preserves source resources without
+   selection by default. When explicitly enabled with a catalogue and user-owned
+   preferences, it selects comparable measurements or records why it abstained.
+   Preferences do not establish clinical superiority. Every source value is kept.
 6. **Interpret.** A research module compares lab biomarkers with Anchor-layer
    reference ranges using a rule pack, and reports one state per body system.
 7. **View.** [open-twin-xr](https://github.com/Opening-Science/open-twin-xr), a
