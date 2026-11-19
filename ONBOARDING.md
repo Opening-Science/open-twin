@@ -22,7 +22,7 @@ agents. Read the shared decisions before changing a mapper.
 
 ## Day one
 
-Use Node 22 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
+Use Node 24 (as in CI; `engines` declares >=20) and pnpm 11.17.0.
 Java 21 is needed only for a local HL7 validator run.
 
 ```bash
