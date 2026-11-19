@@ -1,5 +1,5 @@
 import { buildBundle } from '@open-twin/fhir-core';
-import { HealthDataReader } from '../base';
+import { HealthDataReader } from '../healthDataReader';
 import type { HostServices, ReaderDescriptor, ReaderInput, ReaderMetadata, ReadRequest, ReadResult } from '../types';
 import type { Parser } from '../utils/parser';
 
@@ -31,10 +31,15 @@ const Payload: Parser<{ ok: boolean }> = {
 };
 
 /** The smallest real reader: one fetch, one bundle, tokens and a cursor through the host stores. */
-class ProbeReader extends HealthDataReader {
+export class ProbeReader extends HealthDataReader {
   readonly descriptor = PROBE_DESCRIPTOR;
   private config: { url: string } | undefined;
   private cursor: string | undefined;
+
+  async openProbe(host: HostServices = {}): Promise<this> {
+    await this.open({ kind: 'api', sourceId: 'probe', config: { url: PROBE_URL } }, host);
+    return this;
+  }
 
   protected async onOpen(input: ReaderInput): Promise<void> {
     if (input.kind !== 'api') throw this.fail('An api input is required', 'validation', 'open');
@@ -74,14 +79,4 @@ class ProbeReader extends HealthDataReader {
     this.cursor = request.window?.end ?? this.cursor;
     return { bundle, issues, cursor: this.cursor, provenance: this.provenanceFor(bundle) };
   }
-}
-
-export function buildHealthDataReader(): HealthDataReader {
-  return new ProbeReader();
-}
-
-export async function openHealthDataReader(host: HostServices = {}): Promise<HealthDataReader> {
-  const reader = buildHealthDataReader();
-  await reader.open({ kind: 'api', sourceId: 'probe', config: { url: PROBE_URL } }, host);
-  return reader;
 }

@@ -1,6 +1,6 @@
 /**
  * WHAT: The one reader interface every connector implements, and the wrapper interface.
- * NOT:  Does not implement either; HealthDataReader in base.ts is the shared implementation. Writers come with the writer pull request.
+ * NOT:  Does not implement either; HealthDataReader in healthDataReader.ts is the shared implementation. Writers come with the writer pull request.
  * GOVERNED BY: DECISIONS.md#d16; DECISIONS.md#d6
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: isThisType never touches the network and open never fetches health data; the conformance suite asserts both with a throwing fetch.
