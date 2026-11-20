@@ -66,4 +66,16 @@ describe('summarise', () => {
     expect(summary.firstEffective).toBe('2026-03-02T01:00:00+02:00');
     expect(summary.lastEffective).toBe('2026-03-01T23:00:00-05:00');
   });
+
+  it('leaves out an effective time that does not parse, wherever it sits', () => {
+    const entry = [steps('x', 'not-a-date', 1), steps('y', '2026-03-02', 2), steps('z', '2026-03-01', 3)];
+    const summary = summarise({
+      resourceType: 'Bundle',
+      type: 'collection',
+      entry: entry.map((resource) => ({ resource }))
+    });
+
+    expect(summary.firstEffective).toBe('2026-03-01');
+    expect(summary.lastEffective).toBe('2026-03-02');
+  });
 });
