@@ -1,0 +1,12 @@
+{
+  "resourceTypes": {
+    "Observation": 3,
+    "Patient": 1
+  },
+  "observationCodes": {
+    "urn:open-twin:test:fake-steps|daily-steps": 3
+  },
+  "absentValues": 1,
+  "firstEffective": "2026-03-01",
+  "lastEffective": "2026-03-03"
+}

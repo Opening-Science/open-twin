@@ -157,7 +157,7 @@
       }
     },
     {
-      "includes": ["packages/*/src/index.ts"],
+      "includes": ["packages/*/src/index.ts", "packages/*/src/testing/index.ts"],
       "linter": {
         "rules": {
           "performance": {
