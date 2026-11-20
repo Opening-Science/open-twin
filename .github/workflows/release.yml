@@ -49,16 +49,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
-          version: pnpm release:version
-          title: "chore: version public packages"
-          commit: |
+          version-script: pnpm release:version
+          pr-title: "chore: version public packages"
+          commit-message: |
             chore: version public packages
 
             Signed-off-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
             Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
-          commitMode: github-api
-          prDraft: create
-          createGithubReleases: false
+          push-with-git-cli: false
+          pr-draft: create
+          create-github-releases: false
 
   prepare:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/@open-twin/')
