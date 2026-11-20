@@ -24,6 +24,7 @@ export type { OuraMapperContext } from './fhir/mappers/shared';
 export { OURA_MEASUREMENTS } from './fhir/measurements';
 export { TokenHandler } from './utils/tokenUtils';
 export type { ListScope, OuraTypedData } from './utils/typeUtils';
+export { buildOuraBundle };
 
 /**
  * Fetches the requested types and returns them parsed, each tagged with the type

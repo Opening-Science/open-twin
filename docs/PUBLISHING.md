@@ -79,13 +79,13 @@ server. It verifies independent provider releases, compatible core patches,
 breaking-core propagation, private exclusions, manual selection, invalid tags,
 collisions, and missing registry dependencies. Signed-tag retry tests use a
 temporary synthetic GPG key and local bare git remote, never the production key
-or GitHub tag writes. Run these fixtures with Node 22 and GPG installed.
+or GitHub tag writes. Run these fixtures with Node 24 and GPG installed.
 They do not change repository versions.
 
 `check:packages` packs all public packages, verifies metadata, exports, declaration
 targets, README and MIT license text, then stages those tarballs in a temporary
-loopback-only Verdaccio registry. The tooling pins Verdaccio 6 for compatibility
-with CI's Node 22; Verdaccio 7 requires Node 24. The registry does not proxy `@open-twin/*`, so an
+loopback-only Verdaccio registry. The tooling uses Verdaccio 7, which requires
+CI's Node 24. The registry does not proxy `@open-twin/*`, so an
 old public package cannot conceal a missing local dependency. Each clean external
 consumer installs just one package using npm, imports root and schema entry
 points, type-checks with strict NodeNext resolution without `skipLibCheck`, and
@@ -109,6 +109,9 @@ verification. Existing terminology, unit, conformance, and review safeguards rem
 2. Enable Actions permission to create pull requests for the version-PR job.
    The workflow uses the GitHub API commit mode for signed automated commits and creates
    draft PRs. Review and squash them using the normal contribution rules.
+   Changesets Action v2 uses `version-script`, `commit-message`, `pr-title`,
+   `pr-draft`, and `create-github-releases`; the old input names are rejected.
+   Keep `push-with-git-cli: false` to retain API-signed commits.
 3. Actions created with `GITHUB_TOKEN` do not trigger ordinary PR workflows.
    Explicitly run the **Verify** workflow using `workflow_dispatch` on the version
    PR branch before approving and merging it. Do not equate missing checks with

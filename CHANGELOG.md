@@ -14,8 +14,13 @@ under [Releases](Contributing.md#releases).
 
 ### Added
 
+- `@open-twin/interpretation-contract`: `MEASUREMENT_SYSTEMS`, the body system each
+  scan and wearable catalogue key lights, `UNRENDERABLE_MEASUREMENTS` and
+  `systemFor` (decision D21). Every row is pending clinical review.
 - `@open-twin/reader-core`: the reader types and `IHealthDataReader`, with the
   host `TokenStore` and `CursorStore` interfaces from D8 (#232, decision D16).
+- `@open-twin/reader-core`: the `HealthDataReader` base class adapters extend
+  (#251).
 - `@open-twin/fhir-core`: shared measurement definitions (`MEASUREMENT_DEFINITIONS`),
   the connector declaration schema, `validateMeasurementDeclarations` and
   `auditMeasurementDeclarations` (#267, decision D18).
@@ -28,6 +33,8 @@ under [Releases](Contributing.md#releases).
 
 ### Changed
 
+- `@open-twin/fhir-core`: `buildBundle` puts the connector tag on every entry, not
+  only the Bundle, so each resource stays traceable on its own (#238).
 - Public packages can be released and versioned independently with Changesets.
   Shared core remains a regular compatible dependency; packed artifacts are
   checked in clean external npm consumers (#265).

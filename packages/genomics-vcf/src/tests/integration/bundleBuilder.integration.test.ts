@@ -50,7 +50,9 @@ describe('HiSeq NA12878 excerpt (a real single-sample VCF with no reference decl
   it('emits a Patient the subject reference resolves to, carrying nothing about the person', () => {
     const patientEntry = result.bundle.entry?.find((entry) => entry.resource?.resourceType === 'Patient');
     expect(patientEntry).toBeDefined();
-    expect(Object.keys(patientEntry?.resource ?? {})).toEqual(['resourceType', 'id']);
+    const { resourceType, id, meta, ...rest } = patientEntry?.resource ?? {};
+    expect({ resourceType, id: typeof id, rest }).toEqual({ resourceType: 'Patient', id: 'string', rest: {} });
+    expect(meta).toEqual({ tag: [expect.objectContaining({ code: 'genomics-vcf' })] });
     for (const observation of observations(result.bundle)) {
       expect(observation.subject?.reference).toBe(patientEntry?.fullUrl);
     }

@@ -1,6 +1,6 @@
 /**
  * WHAT: The data types every reader shares: descriptor, metadata, host services, request and result.
- * NOT:  Does not define behaviour; the interface is in reader.ts and the helpers in base.ts.
+ * NOT:  Does not define behaviour; the interface is in reader.ts and the helpers in healthDataReader.ts.
  * GOVERNED BY: DECISIONS.md#d16; DECISIONS.md#d8; DECISIONS.md#d1; DECISIONS.md#d2
  * CORRECTNESS: NONE — see docs/findings/no-external-authority.md
  * GOTCHA: ReaderMetadata, Issue and ReadProvenance travel into logs. None may carry a health payload, a token, a name or an e-mail; conformance rule 7 checks serialised issues for that.
