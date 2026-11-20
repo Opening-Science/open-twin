@@ -38,7 +38,6 @@ export {
   updateReconciliationConfiguration,
   validateReconciliationConfiguration
 } from './configuration';
-export { effectiveDay, type Measure, measureOf, occasionKey } from './measure';
 export {
   type ReadingAssessment,
   type ReadingIneligibility,
@@ -50,5 +49,4 @@ export {
   resolveReadings
 } from './readings';
 export type { ReconciliationAttempt } from './reconciliation';
-export { type Candidate, type Selection, selectSource } from './select';
 export { AGGREGATOR } from './sources';

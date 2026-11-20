@@ -49,7 +49,6 @@ Everything a connector must not decide for itself, decided once:
 | `observation.ts`    | `createObservation`, and `numericComponent` which **requires** a unit and falls back to `dataAbsentReason`.      |
 | `bundle.ts`         | `buildBundle`, lowercase `urn:uuid:` fullUrls, connector provenance tag.                                         |
 | `provenance.ts`     | `Device`, `METHOD` vocabulary, `derivedObservation`.                                                             |
-| `reliability.ts`    | Legacy graded evidence exports, unused by aggregate and pending removal in #279.                                 |
 | `referenceRange.ts` | Anchor-layer intervals on the Observation, each carrying its source.                                             |
 | `errors.ts`         | `ConnectorError` — status, operation, code, and **never a response body**.                                       |
 

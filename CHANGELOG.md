@@ -7,6 +7,14 @@ under [Releases](Contributing.md#releases).
 
 ## [Unreleased]
 
+### Removed
+
+- `@open-twin/fhir-core`: the hardcoded reliability table (`reliabilityFor`,
+  `RELIABILITY`, `ReliabilityFinding`, `ReliabilityGrade`), and from
+  `@open-twin/aggregate` the legacy `selectSource`, `measureOf`, `effectiveDay`
+  and `occasionKey` exports. Reconciliation runs only on declared measurements
+  and saved preferences (#279).
+
 ### Fixed
 
 - `@open-twin/provider-oura` re-exports the `OuraRingAppConfig` interface as a

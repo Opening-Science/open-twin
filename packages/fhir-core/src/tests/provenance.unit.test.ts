@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { deterministicId } from '../identity';
 import { createObservation } from '../observation';
 import { connectorDevice, derivedObservation, deviceReference, METHOD } from '../provenance';
-import { reliabilityFor } from '../reliability';
 import { SYSTEMS } from '../systems';
 import { quantity, UCUM } from '../units';
 
@@ -159,38 +158,5 @@ describe('derivedObservation', () => {
     });
     expect(reversed.id).toBe(derived.id);
     expect(reversed.derivedFrom).toEqual(derived.derivedFrom);
-  });
-});
-
-describe('reliabilityFor', () => {
-  it('grades a measure, not a device', () => {
-    // "Oura is good at sleep" is not actionable: sleep/wake detection and four-stage
-    // staging have different answers for the same device.
-    expect(reliabilityFor('oura', 'sleep-wake-detection')[0]?.grade).toBe('good');
-    expect(reliabilityFor('oura', 'sleep-staging').some((f) => f.grade === 'fair')).toBe(true);
-  });
-
-  it('reports that no source is dependable for energy expenditure', () => {
-    // MAPE above 30% on every brand tested. Ranking sources here would present a
-    // confidence nobody has earned.
-    const findings = reliabilityFor('google-health', 'energy-expenditure');
-    expect(findings.some((f) => f.grade === 'poor')).toBe(true);
-    expect(findings[0]?.evidence).toContain('30%');
-  });
-
-  it('puts the source-specific finding before the applies-to-all one', () => {
-    const findings = reliabilityFor('oura', 'sleep-staging');
-    expect(findings[0]?.source).toBe('oura');
-    expect(findings.at(-1)?.source).toBe('*');
-  });
-
-  it('returns nothing when nobody has studied it, which is not the same as poor', () => {
-    expect(reliabilityFor('vitronic', 'cross-section-area')).toEqual([]);
-  });
-
-  it('cites a source for every finding', () => {
-    for (const finding of reliabilityFor('oura', 'sleep-wake-detection')) {
-      expect(finding.citation.length).toBeGreaterThan(10);
-    }
   });
 });
