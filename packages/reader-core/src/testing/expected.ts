@@ -71,7 +71,8 @@ export function summarise(bundle: Bundle): ExpectedSummary {
 
     const effective = effectiveOf(resource);
 
-    if (effective === undefined) continue;
+    // A time that does not parse cannot be ordered, so it is left out of the range.
+    if (effective === undefined || Number.isNaN(Date.parse(effective))) continue;
 
     if (firstEffective === undefined || isBefore(effective, firstEffective)) firstEffective = effective;
 
