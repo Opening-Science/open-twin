@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **93**
+Count: **96**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/catalogue.ts`
@@ -97,7 +97,10 @@ Count: **93**
 - `packages/provider-whoop/src/fhir/measurements.ts`
 - `packages/reader-core/src/index.ts`
 - `packages/reader-core/src/reader.ts`
+- `packages/reader-core/src/testing/expected.ts`
+- `packages/reader-core/src/testing/rules.ts`
 - `packages/reader-core/src/types.ts`
+- `packages/reader-core/src/utils/descriptor.ts`
 - `packages/reader-core/src/utils/errorCause.ts`
 - `packages/reader-core/src/utils/fileInput.ts`
 - `packages/reader-core/src/utils/operationOutcome.ts`
