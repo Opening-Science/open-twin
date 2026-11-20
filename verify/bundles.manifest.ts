@@ -14,7 +14,11 @@ import {
   UCUM
 } from '@open-twin/fhir-core';
 import type { Bundle, FhirResource, Patient } from 'fhir/r4.js';
-import { aggregateBundle } from '../packages/aggregate/src/verification/exampleBundle';
+import {
+  aggregateBundle,
+  aggregateContainedBundle,
+  aggregateRelativeBundle
+} from '../packages/aggregate/src/verification/exampleBundle';
 import { fhirR4IngestBundle } from '../packages/fhir-r4/src/verification/exampleBundle';
 import { genomicsVcfBundle } from '../packages/genomics-vcf/src/verification/exampleBundle';
 import { hl7v2OruBundle } from '../packages/hl7v2/src/verification/exampleBundle';
@@ -206,6 +210,9 @@ export const BUNDLE_CASES: BundleCase[] = [
   { name: 'whoop-sync', build: whoopBundle },
   // Two connectors reconciled: exercises derivedFrom and the open-twin method system.
   { name: 'aggregate-two-sources', build: aggregateBundle },
+  { name: 'aggregate-basic-bundling', build: () => aggregateBundle(false) },
+  { name: 'aggregate-contained-references', build: aggregateContainedBundle },
+  { name: 'aggregate-relative-references', build: aggregateRelativeBundle },
   { name: 'google-health-sync', build: googleHealthBundle },
   { name: 'vitronic-scan', build: buildVitronicExemplarBundle },
   { name: 'fhir-r4-ingest', build: fhirR4IngestBundle },

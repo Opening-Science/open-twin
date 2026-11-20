@@ -18,7 +18,7 @@ const SYSTEM = 'https://example.test/measurements';
 const ASLEEP = { system: SYSTEM, code: 'asleep' };
 const IN_BED = { system: SYSTEM, code: 'in-bed' };
 const PANEL = { system: SYSTEM, code: 'sleep-panel' };
-const SUBJECT = 'Patient/synthetic-person';
+const SUBJECT = 'https://example.test/fhir/Patient/synthetic-person';
 const PERIOD = { start: '2026-06-20T22:00:00Z', end: '2026-06-21T06:00:00Z' };
 const ABSENT = { coding: [{ system: SYSTEMS.DATA_ABSENT_REASON, code: 'unknown' }] };
 const REQUEST: ReadingRequest = {
@@ -84,6 +84,71 @@ function reasons(value: Observation, request = REQUEST): ReadingIneligibility[] 
 }
 
 describe('declaration-driven runtime resolution', () => {
+  it('reports focus and root modifiers as unsupported without exposing their contents', () => {
+    const value = observation({
+      focus: [{ reference: 'https://example.test/Patient/private-target' }],
+      modifierExtension: [{ url: 'https://example.test/private-modifier', valueBoolean: true }]
+    });
+    expect(reasons(value)).toEqual(['unsupported-focus', 'unsupported-modifier-extension']);
+  });
+
+  it('rejects modifiers on the selected component but not unrelated components or ordinary extensions', () => {
+    const component = {
+      code: { coding: [ASLEEP] },
+      valueQuantity: { value: 415, system: SYSTEMS.UCUM, code: 'min' },
+      extension: [{ url: 'https://example.test/ordinary-extension', valueBoolean: true }]
+    };
+    const value = observation({
+      code: { coding: [PANEL] },
+      valueQuantity: undefined,
+      component: [
+        component,
+        {
+          code: { coding: [IN_BED] },
+          valueQuantity: { value: 480, system: SYSTEMS.UCUM, code: 'min' },
+          modifierExtension: [{ url: 'https://example.test/unsupported-qualifier', valueBoolean: true }]
+        }
+      ]
+    });
+    expect(resolve(value).readings[0]?.eligibility).toEqual({ kind: 'eligible' });
+    const modified = structuredClone(value);
+    if (!modified.component?.[0]) throw new Error('test setup');
+    modified.component[0].modifierExtension = [
+      { url: 'https://example.test/unsupported-qualifier', valueBoolean: true }
+    ];
+    expect(reasons(modified)).toEqual(['unsupported-modifier-extension']);
+  });
+
+  it('compares resolved subject identities rather than equal relative ids from different servers', () => {
+    const sources = ['alpha', 'beta'].map((connector) => ({
+      connector,
+      bundle: {
+        resourceType: 'Bundle' as const,
+        type: 'collection' as const,
+        entry: [
+          {
+            fullUrl: `https://${connector}.test/fhir/Observation/reading`,
+            resource: observation({ id: 'reading', subject: { reference: 'Patient/person' } })
+          }
+        ]
+      }
+    }));
+    const result = resolveReadings({
+      catalogue: CATALOGUE,
+      sources,
+      request: { ...REQUEST, subject: 'https://alpha.test/fhir/Patient/person' }
+    });
+    expect(result.readings.map(({ reading, eligibility }) => [reading.connector, eligibility])).toEqual([
+      ['alpha', { kind: 'eligible' }],
+      ['beta', { kind: 'ineligible', reasons: ['subject-mismatch'] }]
+    ]);
+  });
+
+  it('does not treat an unbased relative subject as a known absolute identity', () => {
+    const result = resolve(observation({ subject: { reference: 'Patient/synthetic-person' } }));
+    expect(result.readings[0]?.eligibility).toEqual({ kind: 'ineligible', reasons: ['subject-mismatch'] });
+  });
+
   it('resolves a registered observation-level coding absent from the legacy hardcoded table', () => {
     const value = observation();
     const result = resolve(value);

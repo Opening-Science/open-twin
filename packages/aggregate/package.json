@@ -1,7 +1,7 @@
 {
   "name": "@open-twin/aggregate",
   "version": "0.1.0",
-  "description": "Reconciles overlapping observations from several connectors into one bundle, selecting a source on published validation evidence",
+  "description": "Combines FHIR bundles with optional, user-configured measurement reconciliation and auditable provenance",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

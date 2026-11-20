@@ -446,8 +446,12 @@ mode 0600) are reference implementations for the CLI only. The CLI is documented
 
 **`ReconcilingReader(readers: IHealthDataReader[])`, phase 1.** Opens all inner readers,
 reads the same request from each, and calls
-`aggregate({ sources, subjectKey, timestamp: host.now() })`. It returns the aggregate bundle
-(every source observation kept, reconciliations as added derived Observations) and reports
+`aggregate({ sources, subjectKey, timestamp: host.now(), reconciliation })`, where
+`reconciliation` must explicitly enable selection and supply the registered catalogue
+and user-owned configuration. Omitting it now performs basic bundling only. This
+wrapper design must not restore always-on selection or silently generate preferences.
+It returns the aggregate bundle
+(every source observation kept, successful selections as added derived Observations) and reports
 each `Reconciliation` as an `information` issue, abstentions included with their reason.
 Errors that `aggregate` throws (no sources, more than one subject, a missing connector tag)
 surface as `ConnectorError`. This is the hand-off twin-llm consumes.
@@ -551,7 +555,7 @@ From a clean checkout, with no credentials beyond what the run needs:
 
 ## 8. Guardrails and non-goals
 
-- No storage, scheduling, user authentication, access control or UI in this repository; the
+- No health-data storage, scheduling, user authentication, access control or UI in this repository; the
   CLI's file stores are reference implementations.
 - No change to clinical semantics: measurements are displayed, never interpreted into
   severity (D13); `states[]` logic is untouched. Research and non-medical wellness use only
