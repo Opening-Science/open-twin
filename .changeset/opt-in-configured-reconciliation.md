@@ -15,8 +15,16 @@ reading and record scopes still accept complete instants.
 Reconciliation results now identify a key and window instead of a measure and day.
 
 Retain source resource ids and fullUrls, coalesce identical resources at an address,
-and reject conflicting addresses. Derived measurements support observation and
-component values and reference original source fullUrls. Every source entry
+and reject conflicting content at the same address and meta.versionId. Distinct
+resource versions retain their original fullUrls; derived lineage uses RESTful
+version-specific references. Basic bundling carries versions at opaque addresses,
+but ambiguous considered provenance fails explicitly instead of minting broken links.
+Derived measurements support observation and component values and reference
+original source identities. Focused observations and root or selected-component
+modifier extensions are explicitly ineligible until their semantics can be compared;
+strict abstains, fallback may select an eligible unqualified reading, and originals
+are preserved. These eligibility guards also apply to explicit reading resolution.
+Every source entry
 needs a nonempty fullUrl, including for basic bundling. Missing addresses
 fail validation before transaction entries can become invalid collection entries;
 addressed id-less resources retain their missing ids.

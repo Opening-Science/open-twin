@@ -32,6 +32,8 @@ export interface ReadingRequest {
 
 export type ReadingIneligibility =
   | 'unusable-status'
+  | 'unsupported-focus'
+  | 'unsupported-modifier-extension'
   | 'data-absent'
   | 'missing-value'
   | 'invalid-value'
@@ -293,6 +295,10 @@ function assess(reading: ResolvedReading, request: ReadingRequest, requestedWind
   const { observation, declaration, definition } = reading;
   const element = reading.component ?? observation;
   const reasons: ReadingIneligibility[] = [];
+  if (observation.focus?.length) reasons.push('unsupported-focus');
+  if (observation.modifierExtension?.length || reading.component?.modifierExtension?.length) {
+    reasons.push('unsupported-modifier-extension');
+  }
   if (!['preliminary', 'final', 'amended', 'corrected', 'unknown'].includes(observation.status)) {
     reasons.push('unusable-status');
   }

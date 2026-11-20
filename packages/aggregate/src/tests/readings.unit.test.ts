@@ -84,6 +84,41 @@ function reasons(value: Observation, request = REQUEST): ReadingIneligibility[] 
 }
 
 describe('declaration-driven runtime resolution', () => {
+  it('reports focus and root modifiers as unsupported without exposing their contents', () => {
+    const value = observation({
+      focus: [{ reference: 'https://example.test/Patient/private-target' }],
+      modifierExtension: [{ url: 'https://example.test/private-modifier', valueBoolean: true }]
+    });
+    expect(reasons(value)).toEqual(['unsupported-focus', 'unsupported-modifier-extension']);
+  });
+
+  it('rejects modifiers on the selected component but not unrelated components or ordinary extensions', () => {
+    const component = {
+      code: { coding: [ASLEEP] },
+      valueQuantity: { value: 415, system: SYSTEMS.UCUM, code: 'min' },
+      extension: [{ url: 'https://example.test/ordinary-extension', valueBoolean: true }]
+    };
+    const value = observation({
+      code: { coding: [PANEL] },
+      valueQuantity: undefined,
+      component: [
+        component,
+        {
+          code: { coding: [IN_BED] },
+          valueQuantity: { value: 480, system: SYSTEMS.UCUM, code: 'min' },
+          modifierExtension: [{ url: 'https://example.test/unsupported-qualifier', valueBoolean: true }]
+        }
+      ]
+    });
+    expect(resolve(value).readings[0]?.eligibility).toEqual({ kind: 'eligible' });
+    const modified = structuredClone(value);
+    if (!modified.component?.[0]) throw new Error('test setup');
+    modified.component[0].modifierExtension = [
+      { url: 'https://example.test/unsupported-qualifier', valueBoolean: true }
+    ];
+    expect(reasons(modified)).toEqual(['unsupported-modifier-extension']);
+  });
+
   it('compares resolved subject identities rather than equal relative ids from different servers', () => {
     const sources = ['alpha', 'beta'].map((connector) => ({
       connector,

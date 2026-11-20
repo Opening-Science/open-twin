@@ -529,8 +529,14 @@ and never falls back to reliability grades or legacy measurement/day mappings.
 The legacy public helpers remain pending their separate removal under #279.
 
 Both paths preserve source resource ids, fullUrls and reference relationships without
-mutating inputs. Identical resources at an address are coalesced, including within
-one connector's selection inventory; conflicting addresses fail explicitly.
+mutating inputs. Identical resources at an address and meta.versionId are coalesced,
+including within one connector's selection inventory; conflicting content for that
+same identity fails explicitly. Distinct versions retain their original unversioned
+fullUrls (FHIR R4 bdl-7). Derived lineage uses RESTful version-specific references
+when available. Multiple versions at an opaque address, or a versionless entry
+sharing an address with other versions, cannot establish unambiguous derived
+lineage and fail explicitly if considered in a successful selection; basic bundling
+still carries them.
 The output is a collection, not an execution of source transaction/search instructions.
 Every source entry must have a nonempty fullUrl, as required for collection entry
 identity in FHIR R4. Both paths reject missing addresses, including id-less transaction
@@ -563,6 +569,12 @@ arbitrary choice or fallback past ambiguity. Excluded sources remain excluded.
 Catalogue-shared keys retain their configured policy when only one source returns
 data. Structured outcomes and attempts describe preference, not clinical superiority.
 Diagnostics and errors contain no health payloads.
+Focused readings are ineligible with unsupported-focus because declarations and
+requests cannot compare measurement targets other than the subject. Root or
+selected-component modifier extensions are ineligible with
+unsupported-modifier-extension because their semantics are not understood.
+Both checks also apply to explicit reading assessment. Originals remain intact;
+strict abstains and fallback may continue to an eligible unqualified reading.
 
 Successful selection adds one measurement-level Observation, with a component's own
 coding/value/interpretation/reference range when applicable, not a cloned panel.

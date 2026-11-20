@@ -1,3 +1,5 @@
+// Hand-authored synthetic vendor responses, contributed under the repository's MIT licence.
+// No participant data or third-party response payloads are included.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

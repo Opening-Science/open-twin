@@ -11,7 +11,7 @@ import type { Bundle, BundleEntry, Observation } from 'fhir/r4.js';
 import type { MeasurementCatalogue } from './catalogue';
 import { type ReconciliationConfiguration, validateReconciliationConfiguration } from './configuration';
 import { type Reconciliation, type ReconciliationIssue, reconcile } from './reconciliation';
-import { referenceIdentity } from './references';
+import { referenceIdentity, versionedReference } from './references';
 import { AGGREGATOR, connectorOf, type SourceBundle } from './sources';
 
 export type { Reconciliation, ReconciliationIssue } from './reconciliation';
@@ -69,7 +69,7 @@ export function aggregate(options: AggregateOptions): AggregateResult {
   }
 
   const entries: BundleEntry[] = [];
-  const addresses = new Map<string, BundleEntry>();
+  const addresses = new Map<string, Map<string | undefined, BundleEntry>>();
   const references = new Map<Observation, string>();
   const subjects = new Set<string>();
   const sources: SourceBundle[] = [];
@@ -87,14 +87,17 @@ export function aggregate(options: AggregateOptions): AggregateResult {
       if (!resource) reject('Source bundle entries must contain resources');
       const address = entry.fullUrl;
       if (!address?.trim()) reject('Source bundle entries must contain a nonempty fullUrl for the output collection');
-      let carried = addresses.get(address);
+      const versions = addresses.get(address) ?? new Map<string | undefined, BundleEntry>();
+      const version = resource.meta?.versionId;
+      let carried = versions.get(version);
       if (carried && !isDeepStrictEqual(carried.resource, resource)) {
         reject('Conflicting source resources share a bundle address');
       }
       if (!carried) {
         carried = { fullUrl: address, resource: structuredClone(resource) };
         entries.push(carried);
-        addresses.set(address, carried);
+        versions.set(version, carried);
+        addresses.set(address, versions);
       }
       if (!seen.has(carried)) {
         sourceEntries.push(carried);
@@ -113,7 +116,6 @@ export function aggregate(options: AggregateOptions): AggregateResult {
           }
           subjects.add(identity);
         }
-        references.set(carried.resource as Observation, address);
       }
     }
     sources.push({ connector, bundle: { ...source.bundle, entry: sourceEntries } });
@@ -121,6 +123,15 @@ export function aggregate(options: AggregateOptions): AggregateResult {
   }
   if (subjects.size > 1) {
     reject('Cannot aggregate different subjects: supply the same subject reference to every connector');
+  }
+  for (const [address, versions] of addresses) {
+    for (const [version, entry] of versions) {
+      if (entry.resource?.resourceType !== 'Observation') continue;
+      const reference = versionedReference(address, version);
+      // Unversioned or opaque references cannot distinguish multiple resource versions.
+      if (versions.size > 1 && (version === undefined || reference === undefined)) continue;
+      references.set(entry.resource as Observation, reference ?? address);
+    }
   }
 
   const result =

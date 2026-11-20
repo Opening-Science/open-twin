@@ -44,6 +44,11 @@ references the distinct original Observations considered, including nonselected
 sources, and `method.text` explains the configured preference.
 Component selections copy that component's coding, value, interpretation and
 reference range, not the parent panel's unrelated values.
+Focused observations are ineligible (`unsupported-focus`): declarations and requests
+cannot compare targets other than the patient of record. Root or selected-component
+modifier extensions are also ineligible (`unsupported-modifier-extension`), because
+their semantics are not understood. Originals remain intact; strict abstains and
+fallback may select an eligible, unqualified reading instead.
 Fragment references in retained metadata keep their required contained targets,
 including transitive references. Unrelated panel-only contained resources are not
 copied. Back-references to the source container remain references to the original
@@ -135,8 +140,15 @@ of relying on an inferred server base.
 Both paths preserve original resource ids and entry `fullUrl`s, including foreign
 non-UUID ids and absolute URLs. They retain Patient, Device and existing derived
 resources without rewriting their references or mutating inputs. Identical resources
-at the same address are coalesced; conflicting resources at an address are validation
-errors. Source transaction/search entry instructions are not copied into the output
+at the same address and `meta.versionId` are coalesced; conflicting content for that
+same identity is a validation error. Distinct versions retain their original
+unversioned `fullUrl`s, as permitted by
+[FHIR R4's version uniqueness rules](https://hl7.org/fhir/R4/bundle.html#bundle-unique).
+Derived provenance uses RESTful `/_history/{versionId}` references to distinguish
+versions. If multiple versions share an opaque address, or one lacks a version id,
+basic bundling still preserves them, but derivation fails explicitly when it cannot
+unambiguously reference every considered observation.
+Source transaction/search entry instructions are not copied into the output
 collection.
 
 Every source entry must have a nonempty `fullUrl`, including in basic bundling:
@@ -324,6 +336,9 @@ only diagnostic codes, registered declaration keys and input positions, not heal
 values. Each resolution issue includes `matchedKeys`: the sorted, unique keys of
 all matched declarations, including keys other than the requested one. Unmatched
 elements and unregistered connectors have an empty `matchedKeys` array.
+Focused observations and root or selected-component modifier extensions are
+unsupported here as well as in automatic reconciliation; ordinary extensions and
+modifiers on unrelated components do not by themselves make a reading ineligible.
 
 The same declaration inventory and precise time rules drive automatic discovery in
 enabled `aggregate()`. An instant-only summary produces an `invalid-time` discovery

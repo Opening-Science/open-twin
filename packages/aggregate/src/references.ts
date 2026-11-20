@@ -26,3 +26,9 @@ export function referenceIdentity(reference: string, sourceFullUrl?: string): st
     ? `${sourceFullUrl.slice(0, -tail[0].length)}/${reference}`
     : undefined;
 }
+
+export function versionedReference(fullUrl: string, versionId?: string): string | undefined {
+  if (versionId === undefined) return fullUrl;
+  const tail = RESTFUL_TAIL.exec(fullUrl);
+  return tail ? referenceIdentity(`${tail[0].slice(1)}/_history/${versionId}`, fullUrl) : undefined;
+}

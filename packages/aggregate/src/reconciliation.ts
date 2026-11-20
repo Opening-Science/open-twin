@@ -89,7 +89,12 @@ function selectedValue(reading: ResolvedReading): Partial<Observation> {
   }
 }
 
-function preserveReferences(derived: Observation, source: Observation, sourceReference: string): void {
+function preserveReferences(
+  derived: Observation,
+  source: Observation,
+  sourceReference: string,
+  sourceFullUrl: string | undefined
+): void {
   const required = new Set<string>();
   const visit = (value: unknown): void => {
     if (value === null || typeof value !== 'object') return;
@@ -97,7 +102,7 @@ function preserveReferences(derived: Observation, source: Observation, sourceRef
       if (value.reference === '#') value.reference = sourceReference;
       else if (value.reference.startsWith('#')) required.add(value.reference.slice(1));
       else {
-        const resolved = referenceIdentity(value.reference, sourceReference);
+        const resolved = referenceIdentity(value.reference, sourceFullUrl);
         if (!resolved) {
           throw new ConnectorError('Cannot preserve a relative reference without a RESTful source fullUrl', {
             code: 'validation',
@@ -140,7 +145,7 @@ function derive(
   const referenceOf = (observation: Observation) => {
     const reference = references.get(observation);
     if (!reference) {
-      throw new ConnectorError('Every considered observation requires a resolvable bundle address', {
+      throw new ConnectorError('Every considered observation requires an unambiguous resolvable bundle address', {
         code: 'validation',
         connector: AGGREGATOR.connector,
         operation: 'aggregate'
@@ -186,7 +191,7 @@ function derive(
     method: { coding: [{ system: SYSTEMS.METHOD, code: 'source-selected' }], text: policy },
     derivedFrom: sourceReferences.map((reference) => ({ reference }))
   });
-  preserveReferences(derived, observation, referenceOf(observation));
+  preserveReferences(derived, observation, referenceOf(observation), winner.fullUrl);
   return derived;
 }
 
@@ -209,7 +214,8 @@ export function reconcile(options: {
     const entry = catalogueEntry(options.catalogue, key);
     if (!entry?.shared) return undefined;
     const rawSubject = observation.subject?.reference;
-    const subject = rawSubject ? referenceIdentity(rawSubject, options.references.get(observation)) : undefined;
+    const fullUrl = options.sources[position.sourceIndex]?.bundle.entry?.[position.observationIndex]?.fullUrl;
+    const subject = rawSubject ? referenceIdentity(rawSubject, fullUrl) : undefined;
     const window = observationWindow(observation);
     const scope = entry.definition.context.scope;
     const requiresPeriod = scope !== 'reading' && scope !== 'record';

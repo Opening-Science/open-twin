@@ -180,6 +180,35 @@ describe('basic bundling', () => {
     expect(result.bundle.entry).toHaveLength(1);
   });
 
+  it('preserves distinct versions and version-specific references while coalescing duplicate versions', () => {
+    const first = observation('versioned', { meta: { versionId: '1' } });
+    const second = observation('versioned', {
+      meta: { versionId: '2' },
+      valueQuantity: { value: 415, system: SYSTEMS.UCUM, code: 'min' },
+      derivedFrom: [{ reference: `Observation/${first.id}/_history/1` }]
+    });
+    const input = options([
+      restSource('alpha', 'https://source.test/fhir', [first, second]),
+      restSource('beta', 'https://source.test/fhir', [structuredClone(second)])
+    ]);
+    const before = structuredClone(input);
+    const result = aggregate(input);
+    expect(result.bundle.entry).toEqual(input.sources[0]?.bundle.entry);
+    expect(result.reconciliations).toEqual([]);
+    expect(result.bundle.entry?.map(({ resource }) => resource?.meta?.versionId)).toEqual(['1', '2']);
+    expect(input).toEqual(before);
+    input.sources.reverse();
+    expect(aggregate(input).bundle.entry).toHaveLength(2);
+  });
+
+  it('still rejects conflicting content at the same address and version', () => {
+    const first = observation('version-conflict', { meta: { versionId: '1' } });
+    const second = { ...first, valueQuantity: { value: 415, system: SYSTEMS.UCUM, code: 'min' } };
+    expect(() => aggregate(options([restSource('alpha', 'https://source.test/fhir', [first, second])]))).toThrow(
+      'Conflicting source resources'
+    );
+  });
+
   it('rejects conflicting addresses without revealing payloads', () => {
     const a = observation('same');
     expect(() =>
@@ -681,6 +710,158 @@ describe('automatic discovery', () => {
 });
 
 describe('derived measurements and provenance', () => {
+  it.each(['focus', 'observation-modifier', 'component-modifier'] as const)(
+    'reports unsupported %s without deriving an unqualified measurement',
+    (kind) => {
+      const modifier = {
+        url: 'https://example.test/unsupported-qualifier',
+        valueReference: { reference: '#private-qualifier' }
+      };
+      const original = observation('qualified', {
+        ...(kind === 'focus'
+          ? { focus: [{ reference: 'Patient/private-target' }] }
+          : kind === 'observation-modifier'
+            ? { modifierExtension: [modifier] }
+            : {
+                code: { coding: [PANEL] },
+                valueQuantity: undefined,
+                component: [
+                  {
+                    code: { coding: [ASLEEP] },
+                    valueQuantity: { value: 415, system: SYSTEMS.UCUM, code: 'min' },
+                    modifierExtension: [modifier]
+                  }
+                ]
+              })
+      });
+      const inputs = [source('alpha', [original]), source('beta', [observation('unqualified')])];
+      const before = structuredClone(inputs);
+      const reason = kind === 'focus' ? 'unsupported-focus' : 'unsupported-modifier-extension';
+      const strict = aggregate(enabled(inputs));
+      expect(derived(strict.bundle)).toEqual([]);
+      expect(strict.reconciliations[0]).toMatchObject({
+        outcome: 'abstained',
+        attempts: [{ connector: 'alpha', eligibleCount: 0, ineligibleReasons: [reason] }]
+      });
+      const fallback = aggregate(enabled(inputs, 'fallback'));
+      expect(fallback.reconciliations[0]).toMatchObject({
+        outcome: 'fallback',
+        selected: 'beta',
+        attempts: [
+          { connector: 'alpha', eligibleCount: 0, ineligibleReasons: [reason] },
+          { connector: 'beta', eligibleCount: 1, ineligibleReasons: [] }
+        ]
+      });
+      expect(derived(fallback.bundle)[0]?.valueQuantity?.value).toBe(420);
+      expect(strict.bundle.entry?.[0]?.resource).toEqual(original);
+      expect(fallback.bundle.entry?.[0]?.resource).toEqual(original);
+      expect(JSON.stringify(strict.reconciliations)).not.toContain('private-');
+      expect(inputs).toEqual(before);
+    }
+  );
+
+  it('abstains when matching subject/time readings describe different focused targets', () => {
+    const inputs = ['alpha', 'beta'].map((connector) =>
+      source(connector, [
+        observation(connector, { focus: [{ reference: `https://example.test/Patient/${connector}-target` }] })
+      ])
+    );
+    const result = aggregate(enabled(inputs, 'fallback', ['alpha', 'beta']));
+    expect(derived(result.bundle)).toEqual([]);
+    expect(result.reconciliations[0]).toMatchObject({
+      outcome: 'abstained',
+      attempts: [
+        { connector: 'alpha', ineligibleReasons: ['unsupported-focus'] },
+        { connector: 'beta', ineligibleReasons: ['unsupported-focus'] }
+      ]
+    });
+    expect(result.bundle.entry?.map(({ resource }) => resource)).toEqual(
+      inputs.flatMap(({ bundle }) => bundle.entry?.map(({ resource }) => resource) ?? [])
+    );
+  });
+
+  it('resolves lineage to each considered resource version without using a versioned URL as a service base', () => {
+    const contained: FhirResource[] = [
+      {
+        resourceType: 'Device',
+        id: 'sensor',
+        owner: { reference: 'Organization/owner' },
+        extension: [{ url: 'https://example.test/original', valueReference: { reference: '#' } }]
+      }
+    ];
+    const first = observation('versioned-lineage', {
+      id: 'reading',
+      meta: { versionId: '1' },
+      subject: { reference: 'Patient/person' },
+      valueQuantity: undefined,
+      dataAbsentReason: ABSENT
+    });
+    const second = observation('versioned-lineage', {
+      id: 'reading',
+      meta: { versionId: '2' },
+      subject: { reference: 'Patient/person' },
+      device: { reference: '#sensor' },
+      contained
+    });
+    const input = enabled([restSource('alpha', 'https://source.test/fhir', [first, second])]);
+    const before = structuredClone(input);
+    const result = aggregate(input);
+    const selected = derived(result.bundle)[0];
+    expect(selected?.derivedFrom).toEqual([
+      { reference: 'https://source.test/fhir/Observation/reading/_history/1' },
+      { reference: 'https://source.test/fhir/Observation/reading/_history/2' }
+    ]);
+    for (const { reference } of selected?.derivedFrom ?? []) {
+      const [fullUrl, versionId] = reference?.split('/_history/') ?? [];
+      expect(
+        result.bundle.entry?.filter(
+          (entry) => entry.fullUrl === fullUrl && entry.resource?.meta?.versionId === versionId
+        )
+      ).toHaveLength(1);
+    }
+    expect(selected?.subject).toEqual({ reference: 'https://source.test/fhir/Patient/person' });
+    expect(selected?.contained?.[0]).toMatchObject({
+      owner: { reference: 'https://source.test/fhir/Organization/owner' },
+      extension: [{ valueReference: { reference: 'https://source.test/fhir/Observation/reading/_history/2' } }]
+    });
+    expect(result.bundle.entry?.slice(0, 2)).toEqual(input.sources[0]?.bundle.entry);
+    expect(input).toEqual(before);
+    input.sources[0]?.bundle.entry?.reverse();
+    expect(derived(aggregate(input).bundle)).toEqual(derived(result.bundle));
+  });
+
+  it('abstains rather than selecting arbitrarily between eligible versions from one source', () => {
+    const versions = ['1', '2'].map((versionId) => observation('ambiguous-versions', { meta: { versionId } }));
+    const result = aggregate(
+      enabled(
+        [restSource('alpha', 'https://source.test/fhir', versions), source('beta', [observation('fallback')])],
+        'fallback'
+      )
+    );
+    expect(result.bundle.entry).toHaveLength(3);
+    expect(result.reconciliations[0]).toMatchObject({
+      outcome: 'abstained',
+      reason: 'ambiguous-readings',
+      attempts: [{ connector: 'alpha', eligibleCount: 2 }]
+    });
+    expect(derived(result.bundle)).toEqual([]);
+  });
+
+  it.each(['opaque', 'unversioned'] as const)(
+    'preserves %s version entries in basic bundling but rejects ambiguous derived lineage',
+    (kind) => {
+      const versions = [
+        observation('unaddressable-version', { meta: kind === 'unversioned' ? undefined : { versionId: '1' } }),
+        observation('unaddressable-version', { meta: { versionId: '2' } })
+      ];
+      const versionSource =
+        kind === 'opaque' ? source('beta', versions) : restSource('beta', 'https://source.test/fhir', versions);
+      const inputs = [source('alpha', [observation('winner')]), versionSource];
+      expect(aggregate(options(inputs)).bundle.entry).toHaveLength(3);
+      expect(() => aggregate(enabled(inputs))).toThrow('unambiguous resolvable bundle address');
+    }
+  );
+
   it.each(['period', 'date-time', 'instant'] as const)(
     'preserves the selected %s and local offset while matching normalized windows',
     (kind) => {
