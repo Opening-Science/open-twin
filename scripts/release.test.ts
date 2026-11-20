@@ -208,6 +208,28 @@ test('the manual workflow dropdown includes all and only public packages', () =>
   assert.deepEqual(choices.sort(), [...PUBLIC_NAMES].sort());
 });
 
+test('version PRs use Changesets v2 inputs and preserve signed commits and draft behavior', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/release.yml'), 'utf8');
+  const action = workflow.match(/uses: changesets\/action@[^\n]+\n {8}with:\n((?: {10}[^\n]*\n|\n)+)/);
+  assert(action, 'Expected a Changesets action step with inputs');
+  const inputs = action[1];
+  assert.deepEqual([...inputs.matchAll(/^ {10}([a-zA-Z-]+):/gm)].map((match) => match[1]).sort(), [
+    'commit-message',
+    'create-github-releases',
+    'pr-draft',
+    'pr-title',
+    'push-with-git-cli',
+    'version-script'
+  ]);
+  assert.match(inputs, /^ {10}version-script: pnpm release:version$/m);
+  assert.match(inputs, /^ {10}pr-title: "chore: version public packages"$/m);
+  assert.match(inputs, /^ {10}commit-message: \|\n {12}chore: version public packages$/m);
+  assert.match(inputs, /^ {12}Signed-off-by: github-actions\[bot\] </m);
+  assert.match(inputs, /^ {10}push-with-git-cli: false$/m);
+  assert.match(inputs, /^ {10}pr-draft: create$/m);
+  assert.match(inputs, /^ {10}create-github-releases: false$/m);
+});
+
 test('publication uses repository signing secrets and npm OIDC without a GitHub Environment', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/release.yml'), 'utf8');
   assert.doesNotMatch(workflow, /^\s*environment:/m);
