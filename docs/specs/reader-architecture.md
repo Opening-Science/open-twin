@@ -66,7 +66,7 @@ make it inspectable. Tests are data-driven: each sample carries a config with ex
 | Bio-Formats                                                                       | open-twin equivalent                                                                                        | Where                                                           |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | `IFormatReader` (`isThisType`, `setId`, `openBytes`, `getMetadataStore`, `close`) | `IHealthDataReader` (`isThisType`, `open`, `describe`, `read`, `close`)                                     | `packages/reader-core/src/reader.ts`                            |
-| `FormatReader` base class                                                         | `HealthDataReader`: subject (D1), ids (D2), bundle building, error hygiene, token and cursor stores         | `packages/reader-core/src/base.ts`                              |
+| `FormatReader` base class                                                         | `HealthDataReader`: subject (D1), ids (D2), bundle building, error hygiene, token and cursor stores         | `packages/reader-core/src/healthDataReader.ts`                  |
 | `readers.txt`                                                                     | `registry/connectors.json` (ordered, schema-validated) and its loader                                       | `registry/`, `reader-core/src/registry.ts`                      |
 | `ImageReader` (delegator)                                                         | `OpenTwinReader`: files by content sniffing, APIs by `sourceId`                                             | `reader-core/src/delegate.ts`                                   |
 | OME-XML metadata model                                                            | `fhir-core` builders and the FHIR R4 target model, checked by the HL7 validator, UCUM and terminology gates | existing                                                        |
@@ -265,7 +265,7 @@ export interface WriteResult {
 }
 ```
 
-`HealthDataReader` (`base.ts`) implements the default API `isThisType`, stores `input` and
+`HealthDataReader` (`healthDataReader.ts`) implements the default API `isThisType`, stores `input` and
 `host` in `open`, and provides shared helpers built on `fhir-core`: `subjectFor`
 (`subjectReference`, `minimalPatient`), `bundleFrom` (`buildBundle`, `connectorMeta`),
 `fetchJson` (injected fetch, zod-parsed, `fromHttpStatus` on failure, never logs bodies),
@@ -306,7 +306,7 @@ package imports:
 ### 5.A `@open-twin/reader-core` (new package)
 
 Files: `package.json`, `tsconfig.json`, `vitest.config.ts`, `README.md`, and under `src/`:
-`index.ts`, `types.ts`, `reader.ts`, `base.ts`, `registry.ts`, `delegate.ts`, `writer.ts`,
+`index.ts`, `types.ts`, `reader.ts`, `healthDataReader.ts`, `registry.ts`, `delegate.ts`, `writer.ts`,
 `wrappers/wrapper.ts`, `testing/conformance.ts`, `testing/expected.ts`.
 Dependencies: `@open-twin/fhir-core`, `@open-twin/fhir-r4` (validation in the conformance
 suite), `@types/fhir`, `zod`. Built with tsup, ESM only, exports map as in

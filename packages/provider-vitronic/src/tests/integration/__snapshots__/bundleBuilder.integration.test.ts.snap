@@ -13,6 +13,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "proband/7",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Patient",
       },
     },
@@ -144,6 +153,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/angle/arm.shoulder.R",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -285,6 +303,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/angle/arm.shoulder.L",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -412,6 +439,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/axis/leg.lateral.malleolus",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -533,6 +569,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/axis/leg.trochanterion",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -686,6 +731,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/cross_section/torso.cingulum_praefere_posterior.M",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -830,6 +884,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/distance/torso.shoulder.M",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -974,6 +1037,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/distance/leg.hip.M",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -1046,6 +1118,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/height/stature.vertex.M",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -1218,6 +1299,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/marker/stick_model.arm.shoulder.R",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -1267,6 +1357,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/properties/scan.software_version",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -1317,6 +1416,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/properties/body.mass_index",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -1378,6 +1486,15 @@ exports[`getFhirBundleFromBodyloopMeasurementData (integration) > maps a bodyloo
             "value": "scan/scan-1/properties/body.weight_source",
           },
         ],
+        "meta": {
+          "tag": [
+            {
+              "code": "vitronic",
+              "system": "http://opentwin.ch/fhir/CodeSystem/connector",
+              "version": "0.1.0",
+            },
+          ],
+        },
         "resourceType": "Observation",
         "status": "final",
         "subject": {
