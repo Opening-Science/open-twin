@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/fhir-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared FHIR R4 building blocks, terminology systems and unit policy for the open-twin connectors",
   "type": "module",
   "main": "./dist/index.js",
