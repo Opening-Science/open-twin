@@ -109,6 +109,9 @@ verification. Existing terminology, unit, conformance, and review safeguards rem
 2. Enable Actions permission to create pull requests for the version-PR job.
    The workflow uses the GitHub API commit mode for signed automated commits and creates
    draft PRs. Review and squash them using the normal contribution rules.
+   Changesets Action v2 uses `version-script`, `commit-message`, `pr-title`,
+   `pr-draft`, and `create-github-releases`; the old input names are rejected.
+   Keep `push-with-git-cli: false` to retain API-signed commits.
 3. Actions created with `GITHUB_TOKEN` do not trigger ordinary PR workflows.
    Explicitly run the **Verify** workflow using `workflow_dispatch` on the version
    PR branch before approving and merging it. Do not equate missing checks with
