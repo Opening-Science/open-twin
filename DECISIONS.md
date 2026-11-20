@@ -532,6 +532,10 @@ Both paths preserve source resource ids, fullUrls and reference relationships wi
 mutating inputs. Identical resources at an address are coalesced, including within
 one connector's selection inventory; conflicting addresses fail explicitly.
 The output is a collection, not an execution of source transaction/search instructions.
+Every source entry must have a nonempty fullUrl, as required for collection entry
+identity in FHIR R4. Both paths reject missing addresses, including id-less transaction
+POSTs, rather than inventing identities from resource ids. An addressed id-less
+resource retains its missing id.
 Existing nonempty-source, connector-attribution and single-subject guards remain.
 No patient identity is inferred.
 Subject comparisons resolve relative references against the containing entry's
@@ -544,6 +548,8 @@ using declaration identity, exact subject reference, context and complete normal
 time windows. It reuses explicit reading resolution's eligibility and time rules,
 preserving sub-millisecond precision. Matching dates or overlapping periods alone
 are insufficient. Daily/session/sleep summaries require complete periods.
+An instant-only summary produces an invalid-time discovery diagnostic and no occasion;
+complete instants remain valid for reading and record scopes.
 Missing values can establish an occasion; missing subjects or invalid/incomplete
 effective times cannot and produce positional diagnostics. Completely absent
 data produces no invented occasions. Results distinguish disabled reconciliation,

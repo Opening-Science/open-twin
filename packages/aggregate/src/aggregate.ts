@@ -76,7 +76,7 @@ export function aggregate(options: AggregateOptions): AggregateResult {
   const entryIndices: number[][] = [];
   const seenByConnector = new Map<string, Set<BundleEntry>>();
 
-  for (const [sourceIndex, source] of options.sources.entries()) {
+  for (const source of options.sources) {
     const connector = connectorOf(source);
     const sourceEntries: BundleEntry[] = [];
     const indices: number[] = [];
@@ -85,15 +85,16 @@ export function aggregate(options: AggregateOptions): AggregateResult {
     for (const [index, entry] of (source.bundle.entry ?? []).entries()) {
       const resource = entry.resource;
       if (!resource) reject('Source bundle entries must contain resources');
-      const address = entry.fullUrl ?? (resource.id ? `${resource.resourceType}/${resource.id}` : undefined);
-      let carried = address ? addresses.get(address) : undefined;
+      const address = entry.fullUrl;
+      if (!address?.trim()) reject('Source bundle entries must contain a nonempty fullUrl for the output collection');
+      let carried = addresses.get(address);
       if (carried && !isDeepStrictEqual(carried.resource, resource)) {
         reject('Conflicting source resources share a bundle address');
       }
       if (!carried) {
-        carried = { ...(entry.fullUrl ? { fullUrl: entry.fullUrl } : {}), resource: structuredClone(resource) };
+        carried = { fullUrl: address, resource: structuredClone(resource) };
         entries.push(carried);
-        if (address) addresses.set(address, carried);
+        addresses.set(address, carried);
       }
       if (!seen.has(carried)) {
         sourceEntries.push(carried);
@@ -105,16 +106,14 @@ export function aggregate(options: AggregateOptions): AggregateResult {
         const subject = observation.subject?.reference;
         if (subject?.trim()) {
           const identity = subject.startsWith('#')
-            ? JSON.stringify([subject, address ?? [sourceIndex, index]])
-            : referenceIdentity(subject, entry.fullUrl);
+            ? JSON.stringify([subject, address])
+            : referenceIdentity(subject, address);
           if (!identity) {
             reject('Cannot establish subject identity: relative references require a RESTful entry fullUrl');
           }
           subjects.add(identity);
         }
-        if (entry.fullUrl) {
-          references.set(carried.resource as Observation, entry.fullUrl);
-        }
+        references.set(carried.resource as Observation, address);
       }
     }
     sources.push({ connector, bundle: { ...source.bundle, entry: sourceEntries } });

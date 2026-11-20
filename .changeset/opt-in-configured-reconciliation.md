@@ -10,12 +10,16 @@ reliability grades and legacy measurement/day mappings are never implicit fallba
 Automatically discover declared shared measurements at exact matching instants or
 complete period boundaries. Return structured selections, fallbacks, abstentions,
 and discovery diagnostics. Missing or partial times cannot establish an occasion.
+Instant-only summaries produce invalid-time diagnostics without creating occasions;
+reading and record scopes still accept complete instants.
 Reconciliation results now identify a key and window instead of a measure and day.
 
 Retain source resource ids and fullUrls, coalesce identical resources at an address,
 and reject conflicting addresses. Derived measurements support observation and
-component values and reference original source fullUrls. Every considered source
-Observation needs a fullUrl before derived provenance can be created.
+component values and reference original source fullUrls. Every source entry
+needs a nonempty fullUrl, including for basic bundling. Missing addresses
+fail validation before transaction entries can become invalid collection entries;
+addressed id-less resources retain their missing ids.
 The existing one-subject and connector-attribution requirements remain.
 
 Preserve the contained targets required by derived metadata, including transitive

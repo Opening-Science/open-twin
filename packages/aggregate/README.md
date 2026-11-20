@@ -139,10 +139,13 @@ at the same address are coalesced; conflicting resources at an address are valid
 errors. Source transaction/search entry instructions are not copied into the output
 collection.
 
-Every Observation considered for a successful derived result must have a `fullUrl`.
-Connector bundles built with `buildBundle` already satisfy this. An unaddressable
-source causes an explicit error rather than unresolved provenance. Basic bundling
-does not require a measurement to be addressable or declared.
+Every source entry must have a nonempty `fullUrl`, including in basic bundling:
+[FHIR R4 requires an entry identity in a collection](https://hl7.org/fhir/R4/bundle.html#bundle-unique).
+Connector bundles built with `buildBundle` already satisfy this. Entries without
+an address, including id-less transaction POSTs, cause a payload-free validation
+error before conversion; resource ids are not used to invent addresses. An id-less
+resource with a valid `fullUrl` is preserved without assigning it an id.
+Basic bundling does not require a measurement to be declared.
 
 ## The measurement catalogue
 
@@ -323,7 +326,9 @@ all matched declarations, including keys other than the requested one. Unmatched
 elements and unregistered connectors have an empty `matchedKeys` array.
 
 The same declaration inventory and precise time rules drive automatic discovery in
-enabled `aggregate()`. The explicit `resolveReadings` API remains available for
+enabled `aggregate()`. An instant-only summary produces an `invalid-time` discovery
+issue and no occasion, rather than a completed abstention. Individual reading and
+record scopes still accept complete instants. The explicit `resolveReadings` API remains available for
 assessing a caller-supplied request without selecting a source.
 Its subject is compared with each reading's resolved identity, not an unqualified
 relative string. A fragment's comparison identity is its containing `fullUrl` plus

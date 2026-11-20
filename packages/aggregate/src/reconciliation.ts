@@ -211,9 +211,12 @@ export function reconcile(options: {
     const rawSubject = observation.subject?.reference;
     const subject = rawSubject ? referenceIdentity(rawSubject, options.references.get(observation)) : undefined;
     const window = observationWindow(observation);
+    const scope = entry.definition.context.scope;
+    const requiresPeriod = scope !== 'reading' && scope !== 'record';
+    const validWindow = window !== undefined && (!requiresPeriod || window.kind === 'period');
     const addIssue = (code: ReconciliationIssue['code']) => issues.push({ code, matchedKeys: [key], ...position });
     if (!rawSubject?.trim()) addIssue('missing-subject');
-    if (!window) {
+    if (!validWindow) {
       addIssue(
         [
           observation.effectiveDateTime,
@@ -225,7 +228,7 @@ export function reconcile(options: {
           : 'missing-time'
       );
     }
-    if (!subject?.trim() || !window) return undefined;
+    if (!subject?.trim() || !window || !validWindow) return undefined;
     const id = occasionKey(key, subject, entry.definition.context, window);
     let occasion = occasions.get(id);
     if (!occasion) {

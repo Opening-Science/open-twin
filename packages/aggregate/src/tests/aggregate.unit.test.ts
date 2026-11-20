@@ -194,8 +194,57 @@ describe('basic bundling', () => {
   });
 
   it('does not change id-less source resources', () => {
-    const result = aggregate(options([source('alpha', [observation('a', { id: undefined })])]));
+    const resource = observation('a', { id: undefined });
+    const fullUrl = `urn:uuid:${uuidv5('idless-entry')}`;
+    const input = options([
+      {
+        connector: 'alpha',
+        bundle: {
+          resourceType: 'Bundle',
+          type: 'transaction',
+          entry: [{ fullUrl, resource, request: { method: 'POST', url: 'Observation' } }]
+        }
+      }
+    ]);
+    const before = structuredClone(input);
+    const result = aggregate(input);
+    expect(result.bundle.type).toBe('collection');
+    expect(result.bundle.entry).toEqual([{ fullUrl, resource }]);
     expect(result.bundle.entry?.[0]?.resource?.id).toBeUndefined();
+    expect(input).toEqual(before);
+  });
+
+  it.each([false, true])('rejects missing or blank fullUrls before conversion: enabled=%s', (reconciliation) => {
+    for (const id of [undefined, uuidv5('unaddressable')]) {
+      for (const fullUrl of [undefined, '', '   ']) {
+        const sources: SourceBundle[] = [
+          {
+            connector: 'alpha',
+            bundle: {
+              resourceType: 'Bundle',
+              type: 'transaction',
+              entry: [
+                {
+                  fullUrl,
+                  resource: observation('unaddressable', { id, valueString: 'private-marker' }),
+                  request: { method: 'POST', url: 'Observation' }
+                }
+              ]
+            }
+          }
+        ];
+        const input = reconciliation ? enabled(sources) : options(sources);
+        const before = structuredClone(input);
+        expect(() => aggregate(input)).toThrow(/nonempty fullUrl/);
+        try {
+          aggregate(input);
+        } catch (error) {
+          expect(error).toBeInstanceOf(ConnectorError);
+          expect(String(error)).not.toContain('private-marker');
+        }
+        expect(input).toEqual(before);
+      }
+    }
   });
 
   it('keeps the existing empty-source, attribution, and one-subject guards', () => {
@@ -299,11 +348,10 @@ describe('reference context and patient identity', () => {
     }
   );
   it.each([
-    undefined,
     'https://localhost/person',
     'https://example.test/opaque?path=/Observation/reading',
     'https://example.test/opaque#Observation/reading'
-  ])('does not infer a RESTful base from an absent address, hostname, query or fragment: %s', (fullUrl) => {
+  ])('does not infer a RESTful base from a hostname, query or fragment: %s', (fullUrl) => {
     const input: SourceBundle = {
       connector: 'alpha',
       bundle: {
@@ -528,7 +576,7 @@ describe('automatic discovery', () => {
     expect(result.reconciliations.filter(({ outcome }) => outcome === 'abstained')).toHaveLength(2);
   });
 
-  it('accepts equivalent effectiveInstant/effectiveDateTime readings but not summaries at an instant', () => {
+  it('accepts equivalent effectiveInstant/effectiveDateTime readings', () => {
     const instant = (id: string, time: Partial<Observation>) =>
       observation(id, {
         code: { coding: [SATURATION] },
@@ -544,14 +592,32 @@ describe('automatic discovery', () => {
     );
     expect(result.reconciliations).toHaveLength(1);
     expect(result.reconciliations[0]?.selected).toBe('alpha');
-    const summary = aggregate(
-      enabled([
-        source('alpha', [observation('summary', { effectivePeriod: undefined, effectiveDateTime: PERIOD.end })])
-      ])
-    );
-    expect(summary.reconciliations[0]?.attempts[0]?.ineligibleReasons).toContain('context-mismatch');
-    expect(derived(summary.bundle)).toEqual([]);
   });
+
+  it.each(['effectiveDateTime', 'effectiveInstant'] as const)(
+    'reports an instant-only summary as invalid timing without creating an occasion: %s',
+    (field) => {
+      const input = enabled([
+        source('alpha', [observation('summary', { effectivePeriod: undefined, [field]: PERIOD.end })])
+      ]);
+      const before = structuredClone(input);
+      const result = aggregate(input);
+      expect(result.reconciliationStatus).toBe('no-occasions');
+      expect(result.reconciliations).toEqual([]);
+      expect(derived(result.bundle)).toEqual([]);
+      expect(result.issues).toEqual([
+        {
+          code: 'invalid-time',
+          matchedKeys: ['total-sleep-time'],
+          sourceIndex: 0,
+          observationIndex: 0,
+          location: 'observation'
+        }
+      ]);
+      expect(result.bundle.entry).toEqual(input.sources[0]?.bundle.entry);
+      expect(input).toEqual(before);
+    }
+  );
 
   it.each([
     { effectivePeriod: undefined },
@@ -906,14 +972,14 @@ describe('derived measurements and provenance', () => {
       entry.fullUrl = undefined;
       if (entry.resource) entry.resource.id = undefined;
     }
-    expect(() => aggregate(input)).toThrow(/resolvable bundle address/);
+    expect(() => aggregate(input)).toThrow(/nonempty fullUrl/);
   });
 
   it('requires an actual fullUrl for provenance rather than guessing relative reference resolution', () => {
     const input = enabled();
     const entry = input.sources[1]?.bundle.entry?.[0];
     if (entry) entry.fullUrl = undefined;
-    expect(() => aggregate(input)).toThrow(/resolvable bundle address/);
+    expect(() => aggregate(input)).toThrow(/nonempty fullUrl/);
   });
 
   it('changes derived identity when a different source is selected and remains reproducible', () => {
