@@ -483,7 +483,7 @@ package and typed by `scripts/generate-interpretation-contract.ts` as today; a
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["system_id", "measure", "value", "unit", "effective", "source", "reliability"],
+    "required": ["system_id", "measure", "value", "unit", "effective", "source"],
     "properties": {
       "system_id":   { "$ref": "#/$defs/SystemId" },
       "measure":     { "type": "object", "required": ["system", "code", "display"] },
@@ -491,7 +491,6 @@ package and typed by `scripts/generate-interpretation-contract.ts` as today; a
       "unit":        { "type": "string", "description": "UCUM code from the source Observation (D4)" },
       "effective":   { "type": "string", "format": "date-time", "description": "offset preserved (D7)" },
       "source":      { "type": "object", "required": ["connector", "version", "observation_id"] },
-      "reliability": { "type": "string", "enum": ["good", "fair", "poor", "unknown"], "description": "fhir-core reliabilityFor(source, measure)" },
       "trend":       { "type": "object", "properties": { "window_days": { "type": "integer" }, "delta": { "type": "number" }, "n": { "type": "integer" } } },
       "display_hint":{ "type": "string", "enum": ["latest", "daily", "series"] }
     }

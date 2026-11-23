@@ -31,7 +31,6 @@ It is versioned independently; see [publishing](../../docs/PUBLISHING.md).
 | `observation.ts`            | `createObservation`, and `numericComponent` — which **requires** a unit and falls back to `dataAbsentReason`.                              |
 | `bundle.ts`                 | `buildBundle`: lowercase `urn:uuid:` fullUrls, connector provenance tag, `collection` or `transaction` form.                               |
 | `provenance.ts`             | `Device`, the `METHOD` vocabulary, `derivedObservation` for values computed from other Observations.                                       |
-| `reliability.ts`            | Graded validation evidence per **(source, measure)** pair, with citations. Read by `@open-twin/aggregate`.                                 |
 | `measurementDefinitions.ts` | Shared measurement keys (`MEASUREMENT_DEFINITIONS`): meaning, value type, canonical unit and context. No source preference (D18).          |
 | `measurements.ts`           | The declaration schema connectors export, `validateMeasurementDeclarations` and `auditMeasurementDeclarations` (D18).                      |
 | `referenceRange.ts`         | Anchor-layer intervals on the Observation, each carrying its source.                                                                       |

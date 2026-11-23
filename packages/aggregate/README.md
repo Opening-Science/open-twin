@@ -522,6 +522,9 @@ All run through the HL7 validator in CI (`pnpm emit-bundles out/`).
   summaries may now yield diagnostics rather than a selection.
 - Source addresses are preserved rather than canonicalized again. Every considered
   Observation needs a `fullUrl` when producing derived provenance.
-- Legacy `selectSource`, `measureOf`, `effectiveDay`, `occasionKey` and core reliability
-  exports remain temporarily available for compatibility, but `aggregate()` does not
-  use them. Their removal is tracked separately in #279; do not use them as fallback.
+- The legacy `selectSource`, `measureOf`, `effectiveDay`, `occasionKey`, `Measure`,
+  `Candidate` and `Selection` exports are removed, as are `reliabilityFor`,
+  `RELIABILITY`, `ReliabilityFinding` and `ReliabilityGrade` from
+  `@open-twin/fhir-core` (#279). Use connector measurement declarations with
+  `createMeasurementCatalogue` and a saved configuration in place of `measureOf`
+  and `selectSource`, and `resolveReadings` for explicit reading requests.

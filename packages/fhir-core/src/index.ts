@@ -13,6 +13,5 @@ export * from './measurements';
 export * from './observation';
 export * from './provenance';
 export * from './referenceRange';
-export * from './reliability';
 export * from './systems';
 export * from './units';
