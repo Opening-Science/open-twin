@@ -8,7 +8,7 @@ because no UCUM grammar check, HL7 validator target, signed terminology
 review, recorded API oracle, or golden fixture currently backs them.
 This is an inventory, not a licence to invent authority.
 
-Count: **97**
+Count: **99**
 
 - `packages/aggregate/src/aggregate.ts`
 - `packages/aggregate/src/catalogue.ts`
@@ -34,6 +34,8 @@ Count: **97**
 - `packages/hl7v2/src/index.ts`
 - `packages/hl7v2/src/issues.ts`
 - `packages/interpretation-contract/src/measurementSystems.ts`
+- `packages/interpreter/scripts/marker-list.ts`
+- `packages/interpreter/src/markerList.ts`
 - `packages/provider-google-health/src/api/client.ts`
 - `packages/provider-google-health/src/api/record_types.ts`
 - `packages/provider-google-health/src/config/config.ts`
@@ -92,8 +94,8 @@ Count: **97**
 - `packages/provider-vitronic/src/config/constants.ts`
 - `packages/provider-vitronic/src/fhir/measurements.ts`
 - `packages/provider-vitronic/src/index.ts`
-- `packages/reader-core/src/healthDataReader.ts`
 - `packages/provider-whoop/src/fhir/measurements.ts`
+- `packages/reader-core/src/healthDataReader.ts`
 - `packages/reader-core/src/index.ts`
 - `packages/reader-core/src/reader.ts`
 - `packages/reader-core/src/testing/conformance.ts`

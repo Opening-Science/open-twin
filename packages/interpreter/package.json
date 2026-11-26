@@ -24,7 +24,8 @@
     "test": "vitest run",
     "lint": "biome ci src",
     "clean": "rm -rf dist",
-    "regen-golden": "tsx scripts/regen-golden.ts"
+    "regen-golden": "tsx scripts/regen-golden.ts",
+    "marker-list": "tsx scripts/marker-list.ts"
   },
   "dependencies": {
     "@open-twin/interpretation-contract": "workspace:*",
