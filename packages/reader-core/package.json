@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/reader-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "One reader interface over every open-twin connector: types, base class and the conformance harness",
   "type": "module",
   "main": "./dist/index.js",

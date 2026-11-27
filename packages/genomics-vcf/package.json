@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/genomics-vcf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "VCF 4.x simple-variant to FHIR R4 mapper, following the HL7 Genomics Reporting Implementation Guide",
   "type": "module",
   "main": "./dist/index.js",
