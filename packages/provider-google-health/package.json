@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/provider-google-health",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Google Health API to FHIR mapper",
   "type": "module",
   "main": "./dist/index.js",

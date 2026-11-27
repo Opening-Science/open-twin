@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/fhir-r4",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Generic FHIR R4 ingest: structural validation, conformance checks, UCUM unit policy and normalisation of foreign bundles into open-twin conventions",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@open-twin/hl7v2",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "HL7 v2.x pipe-delimited message to FHIR R4 converter (ORU^R01, ADT^A01/A04/A08)",
   "type": "module",
   "main": "./dist/index.js",
